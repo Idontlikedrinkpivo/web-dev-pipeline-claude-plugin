@@ -1,0 +1,11 @@
+server {
+    listen 8081 default_server;
+    server_name _;
+
+    # Health check endpoint
+    location = /_healthz {
+        access_log off;
+        return 200 'OK';
+        add_header Content-Type text/plain;
+    }
+}

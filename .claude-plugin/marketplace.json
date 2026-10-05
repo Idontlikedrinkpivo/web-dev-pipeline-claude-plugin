@@ -1,0 +1,16 @@
+{
+  "name": "dev-pipeline-marketplace",
+  "owner": {
+    "name": "Ilikedrinkpivo"
+  },
+  "plugins": [
+    {
+      "name": "dev-pipeline",
+      "source": "./claude/claude-code-skills",
+      "description": "Пайплайн разработки от идеи до CI: скиллы и агенты-исполнители."
+    }
+  ],
+  "metadata": {
+    "description": "Скиллы и агенты пайплайна разработки для Claude Code."
+  }
+}

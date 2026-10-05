@@ -1,0 +1,41 @@
+{
+  "name": "dev-pipeline",
+  "version": "1.2.39",
+  "description": "Пайплайн разработки от идеи до CI: требования, контракт, дизайн, архитектура, план, исполнение с ревью, контейнеры и CI — скиллы и агенты-исполнители с закреплёнными моделями.",
+  "author": {
+    "name": "Ilikedrinkpivo"
+  },
+  "skills": "./",
+  "agents": [
+    "./_agents/code-explorer.md",
+    "./_agents/design-hard.md",
+    "./_agents/design-lite.md",
+    "./_agents/design-medium.md",
+    "./_agents/doc-review-hard.md",
+    "./_agents/doc-review-low.md",
+    "./_agents/doc-review-medium.md",
+    "./_agents/doc-typist.md",
+    "./_agents/docs-consistency-checker.md",
+    "./_agents/figma-opus.md",
+    "./_agents/figma-sonnet.md",
+    "./_agents/impl-critical.md",
+    "./_agents/impl-hard.md",
+    "./_agents/impl-lite.md",
+    "./_agents/impl-medium.md",
+    "./_agents/impl-ui.md",
+    "./_agents/mechanical-worker.md",
+    "./_agents/plan-hard.md",
+    "./_agents/plan-lite.md",
+    "./_agents/plan-medium.md",
+    "./_agents/plan-review-hard.md",
+    "./_agents/plan-review-medium.md",
+    "./_agents/review-full-plan.md",
+    "./_agents/review-hard.md",
+    "./_agents/review-medium.md",
+    "./_agents/screen-writer.md",
+    "./_agents/srs-author.md",
+    "./_agents/ui-test-runner.md",
+    "./_agents/ui-test-writer.md"
+  ],
+  "license": "MIT"
+}
