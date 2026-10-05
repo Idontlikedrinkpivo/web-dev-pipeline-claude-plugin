@@ -134,7 +134,9 @@ unit with its executor, status and review path, and — when the final review
 finds problems — a section that lists every fix as its own task before the
 first fix starts. Shape, statuses and when it is committed:
 `references/progress-file.md`. It is a view of git, never a source of truth:
-the `Plan-Unit:` trailers decide what is done.
+the `Plan-Unit:` trailers decide what is done. Update it with the Edit tool the
+moment a status changes (dispatched, in review, committed), never from the
+shell: the user's file pane redraws only on edit-tool changes.
 
 ### Step 2. Resolve the routing table
 
