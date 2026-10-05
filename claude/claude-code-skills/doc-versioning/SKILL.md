@@ -197,6 +197,7 @@ commit (`references/changelog.md`).
 | Screen spec | `documentation/ui/screen-specs/S-<n>-<screen-slug>.md`, one per screen | element numbers · `operationId` cites | UI test cases, plan |
 | UI test cases | `documentation/ui/test-cases.md` | `TC-` ids — **unversioned**, `sources:` pins the SRS and the screen specs | `ui-test-cases` mode run; the E2E suite |
 | Project map | `documentation/project-map/project-map.md` | none — index, **unversioned** | nobody; `repo-scaffold` writes it |
+| Deploy document | `documentation/deploy/deploy.md` | none — **unversioned**; derived from `docker-compose.prod.yml` and `.env.example`, kept true by `deploy-topology`'s sync test | the operators, as `release/<version>/DEPLOY.md` |
 | Implementation plan | `documentation/plans/<version>/plan.md`, one folder per service version | U-ids, per plan | the `work` skill |
 | Plan review | `plan-review.md` in the version folder | none — a check result, **unversioned**; first line `Verdict:` | `plan`, `work` and `pipeline` read it |
 | Plan progress | `progress.md` in the version folder | none — a view of git, **unversioned** | nobody; `work` writes it with each unit commit |

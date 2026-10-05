@@ -3,8 +3,9 @@ name: deploy-topology
 description: >-
   Wraps a working app in docker-compose test, dev and prod files, an image
   per container (backend; SPA on unprivileged nginx), fail-fast config,
-  compose-contract tests, and a script that builds the images for
-  linux/amd64 and saves them into one tar for hand-over. Use after `work`
+  compose-contract tests, a deploy document for the operators, and a script
+  that builds the images for linux/amd64 into one tar and puts it with that
+  document in a release folder for hand-over. Use after `work`
   when the user asks to containerize, write a Dockerfile or compose, set
   up environments, build images, or says «докер», «окружения», «собери
   образ». Not for CI, registries, Kubernetes or deploying.
@@ -32,8 +33,8 @@ start when an environment's required config is missing or contradictory.
 - Choosing the stack, the framework, or the database — architecture already
   decided that
 - Kubernetes manifests, secrets-manager wiring, pushing to a registry,
-  deploying anywhere — images leave as a tar file (Step 8); what happens
-  to it next is the operator's flow
+  deploying anywhere — images leave as a tar file with `DEPLOY.md` beside
+  it (Step 8); what happens to them next is the operator's flow
 - The CI workflow that runs these checks on every push/PR — `ci-pipeline`,
   once this skill's test topology and compose-contract tests exist
 - Writing business logic, entities, or new endpoints
@@ -237,8 +238,13 @@ project's own test suite, not just as prose here:
 - With a client: `web`'s healthcheck reaches `:8081/_healthz`, its
   environment sets `BACKEND_SERVICE`, `BACKEND_PROTOCOL` and
   `SECURE_MODE`, and no `<<…>>` placeholder is left in `nginx/`.
-- `scripts/build-images.sh` passes `--platform linux/amd64` and saves to
-  `dist/images/<project>-<APP_VERSION>.tar`.
+- `scripts/build-images.sh` passes `--platform linux/amd64`, saves to
+  `release/<APP_VERSION>/<project>-<APP_VERSION>.tar` and copies
+  `documentation/deploy/deploy.md` beside it as `DEPLOY.md`.
+- `documentation/deploy/deploy.md` agrees with `docker-compose.prod.yml`
+  and `.env.example`: containers, every variable per container with its
+  required and secret marks, ports, health checks, volumes — "The sync test"
+  in `references/deploy-doc.md`.
 - `.dockerignore` exists and matches `.env.*.local` (a build context
   that can see `.env.prod.local` fails the test).
 - `app` in every compose file has a `healthcheck` whose command reaches the
@@ -257,32 +263,56 @@ default) fails CI instead of shipping. Infra regressions are exactly the
 class of bug nobody notices locally and everybody notices in prod, so
 "it's just infra" is not a reason to skip them.
 
-### Step 8. Images for hand-over
+### Step 8. The release for hand-over
 
-Write `scripts/build-images.sh` and a `build-images` target per
-`references/images.md` → Hand-over: one tag `<version>-<YYYYMMDD-HHMM>`
-for every image, `docker buildx build --platform linux/amd64 --load` per
-image, and one `docker save` of all of them into
-`dist/images/<project>-<APP_VERSION>.tar` (e.g. `room-booking-1.4.0.tar`).
-Run it once and report the tar path, size and image tags; if Docker or buildx is not available here, say so
-instead of claiming the build. Add the «Сборка образов» section to the
-README.
+The operators get one folder per release and nothing else: the image
+archive and `DEPLOY.md`. They do not get `docker-compose.prod.yml` — they
+run the images their own way, so they need the facts it holds, written
+down.
+
+1. **Write `documentation/deploy/deploy.md`** per `references/deploy-doc.md`:
+   containers with image and command, start order (migrations first, once),
+   ports and health checks, variables per container (required, secret,
+   format), external dependencies, volumes (or «томов нет»), the first start
+   (the first admin or seed data — ask when the architecture and SRS do not
+   say), and how to update to a new version. Facts come from the prod
+   compose file, the Dockerfiles and `.env.example`; Step 7's sync test holds
+   them together.
+2. **Write `scripts/build-images.sh`** and a `build-images` target per
+   `references/images.md` → Hand-over: one tag `<version>-<YYYYMMDD-HHMM>`
+   for every image, `docker buildx build --platform linux/amd64 --load` per
+   image, one `docker save` of all of them into
+   `release/<version>/<project>-<version>.tar` (e.g.
+   `release/1.4.0/room-booking-1.4.0.tar`), and a copy of
+   `documentation/deploy/deploy.md` as `release/<version>/DEPLOY.md`.
+   `release/` is in `.gitignore` and `.dockerignore`.
+3. **Run it once** and report the folder, the tar size and the image tags;
+   if Docker or buildx is not available here, say so instead of claiming the
+   build. Add the «Сборка образов» section to the README.
+
+`release/`, not `dist/`: `dist/` is the compiler's output folder, which
+`clean` scripts and bundlers empty before a build — a hand-over archive kept
+there can disappear with it. A folder per version keeps the previous release
+beside the new one for a rollback; a rebuild of the same version replaces
+its folder's contents.
 
 ## Guardrails
 
-- **A DEPLOY runbook nobody wrote for a one-time risky step.** If a
-  cutover (new external DB, new external storage, a secret rotation) has an
+- **A one-time risky step left out of `deploy.md`.** If a cutover (new
+  external DB, new external storage, a secret rotation) has an
   order-sensitive sequence where doing it wrong is destructive or leaks
-  data, write that sequence down as its own runbook rather than trusting it
-  to be improvised correctly once, live.
+  data, write that sequence into `deploy.md` as its own section rather than
+  trusting it to be improvised correctly once, live.
 
 ## Before you finish
 
 - Three compose files, each readable on its own — "The three environments".
 - One Dockerfile per container, matching `references/images.md`, plus
   `.dockerignore` — Step 2.
-- `scripts/build-images.sh` ran and the tar holds every image with the
-  `<version>-<date>` tag — Step 8.
+- `documentation/deploy/deploy.md` covers every section of
+  `references/deploy-doc.md` — Step 8.
+- `scripts/build-images.sh` ran: `release/<version>/` holds the tar with
+  every image under the `<version>-<date>` tag and `DEPLOY.md` — Step 8.
 - Mock gate enforced in application config — Steps 3 and 5.
 - Prod file has no local stateful service; `up-test` runs the suite with
   zero outbound network calls — Step 4.
@@ -293,6 +323,8 @@ README.
 
 - `references/images.md` — the reference images (backend, SPA on nginx),
   tag format and the tar hand-over (Steps 2 and 8).
+- `references/deploy-doc.md` — what `deploy.md` holds, where each fact comes
+  from, and its sync test (Steps 7 and 8).
 - `assets/nginx/` — the SPA image's nginx config and templates, copied as
   they are with the `<<…>>` values filled (Step 2).
 - `references/compose-shape.md` — the concrete file-by-file compose
