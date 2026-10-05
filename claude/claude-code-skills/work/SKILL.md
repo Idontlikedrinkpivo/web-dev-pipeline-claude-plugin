@@ -138,6 +138,18 @@ the `Plan-Unit:` trailers decide what is done. Update it with the Edit tool the
 moment a status changes (dispatched, in review, committed), never from the
 shell: the user's file pane redraws only on edit-tool changes.
 
+**Show the link before the first dispatch.** Once the file is created (or
+rebuilt on a resumed run), and before any unit is dispatched, post it in the
+chat as a clickable Markdown link with its repo-relative path, so the user
+opens it with one click and watches the run live:
+
+```text
+Прогресс выполнения: [progress.md](documentation/plans/1.1.0/progress.md) — откройте, он обновляется по ходу работы.
+План: 0 из 6
+```
+
+A resumed or compacted session posts the link again before its next dispatch.
+
 ### Step 2. Resolve the routing table
 
 Read `executor-catalog` and build a small in-run table: for each distinct

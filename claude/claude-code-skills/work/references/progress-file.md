@@ -31,7 +31,8 @@ executor cell. The Ревью cell shows the unit review's path
 (`FIX_THEN_COMMIT (<что>) → исправлено`, `review-hard ×2: COMMIT`).
 
 Create it before the first dispatch, with every in-scope unit `⏳ ждёт`; on a
-resumed run, rebuild it from the unit map and git. Commit it only together
+resumed run, rebuild it from the unit map and git. Then post its link in the
+chat before the first dispatch (`work` → Keep the progress file). Commit it only together
 with a unit (Step 5.5), or alone at a stop, at the start of a fix round, or at
 the close (Step 7) — never alone between units, so the file in git always
 matches the commits beside it. A pre-existing progress file from another run
