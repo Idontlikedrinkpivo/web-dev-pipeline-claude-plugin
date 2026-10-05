@@ -144,14 +144,20 @@ Images are handed over as one file, never pushed to a registry. Write
 1. reads the version from the manifest and takes the date once;
 2. builds each image with
    `docker buildx build --platform linux/amd64 --load -t <project>-<backend|frontend>:<tag> -f <Dockerfile> <context>`;
-3. saves both into one archive:
-   `docker save <project>-frontend:<tag> <project>-backend:<tag> -o dist/images/<project>-images.tar`;
+3. saves both into one archive named after the project and the service
+   version:
+   `docker save <project>-frontend:<tag> <project>-backend:<tag> -o dist/images/<project>-<APP_VERSION>.tar`
+   (e.g. `dist/images/room-booking-1.4.0.tar`);
 4. prints the tar path, its size, and both image names with tags.
+
+The file name carries the version so archives of different releases sit side
+by side and an older one is still there for a rollback; a rebuild of the same
+version replaces its archive (the build date is in the image tags inside).
 
 `--platform linux/amd64` is explicit: a build on Apple silicon otherwise
 produces `arm64` images that do not start on the target servers.
 `dist/images/` is in `.gitignore` and `.dockerignore`.
 
-The receiver runs `docker load -i <project>-images.tar`; both images
+The receiver runs `docker load -i <project>-<APP_VERSION>.tar`; both images
 appear with their tags. Put that line, the tag format and the variable
 table above in the README's «Сборка образов» section.

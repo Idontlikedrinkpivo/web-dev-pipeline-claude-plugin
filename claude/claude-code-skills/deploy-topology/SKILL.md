@@ -238,7 +238,7 @@ project's own test suite, not just as prose here:
   environment sets `BACKEND_SERVICE`, `BACKEND_PROTOCOL` and
   `SECURE_MODE`, and no `<<…>>` placeholder is left in `nginx/`.
 - `scripts/build-images.sh` passes `--platform linux/amd64` and saves to
-  `dist/images/<project>-images.tar`.
+  `dist/images/<project>-<APP_VERSION>.tar`.
 - `.dockerignore` exists and matches `.env.*.local` (a build context
   that can see `.env.prod.local` fails the test).
 - `app` in every compose file has a `healthcheck` whose command reaches the
@@ -263,8 +263,8 @@ Write `scripts/build-images.sh` and a `build-images` target per
 `references/images.md` → Hand-over: one tag `<version>-<YYYYMMDD-HHMM>`
 for every image, `docker buildx build --platform linux/amd64 --load` per
 image, and one `docker save` of all of them into
-`dist/images/<project>-images.tar`. Run it once and report the tar path,
-size and image tags; if Docker or buildx is not available here, say so
+`dist/images/<project>-<APP_VERSION>.tar` (e.g. `room-booking-1.4.0.tar`).
+Run it once and report the tar path, size and image tags; if Docker or buildx is not available here, say so
 instead of claiming the build. Add the «Сборка образов» section to the
 README.
 
