@@ -17,8 +17,11 @@ run the prod shape locally; the sync test keeps the two from drifting.
   config layer, and the sync test — not a version number — is what keeps it
   true. No `version`, no changelog, no `sources:`.
 - Hand-over copy: `scripts/build-images.sh` copies it to
-  `release/<version>/DEPLOY.md` beside the archive, so the folder carries the
-  instructions as they were for that build.
+  `release/<version>/DEPLOY.md` beside the archive, replacing the
+  placeholders `<версия>` and `<тег>` with this build's version and image tag,
+  so the folder carries the instructions as they were for that build. The
+  source keeps the placeholders — a version written into it by hand goes
+  stale with the next release.
 
 ## What it holds
 
@@ -28,12 +31,12 @@ rather than disappearing — an operator reading a missing section cannot tell
 "none" from "forgotten".
 
 ```markdown
-# Развёртывание room-booking 1.4.0
+# Развёртывание room-booking <версия>
 
-Комплект: `room-booking-1.4.0.tar` (образы `room-booking-backend:1.4.0-20261004-0936`,
-`room-booking-frontend:1.4.0-20261004-0936`) и этот файл.
+Комплект: `room-booking-<версия>.tar` (образы `room-booking-backend:<тег>`,
+`room-booking-frontend:<тег>`) и этот файл.
 
-Загрузка образов: `docker load -i room-booking-1.4.0.tar`
+Загрузка образов: `docker load -i room-booking-<версия>.tar`
 
 ## Контейнеры
 

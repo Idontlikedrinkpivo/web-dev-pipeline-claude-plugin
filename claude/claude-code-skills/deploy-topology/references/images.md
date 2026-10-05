@@ -148,7 +148,8 @@ Images are handed over as one file, never pushed to a registry. Write
    version, in that version's release folder:
    `docker save <project>-frontend:<tag> <project>-backend:<tag> -o release/<APP_VERSION>/<project>-<APP_VERSION>.tar`
    (e.g. `release/1.4.0/room-booking-1.4.0.tar`);
-4. copies `documentation/deploy/deploy.md` to `release/<APP_VERSION>/DEPLOY.md`;
+4. copies `documentation/deploy/deploy.md` to `release/<APP_VERSION>/DEPLOY.md`,
+   replacing `<версия>` with the version and `<тег>` with the image tag;
 5. prints the folder, the tar size, and both image names with tags.
 
 The file name carries the version so the releases sit side by side and an
