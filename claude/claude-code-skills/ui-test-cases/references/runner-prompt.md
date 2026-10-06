@@ -39,9 +39,14 @@ RULES
   run every case once (each case × mode its own row) — ✅ прошёл /
   ❌ не прошёл (seen vs expected) / ⛔ заблокирован; no test fixes, no
   triage. Exception: several cases in a row failing for one cause in shared
-  test code (sign-in, data setup, navigation) — pause, fix the helper, put
-  those cases back to ⏳ ждёт, write the «Пауза: …» line above the table,
-  go on. Pass 2, when pass 1 is at 100%: add the «Проход 2 — разбор
+  test code (sign-in, data setup, navigation) — pause, fix the helper,
+  re-run those cases, go on.
+- Every re-run (a shared-break pause, a pass-2 round after test fixes)
+  opens its own block the moment it starts: a heading saying what is
+  re-run and why, its own bar over just those cases, «Перезапущено: N из M
+  · успешно … · не успешно …»; marked «завершён» at the end. Re-run cases
+  keep their pass row until the new result is in; a pass bar never goes
+  back. A bar that stands still while you re-run reads as a hang. Pass 2, when pass 1 is at 100%: add the «Проход 2 — разбор
   упавших» section with its own bar over the failed cases and triage each:
   test defect (fix, re-run, max two attempts), app defect, mockup
   mismatch, spec gap. App defects are not re-run.

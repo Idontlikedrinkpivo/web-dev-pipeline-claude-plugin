@@ -140,10 +140,9 @@ sees how far the full picture is:
    own unit of the bar.
 2. **The one exception — a shared break.** When several cases in a row fail
    for one cause in shared test code (sign-in under a role, data setup,
-   opening a section), the pass pauses: the shared helper is fixed, the
-   cases it failed go back to `⏳ ждёт`, a line «Пауза: <что починено>,
-   <N> кейсов возвращены в очередь» goes above the table, and the pass goes
-   on. Hundreds of identical failures say nothing about the app.
+   opening a section), the pass pauses: the shared helper is fixed and the
+   cases it failed are re-run, then the pass goes on. Hundreds of identical
+   failures say nothing about the app.
 3. **Pass 2 — triage of the failed.** A second section of the same report,
    with its own bar over the pass-1 `❌ не прошёл` cases. Each is triaged:
    **test defect** — the test is fixed and the case re-run, at most two
@@ -154,6 +153,16 @@ sees how far the full picture is:
    (`❓ пробел в ТЗ`). App defects are not re-run: a fix plan fixes them.
 
 The verdict is set only after pass 2.
+
+**Every re-run gets its own bar.** A pass's bar does not move while cases
+are being re-run, and a bar that stands still for twenty minutes reads as a
+hang. So any re-run — the cases of a shared-break pause, or a round of
+re-runs in pass 2 after tests were fixed — opens its own block in the
+report the moment it starts: a heading that says what is re-run and why,
+its own bar over just those cases, and «Перезапущено: N из M · успешно …
+· не успешно …». The block stays after it ends, marked «завершён». The
+re-run cases keep their row in the pass table until their new result is
+in; the pass's bar never goes back.
 
 **The report is live.** Before the dispatch, create the report (path below)
 with every case of the run `⏳ ждёт`, the pass-1 bar at 0% and `Verdict:
@@ -207,7 +216,15 @@ block, every case weighing the same):
 
 Проверено: 24 из 24 · успешно 18 · не успешно 5 · заблокировано 1
 
-Пауза: починен общий помощник входа под ролью, 6 кейсов возвращены в очередь
+### Перезапуск после починки общего помощника — завершён
+
+Причина: помощник входа под ролью не дожидался перехода в кабинет
+
+```text
+████████████████████████████████████████████████████████████████████████████████████████████████████ 100%
+```
+
+Перезапущено: 6 из 6 · успешно 6 · не успешно 0
 
 | TC | Кейс | Статус | Файл теста / комментарий |
 |---|---|---|---|
@@ -222,6 +239,14 @@ block, every case weighing the same):
 ```
 
 Разобрано: 2 из 5 · тест исправлен 1 · дефект приложения 1
+
+### Перезапуск исправленных тестов — круг 1
+
+```text
+██████████████████████████████████████████████████░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░ 50%
+```
+
+Перезапущено: 1 из 2 · успешно 1 · не успешно 0
 
 | TC | Кейс | Итог прохода 1 | Разбор | Статус |
 |---|---|---|---|---|
