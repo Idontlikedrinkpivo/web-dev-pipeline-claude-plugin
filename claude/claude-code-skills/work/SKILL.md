@@ -395,7 +395,9 @@ closing, `RETURN_TO_UNIT` re-opens the named unit through its own executor,
 
 Anything but `PASS`: before the first fix, add «Исправления по финальному
 ревью» to the progress file — every finding a row with who fixes it and
-`⏳ ждёт` (`references/progress-file.md` → Fixes after the final review). Each fix then lands like a unit, updating its rows. After
+`⏳ ждёт` (`references/progress-file.md` → Fixes after the final review),
+and post the link again before the first fix, pointing at the section:
+`Исправления по финальному ревью: [progress.md](documentation/plans/<version>/progress.md) — раздел внизу файла, обновляется по ходу работы.` Each fix then lands like a unit, updating its rows. After
 the last fix, run `code-review-full` once more over the fix commits; a second
 blocking verdict is a stop for the user.
 

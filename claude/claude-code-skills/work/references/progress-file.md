@@ -91,7 +91,8 @@ shape, over its blocking findings (`✅ исправлено` of the rows that b
 
 When `code-review-full` returns anything but `PASS`, the fixes are planned in
 the file **before the first fix is dispatched**, so the user can follow them
-the same way as the units. Add this section under the units table, set the
+the same way as the units, and its link goes to the chat again before the
+first fix (`work` → Step 7). Add this section under the units table, set the
 `Финальное ревью:` line to the verdict:
 
 ````markdown

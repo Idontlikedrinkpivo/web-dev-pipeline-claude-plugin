@@ -131,7 +131,10 @@ backend.
 below) with every case of the run `⏳ ждёт`, the progress bar at 0% and
 `Verdict: идёт прогон` under the table, and post its link in the chat as a
 clickable Markdown link with its repo-relative path — the user opens it once
-and watches the cases turn over. The runner then changes it with the Edit
+and watches the cases turn over. A run resumed after a break or a context
+compaction keeps the report: every case without a final status goes back to
+`⏳ ждёт`, the link is posted again, and only then the runner goes on with
+the cases still waiting. The runner changes the report with the Edit
 tool the moment a case changes status — never from the shell (`python`,
 `sed`, `cat >`): the user's file pane redraws only on edit-tool changes.
 
