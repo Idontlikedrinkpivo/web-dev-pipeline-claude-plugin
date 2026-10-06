@@ -127,14 +127,43 @@ preconditions become the mocked data, each error case the mocked status. The
 report says the screens were checked against the contract, not a live
 backend.
 
-**The report is live.** Before the dispatch, create the report (path
-below) with every case of the run `⏳ ждёт`, the progress bar at 0% and
-`Verdict: идёт прогон` under the table, and post its link in the chat as a
-clickable Markdown link with its repo-relative path — the user opens it once
-and watches the cases turn over. A run resumed after a break or a context
-compaction keeps the report: every case without a final status goes back to
-`⏳ ждёт`, the link is posted again, and only then the runner goes on with
-the cases still waiting. The runner changes the report with the Edit
+**Two passes.** The run is two passes with a bar each, so the user always
+sees how far the full picture is:
+
+1. **Pass 1 — the whole set, once.** Every case is written and run once and
+   gets a pass-1 result: `✅ прошёл`, `❌ не прошёл` (with what was seen
+   against what was expected), or `⛔ заблокирован: <причина>`. No test is
+   fixed and nothing is triaged in this pass — the point is the whole set at
+   100% first, so repeated causes show up as repeats instead of being fixed
+   one case at a time. When the cases run in several modes (two sign-in
+   modes, two roles of one case), each case × mode is its own row and its
+   own unit of the bar.
+2. **The one exception — a shared break.** When several cases in a row fail
+   for one cause in shared test code (sign-in under a role, data setup,
+   opening a section), the pass pauses: the shared helper is fixed, the
+   cases it failed go back to `⏳ ждёт`, a line «Пауза: <что починено>,
+   <N> кейсов возвращены в очередь» goes above the table, and the pass goes
+   on. Hundreds of identical failures say nothing about the app.
+3. **Pass 2 — triage of the failed.** A second section of the same report,
+   with its own bar over the pass-1 `❌ не прошёл` cases. Each is triaged:
+   **test defect** — the test is fixed and the case re-run, at most two
+   attempts (`✅ тест исправлен, прошёл` or `🔧 тест не удалось исправить`);
+   **app defect** — the app contradicts the spec (`❌ дефект приложения`);
+   **mockup mismatch** — works, but the screen differs from the frame
+   (`🖼 расхождение с макетом`); **spec gap** — the spec never said
+   (`❓ пробел в ТЗ`). App defects are not re-run: a fix plan fixes them.
+
+The verdict is set only after pass 2.
+
+**The report is live.** Before the dispatch, create the report (path below)
+with every case of the run `⏳ ждёт`, the pass-1 bar at 0% and `Verdict:
+идёт прогон` under the table, and post its link in the chat as a clickable
+Markdown link with its repo-relative path — the user opens it once and
+watches the cases turn over. Pass 2's section is added under pass 1 when
+pass 1 reaches 100%, and the link is posted again. A run resumed after a
+break or a context compaction keeps the report: every case without a result
+in the current pass goes back to `⏳ ждёт`, the link is posted again, and
+only then the runner goes on. The runner changes the report with the Edit
 tool the moment a case changes status — never from the shell (`python`,
 `sed`, `cat >`): the user's file pane redraws only on edit-tool changes.
 
@@ -147,62 +176,76 @@ tool the moment a case changes status — never from the shell (`python`,
    names, following `playwright-cli` → test generation;
 2. adds or keeps the `test:e2e` script, so `ci-pipeline` can run the
    suite;
-3. runs the cases one at a time (`npx playwright test --grep "TC-7\b"`),
-   so each result reaches the report as it happens; for each case takes a
-   screenshot of the screen under test and compares it with the frame
-   (`get_screenshot` of the cited `nodeId`) for layout, texts, and states —
-   not pixel equality; without Figma access the comparison is skipped and
-   the report says so;
-4. triages each failure: **app defect** (the app contradicts the spec),
-   **test defect** (fixed in the test, then re-run), or **spec gap** (the
-   spec never said). It never edits application code.
+3. pass 1: runs the cases one at a time (`npx playwright test --grep
+   "TC-7\b"`), so each result reaches the report as it happens; for each
+   case takes a screenshot of the screen under test and compares it with the
+   frame (`get_screenshot` of the cited `nodeId`) for layout, texts, and
+   states — not pixel equality; a mismatch is a `❌ не прошёл` with what
+   differs; without Figma access the comparison is skipped and the report
+   says so;
+4. pass 2: triages each failed case as above. It never edits application
+   code.
 
 **Report:** `documentation/plans/<version>/test-run.md`, in the version
 folder of the current iteration — the open `plans/<v>/` folder, the one
 without `summary.md`. No open version folder → say so and ask per
 `pipeline` → "Asking before a transition" which version this run belongs
 to; do not invent one. Overwritten each run (several UI products: one
-section per product). It reads top-down: the title, the progress bar and
-the count right under it, the cases table, and under the table the
-`Verdict:` line — `идёт прогон` while the run is on, `PASS | DEFECTS |
-BLOCKED` at its end — with the commit and the update time. The bar follows
-`work` → `references/progress-file.md` → The progress bar (a hundred cells
-in a code block, every case weighing the same), counting a case done once
-it has a final status; only here the count line also says how many of the
-done cases passed and how many did not:
+section per product). Each pass reads top-down — its title, the bar and the
+count right under it, its table; under the last table the `Verdict:` line —
+`идёт прогон` while the run is on, `PASS | DEFECTS | BLOCKED` after pass 2 —
+with the commit and the update time. The bars follow `work` →
+`references/progress-file.md` → The progress bar (a hundred cells in a code
+block, every case weighing the same):
 
 ````markdown
 # Прогресс прогона по кейсам — итерация <version>
 
 ```text
-█████████████████████████████████████░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░ 37%
+████████████████████████████████████████████████████████████████████████████████████████████████████ 100%
 ```
 
-Проверено: 9 из 24 · успешно 7 · не успешно 2
+Проверено: 24 из 24 · успешно 18 · не успешно 5 · заблокировано 1
+
+Пауза: починен общий помощник входа под ролью, 6 кейсов возвращены в очередь
 
 | TC | Кейс | Статус | Файл теста / комментарий |
 |---|---|---|---|
 | TC-1 | Список комнат на сегодня | ✅ прошёл | rooms.spec.ts |
-| TC-7 | Отмена начавшейся брони | ❌ дефект | bookings.spec.ts · «Ошибка 409» вместо «Бронь уже началась, отменить нельзя» · e2e/artifacts/TC-7.png |
-| TC-8 | Отмена за час до начала | 🔧 тест исправлен, перезапуск | bookings.spec.ts · локатор кнопки по роли |
-| TC-9 | Отмена чужой брони | ▶️ выполняется | bookings.spec.ts |
-| TC-10 | Пустой список броней | ✍️ пишется тест | |
-| TC-11 | Закрытая комната не видна | ⏳ ждёт | |
+| TC-7 | Отмена начавшейся брони | ❌ не прошёл | bookings.spec.ts · «Ошибка 409» вместо «Бронь уже началась, отменить нельзя» · e2e/artifacts/TC-7.png |
+| TC-12 | Вход через SMS | ⛔ заблокирован: нет тестовой заглушки SMS | |
+
+## Проход 2 — разбор упавших
+
+```text
+████████████████████████████████████████░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░ 40%
+```
+
+Разобрано: 2 из 5 · тест исправлен 1 · дефект приложения 1
+
+| TC | Кейс | Итог прохода 1 | Разбор | Статус |
+|---|---|---|---|---|
+| TC-7 | Отмена начавшейся брони | ❌ не прошёл | приложение отвечает 409 без текста из ТЗ | ❌ дефект приложения |
+| TC-8 | Отмена за час до начала | ❌ не прошёл | локатор кнопки по тексту, а не по роли | ✅ тест исправлен, прошёл |
+| TC-9 | Отмена чужой брони | ❌ не прошёл | — | ▶️ разбирается |
+| TC-15 | … | ❌ не прошёл | | ⏳ ждёт |
 
 Verdict: идёт прогон · коммит 1a2b3c4 · обновлено 2026-10-06 14:32
 ````
 
-The comment cell holds the spec file, and for anything but `✅ прошёл`
-what was seen against what was expected and the screenshot path.
+The comment cell holds the spec file, and for a failure what was seen
+against what was expected and the screenshot path.
 
-Statuses: in progress — `⏳ ждёт`, `✍️ пишется тест`, `▶️ выполняется`,
-`🔧 тест исправлен, перезапуск`; final — `✅ прошёл`, `❌ дефект` (the app
-contradicts the spec), `🖼 расхождение с макетом`, `❓ пробел в ТЗ`,
-`⛔ заблокирован: <причина>`. The progress bar line splits the finished
-cases into «успешно» (`✅ прошёл`) and «не успешно» (every other final
-status) — no breakdown by kind there; the kind is in each row's status. At
-the end the runner sets the `Verdict:` line to the verdict and the bar and
-count to the final numbers.
+Statuses. Pass 1: `⏳ ждёт`, `✍️ пишется тест`, `▶️ выполняется`, then
+`✅ прошёл`, `❌ не прошёл`, `⛔ заблокирован: <причина>`; its count line is
+«Проверено: N из M · успешно … · не успешно … · заблокировано …». Pass 2:
+`⏳ ждёт`, `▶️ разбирается`, then `✅ тест исправлен, прошёл`,
+`🔧 тест не удалось исправить`, `❌ дефект приложения`,
+`🖼 расхождение с макетом`, `❓ пробел в ТЗ`; its count line is «Разобрано:
+N из M» with the results that occurred. After pass 2 the runner sets the
+`Verdict:` line: `PASS` when every case passed (directly or after a test
+fix), `DEFECTS` when any app defect, mockup mismatch or spec gap remains,
+`BLOCKED` when blocked cases leave a screen unchecked.
 
 A `DEFECTS` verdict names, per defect, the unit or screen it points at, so
 the next step is one increment plan of fix units, not a hunt. Ask about that
@@ -220,8 +263,9 @@ fix plan must turn green.
   user-causable response outcome and «Поля ввода» rule has a case; steps name actions, not widgets; expected texts come
   from the frame's «Тексты» table or are marked `текст — по кадру`.
 - run: the suite is committed-ready under the E2E folder with `test:e2e`;
-  every case has a result; no application file changed; the report's first
-  line is the verdict.
+  pass 1 reached 100% and every failed case went through pass 2; no
+  application file changed; the `Verdict:` line under the last table is the
+  verdict.
 
 ## References
 

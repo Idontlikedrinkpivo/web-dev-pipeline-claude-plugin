@@ -35,19 +35,27 @@ RULES
 - Screenshot every case's screen and compare with the frame of its nodeId
   for layout, texts and states — not pixels. No Figma access: skip the
   comparison and say so.
-- Triage every failure: app defect | test defect (fix the test, re-run) |
-  spec gap. Max two fix rounds per test.
+- Two passes (ui-test-cases → Mode run → Two passes). Pass 1: write and
+  run every case once (each case × mode its own row) — ✅ прошёл /
+  ❌ не прошёл (seen vs expected) / ⛔ заблокирован; no test fixes, no
+  triage. Exception: several cases in a row failing for one cause in shared
+  test code (sign-in, data setup, navigation) — pause, fix the helper, put
+  those cases back to ⏳ ждёт, write the «Пауза: …» line above the table,
+  go on. Pass 2, when pass 1 is at 100%: add the «Проход 2 — разбор
+  упавших» section with its own bar over the failed cases and triage each:
+  test defect (fix, re-run, max two attempts), app defect, mockup
+  mismatch, spec gap. App defects are not re-run.
 - Run the cases one at a time (npx playwright test --grep "TC-<n>\b"), not
   the whole suite in one command, so each result lands as it happens.
-- Keep the report live with the Edit tool — one Edit per status change:
-  ✍️ пишется тест → ▶️ выполняется → final status. The same Edit updates
-  the bar under the title (a text code block: 100 cells, one per percent,
-  every case weighing the same, filled cells = ⌊done×100/total⌋ = the
-  percent shown after it), the count under it «Проверено: <done> из <total> · успешно
-  <passed> · не успешно <every other final status>», and the update time on
-  the Verdict line under the table. Never write the report from the shell
-  (python, sed, cat >): the user's file pane redraws only on Edit changes.
-  At the end set the Verdict line under the table to the verdict.
+- Keep the report live with the Edit tool — one Edit per status change.
+  The same Edit updates that pass's bar (a text code block: 100 cells, one
+  per percent, every case weighing the same, filled cells =
+  ⌊done×100/total⌋ = the percent shown after it), its count line
+  (pass 1: «Проверено: N из M · успешно … · не успешно … · заблокировано …»;
+  pass 2: «Разобрано: N из M» with the results so far) and the update time
+  on the Verdict line under the last table. Never write the report from
+  the shell (python, sed, cat >): the user's file pane redraws only on Edit
+  changes. Set the Verdict only after pass 2.
 - Do not commit.
 ```
 
@@ -56,7 +64,8 @@ Report — last message, exactly:
 ```
 STATUS        DONE | BLOCKED
 VERDICT       PASS | DEFECTS | BLOCKED
-COUNTS        N cases: passed · app defects · frame mismatches · spec gaps
+COUNTS        pass 1: N rows · passed · failed · blocked · pauses for shared fixes
+              pass 2: test fixed · tests not fixed · app defects · mockup mismatches · spec gaps
 DEFECTS       one line per defect: TC | screen/unit | seen | expected
 FILES         spec files written, report path
 BLOCKER       only for BLOCKED: what is missing to start or sign in
