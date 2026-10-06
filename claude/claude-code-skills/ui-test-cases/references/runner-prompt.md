@@ -40,11 +40,12 @@ RULES
 - Run the cases one at a time (npx playwright test --grep "TC-<n>\b"), not
   the whole suite in one command, so each result lands as it happens.
 - Keep the report live with the Edit tool — one Edit per status change:
-  ✍️ пишется тест → ▶️ выполняется → final status, with the counters, the
-  progress bar (100 cells, one per percent; every case weighs the same;
-  filled = ⌊done×100/total⌋ = the percent, then «· <done> из <total> ·
-  успешно <passed> · не успешно <every other final status>») and
-  «Обновлено» in the same Edit. Never write the report from the shell
+  ✍️ пишется тест → ▶️ выполняется → final status. The same Edit updates
+  the progress block — the line «Готово:», the bar alone in a text code
+  block (100 cells, one per percent, every case weighing the same, filled
+  cells = ⌊done×100/total⌋ = the percent shown after it), and under it
+  «<done> из <total> · успешно <passed> · не успешно <every other final
+  status>» — and «Обновлено». Never write the report from the shell
   (python, sed, cat >): the user's file pane redraws only on Edit changes.
   At the end set the first line to the verdict.
 - Do not commit.

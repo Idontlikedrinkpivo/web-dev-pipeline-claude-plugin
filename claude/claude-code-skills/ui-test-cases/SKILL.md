@@ -161,16 +161,24 @@ without `summary.md`. No open version folder → say so and ask per
 to; do not invent one. Overwritten each run (several UI products: one
 section per product). The first line is `Verdict: идёт прогон` while the run
 is on and `Verdict: PASS | DEFECTS | BLOCKED` at its end; the progress bar
-follows the rules of `work` → `references/progress-file.md` → The progress
-bar — a hundred cells, one per percent, every case weighing the same —
-counting a case done once it has a final status:
+follows `work` → `references/progress-file.md` → The progress bar — the
+«Готово:» line, the hundred-cell bar in a code block, the count under it,
+every case weighing the same — counting a case done once it has a final
+status; only here the count line also says how many of the done cases
+passed and how many did not:
 
-```markdown
+````markdown
 Verdict: идёт прогон
 
 # Прогон пользовательских тестов · <version>
 
-Прогресс: █████████████████████████████████████░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░ 37% · 9 из 24 · успешно 7 · не успешно 2
+Готово:
+
+```text
+█████████████████████████████████████░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░ 37%
+```
+
+9 из 24 · успешно 7 · не успешно 2
 
 Коммит 1a2b3c4 · Обновлено: 2026-10-06 14:32
 
@@ -182,7 +190,7 @@ Verdict: идёт прогон
 | TC-9 | S-3 | Отмена чужой брони | ▶️ выполняется | | |
 | TC-10 | S-3 | Пустой список броней | ✍️ пишется тест | | |
 | TC-11 | S-1 | Закрытая комната не видна | ⏳ ждёт | | |
-```
+````
 
 Statuses: in progress — `⏳ ждёт`, `✍️ пишется тест`, `▶️ выполняется`,
 `🔧 тест исправлен, перезапуск`; final — `✅ прошёл`, `❌ дефект` (the app

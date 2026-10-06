@@ -11,10 +11,16 @@ no changelog, no `sources:`.
 
 ## The run
 
-```markdown
+````markdown
 # Прогресс: documentation/plans/<version>/plan.md
 
-Прогресс: ████████████████████████████████████████░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░ 40% · 8 из 20
+Готово:
+
+```text
+████████████████████████████████████████░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░ 40%
+```
+
+8 из 20
 
 BASE: `<sha>` · Обновлено: <YYYY-MM-DD HH:MM>
 
@@ -25,7 +31,7 @@ BASE: `<sha>` · Обновлено: <YYYY-MM-DD HH:MM>
 | U3 | … | impl-hard | ⏳ ждёт | — |
 
 Финальное ревью: <не запускалось | verdict of code-review-full>
-```
+````
 
 Statuses: `⏳ ждёт`, `🔄 в работе`, `🔍 на ревью`, `✅ закоммичен`,
 `⛔ остановлен: <причина>`, `⏭ вне объёма прогона`. Escalations add `(эскалация → impl-critical)` to the
@@ -58,15 +64,29 @@ resumed run resets any in-between status from git (no `Plan-Unit:` trailer →
 
 ## The progress bar
 
-The line under the title shows the share done at a glance: a hundred
-cells, one per percent — `█` for done, `░` for the rest — then the percent
-and the count: 8 of 20 units is 40 `█`, 60 `░`, `40% · 8 из 20`. Every unit weighs the same,
-whatever its grade or size: percent = ⌊done × 100 / total⌋, rounded down so
-the bar never shows 100% before the last unit lands, and the filled cells
-equal the percent. Done means `✅ закоммичен` (units out of the run's scope
-do not count). It changes in the same Edit as
-the row. The fixes section has its own bar over
-its blocking findings (`✅ исправлено` of the rows that block).
+Under the title the file shows the share done, always in the same shape:
+a line «Готово:», then the bar alone in a ```` ```text ```` block, then the
+count on its own line:
+
+````markdown
+Готово:
+
+```text
+████████████████████████████████████████░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░ 40%
+```
+
+8 из 20
+````
+
+The bar is a hundred cells, one per percent — `█` for done, `░` for the
+rest — then the percent. The code block keeps it on one monospace line in
+the file pane, instead of wrapping into the prose around it. Every unit
+weighs the same, whatever its grade or size: percent = ⌊done × 100 /
+total⌋, rounded down so the bar never shows 100% before the last unit
+lands, and the filled cells equal the percent. Done means `✅ закоммичен`
+(units out of the run's scope do not count). The bar and the count change
+in the same Edit as the row. The fixes section has its own bar, in the same
+shape, over its blocking findings (`✅ исправлено` of the rows that block).
 
 ## Fixes after the final review
 
@@ -75,10 +95,16 @@ the file **before the first fix is dispatched**, so the user can follow them
 the same way as the units. Add this section under the units table, set the
 `Финальное ревью:` line to the verdict:
 
-```markdown
+````markdown
 ## Исправления по финальному ревью
 
-Прогресс исправлений: ░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░ 0% · 0 из 2
+Готово:
+
+```text
+░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░ 0%
+```
+
+0 из 2
 
 Вердикт: RETURN_TO_UNIT · Замечаний: 3 (P1 — 2, P2 — 1) · Обновлено: <YYYY-MM-DD HH:MM>
 
@@ -89,7 +115,7 @@ the same way as the units. Add this section under the units table, set the
 | F3 | имя `roomCap` против `capacity` | P2 | — | — | 📝 в отчёт, не блокирует | — |
 
 Повторное ревью: ждёт
-```
+````
 
 - **One row per finding**, in the review's order, with its severity. A
   blocking finding (P0/P1) names who fixes it: the unit it re-opens
@@ -106,7 +132,7 @@ the same way as the units. Add this section under the units table, set the
   commit lands; a follow-up gets its own `RF<n>` row at the bottom of the
   units table.
 - **Each fix updates its rows when its commit lands** (both tables, the
-  «Прогресс исправлений» line, «Обновлено»), like a unit.
+  the section's bar and count, «Обновлено»), like a unit.
 - **The re-review** (`code-review-full`, once, over the fix commits): its
   verdict goes to the «Повторное ревью:» line and the `Финальное ревью:` line
   shows the path (`RETURN_TO_UNIT → исправлено → PASS`). A second blocking
