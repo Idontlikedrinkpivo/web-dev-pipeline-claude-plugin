@@ -14,6 +14,8 @@ no changelog, no `sources:`.
 ```markdown
 # Прогресс: documentation/plans/<version>/plan.md
 
+Прогресс: ████████░░░░░░░░░░░░ 40%
+
 BASE: `<sha>` · Сделано: <сделано> из <всего> · Обновлено: <YYYY-MM-DD HH:MM>
 
 | U | Цель | Исполнитель | Статус | Ревью |
@@ -54,6 +56,17 @@ lands — and the `Сделано` counter and `Обновлено` time with ea
 resumed run resets any in-between status from git (no `Plan-Unit:` trailer →
 `⏳ ждёт`).
 
+## The progress bar
+
+The line under the title shows the share done at a glance: twenty cells,
+`█` for done and `░` for the rest, then the percent —
+`Прогресс: ████████░░░░░░░░░░░░ 40%` for 8 of 20. Filled cells =
+⌊done × 20 / total⌋, percent = ⌊done × 100 / total⌋, rounded down so the bar
+never shows 100% before the last unit lands. Done means `✅ закоммичен`
+(units out of the run's scope do not count). It changes in the same Edit as
+the row and the `Сделано` counter. The fixes section has its own bar over
+its blocking findings (`✅ исправлено` of the rows that block).
+
 ## Fixes after the final review
 
 When `code-review-full` returns anything but `PASS`, the fixes are planned in
@@ -63,6 +76,8 @@ the same way as the units. Add this section under the units table, set the
 
 ```markdown
 ## Исправления по финальному ревью
+
+Прогресс исправлений: ░░░░░░░░░░░░░░░░░░░░ 0%
 
 Вердикт: RETURN_TO_UNIT · Замечаний: 3 (P1 — 2, P2 — 1) · Исправлено: 0 из 2 · Обновлено: <YYYY-MM-DD HH:MM>
 

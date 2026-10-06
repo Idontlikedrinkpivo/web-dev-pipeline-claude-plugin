@@ -127,6 +127,14 @@ preconditions become the mocked data, each error case the mocked status. The
 report says the screens were checked against the contract, not a live
 backend.
 
+**The report is live.** Before the dispatch, create the report (path
+below) with every case of the run `⏳ ждёт`, the progress bar at 0% and
+`Verdict: идёт прогон` on the first line, and post its link in the chat as a
+clickable Markdown link with its repo-relative path — the user opens it once
+and watches the cases turn over. The runner then changes it with the Edit
+tool the moment a case changes status — never from the shell (`python`,
+`sed`, `cat >`): the user's file pane redraws only on edit-tool changes.
+
 **Dispatch:** resolve `ui-test-runner` through `executor-catalog` with
 `references/runner-prompt.md`. The runner:
 
@@ -136,10 +144,12 @@ backend.
    names, following `playwright-cli` → test generation;
 2. adds or keeps the `test:e2e` script, so `ci-pipeline` can run the
    suite;
-3. runs the suite; for each case takes a screenshot of the screen under
-   test and compares it with the frame (`get_screenshot` of the cited
-   `nodeId`) for layout, texts, and states — not pixel equality; without
-   Figma access the comparison is skipped and the report says so;
+3. runs the cases one at a time (`npx playwright test --grep "TC-7\b"`),
+   so each result reaches the report as it happens; for each case takes a
+   screenshot of the screen under test and compares it with the frame
+   (`get_screenshot` of the cited `nodeId`) for layout, texts, and states —
+   not pixel equality; without Figma access the comparison is skipped and
+   the report says so;
 4. triages each failure: **app defect** (the app contradicts the spec),
    **test defect** (fixed in the test, then re-run), or **spec gap** (the
    spec never said). It never edits application code.
@@ -149,18 +159,35 @@ folder of the current iteration — the open `plans/<v>/` folder, the one
 without `summary.md`. No open version folder → say so and ask per
 `pipeline` → "Asking before a transition" which version this run belongs
 to; do not invent one. Overwritten each run (several UI products: one
-section per product), first line `Verdict: PASS | DEFECTS | BLOCKED`:
+section per product). The first line is `Verdict: идёт прогон` while the run
+is on and `Verdict: PASS | DEFECTS | BLOCKED` at its end; the progress bar
+follows the rules of `work` → `references/progress-file.md` → The progress
+bar, counting a case done once it has a final status:
 
 ```markdown
-Verdict: DEFECTS
+Verdict: идёт прогон
 
-Прогон 2026-10-03 · коммит 1a2b3c4 · 24 кейса: 21 прошли, 2 дефекта, 1 расхождение с кадром
+# Прогон пользовательских тестов · <version>
 
-| TC | Итог | Что увидели | Ожидалось | Скриншот |
-|---|---|---|---|---|
-| TC-7 | дефект | «Ошибка 409» | «Бронь уже началась, отменить нельзя» | e2e/artifacts/TC-7.png |
-| TC-12 | кадр | кнопка «Отменить» основная (залита) | вторичная по кадру 12:160 | e2e/artifacts/TC-12.png |
+Прогресс: ███████░░░░░░░░░░░░░ 37%
+
+Коммит 1a2b3c4 · Сделано: 9 из 24 · прошли 7 · дефекты 1 · расхождения с кадром 1 · Обновлено: 2026-10-06 14:32
+
+| TC | Экран | Кейс | Статус | Что увидели / ожидалось | Скриншот |
+|---|---|---|---|---|---|
+| TC-1 | S-1 | Список комнат на сегодня | ✅ прошёл | | |
+| TC-7 | S-3 | Отмена начавшейся брони | ❌ дефект | «Ошибка 409» / «Бронь уже началась, отменить нельзя» | e2e/artifacts/TC-7.png |
+| TC-8 | S-3 | Отмена за час до начала | 🔧 тест исправлен, перезапуск | | |
+| TC-9 | S-3 | Отмена чужой брони | ▶️ выполняется | | |
+| TC-10 | S-3 | Пустой список броней | ✍️ пишется тест | | |
+| TC-11 | S-1 | Закрытая комната не видна | ⏳ ждёт | | |
 ```
+
+Statuses: in progress — `⏳ ждёт`, `✍️ пишется тест`, `▶️ выполняется`,
+`🔧 тест исправлен, перезапуск`; final — `✅ прошёл`, `❌ дефект` (the app
+contradicts the spec), `🖼 расхождение с кадром`, `❓ пробел в ТЗ`,
+`⛔ заблокирован: <причина>`. At the end the runner sets the first line to
+the verdict and the counters to the final numbers.
 
 A `DEFECTS` verdict names, per defect, the unit or screen it points at, so
 the next step is one increment plan of fix units, not a hunt. Ask about that

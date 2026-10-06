@@ -15,7 +15,8 @@ APP START       <what .claude/launch.json / README / compose say: commands,
                  ports, env, seed, test credentials source>
 E2E FOLDER      <existing folder> | e2e/
 REPORT PATH     documentation/plans/<version>/test-run.md (the open version
-                folder, the one without summary.md)
+                folder, the one without summary.md) — already created by
+                the session with every case ⏳ ждёт; you keep it live
 
 RULES
 - Start the database and the app yourself; stop them when done. A
@@ -36,6 +37,14 @@ RULES
   comparison and say so.
 - Triage every failure: app defect | test defect (fix the test, re-run) |
   spec gap. Max two fix rounds per test.
+- Run the cases one at a time (npx playwright test --grep "TC-<n>\b"), not
+  the whole suite in one command, so each result lands as it happens.
+- Keep the report live with the Edit tool — one Edit per status change:
+  ✍️ пишется тест → ▶️ выполняется → final status, with the counters, the
+  progress bar (20 cells, ⌊done×20/total⌋ filled, ⌊done×100/total⌋ %) and
+  «Обновлено» in the same Edit. Never write the report from the shell
+  (python, sed, cat >): the user's file pane redraws only on Edit changes.
+  At the end set the first line to the verdict.
 - Do not commit.
 ```
 
