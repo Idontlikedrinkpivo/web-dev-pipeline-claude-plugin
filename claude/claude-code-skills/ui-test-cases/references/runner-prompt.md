@@ -37,7 +37,10 @@ RULES
   comparison and say so.
 - Two passes (ui-test-cases → Mode run → Two passes). Pass 1: write and
   run every case once (each case × mode its own row) — ✅ прошёл /
-  ❌ не прошёл (seen vs expected) / ⛔ заблокирован; no test fixes, no
+  ❌ не прошёл (seen vs expected) / ⛔ заблокирован (a missing stub that can
+  be added) / 🙅 не автоматизирован (needs a failure that would break the
+  shared stand, an app restart with other settings, or a state the stand
+  never has — say why and how to check it by hand); no test fixes, no
   triage. Exception: several cases in a row failing for one cause in shared
   test code (sign-in, data setup, navigation) — pause, fix the helper,
   re-run those cases, go on.
@@ -60,9 +63,11 @@ RULES
   The same Edit updates the bars it touches (text code blocks: 100 cells,
   one per percent, every case weighing the same, filled cells = the
   percent shown after them). The main bar under the title is the share of
-  cases that pass, ⌊passed×100/all⌋ — it grows in pass 1 and with every
-  re-run that turns a case green — with the count line, label included,
-  «Проверено: N из M · успешно … · не успешно … · заблокировано …». Pass 2's bar is the share
+  automated cases that pass, ⌊passed×100/(all − не автоматизированы)⌋ — it
+  grows in pass 1 and with every re-run that turns a case green, and shows
+  100% when nothing failed — with the count line, label included,
+  «Проверено: N из M · успешно … · не прошли … · заблокировано … · не
+  автоматизированы …»; «не прошли» counts only real failures. Pass 2's bar is the share
   triaged, «Разобрано: N из M» with the results so far; a re-run block's
   bar is the share of its cases re-run. Also the update time
   on the Verdict line under the last table. Never write the report from
@@ -76,7 +81,8 @@ Report — last message, exactly:
 ```
 STATUS        DONE | BLOCKED
 VERDICT       PASS | DEFECTS | BLOCKED
-COUNTS        pass 1: N rows · passed · failed · blocked · pauses for shared fixes
+COUNTS        pass 1: N rows · passed · failed · blocked · not automated · pauses for shared fixes
+MANUAL        one line per not-automated case: TC | why | how to check by hand
               pass 2: test fixed · tests not fixed · app defects · mockup mismatches · spec gaps
 DEFECTS       one line per defect: TC | screen/unit | seen | expected
 FILES         spec files written, report path

@@ -64,7 +64,10 @@ asking which model. The session writes no case file.
 - One case per acceptance criterion that a person can reach through the
   interface — main flow, every Alt and every Exc. An AC with no screen (a
   scheduled job, an email content check) is listed under «Без интерфейса»
-  with the reason, not dropped.
+  with the reason, not dropped. So is a check the interface cannot reach —
+  input the client itself never sends (a malformed email the form blocks
+  before sending): «Без интерфейса — проверяется API-тестами», not a UI case
+  that a run would later have to drop.
 - One case per row of «Состояния экрана» (Empty, Error, Forbidden,
   Loading where it is observable) and per user-causable row of «Ошибки
   ответов» that no AC case already covers.
@@ -132,7 +135,13 @@ sees how far the full picture is:
 
 1. **Pass 1 — the whole set, once.** Every case is written and run once and
    gets a pass-1 result: `✅ прошёл`, `❌ не прошёл` (with what was seen
-   against what was expected), or `⛔ заблокирован: <причина>`. No test is
+   against what was expected), `⛔ заблокирован: <причина>` (a missing
+   piece that can be added — a test stub for sign-in or SMS), or
+   `🙅 не автоматизирован: <причина>` (the case cannot be checked honestly
+   by an interface test on the shared stand — it needs a storage failure
+   that would break the stand for everyone, an app restart with other
+   settings, or a state the stand never has; the comment says how to check
+   it by hand). No test is
    fixed and nothing is triaged in this pass — the point is the whole set at
    100% first, so repeated causes show up as repeats instead of being fixed
    one case at a time. When the cases run in several modes (two sign-in
@@ -225,22 +234,25 @@ count right under it, its table; under the last table the `Verdict:` line —
 with the commit and the update time. The bars follow `work` →
 `references/progress-file.md` → The progress bar (a hundred cells in a code
 block, every case weighing the same). **The main bar, under the title, shows
-the share of cases that pass** — ⌊passed × 100 / all cases⌋ — not the share
-checked: it grows during pass 1 as cases pass, and again with every re-run
-round as fixed tests turn green, so the user watches the one number that
-matters climb. Its count line is always labelled: «Проверено: N из M ·
-успешно … · не успешно … · заблокировано …» — the bar's percent is
-успешно ÷ M. The bars
+the share of automated cases that pass** — ⌊passed × 100 / (all cases −
+не автоматизированы)⌋ — not the share checked: it grows during pass 1 as
+cases pass, and again with every re-run round as fixed tests turn green, so
+the user watches the one number that matters climb. Cases that cannot be
+automated are left out of the percent, so a run with no failures shows
+100% and the bar never suggests a defect that is not there; blocked cases
+stay in it — they are a gap to close. Its count line is always labelled:
+«Проверено: N из M · успешно … · не прошли … · заблокировано … · не
+автоматизированы …» — «не прошли» counts only real failures. The bars
 of pass 2 and of each re-run measure their own work, as described above:
 
 ````markdown
 # Прогресс прогона по кейсам — итерация <version>
 
 ```text
-███████████████████████████████████████████████████████████████████████████░░░░░░░░░░░░░░░░░░░░░░░░░ 75%
+██████████████████████████████████████████████████████████████████████████████░░░░░░░░░░░░░░░░░░░░░░ 78%
 ```
 
-Проверено: 24 из 24 · успешно 18 · не успешно 5 · заблокировано 1
+Проверено: 24 из 24 · успешно 18 · не прошли 4 · заблокировано 1 · не автоматизированы 1
 
 ### Перезапуск после починки общего помощника — завершён
 
@@ -262,6 +274,7 @@ of pass 2 and of each re-run measure their own work, as described above:
 | TC-1 | Список комнат на сегодня | ✅ прошёл | rooms.spec.ts |
 | TC-7 | Отмена начавшейся брони | ❌ не прошёл | bookings.spec.ts · «Ошибка 409» вместо «Бронь уже началась, отменить нельзя» · e2e/artifacts/TC-7.png |
 | TC-12 | Вход через SMS | ⛔ заблокирован: нет тестовой заглушки SMS | |
+| TC-19 | Ошибка при недоступном хранилище файлов | 🙅 не автоматизирован: остановка хранилища сломает общий стенд | вручную: остановить хранилище на отдельном стенде, загрузить файл, ждать «Не удалось сохранить файл, попробуйте позже» |
 
 ## Проход 2 — разбор упавших
 
@@ -300,17 +313,21 @@ The comment cell holds the spec file, and for a failure what was seen
 against what was expected and the screenshot path.
 
 Statuses. Pass 1: `⏳ ждёт`, `✍️ пишется тест`, `▶️ выполняется`, then
-`✅ прошёл`, `❌ не прошёл`, `⛔ заблокирован: <причина>`, and later
-`✅ прошёл после исправления теста` for a case a re-run turned green; the
-main count line is «Проверено: N из M · успешно … · не успешно … ·
-заблокировано …», always with the «Проверено:» label. Pass 2:
+`✅ прошёл`, `❌ не прошёл`, `⛔ заблокирован: <причина>`,
+`🙅 не автоматизирован: <причина>`, and later `✅ прошёл после исправления
+теста` for a case a re-run turned green; the main count line is
+«Проверено: N из M · успешно … · не прошли … · заблокировано … · не
+автоматизированы …», always with the «Проверено:» label. Pass 2:
 `⏳ ждёт`, `▶️ разбирается`, then `✅ тест исправлен, прошёл`,
 `🔧 тест не удалось исправить`, `❌ дефект приложения`,
 `🖼 расхождение с макетом`, `❓ пробел в ТЗ`; its count line is «Разобрано:
 N из M» with the results that occurred. After pass 2 the runner sets the
-`Verdict:` line: `PASS` when every case passed (directly or after a test
-fix), `DEFECTS` when any app defect, mockup mismatch or spec gap remains,
-`BLOCKED` when blocked cases leave a screen unchecked.
+`Verdict:` line: `PASS` when every automated case passed (directly or
+after a test fix), `DEFECTS` when any app defect, mockup mismatch or spec
+gap remains, `BLOCKED` when blocked cases leave a screen unchecked. Under
+it, a «Проверить вручную» list names every `🙅 не автоматизирован` case
+with its reason and the manual steps — they are not a defect, but nobody
+has checked them yet.
 
 A `DEFECTS` verdict names, per defect, the unit or screen it points at, so
 the next step is one increment plan of fix units, not a hunt. Ask about that
