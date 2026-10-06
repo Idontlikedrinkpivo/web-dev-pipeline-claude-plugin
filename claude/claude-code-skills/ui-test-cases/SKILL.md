@@ -170,9 +170,9 @@ Verdict: идёт прогон
 
 # Прогон пользовательских тестов · <version>
 
-Прогресс: █████████████████████████████████████░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░ 37% · 9 из 24
+Прогресс: █████████████████████████████████████░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░ 37% · 9 из 24 · успешно 7 · провалено 2
 
-Коммит 1a2b3c4 · прошли 7 · дефекты 1 · расхождения с кадром 1 · Обновлено: 2026-10-06 14:32
+Коммит 1a2b3c4 · провалено: дефекты 1 · расхождения с кадром 1 · пробелы в ТЗ 0 · заблокировано 0 · Обновлено: 2026-10-06 14:32
 
 | TC | Экран | Кейс | Статус | Что увидели / ожидалось | Скриншот |
 |---|---|---|---|---|---|
@@ -187,8 +187,11 @@ Verdict: идёт прогон
 Statuses: in progress — `⏳ ждёт`, `✍️ пишется тест`, `▶️ выполняется`,
 `🔧 тест исправлен, перезапуск`; final — `✅ прошёл`, `❌ дефект` (the app
 contradicts the spec), `🖼 расхождение с кадром`, `❓ пробел в ТЗ`,
-`⛔ заблокирован: <причина>`. At the end the runner sets the first line to
-the verdict and the counters to the final numbers.
+`⛔ заблокирован: <причина>`. The progress bar line splits the finished
+cases into «успешно» (`✅ прошёл`) and «провалено» (every other final
+status), and the line under it breaks «провалено» down by kind. At the end
+the runner sets the first line to the verdict and the counters to the final
+numbers.
 
 A `DEFECTS` verdict names, per defect, the unit or screen it points at, so
 the next step is one increment plan of fix units, not a hunt. Ask about that
