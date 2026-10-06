@@ -14,9 +14,9 @@ no changelog, no `sources:`.
 ```markdown
 # Прогресс: documentation/plans/<version>/plan.md
 
-Прогресс: ████████████████████████████████████████░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░ 40%
+Прогресс: ████████████████████████████████████████░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░ 40% · 8 из 20
 
-BASE: `<sha>` · Сделано: <сделано> из <всего> · Обновлено: <YYYY-MM-DD HH:MM>
+BASE: `<sha>` · Обновлено: <YYYY-MM-DD HH:MM>
 
 | U | Цель | Исполнитель | Статус | Ревью |
 |---|---|---|---|---|
@@ -52,20 +52,20 @@ the pane keeps showing the old version until the user reopens it.
 Change it the moment a status changes, not in a batch at the commit:
 `🔄 в работе` when the unit is dispatched (with its executor), `🔍 на ревью`
 when `code-review-unit` starts, `✅ закоммичен` right after the unit's commit
-lands — and the `Сделано` counter and `Обновлено` time with each change. A
+lands — and the progress bar line and the `Обновлено` time with each change. A
 resumed run resets any in-between status from git (no `Plan-Unit:` trailer →
 `⏳ ждёт`).
 
 ## The progress bar
 
 The line under the title shows the share done at a glance: a hundred
-cells, one per percent — `█` for done, `░` for the rest — then the percent;
-8 of 20 units is 40 `█` and 60 `░`, `40%`. Every unit weighs the same,
+cells, one per percent — `█` for done, `░` for the rest — then the percent
+and the count: 8 of 20 units is 40 `█`, 60 `░`, `40% · 8 из 20`. Every unit weighs the same,
 whatever its grade or size: percent = ⌊done × 100 / total⌋, rounded down so
 the bar never shows 100% before the last unit lands, and the filled cells
 equal the percent. Done means `✅ закоммичен` (units out of the run's scope
 do not count). It changes in the same Edit as
-the row and the `Сделано` counter. The fixes section has its own bar over
+the row. The fixes section has its own bar over
 its blocking findings (`✅ исправлено` of the rows that block).
 
 ## Fixes after the final review
@@ -78,9 +78,9 @@ the same way as the units. Add this section under the units table, set the
 ```markdown
 ## Исправления по финальному ревью
 
-Прогресс исправлений: ░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░ 0%
+Прогресс исправлений: ░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░ 0% · 0 из 2
 
-Вердикт: RETURN_TO_UNIT · Замечаний: 3 (P1 — 2, P2 — 1) · Исправлено: 0 из 2 · Обновлено: <YYYY-MM-DD HH:MM>
+Вердикт: RETURN_TO_UNIT · Замечаний: 3 (P1 — 2, P2 — 1) · Обновлено: <YYYY-MM-DD HH:MM>
 
 | F | Замечание | Важность | Юнит | Исполнитель | Статус | Ревью |
 |---|---|---|---|---|---|---|
@@ -106,7 +106,7 @@ the same way as the units. Add this section under the units table, set the
   commit lands; a follow-up gets its own `RF<n>` row at the bottom of the
   units table.
 - **Each fix updates its rows when its commit lands** (both tables, the
-  «Исправлено: N из M» counter, «Обновлено»), like a unit.
+  «Прогресс исправлений» line, «Обновлено»), like a unit.
 - **The re-review** (`code-review-full`, once, over the fix commits): its
   verdict goes to the «Повторное ревью:» line and the `Финальное ревью:` line
   shows the path (`RETURN_TO_UNIT → исправлено → PASS`). A second blocking
