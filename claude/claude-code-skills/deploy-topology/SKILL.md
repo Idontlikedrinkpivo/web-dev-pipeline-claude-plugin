@@ -147,8 +147,8 @@ Read `references/compose-shape.md` for the concrete shape and the
 invariants each file must hold. In outline:
 
 - `docker-compose.test.yml` — local DB + local object storage (+ their
-  one-shot init/seed containers) + a one-shot `migrate` service + `app`
-  with the mock gate on (+ `web`, the frontend image, when the
+  one-shot init/seed containers) + a one-shot `migrate` service + `backend`
+  with the mock gate on (+ `frontend`, the frontend image, when the
   architecture has a client). Everything the test suite needs to run inside
   Docker with zero external network access.
 - `docker-compose.dev.yml` — same local infrastructure shape as test, mock
@@ -156,16 +156,16 @@ invariants each file must hold. In outline:
 - `docker-compose.prod.yml` — **no database service, no object-storage
   service**, not even commented out "in case" — that reads as an
   invitation next quarter; prod's database is external, not a toggle.
-  `app`, `migrate` (and `web`) only, pointed at externally managed instances
-  through `.env.prod.local`. The entry port — `web`'s when there is a
-  client, else `app`'s — publishes on loopback only
+  `backend`, `migrate` (and `frontend`) only, pointed at externally managed instances
+  through `.env.prod.local`. The entry port — `frontend`'s when there is a
+  client, else `backend`'s — publishes on loopback only
   (`"8080:8080"` binds all interfaces and ships a plaintext port to the
   network); a reverse-proxy/TLS terminator in front is assumed and
   documented, never built into this compose file.
 
 `migrate` is a one-shot service in every file: it runs the project's
 migrate command over the SQL files in `documentation/db/migrations/`
-(carried in the backend image at that same path) to completion, `app` depends on it with
+(carried in the backend image at that same path) to completion, `backend` depends on it with
 `condition: service_completed_successfully`, and the application process
 itself never runs a migration on startup. This is what keeps "which
 migration is live" a deployment-time fact instead of a race between however
@@ -231,11 +231,11 @@ project's own test suite, not just as prose here:
 - The prod port mapping has an explicit loopback host IP; a mapping with no
   host IP (binds all interfaces) fails the test.
 - `docker-compose.prod.yml` has no local database/storage service.
-- `migrate` in every file has no published port, and `app` depends on it
+- `migrate` in every file has no published port, and `backend` depends on it
   with `service_completed_successfully`.
 - Every Dockerfile's `CMD` has no hot-reload flag, `CMD`/`ENTRYPOINT` is
   exec form, and every `FROM` has an explicit tag other than `latest`.
-- With a client: `web`'s healthcheck reaches `:8081/_healthz`, its
+- With a client: `frontend`'s healthcheck reaches `:8081/_healthz`, its
   environment sets `BACKEND_SERVICE`, `BACKEND_PROTOCOL` and
   `SECURE_MODE`, and no `<<…>>` placeholder is left in `nginx/`.
 - `scripts/build-images.sh` passes `--platform linux/amd64`, saves to
@@ -247,7 +247,7 @@ project's own test suite, not just as prose here:
   in `references/deploy-doc.md`.
 - `.dockerignore` exists and matches `.env.*.local` (a build context
   that can see `.env.prod.local` fails the test).
-- `app` in every compose file has a `healthcheck` whose command reaches the
+- `backend` in every compose file has a `healthcheck` whose command reaches the
   health endpoint — it is what makes `up --wait` mean "the app answers",
   not "the container started".
 - `.env.example` contains every variable the config layer requires, and no

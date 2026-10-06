@@ -109,7 +109,7 @@ Prefer starting the infrastructure straight from the test compose file
 when every infra service in it publishes its port on `127.0.0.1`:
 `docker compose -f docker-compose.test.yml up -d --wait <db> <store>`,
 then `docker compose -f docker-compose.test.yml run --rm <store>-init` —
-infra services only, never `app` or `migrate`. The one-shot init stays out
+infra services only, never `backend` or `migrate`. The one-shot init stays out
 of `up --wait`: `--wait` treats its normal exit as a failure
 (docker/compose#10596). The fixture values then
 have one source and cannot drift; the language toolchain still runs on

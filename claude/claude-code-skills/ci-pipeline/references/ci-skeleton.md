@@ -89,7 +89,7 @@ jobs:
         run: npm test
 ```
 
-The compose command lists infra services only — never `app` or `migrate`.
+The compose command lists infra services only — never `backend` or `migrate`.
 The one-shot `<store>-init` runs with `run --rm`, not inside `up --wait`,
 which reports its normal exit as a failure (docker/compose#10596):
 the toolchain runs on the runner, which is why every URL in `env:` uses

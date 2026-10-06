@@ -43,31 +43,31 @@ rather than disappearing — an operator reading a missing section cannot tell
 | Контейнер | Образ | Команда | Запуск |
 |---|---|---|---|
 | migrate | room-booking-backend:<тег> | `node dist/src/migrate.js` | разово, до успешного завершения |
-| app | room-booking-backend:<тег> | по умолчанию (`node dist/src/index.js`) | постоянно |
-| web | room-booking-frontend:<тег> | по умолчанию (nginx) | постоянно |
+| backend | room-booking-backend:<тег> | по умолчанию (`node dist/src/index.js`) | постоянно |
+| frontend | room-booking-frontend:<тег> | по умолчанию (nginx) | постоянно |
 
 ## Порядок запуска
 
 1. `migrate` — применяет миграции базы и завершается с кодом 0. Ненулевой код — остановиться:
-   `app` на непримененной схеме не запускать. Повторный запуск безопасен: применённые миграции
+   `backend` на непримененной схеме не запускать. Повторный запуск безопасен: применённые миграции
    пропускаются.
-2. `app` — после успешного `migrate`.
-3. `web` — после того как `app` отвечает на проверку готовности.
+2. `backend` — после успешного `migrate`.
+3. `frontend` — после того как `backend` отвечает на проверку готовности.
 
 ## Сеть и проверки
 
 | Контейнер | Порт | Живость | Готовность |
 |---|---|---|---|
-| app | 3000 | `GET /health` → 200 | `GET /health` → 200 |
-| web | 8080 | `GET :8081/_healthz` → 200 | `GET :8081/_healthz` → 200 |
+| backend | 3000 | `GET /health` → 200 | `GET /health` → 200 |
+| frontend | 8080 | `GET :8081/_healthz` → 200 | `GET :8081/_healthz` → 200 |
 | migrate | — | — | — |
 
-Наружу публикуется только `web:8080`. TLS и внешний прокси перед ним — на стороне эксплуатации;
-`web` работает по HTTP, а адрес бэкенда получает из `BACKEND_SERVICE`.
+Наружу публикуется только `frontend:8080`. TLS и внешний прокси перед ним — на стороне эксплуатации;
+`frontend` работает по HTTP, а адрес бэкенда получает из `BACKEND_SERVICE`.
 
 ## Переменные
 
-### app и migrate
+### backend и migrate
 
 | Переменная | Обязательна | Секрет | Пример / формат | Что задаёт |
 |---|---|---|---|---|
@@ -75,11 +75,11 @@ rather than disappearing — an operator reading a missing section cannot tell
 | DATABASE_URL | да | да | `postgres://user:***@host:5432/db?options=-c%20search_path%3Droom_booking` | подключение к PostgreSQL, схема `room_booking` |
 | … | | | | |
 
-### web
+### frontend
 
 | Переменная | Обязательна | Секрет | Пример / формат | Что задаёт |
 |---|---|---|---|---|
-| BACKEND_SERVICE | да | нет | `app:3000` | адрес бэкенда |
+| BACKEND_SERVICE | да | нет | `backend:3000` | адрес бэкенда |
 | BACKEND_PROTOCOL | да | нет | `http` | протокол до бэкенда |
 | SECURE_MODE | да | нет | `false` | HTTPS внутри контейнера |
 
@@ -103,7 +103,7 @@ rather than disappearing — an operator reading a missing section cannot tell
 
 1. `docker load -i room-booking-<новая версия>.tar`.
 2. Запустить `migrate` нового образа, дождаться кода 0.
-3. Перезапустить `app` и `web` на новом теге.
+3. Перезапустить `backend` и `frontend` на новом теге.
 
 Откат: предыдущий комплект лежит в своей папке выпуска; откат версии с миграцией,
 которая меняет или удаляет данные, согласовывается отдельно.
@@ -147,6 +147,6 @@ fixed headers — split rows on `|`), and assert:
    тома» section says there are none.
 
 The failure message names the file to fix: «deploy.md: переменная
-S3_BUCKET у app есть в docker-compose.prod.yml, но нет в таблице
+S3_BUCKET у backend есть в docker-compose.prod.yml, но нет в таблице
 "Переменные"». Someone who adds a variable or changes a port and forgets the
 document then finds out in CI, not from the operators.

@@ -4,6 +4,12 @@ Placeholders in `<angle brackets>`. Substitute real service/image/variable
 names from the architecture; do not invent services the architecture never
 named (a queue, a cache) just because this shape has room for one.
 
+The application's services are named like its images, so one name means one
+thing everywhere — compose, `BACKEND_SERVICE`, `DEPLOY.md`, the tests:
+`backend` (image `<project>-backend`), `frontend` (image
+`<project>-frontend`), and `migrate` (the backend image run once with the
+migrate command). Not `app` / `web`.
+
 ## `docker-compose.test.yml`
 
 ```yaml
@@ -74,7 +80,7 @@ services:
     command: <migration-command>   # the project's migrate command over documentation/db/migrations/, e.g. alembic upgrade head
     restart: "no"
 
-  app:
+  backend:
     build: .
     depends_on:
       migrate:
@@ -112,10 +118,10 @@ volumes:
 **Invariants for this file:**
 - The mock-gate variable is non-empty *only* here.
 - `migrate` has no published port and `restart: "no"`.
-- `app` waits for `migrate` via `service_completed_successfully`, not a
+- `backend` waits for `migrate` via `service_completed_successfully`, not a
   healthcheck-based `depends_on` (a migration is a one-shot job, not a
   service with ongoing health).
-- `app` has a `healthcheck` that calls the health endpoint. Without it,
+- `backend` has a `healthcheck` that calls the health endpoint. Without it,
   `up --wait` returns as soon as the container is `running`, before the
   app listens or after it crashed on config validation. `<http-probe>` is
   a binary that exists in the image (`curl`, `wget`, or the app's own
@@ -150,7 +156,7 @@ Identical infrastructure shape to test — same `<db>`, `<object-store>`,
 
 ```yaml
 services:
-  app:
+  backend:
     image: <project>-backend:${IMAGE_TAG:?set IMAGE_TAG to the tag loaded from the tar}
     build: .
     depends_on:
@@ -194,29 +200,29 @@ services:
 **Invariants for this file:**
 - No `<db>` service, no `<object-store>` service, no `<object-store>-init`
   service — every stateful dependency is external.
-- `app`'s port mapping always has an explicit host IP (`127.0.0.1` or
+- `backend`'s port mapping always has an explicit host IP (`127.0.0.1` or
   `::1`); a bare `"<port>:<port>"` binds all interfaces and is a regression.
 - `migrate` has no `depends_on` (nothing local to wait for) and no
   published port.
-- `app` keeps the same `healthcheck` as in test and dev.
+- `backend` keeps the same `healthcheck` as in test and dev.
 - No secret has a default value anywhere in this file.
 
-## `web` — the frontend image, when the architecture has a client
+## `frontend` — the frontend image, when the architecture has a client
 
-Present in all three files, after `app`. The image is the SPA image of
-`images.md`; its nginx proxies `/api/` to `app` on the compose network.
+Present in all three files, after `backend`. The image is the SPA image of
+`images.md`; its nginx proxies `/api/` to `backend` on the compose network.
 
 ```yaml
-  web:
+  frontend:
     build:
       context: ./<client-folder>
     depends_on:
-      app:
+      backend:
         condition: service_healthy
     ports:
-      - "127.0.0.1:<web-port>:8080"    # the entry point; loopback only
+      - "127.0.0.1:<frontend-port>:8080"    # the entry point; loopback only
     environment:
-      BACKEND_SERVICE: app:<app-port>
+      BACKEND_SERVICE: backend:<app-port>
       BACKEND_PROTOCOL: http
       SECURE_MODE: plain                # prod: plain behind the operator's TLS terminator, or secure + certs below
     # prod with SECURE_MODE=secure only:
@@ -232,14 +238,14 @@ Present in all three files, after `app`. The image is the SPA image of
 ```
 
 **Invariants with a client:**
-- `web` waits for `app` to be healthy, not merely started.
-- In prod only `web` publishes a port (loopback); `app` publishes none —
+- `frontend` waits for `backend` to be healthy, not merely started.
+- In prod only `frontend` publishes a port (loopback); `backend` publishes none —
   the browser reaches the API through `/api/` on the same origin. In test
-  and dev `app` may keep its loopback port for direct API checks.
-- `web`'s healthcheck uses the 8081 health port, not a page of the app.
+  and dev `backend` may keep its loopback port for direct API checks.
+- `frontend`'s healthcheck uses the 8081 health port, not a page of the app.
 - prod's `image:` names are the hand-over tags —
-  `<project>-backend:${IMAGE_TAG}` on `app` and `migrate`,
-  `<project>-frontend:${IMAGE_TAG}` on `web` — so the file runs the images
+  `<project>-backend:${IMAGE_TAG}` on `backend` and `migrate`,
+  `<project>-frontend:${IMAGE_TAG}` on `frontend` — so the file runs the images
   loaded from the tar; `IMAGE_TAG` is required, `build:` stays for local
   builds.
 

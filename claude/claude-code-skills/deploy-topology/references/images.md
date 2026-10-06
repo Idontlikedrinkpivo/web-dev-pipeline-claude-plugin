@@ -109,7 +109,7 @@ environment:
 
 | Variable | Meaning | test / dev | prod |
 |---|---|---|---|
-| `BACKEND_SERVICE` | `host:port` of the backend | `app:<app-port>` | `app:<app-port>` |
+| `BACKEND_SERVICE` | `host:port` of the backend | `backend:<app-port>` | `backend:<app-port>` |
 | `BACKEND_PROTOCOL` | `http` or `https` to the backend | `http` | `http` (same network) |
 | `SECURE_MODE` | `plain` — HTTP on 8080; `secure` — TLS 1.2/1.3 and HTTP/2 on 8080 with `/etc/nginx/ssl/fullchain.pem` and `privkey.pem` mounted read-only | `plain` | `plain` behind the operator's TLS terminator; `secure` when this nginx terminates TLS itself |
 
