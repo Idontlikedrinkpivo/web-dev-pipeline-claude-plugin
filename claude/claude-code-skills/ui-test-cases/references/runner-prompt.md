@@ -41,13 +41,13 @@ RULES
   the whole suite in one command, so each result lands as it happens.
 - Keep the report live with the Edit tool — one Edit per status change:
   ✍️ пишется тест → ▶️ выполняется → final status. The same Edit updates
-  the progress block — the line «Готово:», the bar alone in a text code
-  block (100 cells, one per percent, every case weighing the same, filled
-  cells = ⌊done×100/total⌋ = the percent shown after it), and under it
-  «<done> из <total> · успешно <passed> · не успешно <every other final
-  status>» — and «Обновлено». Never write the report from the shell
+  the bar under the title (a text code block: 100 cells, one per percent,
+  every case weighing the same, filled cells = ⌊done×100/total⌋ = the
+  percent shown after it), the count under it «<done> из <total> · успешно
+  <passed> · не успешно <every other final status>», and the update time on
+  the Verdict line under the table. Never write the report from the shell
   (python, sed, cat >): the user's file pane redraws only on Edit changes.
-  At the end set the first line to the verdict.
+  At the end set the Verdict line under the table to the verdict.
 - Do not commit.
 ```
 

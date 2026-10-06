@@ -129,7 +129,7 @@ backend.
 
 **The report is live.** Before the dispatch, create the report (path
 below) with every case of the run `⏳ ждёт`, the progress bar at 0% and
-`Verdict: идёт прогон` on the first line, and post its link in the chat as a
+`Verdict: идёт прогон` under the table, and post its link in the chat as a
 clickable Markdown link with its repo-relative path — the user opens it once
 and watches the cases turn over. The runner then changes it with the Edit
 tool the moment a case changes status — never from the shell (`python`,
@@ -159,20 +159,17 @@ folder of the current iteration — the open `plans/<v>/` folder, the one
 without `summary.md`. No open version folder → say so and ask per
 `pipeline` → "Asking before a transition" which version this run belongs
 to; do not invent one. Overwritten each run (several UI products: one
-section per product). The first line is `Verdict: идёт прогон` while the run
-is on and `Verdict: PASS | DEFECTS | BLOCKED` at its end; the progress bar
-follows `work` → `references/progress-file.md` → The progress bar — the
-«Готово:» line, the hundred-cell bar in a code block, the count under it,
-every case weighing the same — counting a case done once it has a final
-status; only here the count line also says how many of the done cases
-passed and how many did not:
+section per product). It reads top-down: the title, the progress bar and
+the count right under it, the cases table, and under the table the
+`Verdict:` line — `идёт прогон` while the run is on, `PASS | DEFECTS |
+BLOCKED` at its end — with the commit and the update time. The bar follows
+`work` → `references/progress-file.md` → The progress bar (a hundred cells
+in a code block, every case weighing the same), counting a case done once
+it has a final status; only here the count line also says how many of the
+done cases passed and how many did not:
 
 ````markdown
-Verdict: идёт прогон
-
-# Прогон пользовательских тестов · <version>
-
-Готово:
+# Прогресс прогона по кейсам — итерация <version>
 
 ```text
 █████████████████████████████████████░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░ 37%
@@ -180,26 +177,29 @@ Verdict: идёт прогон
 
 9 из 24 · успешно 7 · не успешно 2
 
-Коммит 1a2b3c4 · Обновлено: 2026-10-06 14:32
+| TC | Кейс | Статус | Файл теста / комментарий |
+|---|---|---|---|
+| TC-1 | Список комнат на сегодня | ✅ прошёл | rooms.spec.ts |
+| TC-7 | Отмена начавшейся брони | ❌ дефект | bookings.spec.ts · «Ошибка 409» вместо «Бронь уже началась, отменить нельзя» · e2e/artifacts/TC-7.png |
+| TC-8 | Отмена за час до начала | 🔧 тест исправлен, перезапуск | bookings.spec.ts · локатор кнопки по роли |
+| TC-9 | Отмена чужой брони | ▶️ выполняется | bookings.spec.ts |
+| TC-10 | Пустой список броней | ✍️ пишется тест | |
+| TC-11 | Закрытая комната не видна | ⏳ ждёт | |
 
-| TC | Экран | Кейс | Статус | Что увидели / ожидалось | Скриншот |
-|---|---|---|---|---|---|
-| TC-1 | S-1 | Список комнат на сегодня | ✅ прошёл | | |
-| TC-7 | S-3 | Отмена начавшейся брони | ❌ дефект | «Ошибка 409» / «Бронь уже началась, отменить нельзя» | e2e/artifacts/TC-7.png |
-| TC-8 | S-3 | Отмена за час до начала | 🔧 тест исправлен, перезапуск | | |
-| TC-9 | S-3 | Отмена чужой брони | ▶️ выполняется | | |
-| TC-10 | S-3 | Пустой список броней | ✍️ пишется тест | | |
-| TC-11 | S-1 | Закрытая комната не видна | ⏳ ждёт | | |
+Verdict: идёт прогон · коммит 1a2b3c4 · обновлено 2026-10-06 14:32
 ````
+
+The comment cell holds the spec file, and for anything but `✅ прошёл`
+what was seen against what was expected and the screenshot path.
 
 Statuses: in progress — `⏳ ждёт`, `✍️ пишется тест`, `▶️ выполняется`,
 `🔧 тест исправлен, перезапуск`; final — `✅ прошёл`, `❌ дефект` (the app
-contradicts the spec), `🖼 расхождение с кадром`, `❓ пробел в ТЗ`,
+contradicts the spec), `🖼 расхождение с макетом`, `❓ пробел в ТЗ`,
 `⛔ заблокирован: <причина>`. The progress bar line splits the finished
 cases into «успешно» (`✅ прошёл`) and «не успешно» (every other final
-status) — no breakdown by kind there; the kind is in each row's status. At the end
-the runner sets the first line to the verdict and the counters to the final
-numbers.
+status) — no breakdown by kind there; the kind is in each row's status. At
+the end the runner sets the `Verdict:` line to the verdict and the bar and
+count to the final numbers.
 
 A `DEFECTS` verdict names, per defect, the unit or screen it points at, so
 the next step is one increment plan of fix units, not a hunt. Ask about that

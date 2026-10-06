@@ -202,7 +202,7 @@ commit (`references/changelog.md`).
 | Plan review | `plan-review.md` in the version folder | none — a check result, **unversioned**; first line `Verdict:` | `plan`, `work` and `pipeline` read it |
 | Plan progress | `progress.md` in the version folder | none — a view of git, **unversioned** | nobody; `work` updates it as each unit lands |
 | Docs consistency report | `docs-consistency.md` in the version folder | none — a check result, **unversioned**; first line `Verdict:`, a `checked:` hash per document path | nobody; `docs-consistency` overwrites it, `pipeline` and `plan` read it |
-| UI test run | `test-run.md` in the version folder (last run, first line `Verdict:`) | none — **unversioned** | nobody; `ui-test-cases` mode run overwrites it |
+| UI test run | `test-run.md` in the version folder (last run; a `Verdict:` line under the cases table) | none — **unversioned** | nobody; `ui-test-cases` mode run overwrites it |
 | Iteration summary | `summary.md` in the version folder; its presence closes the version | none — **unversioned**; numbers from the stage reports, plus the user's escaped-defects and interventions tables | nobody; `pipeline` writes it at the end of an iteration |
 
 Everything under `documentation/plans/` — plan, plan review, progress, the

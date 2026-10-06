@@ -12,9 +12,7 @@ no changelog, no `sources:`.
 ## The run
 
 ````markdown
-# Прогресс: documentation/plans/<version>/plan.md
-
-Готово:
+# Прогресс выполнения плана — итерация <version>
 
 ```text
 ████████████████████████████████████████░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░ 40%
@@ -22,15 +20,13 @@ no changelog, no `sources:`.
 
 8 из 20
 
-BASE: `<sha>` · Обновлено: <YYYY-MM-DD HH:MM>
-
 | U | Цель | Исполнитель | Статус | Ревью |
 |---|---|---|---|---|
 | U1 | <goal from the plan> | impl-lite | ✅ закоммичен | COMMIT |
 | U2 | … | impl-medium | ⛔ остановлен: <one-line reason> | — |
 | U3 | … | impl-hard | ⏳ ждёт | — |
 
-Финальное ревью: <не запускалось | verdict of code-review-full>
+Финальное ревью: <не запускалось | verdict of code-review-full> · BASE `<sha>` · обновлено <YYYY-MM-DD HH:MM>
 ````
 
 Statuses: `⏳ ждёт`, `🔄 в работе`, `🔍 на ревью`, `✅ закоммичен`,
@@ -64,12 +60,12 @@ resumed run resets any in-between status from git (no `Plan-Unit:` trailer →
 
 ## The progress bar
 
-Under the title the file shows the share done, always in the same shape:
-a line «Готово:», then the bar alone in a ```` ```text ```` block, then the
-count on its own line:
+Every progress view in the pipeline has the same shape: the title, then
+right under it the bar alone in a ```` ```text ```` block, then the count on
+its own line, then the table:
 
 ````markdown
-Готово:
+# Прогресс выполнения плана — итерация 1.1.0
 
 ```text
 ████████████████████████████████████████░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░ 40%
@@ -80,12 +76,13 @@ count on its own line:
 
 The bar is a hundred cells, one per percent — `█` for done, `░` for the
 rest — then the percent. The code block keeps it on one monospace line in
-the file pane, instead of wrapping into the prose around it. Every unit
+the file pane instead of wrapping into the prose around it. Every unit
 weighs the same, whatever its grade or size: percent = ⌊done × 100 /
 total⌋, rounded down so the bar never shows 100% before the last unit
 lands, and the filled cells equal the percent. Done means `✅ закоммичен`
 (units out of the run's scope do not count). The bar and the count change
-in the same Edit as the row. The fixes section has its own bar, in the same
+in the same Edit as the row; the line under the table carries the run's
+state and the update time. The fixes section has its own bar, in the same
 shape, over its blocking findings (`✅ исправлено` of the rows that block).
 
 ## Fixes after the final review
@@ -98,15 +95,11 @@ the same way as the units. Add this section under the units table, set the
 ````markdown
 ## Исправления по финальному ревью
 
-Готово:
-
 ```text
 ░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░ 0%
 ```
 
 0 из 2
-
-Вердикт: RETURN_TO_UNIT · Замечаний: 3 (P1 — 2, P2 — 1) · Обновлено: <YYYY-MM-DD HH:MM>
 
 | F | Замечание | Важность | Юнит | Исполнитель | Статус | Ревью |
 |---|---|---|---|---|---|---|
@@ -114,7 +107,7 @@ the same way as the units. Add this section under the units table, set the
 | F2 | старый валидатор вместимости остался в HTTP-адаптере | P1 | RF1 (U2, U5) | mechanical-worker | ⏳ ждёт | — |
 | F3 | имя `roomCap` против `capacity` | P2 | — | — | 📝 в отчёт, не блокирует | — |
 
-Повторное ревью: ждёт
+Вердикт: RETURN_TO_UNIT · замечаний 3 (P1 — 2, P2 — 1) · повторное ревью: ждёт · обновлено <YYYY-MM-DD HH:MM>
 ````
 
 - **One row per finding**, in the review's order, with its severity. A
@@ -132,9 +125,9 @@ the same way as the units. Add this section under the units table, set the
   commit lands; a follow-up gets its own `RF<n>` row at the bottom of the
   units table.
 - **Each fix updates its rows when its commit lands** (both tables, the
-  the section's bar and count, «Обновлено»), like a unit.
+  section's bar and count, the update time), like a unit.
 - **The re-review** (`code-review-full`, once, over the fix commits): its
-  verdict goes to the «Повторное ревью:» line and the `Финальное ревью:` line
+  verdict goes to «повторное ревью:» on the line under the fixes table, and the `Финальное ревью:` line
   shows the path (`RETURN_TO_UNIT → исправлено → PASS`). A second blocking
   verdict is a stop: «Повторное ревью: <verdict> → остановлено, решает
   пользователь», its new findings listed under the same table as `F4`, `F5`…
