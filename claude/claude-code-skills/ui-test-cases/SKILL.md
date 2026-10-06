@@ -158,11 +158,29 @@ The verdict is set only after pass 2.
 are being re-run, and a bar that stands still for twenty minutes reads as a
 hang. So any re-run — the cases of a shared-break pause, or a round of
 re-runs in pass 2 after tests were fixed — opens its own block in the
-report the moment it starts: a heading that says what is re-run and why,
-its own bar over just those cases, and «Перезапущено: N из M · успешно …
-· не успешно …». The block stays after it ends, marked «завершён». The
-re-run cases keep their row in the pass table until their new result is
-in; the pass's bar never goes back.
+report the moment it starts, written so a reader who never saw the run
+understands it:
+
+- a heading that says which re-run it is and what kind: «Перезапуск после
+  починки общего помощника» or «Перезапуск — круг N из 2: проверка
+  исправленных тестов» (pass 2 allows two attempts per test, so two rounds
+  at most);
+- «Что исправлено перед перезапуском:» — what changed in the tests or
+  helpers, in plain words and with how many tests («исправлено 18 тестов:
+  кнопки искались по тексту вместо роли, тест не ждал загрузки кабинета»);
+- «Что перезапускается:» — which cases and where they came from («54
+  кейса, не прошедших в круге 1»);
+- its own bar over just those cases, and «Перезапущено: N из M · прошли …
+  · снова не прошли …»;
+- at the end «Итог круга:» — what the numbers mean («30 падений были
+  ошибками в тестах, теперь проходят; 24 снова не прошли: 17 — дефекты
+  приложения, 7 — в круг 2»), and the heading gets «— завершён».
+
+While a re-run is on, a line under the pass's count says so — «Сейчас:
+перезапуск, круг 2 — 26 из 28. Основная полоса двинется после него.» — so
+the still main bar is explained right where the reader looks. The re-run
+cases keep their row in the pass table until their new result is in; the
+pass's bar never goes back.
 
 **The report is live.** Before the dispatch, create the report (path below)
 with every case of the run `⏳ ждёт`, the pass-1 bar at 0% and `Verdict:
@@ -218,13 +236,18 @@ block, every case weighing the same):
 
 ### Перезапуск после починки общего помощника — завершён
 
-Причина: помощник входа под ролью не дожидался перехода в кабинет
+Что исправлено перед перезапуском: общий помощник входа под ролью не
+дожидался перехода в кабинет — добавлено ожидание.
+
+Что перезапускается: 6 кейсов, которые упали из-за этого помощника.
 
 ```text
 ████████████████████████████████████████████████████████████████████████████████████████████████████ 100%
 ```
 
-Перезапущено: 6 из 6 · успешно 6 · не успешно 0
+Перезапущено: 6 из 6 · прошли 6 · снова не прошли 0
+
+Итог: все 6 падений были из-за помощника, теперь проходят.
 
 | TC | Кейс | Статус | Файл теста / комментарий |
 |---|---|---|---|
@@ -240,13 +263,20 @@ block, every case weighing the same):
 
 Разобрано: 2 из 5 · тест исправлен 1 · дефект приложения 1
 
-### Перезапуск исправленных тестов — круг 1
+Сейчас: перезапуск, круг 1 — 1 из 2. Полоса разбора двинется после него.
+
+### Перезапуск — круг 1 из 2: проверка исправленных тестов
+
+Что исправлено перед перезапуском: 2 теста — кнопка искалась по тексту
+вместо роли, тест не ждал загрузки списка броней.
+
+Что перезапускается: 2 кейса, где разбор нашёл ошибку в тесте.
 
 ```text
 ██████████████████████████████████████████████████░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░ 50%
 ```
 
-Перезапущено: 1 из 2 · успешно 1 · не успешно 0
+Перезапущено: 1 из 2 · прошли 1 · снова не прошли 0
 
 | TC | Кейс | Итог прохода 1 | Разбор | Статус |
 |---|---|---|---|---|

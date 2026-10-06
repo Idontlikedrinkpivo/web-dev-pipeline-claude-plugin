@@ -41,12 +41,17 @@ RULES
   triage. Exception: several cases in a row failing for one cause in shared
   test code (sign-in, data setup, navigation) — pause, fix the helper,
   re-run those cases, go on.
-- Every re-run (a shared-break pause, a pass-2 round after test fixes)
-  opens its own block the moment it starts: a heading saying what is
-  re-run and why, its own bar over just those cases, «Перезапущено: N из M
-  · успешно … · не успешно …»; marked «завершён» at the end. Re-run cases
-  keep their pass row until the new result is in; a pass bar never goes
-  back. A bar that stands still while you re-run reads as a hang. Pass 2, when pass 1 is at 100%: add the «Проход 2 — разбор
+- Every re-run (a shared-break pause, a pass-2 round after test fixes —
+  at most two rounds) opens its own block the moment it starts, readable
+  by someone who never saw the run: heading «Перезапуск после починки
+  общего помощника» or «Перезапуск — круг N из 2: проверка исправленных
+  тестов»; «Что исправлено перед перезапуском:» in plain words with how
+  many tests; «Что перезапускается:» which cases and from where; its own
+  bar; «Перезапущено: N из M · прошли … · снова не прошли …»; at the end
+  «Итог круга:» what the numbers mean, and «— завершён» on the heading.
+  While it runs, a «Сейчас: перезапуск, круг N — x из y. Основная полоса
+  двинется после него.» line sits under the pass's count. Re-run cases keep
+  their pass row until the new result is in; a pass bar never goes back. Pass 2, when pass 1 is at 100%: add the «Проход 2 — разбор
   упавших» section with its own bar over the failed cases and triage each:
   test defect (fix, re-run, max two attempts), app defect, mockup
   mismatch, spec gap. App defects are not re-run.
