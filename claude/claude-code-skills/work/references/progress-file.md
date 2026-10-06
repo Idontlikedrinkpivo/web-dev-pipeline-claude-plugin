@@ -14,7 +14,7 @@ no changelog, no `sources:`.
 ```markdown
 # Прогресс: documentation/plans/<version>/plan.md
 
-Прогресс: ████████░░░░░░░░░░░░ 40%
+Прогресс: ████████████████████████████████████████░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░ 40%
 
 BASE: `<sha>` · Сделано: <сделано> из <всего> · Обновлено: <YYYY-MM-DD HH:MM>
 
@@ -58,12 +58,13 @@ resumed run resets any in-between status from git (no `Plan-Unit:` trailer →
 
 ## The progress bar
 
-The line under the title shows the share done at a glance: twenty cells,
-`█` for done and `░` for the rest, then the percent —
-`Прогресс: ████████░░░░░░░░░░░░ 40%` for 8 of 20. Filled cells =
-⌊done × 20 / total⌋, percent = ⌊done × 100 / total⌋, rounded down so the bar
-never shows 100% before the last unit lands. Done means `✅ закоммичен`
-(units out of the run's scope do not count). It changes in the same Edit as
+The line under the title shows the share done at a glance: a hundred
+cells, one per percent — `█` for done, `░` for the rest — then the percent;
+8 of 20 units is 40 `█` and 60 `░`, `40%`. Every unit weighs the same,
+whatever its grade or size: percent = ⌊done × 100 / total⌋, rounded down so
+the bar never shows 100% before the last unit lands, and the filled cells
+equal the percent. Done means `✅ закоммичен` (units out of the run's scope
+do not count). It changes in the same Edit as
 the row and the `Сделано` counter. The fixes section has its own bar over
 its blocking findings (`✅ исправлено` of the rows that block).
 
@@ -77,7 +78,7 @@ the same way as the units. Add this section under the units table, set the
 ```markdown
 ## Исправления по финальному ревью
 
-Прогресс исправлений: ░░░░░░░░░░░░░░░░░░░░ 0%
+Прогресс исправлений: ░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░ 0%
 
 Вердикт: RETURN_TO_UNIT · Замечаний: 3 (P1 — 2, P2 — 1) · Исправлено: 0 из 2 · Обновлено: <YYYY-MM-DD HH:MM>
 

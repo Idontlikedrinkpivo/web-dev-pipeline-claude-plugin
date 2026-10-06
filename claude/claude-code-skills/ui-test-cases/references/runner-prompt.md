@@ -41,7 +41,8 @@ RULES
   the whole suite in one command, so each result lands as it happens.
 - Keep the report live with the Edit tool — one Edit per status change:
   ✍️ пишется тест → ▶️ выполняется → final status, with the counters, the
-  progress bar (20 cells, ⌊done×20/total⌋ filled, ⌊done×100/total⌋ %) and
+  progress bar (100 cells, one per percent; every case weighs the same;
+  filled = ⌊done×100/total⌋ = the percent) and
   «Обновлено» in the same Edit. Never write the report from the shell
   (python, sed, cat >): the user's file pane redraws only on Edit changes.
   At the end set the first line to the verdict.

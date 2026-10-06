@@ -162,14 +162,15 @@ to; do not invent one. Overwritten each run (several UI products: one
 section per product). The first line is `Verdict: идёт прогон` while the run
 is on and `Verdict: PASS | DEFECTS | BLOCKED` at its end; the progress bar
 follows the rules of `work` → `references/progress-file.md` → The progress
-bar, counting a case done once it has a final status:
+bar — a hundred cells, one per percent, every case weighing the same —
+counting a case done once it has a final status:
 
 ```markdown
 Verdict: идёт прогон
 
 # Прогон пользовательских тестов · <version>
 
-Прогресс: ███████░░░░░░░░░░░░░ 37%
+Прогресс: █████████████████████████████████████░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░ 37%
 
 Коммит 1a2b3c4 · Сделано: 9 из 24 · прошли 7 · дефекты 1 · расхождения с кадром 1 · Обновлено: 2026-10-06 14:32
 
