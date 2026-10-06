@@ -178,9 +178,10 @@ understands it:
 
 While a re-run is on, a line under the pass's count says so — «Сейчас:
 перезапуск, круг 2 — 26 из 28. Основная полоса двинется после него.» — so
-the still main bar is explained right where the reader looks. The re-run
-cases keep their row in the pass table until their new result is in; the
-pass's bar never goes back.
+the reader sees what is happening right where they look. The re-run cases
+keep their row in the pass table until their new result is in; a case that
+passes on a re-run turns `✅ прошёл после исправления теста` there, and the
+main bar grows with it.
 
 **The report is live.** Before the dispatch, create the report (path below)
 with every case of the run `⏳ ждёт`, the pass-1 bar at 0% and `Verdict:
@@ -223,16 +224,22 @@ count right under it, its table; under the last table the `Verdict:` line —
 `идёт прогон` while the run is on, `PASS | DEFECTS | BLOCKED` after pass 2 —
 with the commit and the update time. The bars follow `work` →
 `references/progress-file.md` → The progress bar (a hundred cells in a code
-block, every case weighing the same):
+block, every case weighing the same). **The main bar, under the title, shows
+the share of cases that pass** — ⌊passed × 100 / all cases⌋ — not the share
+checked: it grows during pass 1 as cases pass, and again with every re-run
+round as fixed tests turn green, so the user watches the one number that
+matters climb. Its count line starts with what the bar measures:
+«Успешно: N из M · проверено … · не успешно … · заблокировано …». The bars
+of pass 2 and of each re-run measure their own work, as described above:
 
 ````markdown
 # Прогресс прогона по кейсам — итерация <version>
 
 ```text
-████████████████████████████████████████████████████████████████████████████████████████████████████ 100%
+███████████████████████████████████████████████████████████████████████████░░░░░░░░░░░░░░░░░░░░░░░░░ 75%
 ```
 
-Проверено: 24 из 24 · успешно 18 · не успешно 5 · заблокировано 1
+Успешно: 18 из 24 · проверено 24 из 24 · не успешно 5 · заблокировано 1
 
 ### Перезапуск после починки общего помощника — завершён
 
@@ -292,8 +299,10 @@ The comment cell holds the spec file, and for a failure what was seen
 against what was expected and the screenshot path.
 
 Statuses. Pass 1: `⏳ ждёт`, `✍️ пишется тест`, `▶️ выполняется`, then
-`✅ прошёл`, `❌ не прошёл`, `⛔ заблокирован: <причина>`; its count line is
-«Проверено: N из M · успешно … · не успешно … · заблокировано …». Pass 2:
+`✅ прошёл`, `❌ не прошёл`, `⛔ заблокирован: <причина>`, and later
+`✅ прошёл после исправления теста` for a case a re-run turned green; the
+main count line is «Успешно: N из M · проверено … · не успешно … ·
+заблокировано …». Pass 2:
 `⏳ ждёт`, `▶️ разбирается`, then `✅ тест исправлен, прошёл`,
 `🔧 тест не удалось исправить`, `❌ дефект приложения`,
 `🖼 расхождение с макетом`, `❓ пробел в ТЗ`; its count line is «Разобрано:

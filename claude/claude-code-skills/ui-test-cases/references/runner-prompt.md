@@ -51,18 +51,20 @@ RULES
   «Итог круга:» what the numbers mean, and «— завершён» on the heading.
   While it runs, a «Сейчас: перезапуск, круг N — x из y. Основная полоса
   двинется после него.» line sits under the pass's count. Re-run cases keep
-  their pass row until the new result is in; a pass bar never goes back. Pass 2, when pass 1 is at 100%: add the «Проход 2 — разбор
-  упавших» section with its own bar over the failed cases and triage each:
-  test defect (fix, re-run, max two attempts), app defect, mockup
-  mismatch, spec gap. App defects are not re-run.
+  their pass row until the new result is in; a case that passes on a
+  re-run turns «✅ прошёл после исправления теста» in the pass table and
+  counts on the main bar.
 - Run the cases one at a time (npx playwright test --grep "TC-<n>\b"), not
   the whole suite in one command, so each result lands as it happens.
 - Keep the report live with the Edit tool — one Edit per status change.
-  The same Edit updates that pass's bar (a text code block: 100 cells, one
-  per percent, every case weighing the same, filled cells =
-  ⌊done×100/total⌋ = the percent shown after it), its count line
-  (pass 1: «Проверено: N из M · успешно … · не успешно … · заблокировано …»;
-  pass 2: «Разобрано: N из M» with the results so far) and the update time
+  The same Edit updates the bars it touches (text code blocks: 100 cells,
+  one per percent, every case weighing the same, filled cells = the
+  percent shown after them). The main bar under the title is the share of
+  cases that pass, ⌊passed×100/all⌋ — it grows in pass 1 and with every
+  re-run that turns a case green — with the count line «Успешно: N из M ·
+  проверено … · не успешно … · заблокировано …». Pass 2's bar is the share
+  triaged, «Разобрано: N из M» with the results so far; a re-run block's
+  bar is the share of its cases re-run. Also the update time
   on the Verdict line under the last table. Never write the report from
   the shell (python, sed, cat >): the user's file pane redraws only on Edit
   changes. Set the Verdict only after pass 2.
