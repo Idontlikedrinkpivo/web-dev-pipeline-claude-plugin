@@ -63,7 +63,7 @@ resumed run resets any in-between status from git (no `Plan-Unit:` trailer →
 Every progress view in the pipeline has the same shape: the title, then
 right under it the bar alone in a ```` ```text ```` block, then the count on
 its own line — «Сделано: N из M» for the plan, «Исправлено: N из M» for the
-fixes section, «Успешно: N из M · проверено … · не успешно …» for the
+fixes section, «Проверено: N из M · успешно … · не успешно …» for the
 user-test run, whose main bar shows the share of cases that pass — then the table:
 
 ````markdown

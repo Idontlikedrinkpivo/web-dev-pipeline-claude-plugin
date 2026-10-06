@@ -61,8 +61,8 @@ RULES
   one per percent, every case weighing the same, filled cells = the
   percent shown after them). The main bar under the title is the share of
   cases that pass, ⌊passed×100/all⌋ — it grows in pass 1 and with every
-  re-run that turns a case green — with the count line «Успешно: N из M ·
-  проверено … · не успешно … · заблокировано …». Pass 2's bar is the share
+  re-run that turns a case green — with the count line, label included,
+  «Проверено: N из M · успешно … · не успешно … · заблокировано …». Pass 2's bar is the share
   triaged, «Разобрано: N из M» with the results so far; a re-run block's
   bar is the share of its cases re-run. Also the update time
   on the Verdict line under the last table. Never write the report from

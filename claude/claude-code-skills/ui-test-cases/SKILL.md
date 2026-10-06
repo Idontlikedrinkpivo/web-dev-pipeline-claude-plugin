@@ -228,8 +228,9 @@ block, every case weighing the same). **The main bar, under the title, shows
 the share of cases that pass** — ⌊passed × 100 / all cases⌋ — not the share
 checked: it grows during pass 1 as cases pass, and again with every re-run
 round as fixed tests turn green, so the user watches the one number that
-matters climb. Its count line starts with what the bar measures:
-«Успешно: N из M · проверено … · не успешно … · заблокировано …». The bars
+matters climb. Its count line is always labelled: «Проверено: N из M ·
+успешно … · не успешно … · заблокировано …» — the bar's percent is
+успешно ÷ M. The bars
 of pass 2 and of each re-run measure their own work, as described above:
 
 ````markdown
@@ -239,7 +240,7 @@ of pass 2 and of each re-run measure their own work, as described above:
 ███████████████████████████████████████████████████████████████████████████░░░░░░░░░░░░░░░░░░░░░░░░░ 75%
 ```
 
-Успешно: 18 из 24 · проверено 24 из 24 · не успешно 5 · заблокировано 1
+Проверено: 24 из 24 · успешно 18 · не успешно 5 · заблокировано 1
 
 ### Перезапуск после починки общего помощника — завершён
 
@@ -301,8 +302,8 @@ against what was expected and the screenshot path.
 Statuses. Pass 1: `⏳ ждёт`, `✍️ пишется тест`, `▶️ выполняется`, then
 `✅ прошёл`, `❌ не прошёл`, `⛔ заблокирован: <причина>`, and later
 `✅ прошёл после исправления теста` for a case a re-run turned green; the
-main count line is «Успешно: N из M · проверено … · не успешно … ·
-заблокировано …». Pass 2:
+main count line is «Проверено: N из M · успешно … · не успешно … ·
+заблокировано …», always with the «Проверено:» label. Pass 2:
 `⏳ ждёт`, `▶️ разбирается`, then `✅ тест исправлен, прошёл`,
 `🔧 тест не удалось исправить`, `❌ дефект приложения`,
 `🖼 расхождение с макетом`, `❓ пробел в ТЗ`; its count line is «Разобрано:
