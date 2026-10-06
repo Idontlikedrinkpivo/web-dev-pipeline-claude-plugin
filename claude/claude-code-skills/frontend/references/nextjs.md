@@ -42,6 +42,12 @@ Name the `S-n` in the page file's first comment line.
 - Modals, pending buttons and status messages are client-side even when the list
   is server-rendered; after a write, refresh the server data as the installed version prescribes.
 - Server-only code (secrets, the internal backend URL) never imports into a client component.
+- Hydration: an input with `value` has `onChange`, or uses `defaultValue`
+  when uncontrolled; a date or time that differs between server and client
+  (time zone, `Date.now()`) renders from a value the server passes or on
+  the client after mount, so the HTML matches; `suppressHydrationWarning`
+  only on the one element that must differ, never to silence a real
+  mismatch (`web-design-guidelines` → Next.js hydration).
 
 ## Commands (read the real names from `package.json`)
 

@@ -57,7 +57,7 @@ If a unit turns out to be under-specified or the design is wrong, that is a
 | The design documents the plan cites | on demand | read the cited section when building a worker packet, not up front |
 | Context7 MCP (`resolve-library-id`, `query-docs`) | no | live library docs for the packet's `CURRENT LIB DOCS` (Step 2b). Missing MCP is a skip, not a stop |
 | Language skill files the user attached | no | forwarded as `STACK SKILLS`. Do not invent a stack pack |
-| `frontend` skill | for frontend units | every `impl-ui` unit, and any unit whose `Files` are browser UI code, gets it in `STACK SKILLS` without being attached: its `SKILL.md` in full plus the one `references/<profile>.md` that matches architecture §1 «Стек» (or the line `no profile — <stack>`). Backend units never get it |
+| `frontend` and `web-design-guidelines` skills | for frontend units | every `impl-ui` unit, and any unit whose `Files` are browser UI code, gets them in `STACK SKILLS` without being attached: the `frontend` `SKILL.md` in full plus the one `references/<profile>.md` that matches architecture §1 «Стек» (or the line `no profile — <stack>`), and the `web-design-guidelines` `SKILL.md` in full. Backend units never get them |
 
 ### Readiness gate
 
@@ -215,8 +215,8 @@ Build the packet from `executor-catalog/references/worker-prompt.md`. Fill
 every slot: paste the cited design excerpts rather than telling the worker to
 go read the architecture, list the exact files, carry the unit's `Approach`,
 `Test scenarios` and `Verification` verbatim, paste `STACK SKILLS` from
-language skills the user attached, plus the `frontend` skill and its one
-profile for a frontend unit (see Inputs), or `none — no language skills attached`,
+language skills the user attached, plus the `frontend` skill, its one
+profile and `web-design-guidelines` for a frontend unit (see Inputs), or `none — no language skills attached`,
 paste `CURRENT LIB DOCS` from Step 2b, fill `FROM DEPENDENCIES` from the run
 report's `Decisions` of every `Depends on` unit, and include the `DELEGATION`
 block only when the unit has a `Nested` row — nesting hands typing to

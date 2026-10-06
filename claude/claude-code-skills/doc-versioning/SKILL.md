@@ -4,7 +4,7 @@ description: >-
   The convention for evolving project documents: one canonical file per
   type, edited in place in Russian, stable ids, a `version` that names the
   service release the document last changed in, changelog rows typed
-  ломает / добавляет / уточняет, `sources:` pins as `path@<version>`, all
+  ломает / добавляет / уточняет, `sources:` pins as `path@version`, all
   stamped only in a commit the user asks for. Use when a feature lands on a
   system that already has requirements, API, DB, UI, architecture or plan
   documents, when asked to version or publish documents, or to find stale

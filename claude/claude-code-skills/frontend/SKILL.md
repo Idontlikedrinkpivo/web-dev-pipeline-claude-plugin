@@ -27,7 +27,7 @@ between releases are checked live (Version-sensitive behaviour).
 | Architecture foundation `documentation/architecture/architecture.md` §1 «Стек» / «Ключевые решения» | framework, language, profile | Read first. Pick the profile below |
 | Architecture foundation §5 «Дерево файлов» | where each file goes | Wins over the profile layout. A file the tree does not place goes where the profile says, and the report names it |
 | Screen spec `documentation/ui/screen-specs/S-<n>-*.md` (`documentation/ui/<product>/screen-specs/` with several UI products) | elements and their behaviour per condition, the operation and fields each uses, states, response outcomes, derived values | Behaviour comes from here. Its element № matches the frame annotation |
-| Figma `S-n · Аннотация` «Тексты» table (the screen spec quotes it) | the exact wording of every label and message | Copy verbatim (no rewording, no guillemets in the UI). A text with no row is a gap question, not text you write |
+| Figma `S-n · Аннотация` «Тексты» table (the screen spec quotes it) | the exact wording of every label and message | Copy verbatim, with no rewording. The «» that mark a text in the table are not part of it; quotes, «…» and dashes inside the text stay as written (UX-78). A text with no row is a gap question, not text you write |
 | `documentation/api/openapi.yaml` | every HTTP call, request and response shape, status codes | Only through a client or types generated from this file, so a contract change surfaces as a type error instead of a silent runtime mismatch. A hand-written `fetch`/axios URL, path string or DTO interface drifts from the contract unnoticed |
 | Figma `fileKey` / `nodeId` cited in the spec | widgets, presentation of nested steps, layout at every width, spacing, tokens, visual hierarchy | Read with the Figma MCP (`get_design_context`, `get_screenshot`, `get_variable_defs`); if `figma-*` skills are installed, follow them instead. Map to the project's components and tokens — generated snippets are a reference, not code to paste |
 | Existing code in the repo | patterns, shared components, the app-wide handler | Reuse before adding. A second button, modal or API client beside an existing one is a defect |
@@ -99,11 +99,21 @@ the project is used as is, whether or not it meets the criterion.
    error text next to the field. Derive the form schema from the generated
    request type so a contract change breaks the build, not the user.
 6. **Focus** follows the frame and `ux-patterns` (dialog focus, error
-   summary); **narrow widths** follow the frame drawn at that width.
+   summary). **Widths** go desktop first: the desktop width of the frames
+   register is built first, then each narrower width follows the frame
+   drawn at it, with no sideways page scroll at any width (UX-74).
+   **Theme** comes from the Figma variables (`get_variable_defs`): each
+   one maps to the project's theme variable for the same role — on
+   shadcn/ui its theme variable of the same name; in a project with its
+   own names (`--surface-card`, `--ink-900`) the one for that role — light
+   and dark, in the project's one theme file; radius, shadows and fonts
+   likewise. A restyle in Figma is a theme unit: the theme file changes,
+   and the screens follow without edits unless one hardcodes a value — that
+   value moves into the theme in the same unit.
    **Fonts** come from the frame: the family, weights and sizes its text
-   styles or variables name. Load that family (the framework's font loader
-   or self-hosted files) instead of letting the browser fall back to a
-   system font, because a fallback changes every text width and weight on
+   styles or variables name. Load that family with its `cyrillic` subset
+   (the framework's font loader or self-hosted files, UX-59) instead of
+   letting the browser fall back to a system font, because a fallback changes every text width and weight on
    the screen.
 7. **Behaviour follows `ux-patterns`** (load it; the variant from the
    frames register's **Тип продукта**) where the spec and the frame leave the
@@ -116,13 +126,25 @@ the project is used as is, whether or not it meets the criterion.
    errors never auto-dismiss [UX-27]; URL holds filters, tab and page
    [UX-32]; unsaved changes are guarded [UX-35]; dialogs per WAI-ARIA
    [UX-34]. B2C adds Core Web Vitals budgets and the consent rules
-   [UX-48, UX-53, UX-54]. A test that pins one of these names the rule
-   id. Where the spec states otherwise, the spec wins — it was reviewed.
+   [UX-48, UX-53, UX-54]. Section 8 of `ux-patterns` holds for every
+   screen: layout, performance, touch, `Intl` [UX-74 – UX-77]; Section 9
+   for every text the code adds, such as an `aria-label` [UX-78, UX-79].
+   A test that pins one of these names the rule id. Where the screen spec
+   records an «Исключение UX-<n>», build what it says — it was reviewed.
 8. **Texts** come from the frame's «Тексты» table (as quoted in the screen
    spec) and live where the project keeps UI strings (i18n catalog keyed by
    `S-n`, or a per-feature messages module); tests assert them verbatim. A
    designer's rewording changes the frame, the screen spec and this
    catalog — never the SRS.
+
+9. **Code-level rules** are in `web-design-guidelines`: the code form of
+   every `ux-patterns` rule — semantics and keyboard, focus, forms, motion
+   under reduced motion, long content, images, performance, touch,
+   theming, `Intl`, Next.js hydration. Keep CSS specificity flat: styles
+   come from the theme tokens and utility classes on the element; a
+   section-level selector and an element class that both set padding
+   cancel each other out, so the spacing between sections is set in one
+   place.
 
 **A gap is a question, not code.** A state, text, element, response outcome
 or field rule the screen spec does not give goes back to `screen-spec`; a
@@ -167,6 +189,10 @@ test); a missing one is reported, not invented.
    reachable, say the comparison was not done. Never report "matches the
    mockup" without that comparison: a reviewer cannot tell an unchecked
    screen from a checked one.
+4. Before hand-off, go through `ux-patterns` → «Проверка экрана перед
+   сдачей» and review the diff with `web-design-guidelines`; fix what they
+   find. An item that could not be checked (no browser, no Figma) is named,
+   not passed.
 
 ## Version-sensitive behaviour
 
@@ -202,5 +228,6 @@ uses Vitest.
 
 Name: profile used (or "no profile"), files by `S-n`, each state and response
 outcome → where it is handled, commands run with results, the Figma
-comparison result or why it was skipped, libraries added, and every gap sent
-back to `screen-spec` or `ui-design`.
+comparison result or why it was skipped, the «Проверка экрана перед сдачей»
+items with their result (inside `work`, the report's SCREEN CHECK field), libraries added, and every gap sent back to
+`screen-spec` or `ui-design`.

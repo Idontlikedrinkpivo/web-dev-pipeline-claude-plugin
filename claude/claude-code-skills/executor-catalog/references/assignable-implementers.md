@@ -19,11 +19,11 @@ model slug.
 | `impl-lite` | Low: transcribe a fully specified artifact against a local pattern |
 | `impl-medium` | Mid: close local decisions, then prove them |
 | `impl-hard` | High: design the missing part inside given boundaries |
-| `impl-ui` | Frontend whose `Docs` cite a screen spec and a Figma `nodeId`: the screen and its states, or a component whose shape comes from that frame. Any grade |
+| `impl-ui` | Frontend whose `Docs` cite a screen spec and a Figma `nodeId`: the screen and its states, or a component whose shape comes from that frame; or the theme unit after a restyle, whose `Docs` cite the `🎨 Tokens` `nodeId`. Any grade |
 
-The grade's row and `impl-ui` do not combine. A unit that cites the frame is
-`impl-ui` even when the cascade says 0 or Low. A unit that does not cite one
-never takes `impl-ui`. Drawing or editing the Figma file is `figma-sonnet` or
+The grade's row and `impl-ui` do not combine. A unit that cites a frame or
+the `🎨 Tokens` page is `impl-ui` even when the cascade says 0 or Low. A unit
+that cites neither never takes `impl-ui`. Drawing or editing the Figma file is `figma-sonnet` or
 `figma-opus`, and those names are not legal in a plan.
 
 `impl-critical` is **not** an Implementer. `work` may escalate to it after a

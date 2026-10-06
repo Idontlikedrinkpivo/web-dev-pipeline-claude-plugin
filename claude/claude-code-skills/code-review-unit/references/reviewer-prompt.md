@@ -39,7 +39,7 @@ EVIDENCE STRATEGY THE UNIT WAS GIVEN
   <test-first | characterization-first | smoke | none>
 
 WORKER REPORT
-  <TESTS / EVIDENCE / RED OBSERVED / CONCERNS / OUT OF SCOPE, or "none">
+  <TESTS / EVIDENCE / RED OBSERVED / SCREEN CHECK / CONCERNS / OUT OF SCOPE, or "none">
 
 ALREADY RECORDED THIS RUN
   <one line per prior finding, or "none">

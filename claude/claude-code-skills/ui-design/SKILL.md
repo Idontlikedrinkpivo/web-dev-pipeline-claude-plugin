@@ -1,13 +1,17 @@
 ---
 name: ui-design
 description: >-
-  Design stage: draws the Figma mockups straight from the SRS (no API
-  needed) and keeps the frames register documentation/ui/frames-register.md
-  — screen ids S-n, nodeIds, states, nested steps. Decides the screen set
-  from use cases and roles, runs the completeness checklist, dispatches
-  figma-opus / figma-sonnet, or indexes frames a designer already drew. Use
-  for «нарисуй макеты», «дизайн экранов», «макеты в фигме», mockups or
-  screens. Not the screen spec (`screen-spec`), not code (`frontend`).
+  Design stage: picks the visual direction (two or three options from
+  `ui-ux-pro-max`, drawn as style tiles, the user chooses), draws the Figma
+  mockups straight from the SRS (no API needed), restyles existing mockups
+  to a new direction, and keeps the frames register
+  documentation/ui/frames-register.md — screen ids S-n, nodeIds, states,
+  nested steps. Decides the screen set from use cases and roles, runs the
+  completeness checklist, dispatches figma-opus / figma-sonnet, or indexes
+  frames a designer already drew. Use for «нарисуй макеты», «дизайн
+  экранов», «макеты в фигме», «перекрась макеты», «новый стиль
+  интерфейса», «визуальное направление», mockups or screens. Not the
+  screen spec (`screen-spec`), not code (`frontend`).
 ---
 
 # UI Design
@@ -18,6 +22,12 @@ The design starts right after the SRS and does not wait for the API — a
 screen is drawn from what the actor must do and see, not from the endpoints
 that will serve it. `screen-spec` later reads these frames together with
 the OpenAPI contract and writes the per-screen spec.
+
+Before the first frame the look is chosen: the **visual direction** —
+palette, type, shape, density and the one characteristic thing — offered as
+two or three style tiles in Figma and picked by the user. A new look for
+frames already drawn is a **restyle**: the look changes; structure, texts
+and ids stay.
 
 The only file this skill writes in the repo is the **frames register** — a
 map from screen ids to Figma nodes, not a contract. Every widget,
@@ -52,6 +62,8 @@ skipped; `pipeline` names what follows.
 | SRS `documentation/requirements/srs/srs.md` | always: actors and roles (§ actors), use cases with Main / Alt / Exc flows and their AC, business rules, NFR (widths, accessibility, languages). No SRS: ask once for it; do not invent `UC-` ids |
 | `ui-wishes.md` beside the SRS (`documentation/requirements/srs/`) | when it exists. An input, never a contract: the builder weighs each wish against `ux-patterns` and the use case and may decide otherwise. A frame that departs from a wish is not a gap and not a finding anywhere |
 | `ux-patterns` | always: the product-type variants and the completeness checklist (Полнота макета) |
+| `ui-ux-pro-max`, `frontend-design` | the visual-direction step and a restyle: the design data, and the way to turn it into options that fit this product |
+| A brand book or brand colours | when the SRS or the user names them: they pin the direction |
 | Figma file | always; asked once (Entry question) unless the register already holds it |
 | The frames register | on every run after the first: it holds the file, the mode, the header lines and every S-id |
 
@@ -63,12 +75,17 @@ flow (`UC-3 Exc-1`), and `screen-spec` maps them to status codes later.
 
 1. Entry question — only when there is no register yet.
 2. Header lines — product type, widths, accessibility.
-3. Mode **draw**: screen set and coverage plan → drawing → verification.
+3. Visual direction — when the look is not chosen yet, or the user asks
+   for a new one.
+4. Mode **draw**: screen set and coverage plan → drawing → verification.
    Mode **index**: indexing → completeness questions to the designer.
-4. Quality gate, then Closing and the next stage.
+   **Restyle**: the existing frames take the chosen direction →
+   verification.
+5. Quality gate, then Closing and the next stage.
 
-A later run (an SRS increment, a redesign request, «дорисуй состояние»)
-starts at step 2 with the register it finds, and touches only what changed.
+A later run (an SRS increment, a redesign request, «дорисуй состояние»,
+«перекрась макеты») starts at step 2 with the register it finds, and
+touches only what changed.
 
 ## Entry question
 
@@ -132,7 +149,8 @@ What it holds:
 
 - **Frontmatter:** `title`, `updated`, `sources:` (the SRS `@<version>`).
 - **Header:** Figma URL and `fileKey`, **Кадры рисует**, **Тип продукта**,
-  **Ширины**, **Доступность**, and in index mode **Слои по действиям**.
+  **Ширины**, **Доступность**, **Визуальное направление**, and in index
+  mode **Слои по действиям**.
 - **Экраны:** `S-n | Экран | Сценарии | Акторы | Кадр | Состояния | Вложенные
   шаги | Статус`. State and step cells list `имя → nodeId`. Статус is
   `черновик` or `готово к разработке`.
@@ -155,13 +173,41 @@ otherwise guess them per screen.
 | Line | From | When the SRS cannot tell |
 |---|---|---|
 | **Тип продукта** | the SRS actors: `B2B` (internal or business tool), `B2C` (public consumer web), or per area (`публичный сайт — B2C, админка — B2B`). It picks the variant of every `ux-patterns` rule that has one | row classed `Блокирует старт`, asked in the chat |
-| **Ширины** | the NFR on devices and platforms (`1440, 375`) | row classed `Блокирует старт`, asked in the chat |
+| **Ширины** | the NFR on devices and platforms (`1440, 375`); the desktop width always first (UX-74) | row classed `Блокирует старт`, asked in the chat with a proposal: B2B `1440, 375`; B2C `1440, 768, 375` |
 | **Доступность** | the accessibility NFR | default `WCAG 2.2 AA`; say so in one line, no question |
 
 Ask each missing line as its own question, per `grill-me` → "How a question
 is shown", with a recommended option. Drawing waits for the answers; once
 answered, write the line and remove the row. A deferred answer leaves the
-row and nothing is drawn.
+row and nothing is drawn. **Визуальное направление** comes from the next
+step, not from the SRS.
+
+## Visual direction
+
+The look every frame shares: palette, type, radius and shadow, density, and
+the one characteristic thing. It is chosen once, before the first frame,
+written into the register header as **Визуальное направление**, and reused
+by every later run.
+
+| Situation | What happens |
+|---|---|
+| Mode draw on a file with no product frames and no linked library | the step runs before the screen set is drawn |
+| Product frames exist, the register has no direction (they were drawn before this step existed), and nobody asks for a new look | no step: new screens follow the existing frames; the line says `по кадрам файла` |
+| The user asks for a new look of existing frames («перекрась», «новый стиль», «переработать интерфейс») — a designer's frames too | the step runs, then Restyle. When the request does not say whether only the look changes («переработать интерфейс»), ask once: only the look, or the structure of some screens too — those screens are then `редизайн`. On a designer's file, say once that their look changes and the old one is kept in `🗄 Архив` |
+| A linked library, or a designer's frames (mode index), with no request for a new look | no step: the look is theirs; the line says `по библиотеке <имя>` or `по макетам дизайнера` |
+| The SRS or the user pins the look (a brand book, brand colours) | the options stay inside that; with everything pinned, one option and no question |
+
+Read `references/visual-direction.md` and follow it: a three-line brief
+from the SRS; two or three options from `ui-ux-pro-max`, planned by
+`frontend-design`, filtered for template tells (UX-60), Cyrillic and
+contrast; style tiles drawn by `figma-opus` (`MODE direction`); one
+question with the options; the answer written into the register. Drawing
+and a restyle wait for the answer.
+
+When the SRS has a public page, the same step offers its landing pattern
+(the section order and the place of the main action). The effects the data
+suggests are offered as proposals; each one the user picks becomes a line
+in `ui-wishes.md`.
 
 ## Screen set — information architecture
 
@@ -213,6 +259,7 @@ FRAMES`, and each in-scope screen gets its mark against them:
 | `правка` | the frame exists; this run adds or changes a flow, an action, a state, a field or a role on it |
 | `редизайн` | the screen's structure changes, or the user called it a redesign. A new action on the old structure is `правка` |
 | `без изменений` | the frame exists and nothing in this run touches it |
+| `перекраска` | Restyle: the frame takes the chosen direction; nothing else on it changes |
 
 A screen whose frame exists is never `новый экран`, whatever an earlier
 plan said. Existing screens are never redrawn: an increment touches only
@@ -225,10 +272,11 @@ redraw.
 **Design system.** Fill the packet's `DESIGN SYSTEM` from the file: the
 libraries enabled in it (`get_libraries`), else its local variables
 (`get_variable_defs` on a frame), else `none`. With `none` the builder
-creates a small shadcn/ui-style token set and draws the components itself;
-say so in one line and that a shadcn/ui kit linked as a library (for
-example the free Obra one) would bring the frames closer to the code. This
-is information; the dispatch does not wait.
+creates the token set from the chosen direction (the packet's `VISUAL
+DIRECTION`) and draws the components itself in the shadcn/ui style; say so
+in one line and that a shadcn/ui kit linked as a library (for example the
+free Obra one) would bring the frames closer to the code. This is
+information; the dispatch does not wait.
 
 **Routing:**
 
@@ -236,6 +284,8 @@ is information; the dispatch does not wait.
 |---|---|
 | The file has no product frames, or any screen is `новый экран` or `редизайн`, or an app-wide state frame is missing | `figma-opus`, `MODE draw` |
 | Every touched screen is `правка` | `figma-sonnet`, `MODE edit` |
+| Style tiles of the visual direction | `figma-opus`, `MODE direction` |
+| The existing frames take a new direction; nothing else changes | `figma-sonnet`, `MODE restyle` |
 | Every in-scope screen is `без изменений` and the completeness check passes | nobody |
 
 One subagent for the whole set; do not parallelize edits to one file.
@@ -264,6 +314,33 @@ the SRS version the run drew from and `updated:` to today.
 
 On failure (`BLOCKED`, unresolved ids), leave the ids empty and the screens
 `черновик`, report what blocked, and do not offer the next stage.
+
+## Restyle
+
+A new look for frames that already exist: the visual direction changes;
+the screens, their structure, layer names, texts, annotation frames and
+every `nodeId` stay. It is not a redesign — a screen whose structure must
+change is `редизайн` and goes through Drawing.
+
+1. The visual-direction step has run and the user has chosen. The register
+   line names the new direction and `прежнее: «<имя>»`.
+2. Read the file: `get_metadata` on every page, `get_variable_defs` on a
+   screen frame. Local variables are restyled in place. A linked library
+   belongs to its designer: say so and stop — its variables are not edited
+   from here.
+3. Dispatch `figma-sonnet` with `MODE restyle`: `SCREENS` lists every
+   screen of the register with the mark `перекраска` and its frames, `APP-WIDE STATES` the app-wide
+   frames, `VISUAL DIRECTION` the chosen direction.
+4. Verify: every `nodeId` of the register still resolves under its name;
+   one `get_screenshot` per screen shows the new look with no clipped text
+   and no template tells (UX-60). A miss goes back once with only the
+   missing items; a second miss is a row in `open-questions.md`.
+
+The register's ids and statuses do not change; `updated:` moves on. When
+the frontend is already built (the repository holds the screens' code),
+the next stage is `plan`: its theme unit carries the `🎨 Tokens` variables
+into the project's theme file. The screen specs stay valid, because only
+the look changed.
 
 ## Indexing (mode index)
 
@@ -319,6 +396,10 @@ row named in Closing.
 6. The register cites no `operationId`, column, or HTTP status — those
    belong to `screen-spec`.
 7. Ids were only appended: no `S-` or `M-` id was renumbered or reused.
+8. The header has **Визуальное направление**, or says whose look the
+   frames follow (a library, a designer).
+9. The screenshots show realistic content in Russian — no «Lorem ipsum»,
+   «Название 1» or empty tables standing in for data.
 
 ## Gate and next stage
 
@@ -338,9 +419,12 @@ When frames were drawn, list the Figma sections whose name now ends in
 Mode — the pipeline cannot set that status itself. One line, not a
 question; the stage does not wait for it.
 
+After a restyle, name the direction and the screens restyled.
+
 Then read `pipeline` and ask about the stage its table names after this one
 (normally `screen-spec`, which needs these frames and the OpenAPI contract;
-`pipeline` says what runs first when the contract is missing), per "Asking
-before a transition". A no stops the sitting. While frames are still
+`pipeline` says what runs first when the contract is missing; after a
+restyle of screens already built, `plan`), per "Asking before a
+transition". A no stops the sitting. While frames are still
 missing (a failed dispatch, a blocking header row), the last message is the
 blocker, not the next stage.

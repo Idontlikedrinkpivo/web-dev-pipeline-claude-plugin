@@ -74,7 +74,7 @@ scaffolded. They meet before the plan.
 | 4 | API contract | `openapi-spec-generator` | `doc-review` | `clean-architecture-design` |
 | 5 | Architecture — foundation, domain model, scenarios by area | `clean-architecture-design` | `doc-review` on each document written | `repo-scaffold` |
 | 6 | Repository skeleton | `repo-scaffold` | none — also writes `documentation/project-map/project-map.md` | the meeting point — see "Two branches" |
-| 7 | Mockups | `ui-design` | none — frames are not a document | `screen-spec` once the API exists, else the backend branch's next stage |
+| 7 | Mockups | `ui-design` | none — frames are not a document | `screen-spec` once the API exists, else the backend branch's next stage; after a restyle of screens already built, `plan` |
 | 8 | Screen specs (ТЗ на экран) | `screen-spec` | `doc-review` | `ui-test-cases` (write) |
 | 9 | UI test cases | `ui-test-cases` — mode write | none | the meeting point — see "Two branches" |
 | 10 | Document set check | `docs-consistency` | none — it is the check | `plan` |
@@ -383,7 +383,7 @@ Read that verdict and offer only the stages it named:
 | domain model | scenarios that cite the changed rules |
 | scenarios of an area | `plan` |
 | architecture foundation | `repo-scaffold` when the tree or the stack moved, the scenarios that use a changed port, `plan` |
-| mockups (frames) | screen specs of the changed screens |
+| mockups (frames) | screen specs of the changed screens; after a restyle none — `plan`, for the theme unit |
 | screen spec | `ui-test-cases` (write), `plan` |
 
 The architecture foundation is not named by a feature unless the feature

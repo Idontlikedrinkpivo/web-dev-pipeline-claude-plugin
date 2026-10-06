@@ -219,7 +219,12 @@ tool the moment a case changes status — never from the shell (`python`,
    frame (`get_screenshot` of the cited `nodeId`) for layout, texts, and
    states — not pixel equality; a mismatch is a `❌ не прошёл` with what
    differs; without Figma access the comparison is skipped and the report
-   says so;
+   says so. On the same screens it checks the items of `ux-patterns` →
+   «Проверка экрана перед сдачей» a browser can show: every width of the
+   frames register with no sideways page scroll (UX-74), the case's path
+   by keyboard with visible focus (UX-63, UX-64), no motion under reduced
+   motion (UX-61), icons from one set and no emoji (UX-57), Russian
+   typography in the texts (UX-78);
 4. pass 2: triages each failed case as above. It never edits application
    code.
 
@@ -323,11 +328,14 @@ Statuses. Pass 1: `⏳ ждёт`, `✍️ пишется тест`, `▶️ вы
 `🖼 расхождение с макетом`, `❓ пробел в ТЗ`; its count line is «Разобрано:
 N из M» with the results that occurred. After pass 2 the runner sets the
 `Verdict:` line: `PASS` when every automated case passed (directly or
-after a test fix), `DEFECTS` when any app defect, mockup mismatch or spec
-gap remains, `BLOCKED` when blocked cases leave a screen unchecked. Under
+after a test fix), `DEFECTS` when any app defect, mockup mismatch, spec gap or screen-check
+breach remains, `BLOCKED` when blocked cases leave a screen unchecked. Under
 it, a «Проверить вручную» list names every `🙅 не автоматизирован` case
 with its reason and the manual steps — they are not a defect, but nobody
-has checked them yet.
+has checked them yet — and a «Проверка экрана» list names each breach of
+the screen check with its screen and `UX-n` («S-2 · 375 — страница
+прокручивается вбок — UX-74»). A breach is an app defect: it makes the
+verdict `DEFECTS` without changing any case's status.
 
 A `DEFECTS` verdict names, per defect, the unit or screen it points at, so
 the next step is one increment plan of fix units, not a hunt. Ask about that

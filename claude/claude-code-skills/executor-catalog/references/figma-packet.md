@@ -2,15 +2,27 @@
 
 `ui-design` sends this when at least one screen is `новый экран`,
 `правка`, or `редизайн`, when an app-wide state frame is missing, when the
-file has no product frames, or — in index mode, with the user's consent —
-to name a designer's layers by action (`MODE rename`). The subagent starts
-with a clean context. What is not in the packet does not exist for it.
+file has no product frames, for the style tiles of a visual direction
+(`MODE direction`), to give existing frames a chosen direction (`MODE
+restyle`), or — in index mode, with the user's consent — to name a
+designer's layers by action (`MODE rename`). The subagent starts with a
+clean context. What is not in the packet does not exist for it.
 
 The input is the SRS, not a UI spec: the packet says which flows, roles,
 states and rules each screen must cover, by id; the builder decides every
 widget, presentation, layout and text. The session writes the frames
 register and verifies every `nodeId`. The subagent does not edit the
 repository.
+
+Contents:
+
+- **The packet** — the fields (FILE, MODE, VISUAL DIRECTION, OPTIONS,
+  SCREENS, …); RULES: scope, completeness, layer names, annotation, copy,
+  real content, two passes, the file standard, tokens, usability and
+  accessibility, the screenshot check; then the modes `direction`,
+  `restyle` and `rename`.
+- **The report** — the fields the builder returns and how the session
+  checks them.
 
 ## The packet
 
@@ -25,9 +37,12 @@ SKILL           Follow the Figma skills for building and editing frames
                 Figma MCP tools directly (`mcp__figma__*`, or
                 `mcp__plugin_dev-pipeline_figma__*` from the plugin); if
                 neither is available, return BLOCKED. Load `ux-patterns`
-                too: Sections 1–6 for every frame, Section 7 when PRODUCT
-                TYPE is B2C, and «Полнота макета» for what every screen
-                must show. The SRS is the behaviour; you are the design.
+                too: Sections 1–6 and 9 for every frame, Section 7 when
+                PRODUCT TYPE is B2C, and «Полнота макета» for what every
+                screen must show. In modes draw, direction and restyle load
+                `dev-pipeline:frontend-design`: its plan, its check for template tells
+                and its screenshot critique are how you work. The SRS is
+                the behaviour; you are the design.
                 You choose every widget, presentation and layout: an
                 action becomes a button, link or menu item; a choice a
                 dropdown, radio group or segmented control; a nested step
@@ -38,12 +53,26 @@ SKILL           Follow the Figma skills for building and editing frames
 
 EXECUTOR        figma-opus | figma-sonnet
 FILE            <figma.com URL>
-MODE            draw | edit | rename
+MODE            draw | edit | rename | direction | restyle
 SRS             documentation/requirements/srs/srs.md@v<N>
 PRODUCT TYPE    <B2B | B2C | per area: …>
-VIEWPORTS       <the Ширины line: main width first, then the narrow one>
+VIEWPORTS       <the Ширины line: the desktop width first, then the narrower ones>
 ACCESSIBILITY   <the Доступность line, e.g. WCAG 2.2 AA>
 DESIGN SYSTEM   <linked library name | local variables in this file | none | not checked>
+VISUAL DIRECTION <draw, edit, restyle: the chosen direction — its name;
+                the tokens as `token: light hex / dark hex` (background,
+                foreground, card, card-foreground, muted, muted-foreground,
+                primary, primary-foreground, secondary,
+                secondary-foreground, accent, accent-foreground,
+                destructive, destructive-foreground, border, input, ring,
+                chart-1 … chart-5); the families and their roles; the
+                radius and shadow scales; the density; the one bold thing;
+                «не делаем». `library` when DESIGN SYSTEM is a linked
+                library; `file` when the frames already have a look and
+                no direction was chosen — follow EXISTING FRAMES; `none`
+                only when the user declined the step>
+OPTIONS         <MODE direction only: two or three plans in the same shape,
+                each with its letter and name>
 
 SRS EXCERPT     <pasted verbatim for the use cases in SCREENS: the actors
                 and roles; each UC with its Main, Alt-n and Exc-n flows and
@@ -58,7 +87,7 @@ UI WISHES       <the lines of documentation/requirements/srs/ui-wishes.md
 
 SCREENS
   <for each screen this run touches:
-   S-id · name — mark: новый экран | правка | редизайн
+   S-id · name — mark: новый экран | правка | редизайн | перекраска
    Акторы: A-ids; for each role, the actions it has and the ones it must
      not see (hidden) or sees disabled with a reason
    Вход: where the actor arrives from; Соседи: the S-ids it leads to
@@ -122,6 +151,14 @@ RULES
   id (`S-1 · Empty`, `M1 · заголовок`, `№4 отмена брони · UC-3 Exc-1`,
   `№2 длительность · ошибка`). A text the SRS quotes with a BR is copied
   as is. `frontend`, `screen-spec` and the UI tests read this table.
+- Real content. Fill the frames with this product's realistic data in its
+  language: plausible names, dates, sums and statuses, and one value long
+  enough to test wrapping (UX-71). Never «Lorem ipsum», «Название 1» or
+  «Текст».
+- Two passes (`frontend-design`). Before drawing, plan the layout of the
+  screens within VISUAL DIRECTION and check the plan for template tells
+  (UX-60); after each screen, screenshot it, critique it, and remove one
+  accessory.
 - **File standard.** In an empty file (or one the user asks to reorganise),
   create these pages, in this order: `📄 Обложка`, `✅ Экраны`,
   `🧩 Компоненты` (local components, only when no library is linked),
@@ -139,7 +176,7 @@ RULES
     section Ready for dev. A Section `Общие состояния` holds the app-wide
     state frames.
   - Inside a section, one row per screen, left to right: the screen frame,
-    its state frames, its nested-step frames, the narrow-width frame, then
+    its state frames, its nested-step frames, the narrower-width frames, then
     `S-1 · Аннотация`. Rows follow the user's path, top to bottom.
   - `🗄 Архив`: a `редизайн` moves the old frames here, renamed with the
     date first (`2026-10-04 · S-3 · Профиль`), before the new ones are
@@ -147,12 +184,13 @@ RULES
   - A new screen goes into its section below the existing rows; existing
     frames do not move.
 - Name each screen frame `S-1 · <ScreenName>`, each state frame
-  `S-1 · Empty`, each nested step `S-1 · M1 · <StepName>`, the narrow-width
-  frame `S-1 · 375` (the width from VIEWPORTS), and each app-wide state
+  `S-1 · Empty`, each nested step `S-1 · M1 · <StepName>`, each
+  narrower-width frame `S-1 · <width>` (`S-1 · 375`), and each app-wide state
   `Общее · Сессия истекла`. The session finds frames by these names.
-- Draw each screen at the first width in VIEWPORTS. Draw a second frame at
-  the narrow width for every screen whose layout changes there (table →
-  cards, a side panel → its own screen); that decision is yours.
+- Draw each screen at the first width in VIEWPORTS, the desktop one. Draw
+  a frame at each narrower width in VIEWPORTS where the screen's layout
+  changes (table → cards, a side panel → its own screen); that decision is
+  yours.
 - When the file or a linked library has components and variables, build
   from them (figma-generate-design, Step 2). Do not hardcode a colour or
   spacing a variable already holds. A component the library lacks (for
@@ -162,24 +200,37 @@ RULES
   pipeline's React + Vite and Next.js stacks build with), so a frame maps
   to code one to one. First create one local set on the `🎨 Tokens` page and
   bind every screen to it; do not restyle per screen:
-  - colour variables named like shadcn/ui theme tokens: `background`,
-    `foreground`, `card`, `muted`, `muted-foreground`, `primary`,
-    `primary-foreground`, `secondary`, `destructive`, `border`, `input`,
-    `ring` — a neutral grey scale plus one accent;
+  - colour variables named like shadcn/ui theme tokens, with the values of
+    VISUAL DIRECTION: `background`, `foreground`, `card`,
+    `card-foreground`, `muted`, `muted-foreground`, `primary`,
+    `primary-foreground`, `secondary`, `secondary-foreground`, `accent`,
+    `accent-foreground`, `destructive`, `destructive-foreground`,
+    `border`, `input`, `ring`, `chart-1` … `chart-5` — in a `Light` mode,
+    and a `Dark` mode of the same collection when the direction has a dark
+    theme. With VISUAL DIRECTION `none`: a neutral grey scale plus one
+    accent;
   - spacing on Tailwind's 4 px scale, multiples of 8 for layout gaps and
-    padding; one radius for controls and cards;
-  - type on Tailwind's sizes (12/14/16/18/20/24/30 px), one family, at
-    most three weights;
+    padding, row heights by the direction's density (UX-10); the
+    direction's radius scale and shadow scale (UX-58);
+  - type on Tailwind's sizes (12/14/16/18/20/24/30 px), the direction's
+    families (one or two, each with Cyrillic), at most three weights;
   - components shaped as shadcn/ui ones: Button (default, secondary,
-    outline, ghost, destructive), Input with a label above, Table, Card,
+    outline, ghost, destructive, and destructive-outline — red text and
+    outline at secondary weight for a destructive action on a page or in a
+    menu, UX-37), Input with a label above, Table, Card,
     Dialog, Toast (Sonner), Skeleton for loading. Reuse one component
     everywhere the same thing appears.
 - Every frame uses Auto Layout, so it stretches with the width.
 - Usability, each checkable on the screenshot (`ux-patterns` ids in
   brackets; the PRODUCT TYPE variant where a rule has one):
   - one primary action per screen and per nested step; secondary actions
-    look secondary; a destructive action uses `destructive` only in its
-    confirmation and is never the default focus [UX-11, UX-36, UX-37];
+    look secondary [UX-11];
+  - a destructive action is red at every step: on a page or in a menu a
+    danger control of secondary weight (red text or outline, never the
+    filled primary), set apart from the primary action; in its
+    confirmation the confirming button is the filled `destructive` one;
+    never the default focus. «Выйти» and «Удалить аккаунт» stand apart
+    from ordinary menu items, and only the second is red [UX-36, UX-37];
   - hierarchy reads top to bottom: title, content, actions; related items
     grouped by spacing [UX-5];
   - Empty and Error frames say what happened and give the next step;
@@ -189,9 +240,26 @@ RULES
     sizes per screen; numbers right-aligned in tables; nothing carries
     meaning by colour alone [UX-1, UX-3, UX-6, UX-40];
   - labels above fields, one column, optional fields marked for the
-    product type [UX-17, UX-18];
-  - on the narrow width, targets at least 44×44 px and body text at least
-    16 px; no horizontal scroll.
+    product type; a field's hint sits between its label and the field; no
+    placeholder except in search [UX-17, UX-18, UX-19];
+  - icons from one set, one style per level, no emoji; one shadow scale
+    and one radius scale, blur only behind a modal [UX-57, UX-58];
+  - body line height 1.5–1.75; numbers in columns with tabular figures
+    [UX-59]; none of the template tells — no all-caps labels above
+    content, no one accented word in a heading, no «01 / 02» for what is
+    not a sequence, no «→» in button text, not everything in identical
+    cards [UX-60];
+  - every control's component has its hover, pressed, focus and disabled
+    variants; read-only looks different from disabled [UX-63];
+  - a badge is a status, a chip is a value or an action; their labels fit
+    on one line [UX-72];
+  - texts by Russian typography: «ёлочки», one-character «…», «—» with
+    spaces, a non-breaking space between a number and its unit; one action
+    keeps one name across the button, its toast and its step title
+    [UX-78, UX-79];
+  - targets at least 44×44 px with 8 px between them on the narrow width
+    and at every width of a B2C product; body text at least 16 px on the
+    narrow width; no horizontal scroll [UX-9, UX-59, UX-74].
 - ACCESSIBILITY holds on every frame: interactive targets at least
   24×24 px, text contrast at least 4.5:1, large text and control
   boundaries at least 3:1, focus visible on every control. Show where focus
@@ -199,6 +267,44 @@ RULES
 - After each screen, screenshot it and check: no placeholder text, no
   clipped text, every text of the «Тексты» table present, every layer
   named by action, every completeness item and usability point above.
+
+MODE direction (the visual-direction step of `ui-design`): draw nothing on
+the product pages; the frames in EXISTING FRAMES stay untouched. The tiles
+are not product frames: a file that holds only them and the standard pages
+counts as empty for mode draw. In an empty file create the file standard's
+pages first; put the page `🎨 Направления` after `🎨 Tokens` (or after the
+file's last page in a file with its own pages) and draw one style tile per
+option in OPTIONS,
+side by side, named `Направление A · <имя>`: the palette as swatches
+labelled with token name and hex; the type scale on Russian text in the
+option's families; the buttons (default, secondary, outline, ghost,
+destructive, destructive-outline); a field with label, hint and error; a table row and a card
+with this product's real data from the SRS EXCERPT; a toast and a badge —
+in light, with the dark version beside it when the option has a dark theme.
+Before drawing, check each plan against the template tells; compute the
+contrast of every text pair (4.5:1) and control boundary (3:1). Fix a
+failing pair or a tell within the option's character and report the
+change. SCREENS and EXISTING FRAMES are untouched.
+
+MODE restyle: give the frames in SCREENS and APP-WIDE STATES the look of
+VISUAL DIRECTION and change nothing else — structure, layer names, texts,
+the annotation frames and every nodeId stay.
+1. On `🗄 Архив`, a frame `<date> · Прежнее направление` with the current
+   variables as swatches (name, value) and the text styles, so the old
+   look can be restored.
+2. Update the local variables to VISUAL DIRECTION by role: a variable
+   keeps its name (a designer's `Brand/Primary` takes the `primary`
+   value), so the code that maps to it keeps working; a missing role is
+   created under its shadcn/ui name, a `Dark` mode when the direction has
+   a dark theme. Update the text and effect styles the same way. A linked
+   library's variables are not edited: return BLOCKED.
+3. Rebind every fill, stroke, text, radius and effect on those frames that
+   is hardcoded or bound to a removed style to the matching variable.
+4. Fit the components to the direction — radius, shadow, the shape of
+   buttons and fields, row height for the density — without changing
+   what they hold.
+5. Screenshot every screen and state: no clipped or overlapping text,
+   contrast holds, no template tells.
 
 MODE rename (index mode, with the user's consent): change nothing the actor
 sees. Rename the interactive and data layers of the listed screens by
@@ -214,7 +320,9 @@ REPORT (last message, exactly these fields)
 ```
 STATUS            DONE | BLOCKED
 FILE KEY          the fileKey
-TOKENS            library | local (created) | none
+TOKENS            library | local (created) | local (updated) | none
+TILES             MODE direction only, per option: <letter> <nodeId> — as
+                  planned | changed: what and why
 SCREENS           one line per frame drawn or touched, for example:
   S-1               <nodeId>
   S-1.375           <nodeId>

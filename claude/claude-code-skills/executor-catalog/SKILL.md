@@ -57,7 +57,7 @@ table, holds the model and effort.
 | **Mid** | code | `impl-medium` | `work` | closing the local decisions a Mid unit leaves open, then proving them |
 | **High** | code | `impl-hard` | `work` | designing the missing part inside given boundaries: auth, money, transaction and idempotency shape, cross-cutting contracts |
 | **Escalation** | code | `impl-critical` | `work` (escalation only) | one retry above High, for a unit that came back `BLOCKED` or `HARDER_THAN_EXPECTED`. Same model as `impl-hard`: a new dispatch with the previous report, not a stronger model. Not a retry of `impl-ui` |
-| **UI** | code | `impl-ui` | `work` | frontend that implements a screen spec citing a Figma `nodeId`: the screen and its states, or a component whose shape comes from that frame. Any grade. A retry stays on this row. UI units never run in parallel (`work`). Not a Figma drawing (`figma-sonnet`, `figma-opus`) |
+| **UI** | code | `impl-ui` | `work` | frontend that implements a screen spec citing a Figma `nodeId`: the screen and its states, or a component whose shape comes from that frame; or the theme unit that carries the `🎨 Tokens` variables into the theme file after a `ui-design` restyle. Any grade. A retry stays on this row. UI units never run in parallel (`work`). Not a Figma drawing (`figma-sonnet`, `figma-opus`) |
 | **Mid** | review | `review-medium` | `code-review-unit` | a Mid unit's diff against its unit spec; also the batched pass over accumulated Low units |
 | **High** | review | `review-hard` | `code-review-unit` | adversarial review of a High unit — deliberately not the implementer's alias |
 | **Run** | review | `review-full-plan` | `code-review-full` | once per run: cross-unit drift, aggregate invariant/AC coverage, definition of done, over the whole branch diff |
@@ -76,8 +76,8 @@ table, holds the model and effort.
 | **High** | plan-writer | `plan-hard` | `plan` | Full-trigger, security, or cross-section slicing. `doc-typist` prints the plan |
 | **Print** | docs | `doc-typist` | nested by `srs-author`, the three `design-*` rows, and the three `plan-*` rows | prints a document those rows already settled, including sibling D2 and `open-questions.md` rows the settlement named. No new decision |
 | **Read-only** | any | `code-explorer` | `plan` (brownfield inventory), `grill-me` (facts), `brainstorm` (scout and claim verifier) | locating patterns, files, and call sites in a repo whose code *is* the design; never edits |
-| **Edit** | figma | `figma-sonnet` | `ui-design` | elements added or changed on frames that already exist. Not a new screen and not a redesign |
-| **Build** | figma | `figma-opus` | `ui-design` | frames from an empty file, a new screen, or a redesign of an existing screen, from the SRS |
+| **Edit** | figma | `figma-sonnet` | `ui-design` | elements added or changed on frames that already exist, or those frames restyled to a chosen visual direction. Not a new screen and not a redesign |
+| **Build** | figma | `figma-opus` | `ui-design` | frames from an empty file, a new screen, or a redesign of an existing screen, from the SRS; the style tiles of a visual direction |
 | **Write** | screen | `screen-writer` | `screen-spec` | one front-end spec per screen from the frames and the OpenAPI contract; writes the file itself; decides no behaviour the frames did not |
 | **Write** | ui-test | `ui-test-writer` | `ui-test-cases` (mode write) | user test cases from SRS acceptance criteria and screen specs; decides no behaviour |
 | **Run** | ui-test | `ui-test-runner` | `ui-test-cases` (mode run) | Playwright tests from the cases, run against the app started locally, screens compared with frames; never edits app code |
@@ -279,7 +279,9 @@ fixes is revised by `plan-lite`.
 | Situation (`ui-design` decides) | Executor |
 |---|---|
 | Empty file, a new screen, or a redesign | `figma-opus` |
+| Style tiles for choosing the visual direction (`MODE direction`) | `figma-opus` |
 | Elements only, on frames that already exist | `figma-sonnet` |
+| The existing frames take a chosen visual direction; structure, texts and ids stay (`MODE restyle`) | `figma-sonnet` |
 | Renaming a designer's layers by action and adding annotation frames (`MODE rename`, nothing visible changes) | `figma-sonnet` |
 
 ### Screen-spec routing

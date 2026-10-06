@@ -23,8 +23,9 @@ sources:
 - **Figma:** <figma.com URL> (fileKey `<key>`)
 - **Кадры рисует:** ui-design | дизайнер
 - **Тип продукта:** B2B | B2C | по областям: <область — тип>, …
-- **Ширины:** <ширина основного кадра>, <узкая ширина>
+- **Ширины:** <десктопная ширина>, <более узкие ширины>
 - **Доступность:** WCAG 2.2 AA
+- **Визуальное направление:** «<имя>» — primary <hex>, <шрифты>, плотность <компактная | обычная>, тема <светлая | светлая и тёмная>; токены — страница `🎨 Tokens`; выбрано YYYY-MM-DD; отклонены: «<имя>», … | по библиотеке <имя> | по макетам дизайнера
 - **Слои по действиям:** да | нет        ← только при «Кадры рисует: дизайнер»
 
 ## Экраны
@@ -45,6 +46,9 @@ sources:
 
 Cell rules:
 
+- **Визуальное направление** — written by the visual-direction step
+  (`references/visual-direction.md`); a restyle adds `прежнее: «<имя>»`.
+
 - **Экран** — the object or job, never a widget (`Мои брони`, not
   `Таблица броней`).
 - **Сценарии** — UC ids only; the flows inside a use case are covered by the
@@ -53,7 +57,7 @@ Cell rules:
   `Error`, `Forbidden`, and named ones for flows (`Отменена (UC-3 Alt-1)`).
   A state the screen cannot have is absent, not `—`.
 - **Вложенные шаги** — `M<n> <назначение> → nodeId`, numbered per screen,
-  append-only. The narrow-width frame goes in Состояния as `375 → nodeId`.
+  append-only. Each narrower-width frame goes in Состояния as `<width> → nodeId` (`375 → 12:48`).
 - **Статус** — `черновик` until the frames resolve and the screen's
   completeness items pass; then `готово к разработке`. A screen dropped by a
   redesign keeps its row: `черновик`, «снят в редизайне YYYY-MM-DD», frames
@@ -81,6 +85,7 @@ sources:
 - **Тип продукта:** B2B
 - **Ширины:** 1440, 375
 - **Доступность:** WCAG 2.2 AA
+- **Визуальное направление:** «Спокойный синий» — primary #2563EB, Inter, плотность компактная, тема светлая; токены — страница `🎨 Tokens`; выбрано 2026-10-04; отклонены: «Тёплый графит»
 
 ## Экраны
 

@@ -44,7 +44,7 @@ FINDINGS        <revise only: the plan-review findings table rows,
 
 INPUTS YOU MUST FOLLOW (paths, plus the brownfield inventory pasted)
   <SRS, architecture foundation, domain model, the scenarios of the areas
-   in scope, and whichever of OpenAPI, schema, screen specs exist.
+   in scope, and whichever of OpenAPI, schema, screen specs and the frames register exist.
    On revise, the current plan. Brownfield inventory: paths and shapes
    only, or `none` on greenfield.>
 

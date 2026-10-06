@@ -41,8 +41,9 @@ FROM DEPENDENCIES
 
 STACK SKILLS
   <excerpts from language skills the user attached that this unit needs;
-   for a frontend unit, also the `frontend` skill in full and its one stack
-   profile; or: none — no language skills attached>
+   for a frontend unit, also the `frontend` skill in full, its one stack
+   profile and `web-design-guidelines` in full; or: none — no language
+   skills attached>
 
 CURRENT LIB DOCS
   <Context7 excerpts for the library APIs this unit calls, with library
@@ -88,6 +89,10 @@ RULES
   DEPENDENCIES), then PATTERN TO MIRROR, then APPROACH / TEST SCENARIOS, then STACK SKILLS, then CURRENT
   LIB DOCS, then your own library memory. If a lower source disagrees with
   a higher one, follow the higher and say so in CONCERNS.
+- A `web-design-guidelines` anti-pattern in PATTERN TO MIRROR is not
+  copied: write the new code right and name the old site in OUT OF SCOPE,
+  so the review does not send the unit back for the pattern it was told to
+  mirror.
 - Never make a test pass by weakening it. If a scenario and the design
   contradict each other, stop and report BLOCKED with both quoted.
 - In PHASE tests-only, write tests and nothing else — no production code, no
@@ -120,6 +125,9 @@ RED OBSERVED      the failing test name and the failure message you saw before
                   writing the implementation, or the exception the strategy
                   allows (baseline captured / smoke check / none — reason)
 VERIFICATION      what you ran and what it returned
+SCREEN CHECK      UI units only: each item of `ux-patterns` → «Проверка
+                  экрана перед сдачей» — ok | defect: what | not checked:
+                  why — and the Figma comparison result; `n/a` otherwise
 DECISIONS         each local decision you made that the design did not fix
                   (public name, signature, error type, file placement), one per
                   line — or none. Dependent units receive these verbatim.

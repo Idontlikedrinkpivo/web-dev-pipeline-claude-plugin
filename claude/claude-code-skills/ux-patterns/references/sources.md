@@ -55,6 +55,29 @@ confirmed through secondary sources.
 | UX-54 | EDPB; CNIL fine against Google (€150 M, one click vs five) |
 | UX-55 | WCAG 1.4.4, 1.3.4; `prefers-reduced-motion` |
 | UX-56 | W3C internationalisation; MDN `Intl` |
+| UX-57, UX-58 | UI UX Pro Max (icon and elevation consistency, blur purpose); Material 3 elevation; Apple HIG materials |
+| UX-59 | UI UX Pro Max (line height, 16 px on mobile, tabular figures); Vercel Web Interface Guidelines (typography); frontend-design (no monospace labels) |
+| UX-60 | Anthropic frontend-design (generated-look clusters and typographic tells) |
+| UX-61 | frontend-design (motion only with meaning); Vercel (transform/opacity, no `transition: all`, interruptible, autoplay pause); UI UX Pro Max (reduced motion, continuous animation, auto-rotation); WCAG 2.2 SC 2.2.2, 2.3.3 |
+| UX-62 | UI UX Pro Max (dark-mode pairing); Vercel (dark mode and theming) |
+| UX-63 | Vercel (focus states, hover); UI UX Pro Max (state clarity, read-only vs disabled); WCAG 2.4.7 |
+| UX-64 | Vercel (semantics, links, skip link); UI UX Pro Max (keyboard navigation, focus on route change); WCAG 2.1.1, 2.4.1, 2.4.3 |
+| UX-65 | WCAG 2.2 SC 2.4.11; Vercel (sticky elements, `scroll-margin-top`) |
+| UX-66 | WCAG 1.1.1, 1.2.2; Vercel; UI UX Pro Max (icon context) |
+| UX-67 | WCAG 2.2 SC 2.5.7; UI UX Pro Max; Vercel (gesture alternatives) |
+| UX-68 | WCAG 2.2 SC 3.2.6 |
+| UX-69 | Vercel (clickable labels, single hit target); UI UX Pro Max (field grouping, progressive disclosure); GOV.UK fieldsets |
+| UX-70 | UI UX Pro Max (contextual live badge updates); WCAG 4.1.3 |
+| UX-71 | UI UX Pro Max (long-token wrapping, essential text truncation, text reflow); Vercel (content handling); WCAG 1.4.4, 1.4.10, 1.4.12 |
+| UX-72 | UI UX Pro Max (compact label semantics, chip reflow) |
+| UX-73 | UI UX Pro Max (charts and data); Carbon data visualisation accessibility |
+| UX-74 | UI UX Pro Max (layout and responsive); Vercel (safe areas and layout, overscroll) |
+| UX-75 | Vercel (performance, images); UI UX Pro Max (performance); web.dev |
+| UX-76 | Vercel (touch and interaction) |
+| UX-77 | Vercel (locale and i18n); MDN `Intl` |
+| UX-78 | Vercel (typography, adapted to Russian norms); «Справочник издателя и автора» (Мильчин) — кавычки, тире, неразрывные пробелы |
+| UX-79 | frontend-design (writing in design); Vercel (content and copy) |
+| UX-80 | EU AI Act, Art. 50 (transparency); UI UX Pro Max (AI disclaimer) |
 
 ## Where sources disagree and what this skill chose
 
@@ -73,3 +96,16 @@ confirmed through secondary sources.
 | No permission | hide (Cloudscape) / explain (Carbon) | never available → hide; later → disabled with a reason; data → explanatory state |
 | Icon-only | never (NN/g) / toolbar with tooltip (Carbon) | toolbar with tooltip only |
 | Target size | 24 px AA / 44 px | 24 px floor; 44 px for B2C and touch |
+| Destructive styling | only in the confirmation (NN/g) / red at every step (UI UX Pro Max, Material, Apple HIG) | red at every step: secondary-weight danger control on the page, filled red in the confirmation (UX-37) |
+| Motion | smooth transitions everywhere, staggers, springs (UI UX Pro Max) / sparing, meaningful motion (frontend-design) | motion only answers an action or shows a change; no staggers, springs or press-scaling (UX-61) |
+| Hover timing | 150–300 ms transitions (UI UX Pro Max) / no animated hover on every card (frontend-design) | instant or within 150 ms on interactive elements; none on non-interactive cards (UX-63) |
+| Placeholder | an example value ending with «…» (Vercel) / avoid (GOV.UK) | only in search fields; a format example lives in the hint (UX-17, UX-19) |
+| Hint position | under the field (Material) / between label and field (GOV.UK) | between label and field (UX-19) |
+| Field error announcement | `aria-live="polite"` (Vercel) / `role="alert"` | polite and tied by `aria-describedby`; `role="alert"` only for a failed operation (UX-28) |
+| Focus after a failed submit | first invalid field (Vercel) / error summary (GOV.UK) | the summary; a one-field form keeps focus on the field (UX-22) |
+| Autosave of long forms | drafts saved automatically (UI UX Pro Max) / explicit save (GOV.UK, Primer) | a browser draft with «Восстановить черновик»; the server only via Save (UX-24) |
+| Pie charts | for proportions up to 5 parts (UI UX Pro Max) / avoid (NN/g, Carbon) | none; parts of a whole as a 100 % stacked bar (UX-47) |
+| Mobile first | always (UI UX Pro Max) / by audience | desktop first for every product; the narrow width must work (UX-74) |
+| Toast duration | 3–5 s (UI UX Pro Max) / 4–10 s | success only, 4–10 s (UX-27) |
+| Line length | 65–75 (UI UX Pro Max) / under 80 (frontend-design) | 50–75 (UX-4) |
+| Letter case and quotes | Title Case, “curly” (Vercel, English) | Russian norms: sentence case, «ёлочки» (UX-12, UX-78) |

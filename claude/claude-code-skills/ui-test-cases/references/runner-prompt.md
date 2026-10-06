@@ -35,6 +35,14 @@ RULES
 - Screenshot every case's screen and compare with the frame of its nodeId
   for layout, texts and states — not pixels. No Figma access: skip the
   comparison and say so.
+- On the same screens, check the `ux-patterns` → «Проверка экрана перед
+  сдачей» items a browser can show: every width of the frames register
+  with no sideways page scroll (UX-74), the case's path by keyboard with
+  visible focus (UX-63, UX-64), no motion with reduced motion emulated
+  (UX-61), icons from one set and no emoji (UX-57), Russian typography in
+  the texts (UX-78). A breach goes into the «Проверка экрана» list under
+  the verdict with its screen and UX-n; it does not change the case's
+  status.
 - Two passes (ui-test-cases → Mode run → Two passes). Pass 1: write and
   run every case once (each case × mode its own row) — ✅ прошёл /
   ❌ не прошёл (seen vs expected) / ⛔ заблокирован (a missing stub that can
@@ -82,9 +90,10 @@ Report — last message, exactly:
 STATUS        DONE | BLOCKED
 VERDICT       PASS | DEFECTS | BLOCKED
 COUNTS        pass 1: N rows · passed · failed · blocked · not automated · pauses for shared fixes
-MANUAL        one line per not-automated case: TC | why | how to check by hand
               pass 2: test fixed · tests not fixed · app defects · mockup mismatches · spec gaps
+MANUAL        one line per not-automated case: TC | why | how to check by hand
 DEFECTS       one line per defect: TC | screen/unit | seen | expected
+SCREEN CHECK  one line per screen-check breach: screen | what | UX-n (or: none)
 FILES         spec files written, report path
 BLOCKER       only for BLOCKED: what is missing to start or sign in
 ```

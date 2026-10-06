@@ -2,7 +2,7 @@
 name: plan
 description: >-
   Turns settled design documents, or existing code for brownfield work, into
-  an implementation plan under documentation/plans/<version>/: atomic one-commit
+  an implementation plan in the version folder documentation/plans/: atomic one-commit
   units, a complexity grade, and a named executor per unit. Use when the
   design is done and the user asks for a plan, tickets, or an order of work
   — «составь план», «разбей на задачи». Not for product behaviour, choosing
@@ -28,7 +28,7 @@ Template headings stay as this skill specifies.
 | Product behavior, actors, acceptance criteria | `srs-writer` |
 | Stack, layers, ports · rules · use-case flow | `clean-architecture-design` (foundation · domain model · scenarios) |
 | Endpoint contracts · table shapes · screen behaviour | `openapi-spec-generator` · `db-schema-design` · `screen-spec` |
-| Look of a screen | the Figma frame cited by `fileKey` / `nodeId` in the screen spec. A screen unit cites that id; it does not restyle the product |
+| Look of a screen | the Figma frame cited by `fileKey` / `nodeId` in the screen spec. A screen unit cites that id and does not restyle the product; a new look arrives only as the theme unit after a `ui-design` restyle |
 | Directory tree, lint config, composition root | `repo-scaffold` |
 | Compose topology · CI workflow | `deploy-topology` · `ci-pipeline` |
 | Document `version` fields and changelog rows | `doc-versioning`, invoked by the user. This skill does not call it. The service version is read from the open folder and its level re-checked here, per `pipeline` → Service version |
@@ -49,7 +49,7 @@ plan. A finding the user asked to defer after review goes in that same file.
 | SRS `requirements/srs/srs.md` | **yes** | UC / AC / BR / NFR ids the units must cite |
 | OpenAPI `api/openapi.yaml` | when the surface is HTTP | one unit per operation group; `operationId` names the unit |
 | DB schema `db/schema.md` + `db/migrations/` | when there is storage | migration units and their ordering: a schema change in scope is a unit that adds the next numbered file `db-schema-design` wrote to the app's migration run — never an edit of a committed file |
-| Screen specs `ui/screen-specs/` (+ `ui/frames-register.md`) | when there are screens | one unit per screen: its elements, states, response outcomes and the Figma `nodeId` the unit cites |
+| Screen specs `ui/screen-specs/` (+ `ui/frames-register.md`) | when there are screens | one unit per screen: its elements, states, response outcomes and the Figma `nodeId` the unit cites; after a restyle, the register's «Визуальное направление» line and the `🎨 Tokens` page for the theme unit |
 | Scaffold state (the repo itself) | always | what already exists — never plan a unit that recreates it |
 
 `docs-consistency.md` in the version folder is read for its first line and its
@@ -176,6 +176,7 @@ Slice along the architecture's own seams:
 | HTTP surface | one unit per operation group sharing a controller |
 | Migration | one unit per new file in `documentation/db/migrations/`, ordered before its adapter |
 | Screen | one unit per screen with all its states, citing its screen spec and the `nodeId` |
+| Theme (after a `ui-design` restyle) | one unit: the project's theme file — colours light and dark, radius, shadows, density, fonts with their Cyrillic subset — from the Figma variables, and the values screens hardcode moved into it; `Docs` cite the register's «Визуальное направление» line and the `🎨 Tokens` `nodeId`; `impl-ui`; screen units that fix the look depend on it |
 | Mechanical batch | one unit for a repo-wide rename, codemod, or config sweep |
 | Version bump | the last unit: sets the manifest's `version` to VERSION; grade 0, `mechanical-worker`, `Depends on` every other unit |
 
