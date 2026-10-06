@@ -18,7 +18,7 @@ no changelog, no `sources:`.
 ████████████████████████████████████████░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░ 40%
 ```
 
-8 из 20
+Сделано: 8 из 20
 
 | U | Цель | Исполнитель | Статус | Ревью |
 |---|---|---|---|---|
@@ -62,7 +62,8 @@ resumed run resets any in-between status from git (no `Plan-Unit:` trailer →
 
 Every progress view in the pipeline has the same shape: the title, then
 right under it the bar alone in a ```` ```text ```` block, then the count on
-its own line, then the table:
+its own line — «Сделано: N из M» for the plan, «Исправлено: N из M» for the
+fixes section — then the table:
 
 ````markdown
 # Прогресс выполнения плана — итерация 1.1.0
@@ -71,7 +72,7 @@ its own line, then the table:
 ████████████████████████████████████████░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░ 40%
 ```
 
-8 из 20
+Сделано: 8 из 20
 ````
 
 The bar is a hundred cells, one per percent — `█` for done, `░` for the
@@ -99,7 +100,7 @@ the same way as the units. Add this section under the units table, set the
 ░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░ 0%
 ```
 
-0 из 2
+Исправлено: 0 из 2
 
 | F | Замечание | Важность | Юнит | Исполнитель | Статус | Ревью |
 |---|---|---|---|---|---|---|
