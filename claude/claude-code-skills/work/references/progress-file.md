@@ -32,11 +32,11 @@ executor cell. The Ревью cell shows the unit review's path
 
 Create it before the first dispatch, with every in-scope unit `⏳ ждёт`; on a
 resumed run, rebuild it from the unit map and git. Then post its link in the
-chat before the first dispatch (`work` → Keep the progress file). Commit it only together
-with a unit (Step 5.5), or alone at a stop, at the start of a fix round, or at
-the close (Step 7) — never alone between units, so the file in git always
-matches the commits beside it. A pre-existing progress file from another run
-of the same plan is overwritten, not appended to.
+chat before the first dispatch (`work` → Keep the progress file). It is never
+committed — `documentation/plans/` is out of git — so it lives only on this
+machine, and git keeps the record through the `Plan-Unit:` trailers. A
+pre-existing progress file from another run of the same plan is overwritten,
+not appended to.
 
 ## Writing the file
 
@@ -49,19 +49,17 @@ the pane keeps showing the old version until the user reopens it.
 
 Change it the moment a status changes, not in a batch at the commit:
 `🔄 в работе` when the unit is dispatched (with its executor), `🔍 на ревью`
-when `code-review-unit` starts, `✅ закоммичен` in the unit's commit — and the
-`Сделано` counter and `Обновлено` time with each change. The in-between
-statuses live in the working tree; a unit's commit may carry a sibling's
-`🔄 в работе`, and a resumed run resets any in-between status from git
-(no `Plan-Unit:` trailer → `⏳ ждёт`).
+when `code-review-unit` starts, `✅ закоммичен` right after the unit's commit
+lands — and the `Сделано` counter and `Обновлено` time with each change. A
+resumed run resets any in-between status from git (no `Plan-Unit:` trailer →
+`⏳ ждёт`).
 
 ## Fixes after the final review
 
 When `code-review-full` returns anything but `PASS`, the fixes are planned in
 the file **before the first fix is dispatched**, so the user can follow them
 the same way as the units. Add this section under the units table, set the
-`Финальное ревью:` line to the verdict, and commit the progress file alone as
-`docs(plan): прогресс <version> — исправления по финальному ревью`:
+`Финальное ревью:` line to the verdict:
 
 ```markdown
 ## Исправления по финальному ревью
@@ -91,8 +89,8 @@ the same way as the units. Add this section under the units table, set the
   `🔁 исправление F1` while it is open and `✅ исправлен (F1)` once its fix
   commit lands; a follow-up gets its own `RF<n>` row at the bottom of the
   units table.
-- **Each fix commit carries its row updates** (both tables, the
-  «Исправлено: N из M» counter, «Обновлено»), like a unit commit.
+- **Each fix updates its rows when its commit lands** (both tables, the
+  «Исправлено: N из M» counter, «Обновлено»), like a unit.
 - **The re-review** (`code-review-full`, once, over the fix commits): its
   verdict goes to the «Повторное ревью:» line and the `Финальное ревью:` line
   shows the path (`RETURN_TO_UNIT → исправлено → PASS`). A second blocking

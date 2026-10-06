@@ -132,7 +132,8 @@ it after every commit, and read it back after a compaction.
 `documentation/plans/<version>/progress.md`, next to the plan: one row per
 unit with its executor, status and review path, and — when the final review
 finds problems — a section that lists every fix as its own task before the
-first fix starts. Shape, statuses and when it is committed:
+first fix starts. It is never committed: `documentation/plans/` is out of
+git (`pipeline` → Plans stay out of git). Shape and statuses:
 `references/progress-file.md`. It is a view of git, never a source of truth:
 the `Plan-Unit:` trailers decide what is done. Update it with the Edit tool the
 moment a status changes (dispatched, in review, committed), never from the
@@ -311,9 +312,10 @@ Per unit, in this order, and never skip to the next unit on a broken tree:
 5. **Commit** one commit per unit (plus, for a Low unit, a possible fix commit
    after its batch review — see **A fix after a commit** below), with the
    unit's `Commit` message plus the
-   trailer `Plan-Unit: <version>/U<n>`, staging only that unit's files
-   plus the progress file with this unit's row set to `✅ закоммичен` and its
-   review verdict — never `git add .`, which drags a sibling unit's half-work into this commit.
+   trailer `Plan-Unit: <version>/U<n>`, staging only that unit's files —
+   never `git add .`, which drags a sibling unit's half-work into this commit —
+   then set the unit's row in the progress file to `✅ закоммичен` with its
+   review verdict.
    Never batch several units into one commit because it was faster. Do not
    stage a contract document (SRS, OpenAPI, DB schema, architecture, UI
    spec) and do not write its changelog: that commit belongs to
@@ -322,8 +324,7 @@ Per unit, in this order, and never skip to the next unit on a broken tree:
    worker's `DECISIONS`), write `План: <сделано> из <всего>` in the chat
    (Step 1), then move on. When the run stops on a unit instead (a design
    gap, a spent attempt budget), set that row to
-   `⛔ остановлен: <причина>` and commit the progress file alone as
-   `docs(plan): прогресс <version>` with no `Plan-Unit:` trailer.
+   `⛔ остановлен: <причина>`.
 
 Fixing a worker's output yourself is the one thing this loop forbids, even a
 one-liner. A failing test, a missed scenario, or a review finding goes back —
@@ -394,15 +395,12 @@ closing, `RETURN_TO_UNIT` re-opens the named unit through its own executor,
 
 Anything but `PASS`: before the first fix, add «Исправления по финальному
 ревью» to the progress file — every finding a row with who fixes it and
-`⏳ ждёт` — and commit it alone (`references/progress-file.md` → Fixes after
-the final review). Each fix then lands like a unit, updating its rows. After
+`⏳ ждёт` (`references/progress-file.md` → Fixes after the final review). Each fix then lands like a unit, updating its rows. After
 the last fix, run `code-review-full` once more over the fix commits; a second
 blocking verdict is a stop for the user.
 
 At the close write the verdict path into the `Финальное ревью:` line
-(`RETURN_TO_UNIT → исправлено → PASS`, or plain `PASS`) and commit the
-progress file alone as `docs(plan): прогресс <version>`, with no
-`Plan-Unit:` trailer.
+(`RETURN_TO_UNIT → исправлено → PASS`, or plain `PASS`).
 
 Stop there. The last chat line is `План: <сделано> из <всего>`. No PR, no
 push, no CI watching. The branch stays local: the pipeline still has

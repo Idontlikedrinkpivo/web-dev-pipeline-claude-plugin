@@ -166,8 +166,9 @@ A `DEFECTS` verdict names, per defect, the unit or screen it points at, so
 the next step is one increment plan of fix units, not a hunt. Ask about that
 per `pipeline`; do not fix here.
 
-The session commits the suite and the report together, `test(e2e):
-пользовательские тесты <version>`, so CI and the next run start from them.
+The session commits the suite, `test(e2e): пользовательские тесты
+<version>`, so CI and the next run start from it. The report stays on disk
+in the version folder — `documentation/plans/` is out of git.
 A failing test for a real defect stays in the suite: it is the check the
 fix plan must turn green.
 

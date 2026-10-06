@@ -144,6 +144,10 @@ in Make target names: `lint:boundaries` breaks Make.
 (names and a comment, never values). No `.env` committed, no values
 invented.
 
+`.gitignore` carries `documentation/plans/` from the first commit: plans,
+reviews, progress files, reports and summaries are working files of this
+machine, not project history (`pipeline` → Plans stay out of git).
+
 `docker-compose.yml` whenever the system stores data (a schema exists): a
 Postgres service (and nothing else unless §1 Стек / §5 named it),
 documented port, variable names in `.env.example`; values in a gitignored

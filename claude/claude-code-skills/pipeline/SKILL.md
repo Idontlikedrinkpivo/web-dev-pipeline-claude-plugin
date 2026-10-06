@@ -162,6 +162,17 @@ renames the open folder and replaces the old number in that iteration's
 it. The plan's last unit bumps the manifest's `version` to the folder's
 name; `summary.md` and the tag close the iteration (End of the pipeline).
 
+**Plans stay out of git.** `documentation/plans/` is in `.gitignore`:
+the plan, its review, the progress file, the stage reports
+(`docs-consistency.md`, `test-run.md`) and `summary.md` are working files
+on this machine. Git keeps what outlives the run — the code, the
+contract documents, a `Plan-Unit:` trailer on every unit commit, and the
+tag `v<version>` at the close. The first stage that writes into `plans/`
+checks `.gitignore` and adds `documentation/plans/` if it is missing; if
+the folder is already tracked, it untracks it with
+`git rm -r --cached documentation/plans` (the files stay on disk) in its
+own commit. No stage stages a file under `plans/`.
+
 **The API's own version.** Called only by the project's own client, the API
 has no separate number: `info.version` is the service version. With
 external consumers (Full trigger "versioned partner API") it has its own
@@ -175,9 +186,9 @@ chat, in Russian, that the work is done and committed on the current branch
 (name it), and that push and the PR are the user's step. Do not offer
 another stage.
 
-Before that line, write the iteration's summary, commit it alone
-(`docs(plan): итог <version>`), and tag that commit `v<version>` — the
-baseline the next iteration's pins and diffs read against. Also do both
+Before that line, write the iteration's summary (on disk only, like the
+rest of `plans/`) and tag the current commit `v<version>` — the baseline
+the next iteration's pins and diffs read against. Also do both
 when the user asks «итог», «как отработал пайплайн», or «сводка» after
 `work`. They close the version: a `plans/<version>/` folder with
 `summary.md` is done.
@@ -233,6 +244,10 @@ evidence; the files on disk are.
 1. Probe the canonical paths in `doc-versioning` → Registry, in chain
    order. Note which exist, and the open `documentation/plans/<version>/`
    (no `summary.md`, see "Service version"): it holds stages 10–13 so far.
+   `plans/` is not in git, so a fresh clone has none: then the tags
+   `v<version>` name the closed iterations, the `Plan-Unit:` trailers
+   since the last tag name the units already landed, and the state of
+   stages 10–13 is unknown — say so rather than guessing.
 2. For each versioned document found, compare its `sources:` pins
    (`info.x-sources` in OpenAPI) with the sources' current `version`. A pin
    behind with a «ломает» row after it is stale — say which, per

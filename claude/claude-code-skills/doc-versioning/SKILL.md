@@ -200,10 +200,14 @@ commit (`references/changelog.md`).
 | Deploy document | `documentation/deploy/deploy.md` | none — **unversioned**; derived from `docker-compose.prod.yml` and `.env.example`, kept true by `deploy-topology`'s sync test | the operators, as `release/<version>/DEPLOY.md` |
 | Implementation plan | `documentation/plans/<version>/plan.md`, one folder per service version | U-ids, per plan | the `work` skill |
 | Plan review | `plan-review.md` in the version folder | none — a check result, **unversioned**; first line `Verdict:` | `plan`, `work` and `pipeline` read it |
-| Plan progress | `progress.md` in the version folder | none — a view of git, **unversioned** | nobody; `work` writes it with each unit commit |
+| Plan progress | `progress.md` in the version folder | none — a view of git, **unversioned** | nobody; `work` updates it as each unit lands |
 | Docs consistency report | `docs-consistency.md` in the version folder | none — a check result, **unversioned**; first line `Verdict:`, a `checked:` hash per document path | nobody; `docs-consistency` overwrites it, `pipeline` and `plan` read it |
 | UI test run | `test-run.md` in the version folder (last run, first line `Verdict:`) | none — **unversioned** | nobody; `ui-test-cases` mode run overwrites it |
 | Iteration summary | `summary.md` in the version folder; its presence closes the version | none — **unversioned**; numbers from the stage reports, plus the user's escaped-defects and interventions tables | nobody; `pipeline` writes it at the end of an iteration |
+
+Everything under `documentation/plans/` — plan, plan review, progress, the
+stage reports and the summary — is out of git (`.gitignore`); see `pipeline` →
+Plans stay out of git.
 
 Several UI products (client and admin) put the same `ui/` content in
 `documentation/ui/<product>/`; one product keeps it straight in `ui/`.
