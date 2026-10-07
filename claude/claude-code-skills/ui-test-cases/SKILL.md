@@ -128,8 +128,10 @@ documentation/ui/test-cases/
   moved into the folder on the next write run, before anything else: its
   `## N.` sections become section files, the shared parts and the closing
   tables go to `README.md`, every case is copied unchanged with its id,
-  and the old file is deleted in the same change (git keeps its history).
-  The move rewrites no case; changes the run makes come after it.
+  and the old file is deleted — one commit made before the run's own
+  changes («docs: тест-кейсы разложены по разделам»; a move needs no request
+  from the user, git keeps the old file's history). The move rewrites no
+  case.
 
 ```markdown
 ## TC-7. Резидент не может отменить начавшуюся бронь
