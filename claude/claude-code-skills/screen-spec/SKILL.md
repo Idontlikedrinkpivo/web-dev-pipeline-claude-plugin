@@ -369,7 +369,11 @@ Report in the chat:
 - Разрывы grouped by owner, with the stage that fixes them — `design` →
   `ui-design`, `API` → `openapi-spec-generator`, `SRS` → `srs-writer`. This
   skill fixes none of them; a fix there re-runs this stage for the affected
-  screens;
+  screens. A Разрыв with owner `API` or `SRS` that the user settles in the
+  chat is a changed decision: a line edit lands in that document at once,
+  committed with no version change, and one that needs design judgment (a
+  new operation) is that stage's increment (`pipeline` →
+  `references/decision-changes.md`);
 - the executor rows dispatched (`screen-writer` × N) and any re-dispatch.
 
 Then read `pipeline` and ask per "Asking before a transition": first the

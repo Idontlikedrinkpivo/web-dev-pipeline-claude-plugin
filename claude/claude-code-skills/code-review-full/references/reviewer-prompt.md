@@ -79,7 +79,11 @@ LENSES TO APPLY
     `.env.example`, or doc that already exists still describes the old way.
     Only docs that exist and this diff made wrong; missing docs nobody planned
     are not a finding. P2 for a small correction, P1 when the doc now leads to
-    a launch that does not work.
+    a launch that does not work. Contract documents too: each line of the
+    run report's «Изменённые решения» must be in every document that
+    stated the old decision, committed; and code that departs from a
+    contract document (an operation, a column, a rule, a screen text) with
+    no such line behind it is a decision changed silently — P1.
   Security — for each DECLARED SECURITY REQUIREMENT above, name where the
     combined diff enforces it, or report it unenforced. Read every row as
     cross-unit — the check lives in one unit, the route that bypasses it in

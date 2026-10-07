@@ -6,7 +6,9 @@ when the user invokes this skill.
 `plan` does not call it. Writers, gates, and `work` do not run this
 list: they leave `version`, `updated`, and the changelog as they found them.
 
-The diff is the file about to be committed against HEAD. A file git has
+The diff is the file about to be committed against its last stamped
+state (`references/version-birth.md`, step 1), so decision-change commits
+since that stamp are in it. A file git has
 never had keeps its single «первый выпуск» row at the iteration's version,
 with its date set; do not add a second row.
 
@@ -19,7 +21,7 @@ with its date set; do not add a second row.
 - [ ] One canonical file for this system, at its unchanged Registry path (no date, no topic) — Which mode am I in · Registry · One folder per document
 - [ ] An unversioned row got no `version`, no changelog, no typed row — Registry
 - [ ] Plan: a closed version's folder untouched. DB: a new numbered file in `db/migrations/`, no committed one edited, and `migration:` names the newest file — `references/exceptions.md`
-- [ ] Every cited token the diff against HEAD touches is typed ломает / добавляет / уточняет / no row; an explanation of an existing token is no row — What a version is · `references/change-types.md`
+- [ ] Every cited token the diff against the last stamped state touches is typed ломает / добавляет / уточняет / no row; an explanation of an existing token is no row — What a version is · `references/change-types.md`
 - [ ] No id renumbered, reused, or deleted without an `удалён:` note — ID stability
 - [ ] Every pin read: stale ones (a «ломает» after the pin) carry the banner; pins behind by «уточняет» only are refreshed — Staleness and cascade
 - [ ] The diff contains only what the feature touches — Increment discipline

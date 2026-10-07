@@ -118,6 +118,16 @@ check, not "kept history".
 Read `references/version-birth.md` when this run may create a document's
 first version or stamp a new one.
 
+### Commits that are not stamps
+
+Two commits of a contract document need no request from the user and stamp
+nothing: the move of a single file into its split layout (the stage that
+splits it), and a decision changed after the document was finished
+(`pipeline` → `references/decision-changes.md`). Both leave `version`,
+`updated`, `info.version`, the changelog and the pins as they were. The
+next stamp compares each document with its last stamped state, not with
+`HEAD`, so the changes these commits carry get their rows then.
+
 ## Registry
 
 | Document | Canonical path | ID namespaces to preserve | Downstream |

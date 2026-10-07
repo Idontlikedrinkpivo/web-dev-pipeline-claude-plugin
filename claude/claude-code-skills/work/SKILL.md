@@ -54,6 +54,10 @@ rounds that stop making progress (`pipeline` → `references/convergence.md`). T
 <причина>`, and in the chat what blocks it, what was tried, and what the user
 can decide.
 
+**A decision that changes during the run goes into its documents at
+once**, committed before the next dispatch, without the user asking —
+Step 6, **A decision changed during the run**.
+
 ## Inputs
 
 | Input | Required | Notes |
@@ -320,8 +324,10 @@ Per unit, in this order, and never skip to the next unit on a broken tree:
    review verdict.
    Never batch several units into one commit because it was faster. Do not
    stage a contract document (SRS, OpenAPI, DB schema, architecture, UI
-   spec) and do not write its changelog: that commit belongs to
-   `doc-versioning`, which the user invokes. `plan` does not call it.
+   spec) with a unit: a document changes only in its own commit for a
+   changed decision (**A decision changed during the run**), and its
+   version and changelog belong to `doc-versioning`, which the user
+   invokes. `plan` does not call it.
 6. **Update the task list and the run report file** (the unit's row and the
    worker's `DECISIONS`), write `План: <сделано> из <всего>` in the chat
    (Step 1), then move on. When the run stops on a unit instead (a
@@ -338,7 +344,7 @@ is purely mechanical.
 | Return | Move |
 |---|---|
 | `DONE_WITH_CONCERNS` | route the concern to a reviewer before committing — the grade's reviewer, or a single `review-medium` pass on that unit for grade 0 and Low; commit only after the concern is closed or explicitly accepted |
-| `BLOCKED` on a missing file or contract | if the plan simply mis-listed `Files`, re-dispatch with the corrected list; if a design decision is missing, **stop and ask the user** |
+| `BLOCKED` on a missing file or contract | if the plan simply mis-listed `Files`, re-dispatch with the corrected list; if a design decision is missing, **stop and ask the user** — the answer is a changed decision (below) before the re-dispatch |
 | `BLOCKED` / `HARDER_THAN_EXPECTED` on difficulty | escalate exactly one tier per `executor-catalog`, carrying the previous report. An `impl-ui` unit is not on that ladder: re-dispatch `impl-ui` with the report, round after round while it makes progress |
 | Scope breach | revert the out-of-scope part, re-dispatch the unit narrowed |
 | A red test made green by editing its assertion | treat as `BLOCKED`, not a pass — it hides a real conflict between the scenario and the design |
@@ -363,6 +369,16 @@ own implementer for `RETURN_TO_EXECUTOR` / `RETURN_TO_UNIT`), passes
 (`Plan-Unit: <version>/U<n>`); a fix that spans units carries
 `Plan-Unit: <version>/review-fix-<n>`. List every such commit in the
 run report, so `code-review-full` counts it as mapped.
+
+**A decision changed during the run** — the user answers a stop, changes
+their mind («давай по-другому»), or a fact overrules a document. Before
+the next dispatch, follow `pipeline` → `references/decision-changes.md`:
+a line under «Изменённые решения», every document that states the old
+decision fixed through its writer, one commit with no version change.
+Later packets carry it as `CHANGED DECISIONS`; a committed unit built on
+the old decision gets a follow-up commit, as in **A fix after a commit**;
+a change that needs a new unit is a plan change — stop and ask. A run
+that leaves a changed decision only in code has failed this step.
 
 Escalations and grade corrections are recorded in the run report only. Never
 write them back into the plan: the next run must re-derive the tier from the
@@ -397,7 +413,8 @@ an inline checklist here.
 Honor its verdict the same way: `PASS` closes the run, `FIX_THEN_CLOSE` routes
 mechanical findings to `mechanical-worker` as their own follow-up unit(s) before
 closing, `RETURN_TO_UNIT` re-opens the named unit through its own executor,
-`STOP` goes to the user with the findings attached.
+`STOP` goes to the user with the findings attached — and the user's answer
+is a changed decision, landed in the documents before the fix.
 
 Anything but `PASS`: before the first fix, add «Исправления по финальному
 ревью» to the progress file — every finding a row with who fixes it and
@@ -438,6 +455,8 @@ at Step 7, before writing the report.
 - The chat showed `План: <сделано> из <всего>` after the committed set was
   known and after every commit — Step 1, Step 5.6.
 - The run report names grade corrections — Step 6.
+- Every changed decision is under «Изменённые решения» and committed in
+  its documents before the next dispatch — Step 6.
 - The progress file next to the plan matches the `Plan-Unit:` trailers, and
   its last commit carries the final review verdict or the stop reason —
   Step 1, Step 5.5.
@@ -456,6 +475,8 @@ at Step 7, before writing the report.
   verdict that loop honors.
 - `code-review-full` (skill) — the whole-run review at Step 7, plus its re-reviews over the fix commits until `PASS`.
 - `references/progress-file.md` — the progress file: units table, the fixes section after the final review, statuses, commits.
+- `pipeline` → `references/decision-changes.md` — a decision that changes
+  during the run: the owner document, the cascade, the commit.
 - `executor-catalog/references/worker-prompt.md` — the packet and the report
   format, used verbatim per dispatch.
 - `references/context7.md` — the Step 2b library-docs procedure; read before

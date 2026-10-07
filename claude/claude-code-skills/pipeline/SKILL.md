@@ -363,6 +363,10 @@ Two rules keep this honest:
   downstream, and do not wait for a changelog row the commit has not
   written yet.
 
+**A decision changed after its stage closed** (in `work`, a later stage, the
+chat) goes straight into the documents that state it, committed at once with
+no version change, unasked: `references/decision-changes.md`.
+
 The plan is the exception `doc-versioning` already names: every iteration
 gets a **new** `plans/<version>/` folder with its own plan and U-ids,
 pinned (`path@<version>`) to the documents it was built from. A closed
@@ -474,6 +478,8 @@ that gate asks the next transition itself, using this section.
   question says about cost.
 - `references/progress-files.md` — which stages keep a progress file in
   `plans/<version>/`, its shape, and the link posted before the first step.
+- `references/decision-changes.md` — a decision changed after its stage
+  closed: the owner, the cascade, the commit, where it happens.
 - `doc-versioning` (skill) — the increment/greenfield decision, the canonical
   path per document type, the downstream verdict this file reads,
   the unversioned business-requirements draft, and document language

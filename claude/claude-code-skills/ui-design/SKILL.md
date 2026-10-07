@@ -32,7 +32,12 @@ and ids stay.
 The only file this skill writes in the repo is the **frames register** — a
 map from screen ids to Figma nodes, not a contract. Every widget,
 presentation, layout and wording choice lives on the frames, picked by the
-Figma builder by `ux-patterns`. Nothing here is fed back into the SRS.
+Figma builder by `ux-patterns`. Nothing here is fed back into the SRS —
+except what the user changes while looking at the frames that is not the
+look but the behaviour: a field, a step, a right, a rule («убери поле»,
+«пусть отмена будет без подтверждения»). That is a changed decision for the
+SRS, landed and committed before the frame is redrawn (`pipeline` →
+`references/decision-changes.md`).
 
 Write the register and every user-facing message in Russian. Do not
 translate ids (`S-`, `M-`, `UC-`, `Alt-`, `Exc-`, `AC-`, `A-`, `BR-`).

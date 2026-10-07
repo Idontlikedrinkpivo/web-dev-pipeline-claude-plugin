@@ -1,7 +1,10 @@
 # Doc-typist packet and report
 
 The parent is `srs-author`, a `design-*` row, or a `plan-*` row. It has already settled the
-document. This row prints. A subagent gets no conversation history. What
+document. This row prints. For a decision the user changed after the
+document was finished, the parent is the session, and the packet is a
+`MODE revise` with one `SETTLEMENT` line per change (`pipeline` →
+`references/decision-changes.md`). A subagent gets no conversation history. What
 is not in the packet does not exist for it.
 
 The parent does not paste the finished document into this prompt. A
@@ -20,7 +23,7 @@ SKILL           <repo-relative path to the stage skill's SKILL.md>
                 Skip the Orchestrator half. Do not run grill-me,
                 doc-review, or pipeline.
 
-PARENT          srs-author | design-lite | design-medium | design-hard | plan-lite | plan-medium | plan-hard
+PARENT          srs-author | design-lite | design-medium | design-hard | plan-lite | plan-medium | plan-hard | session (a changed decision)
 OUTPUT PATH     <repo-relative path; db schema: documentation/db/schema.md
                 plus each documentation/db/migrations/<NNNN>_<slug>.sql
                 the parent settled; OpenAPI: documentation/api/openapi.yaml
@@ -72,8 +75,11 @@ RULES
   `info.x-changelog`). Pins are `path@<version>`, the source's current
   `version`. Grill-reversal replaces the contradicted line and touches
   neither.
-- Revise (a plan before it ran): keep U-ids, edit only the units
-  SETTLEMENT names, leave every other unit byte-identical.
+- Revise: edit only what SETTLEMENT names and leave everything else
+  byte-identical. A plan before it ran keeps its U-ids. A finished
+  document whose decision changed (`pipeline` →
+  `references/decision-changes.md`) keeps its ids, `version` and
+  changelog; a removed id is not renumbered over.
 - Do not commit, do not stage.
 ```
 

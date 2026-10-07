@@ -36,6 +36,17 @@ Statuses: `⏳ ждёт`, `🔄 в работе`, `🔍 на ревью`, `✅ �
 executor cell. The Ревью cell shows the unit review's path
 (`FIX_THEN_COMMIT (<что>) → исправлено`, `review-hard ×2: COMMIT`).
 
+When a decision changes during the run (`pipeline` →
+`references/decision-changes.md`), a section «Изменённые решения» appears
+under the table, one line per change, written before the documents are
+edited and completed with the commit once they land:
+
+```markdown
+## Изменённые решения
+
+- Повторная оплата: «409 PAYMENT_DUPLICATE» → «200 с прежним результатом» · решил пользователь (U6 `BLOCKED`) · OpenAPI `payOrder`, сценарии `payments` · `d03b2e1` · U4 переделан
+```
+
 Create it before the first dispatch, with every in-scope unit `⏳ ждёт`; on a
 resumed run, rebuild it from the unit map and git. Then post its link in the
 chat before the first dispatch (`work` → Keep the progress file). It is never

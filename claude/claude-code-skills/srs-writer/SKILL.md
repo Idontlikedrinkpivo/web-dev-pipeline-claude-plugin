@@ -102,6 +102,8 @@ BR or NFR in behaviour terms, citing the regulation.
 
 Do not run `grill-me`. On `MODE grill-reversal`, replace each contradicted line in place — never beside it. Do not set `grilled:`, `reviewed:`, `status`, or `sources`. Do not bump. Do not add a changelog row. When a reversal contradicts an upstream draft, name that in `CONCERNS`; do not silently rewrite the business-requirements document.
 
+The same mode carries a decision the user changed after the SRS was finished — in `work`, in a later stage, or in the chat (`pipeline` → `references/decision-changes.md`). The session commits that edit at once, still without a version or a changelog row.
+
 ## Artifact Root and Resume
 
 Write into `<repo-root>/documentation/requirements/srs/`: `srs.md` — the index and every section the whole product shares — plus `areas/NN-<slug>.md`, one file per capability group with its requirements and use cases (Document Structure → Layout). One living SRS per project; the paths carry no date and no topic name. Resolve `<repo-root>` via `git rev-parse --show-toplevel` (fall back to cwd if not a git repo). Create that folder if missing. Questions go in `open-questions.md` and interface wishes in `ui-wishes.md`, both in that same folder, not into the SRS.

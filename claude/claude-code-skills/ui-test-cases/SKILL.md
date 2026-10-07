@@ -385,6 +385,13 @@ A `DEFECTS` verdict names, per defect, the unit or screen it points at, so
 the next step is one increment plan of fix units, not a hunt. Ask about that
 per `pipeline`; do not fix here.
 
+A spec gap, or a defect the user rules is the spec's and not the app's
+(«так и должно быть»), is a changed decision: the screen spec — and the SRS
+or the API when the rule lives there — and the cases that test it are
+fixed and committed at once, with no version change (`pipeline` →
+`references/decision-changes.md`), and those cases are re-run against the
+new text before the verdict.
+
 The session commits the suite, `test(e2e): пользовательские тесты
 <version>`, so CI and the next run start from it. The report stays on disk
 in the version folder — `documentation/plans/` is out of git.

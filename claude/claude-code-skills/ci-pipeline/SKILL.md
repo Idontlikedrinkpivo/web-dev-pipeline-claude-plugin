@@ -297,6 +297,14 @@ Example close:
 
 ## Guardrails
 
+- **A value that departs from the architecture.** A port, a variable, a
+  service name, an image or a command that turns out different from what
+  `architecture.md` says (the port is taken, the user picks another name)
+  is settled first — by the user, or here when the choice is this stage's
+  own — and then the architecture is fixed and committed at once, with no
+  version change (`pipeline` → `references/decision-changes.md`). A config
+  that silently departs from the document sends the next plan building
+  against the old one.
 - **Drifted fixtures.** On the fallback path, a Postgres version or an
   object-store bucket name in the workflow that no longer matches `docker-compose.test.yml` because one was
   updated and the other forgotten. Grep both files for the values this

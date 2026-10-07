@@ -46,7 +46,7 @@ shrink to zero with the plan.
 | Cited design documents | **yes** | every section any unit cited, once each, de-duplicated — under `documentation/`: `requirements/srs/srs.md`, `db/schema.md` and `db/migrations/`, `api/openapi.yaml`, `architecture/` (`architecture.md`, `domain.md`, `scenarios/<area>/<area>.md`), `ui/screen-specs/` |
 | Declared NFR and configuration decisions | **yes** when they exist | foundation §1 «Решения по NFR» rows and the §4 configuration table — the baseline the NFR lens checks against |
 | Declared security requirements | **yes** when either exists | the SRS's Security NFR sub-checklist rows and the architecture's security decisions table — the baseline the security lens checks against |
-| Run report `$(git rev-parse --git-dir)/pipeline-work/<version>-run.md` | **yes** | per-unit statuses, evidence strategies, grade corrections, out-of-scope notes, and the **Cross-unit watch** list of `OPEN` suspicions carried up from unit reviews |
+| Run report `$(git rev-parse --git-dir)/pipeline-work/<version>-run.md` | **yes** | per-unit statuses, evidence strategies, grade corrections, out-of-scope notes, the **Изменённые решения** of the run, and the **Cross-unit watch** list of `OPEN` suspicions carried up from unit reviews |
 | Definition-of-done output | **yes** | the plan's §5 commands as `work` Step 7 ran them, with exit codes, as a file path — the reviewer reads it and does not re-run them |
 | Dead-code report | **yes** | the stack's detector output (`knip` / `vulture`) from `work` Step 7, as a file path; "could not run" with the reason is a valid input, a missing one is not |
 | Prior full-plan findings | when resuming after a fix | so a closed finding is not re-opened |
@@ -87,7 +87,9 @@ and again when you judge the findings (Step 4).
   replaced (a duplicate validator, an old code path), or a scaffold stub a
   unit's real implementation now shadows.
 - **Stale docs** — an existing README, `.env.example`, or doc this diff made
-  wrong.
+  wrong; a changed decision from the run report's «Изменённые решения» that
+  did not land in its documents; code that departs from a contract document
+  with no such line behind it.
 - **Definition of done** — the plan's §5 checked against the tree, not assumed
   from the per-unit sums.
 - **Declared NFR and configuration** — each «Решения по NFR» row and each

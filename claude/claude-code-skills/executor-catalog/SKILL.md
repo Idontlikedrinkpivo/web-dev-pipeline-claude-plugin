@@ -74,7 +74,7 @@ table, holds the model and effort.
 | **Low** | plan-writer | `plan-lite` | `plan` | slice a fully bounded increment along seams the design already drew. `doc-typist` prints the plan |
 | **Mid** | plan-writer | `plan-medium` | `plan` | close the remaining slice and grade decisions. `doc-typist` prints the plan |
 | **High** | plan-writer | `plan-hard` | `plan` | Full-trigger, security, or cross-section slicing. `doc-typist` prints the plan |
-| **Print** | docs | `doc-typist` | nested by `srs-author`, the three `design-*` rows, and the three `plan-*` rows | prints a document those rows already settled, including sibling D2 and `open-questions.md` rows the settlement named. No new decision |
+| **Print** | docs | `doc-typist` | nested by `srs-author`, the three `design-*` rows, and the three `plan-*` rows; dispatched by the session for a changed decision | prints a document those rows already settled, including sibling D2 and `open-questions.md` rows the settlement named, or edits a finished document for a decision the user changed (`MODE revise`). No new decision |
 | **Read-only** | any | `code-explorer` | `plan` (brownfield inventory), `grill-me` (facts), `brainstorm` (scout and claim verifier) | locating patterns, files, and call sites in a repo whose code *is* the design; never edits |
 | **Edit** | figma | `figma-sonnet` | `ui-design` | elements added or changed on frames that already exist, or those frames restyled to a chosen visual direction. Not a new screen and not a redesign |
 | **Build** | figma | `figma-opus` | `ui-design` | frames from an empty file, a new screen, or a redesign of an existing screen, from the SRS; the style tiles of a visual direction |
@@ -166,7 +166,10 @@ Dispatch contract like any other, with no `model`.
 - **`doc-typist`** — `srs-author`, the three `design-*` rows, and the three
   `plan-*` rows hand the printing here after the document's decisions are
   settled. Packet: `references/doc-typist-prompt.md`. The session does not
-  dispatch it and does not ask about it. A plan file never names it.
+  ask about it, and a plan file never names it. The one direct dispatch:
+  a decision changed after its document was finished — the user already
+  settled it, so the session sends `MODE revise` with one `SETTLEMENT`
+  line per change (`pipeline` → `references/decision-changes.md`).
 
 | Rule | Why |
 |---|---|

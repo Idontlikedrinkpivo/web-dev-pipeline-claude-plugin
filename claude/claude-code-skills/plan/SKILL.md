@@ -38,6 +38,10 @@ If a design gap surfaces while planning, it goes to this plan's **Open
 questions** file beside the plan, `open-questions.md`. Never close a design
 gap by guessing inside a unit, and never add an open-questions section to the
 plan. A finding the user asked to defer after review goes in that same file.
+A gap the user settles instead — or a decision the user changes while the
+plan is written or reviewed — goes into the design document first,
+committed with no version change, and the plan is written or revised
+against the fixed text (`pipeline` → `references/decision-changes.md`).
 
 ## Inputs
 
@@ -120,7 +124,9 @@ written in each source file.
      the changed units only. Revise and re-review repeat until the verdict
      passes, while each round makes progress; when progress stops, take it to
      the user (`pipeline` → `references/convergence.md`).
-   - `STOP` — stop and take it to the user.
+   - `STOP` — stop and take it to the user. The user's answer is a changed
+     decision: it lands in its document (`pipeline` →
+     `references/decision-changes.md`) before the revise round that follows.
    - `PASS` — only then ask, per `pipeline` → "Asking before a
      transition", about the stage the table names after this one. Do not name a next step from memory.
 

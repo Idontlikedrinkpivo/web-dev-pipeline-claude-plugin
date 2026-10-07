@@ -55,7 +55,11 @@ M is the number of findings to route in this round, so the user sees how many ar
 
 - **Apply** — edit the document with that finding's `suggested_fix`. No
   `suggested_fix` → treat as Defer. Leave `version`, `updated`, and the
-  changelog untouched. An applied finding is not a new version.
+  changelog untouched. An applied finding is not a new version. A fix
+  that changes a decision an *upstream* document states — one whose stage
+  already closed — goes into that document too, committed at once with no
+  version change (`pipeline` → `references/decision-changes.md`); the
+  reviewed document itself stays with its stage.
 - **Defer** — append to `open-questions.md` in the reviewed document's
   folder (below). Do not edit the reviewed document.
 - **Skip** — record, do not edit.

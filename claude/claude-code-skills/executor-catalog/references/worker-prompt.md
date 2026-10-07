@@ -26,6 +26,12 @@ DESIGN YOU MUST FOLLOW (do not re-decide these)
    rows, endpoint contract, column definitions, screen states — pasted, not
    linked, so the worker does not have to hunt>
 
+CHANGED DECISIONS
+  <each decision changed during this run that touches this unit — было →
+   стало, and the document already fixed — or: none>
+  The fixed document wins over the unit's text below. Where they differ,
+  follow the document and say so in the report.
+
 APPROACH
   <the unit's Approach field verbatim>
 

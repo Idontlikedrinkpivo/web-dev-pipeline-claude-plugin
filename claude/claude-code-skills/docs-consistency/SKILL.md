@@ -172,7 +172,7 @@ Exactly one:
 |---|---|---|
 | `PASS` | no P0 / P1 | the next transition per `pipeline` |
 | `RETURN_TO_STAGE` | P0 / P1 whose fix is the owner stage's job, or a stale pin (Step 1) | name the **earliest** owner stage in chain order, with its findings — a later stage's fix may depend on it. Ask to run it per `pipeline` → "Asking before a transition"; after it, re-run this check |
-| `STOP` | a contradiction only a product decision closes: two readings of the SRS, both reasonable | one question to the user per `grill-me` → "How a question is shown"; the answer goes to the SRS first, then the check re-runs |
+| `STOP` | a contradiction only a product decision closes: two readings of the SRS, both reasonable | one question to the user per `grill-me` → "How a question is shown"; the answer is a changed decision — it goes to the SRS and every document that states the other reading, committed at once with no version change (`pipeline` → `references/decision-changes.md`), then the check re-runs |
 
 A re-check reads the whole set again, not only the changed document: a fix
 in the schema can open a gap in the API.

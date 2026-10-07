@@ -117,7 +117,12 @@ boundary linter named in §6, and the dead-code detector (`knip` /
 Pin versions in the lockfile. Install the majors §1 Стек names; a
 lockfile that resolves a different major is a stop, not a silent
 upgrade, because the lint rules target those majors. Do not add
-ORMs, queues, or admin UIs §1 Стек did not name.
+ORMs, queues, or admin UIs §1 Стек did not name. A major, a tool, a port or
+a variable that ends up different from the architecture — the user picks
+the other major, a version assumption checks out differently — is a
+changed decision: §1 Стек or §4 is fixed and committed at once, with no
+version change, before the next section (`pipeline` →
+`references/decision-changes.md`).
 
 The manifest's own `version` is the service version: on a new repo the
 open iteration's, the name of `documentation/plans/<version>/` (`0.1.0`

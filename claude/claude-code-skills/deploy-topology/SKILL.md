@@ -305,6 +305,14 @@ its folder's contents.
 
 ## Guardrails
 
+- **A value that departs from the architecture.** A port, a variable, a
+  service name, an image or a command that turns out different from what
+  `architecture.md` says (the port is taken, the user picks another name)
+  is settled first — by the user, or here when the choice is this stage's
+  own — and then the architecture is fixed and committed at once, with no
+  version change (`pipeline` → `references/decision-changes.md`). A config
+  that silently departs from the document sends the next plan building
+  against the old one.
 - **A one-time risky step left out of `deploy.md`.** If a cutover (new
   external DB, new external storage, a secret rotation) has an
   order-sensitive sequence where doing it wrong is destructive or leaks

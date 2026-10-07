@@ -33,8 +33,10 @@ INPUTS YOU MUST FOLLOW (pasted, not linked)
   <the source: a business-requirements file, a note, or the chat text.
    On increment or grill-reversal, also paste the current SRS.>
 
-REVERSALS       <grill-reversal only: each decision the user reversed,
-                with the line it replaces. Otherwise: none>
+REVERSALS       <grill-reversal only: each decision the user reversed —
+                in a grill, or after the SRS was finished (pipeline →
+                references/decision-changes.md) — with the line it
+                replaces. Otherwise: none>
 
 LANGUAGE        Russian prose, including section headings and table
                 columns from the skill template. Do not translate ids
