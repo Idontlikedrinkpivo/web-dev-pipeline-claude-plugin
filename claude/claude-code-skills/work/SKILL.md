@@ -45,12 +45,14 @@ may only replicate an assertion that implementer already wrote.
 | Branch strategy beyond one feature branch, PRs, CI | the user's shipping flow |
 | Docker/compose topology for test, dev, prod | `deploy-topology`, once the plan's units are committed |
 
-**`work` runs on its own from the first dispatch to the run report** — it asks
-the user nothing on the way. Every product decision is in the documents and
-every plan decision passed `plan-review`, so whatever comes up is either the
-pipeline's to fix or a gap in the documents. A unit that turns out to be
-under-specified, or whose design is wrong, is not improvised: it is parked: its row `⛔ отложен: <причина>`, the units that depend on it `⏸ ждёт U<n>`, the reason in the run report's **Отложено**, and the run goes on with every unit that does not depend on it.
-The parked units come to the user once, at the end, in the run report.
+**`work` runs on its own from the first dispatch to the run report**:
+reviews, fixes and re-reviews go round by round without asking. It stops and
+asks the user only when a unit cannot pass — a decision the documents do not
+make (`BLOCKED` on a missing design decision, a `STOP` from a review) or fix
+rounds that stop making progress (`pipeline` → `references/convergence.md`). That is a
+**stop and report**, not an improvisation: the unit's row `⛔ остановлен:
+<причина>`, and in the chat what blocks it, what was tried, and what the user
+can decide.
 
 ## Inputs
 
@@ -304,7 +306,8 @@ Per unit, in this order, and never skip to the next unit on a broken tree:
       closes nothing real.
    4. Honor the verdict. `COMMIT` continues to 5. `FIX_THEN_COMMIT` goes to
       `mechanical-worker`. `RETURN_TO_EXECUTOR` re-dispatches the unit's own
-      implementer with the findings. `STOP` (a design gap) parks the unit — Step 6.
+      implementer with the findings. `STOP` (a design gap) stops the run and goes to
+      the user — Step 6.
       P2/P3 never hold up the commit; they land in the run report.
    5. Copy every `OPEN` cross-unit suspicion into the run report's
       **Cross-unit watch** for Step 7.
@@ -321,10 +324,9 @@ Per unit, in this order, and never skip to the next unit on a broken tree:
    `doc-versioning`, which the user invokes. `plan` does not call it.
 6. **Update the task list and the run report file** (the unit's row and the
    worker's `DECISIONS`), write `План: <сделано> из <всего>` in the chat
-   (Step 1), then move on. When a unit is parked instead (a design
-   gap, rounds that stopped making progress), set its row to
-   `⛔ отложен: <причина>` and the rows of the units that depend on it to
-   `⏸ ждёт U<n>`, then move on.
+   (Step 1), then move on. When the run stops on a unit instead (a
+   design gap, rounds that stopped making progress), set that row to
+   `⛔ остановлен: <причина>`.
 
 Fixing a worker's output yourself is the one thing this loop forbids, even a
 one-liner. A failing test, a missed scenario, or a review finding goes back —
@@ -336,7 +338,7 @@ is purely mechanical.
 | Return | Move |
 |---|---|
 | `DONE_WITH_CONCERNS` | route the concern to a reviewer before committing — the grade's reviewer, or a single `review-medium` pass on that unit for grade 0 and Low; commit only after the concern is closed or explicitly accepted |
-| `BLOCKED` on a missing file or contract | if the plan simply mis-listed `Files`, re-dispatch with the corrected list; if a design decision is missing, the unit is parked (above) |
+| `BLOCKED` on a missing file or contract | if the plan simply mis-listed `Files`, re-dispatch with the corrected list; if a design decision is missing, **stop and ask the user** |
 | `BLOCKED` / `HARDER_THAN_EXPECTED` on difficulty | escalate exactly one tier per `executor-catalog`, carrying the previous report. An `impl-ui` unit is not on that ladder: re-dispatch `impl-ui` with the report, round after round while it makes progress |
 | Scope breach | revert the out-of-scope part, re-dispatch the unit narrowed |
 | A red test made green by editing its assertion | treat as `BLOCKED`, not a pass — it hides a real conflict between the scenario and the design |
@@ -350,7 +352,7 @@ fix moves the unit one tier up. A `FIX_THEN_COMMIT` fix by
 `mechanical-worker` is confirmed by the orchestrator's own check. When
 progress stops — a closed finding came back, a round closed nothing, a
 finding survived a fix at `impl-critical` — the unit or the design is
-wrong, and the unit is parked; the run goes on. The progress file's Ревью cell shows the rounds
+wrong: stop and say so. The progress file's Ревью cell shows the rounds
 (`RETURN_TO_EXECUTOR ×2 → COMMIT`).
 
 **A fix after a commit** — from a Low batch review or from the final review —
@@ -368,7 +370,7 @@ unit, and a plan carrying scars stops being a decision artifact.
 
 ### Step 7. Close the run
 
-When every unit in scope is committed or parked, first run two checks yourself and save
+When every unit in scope is committed, first run two checks yourself and save
 each output under `$(git rev-parse --git-dir)/pipeline-work/`:
 
 - **Definition of done** — every command in the plan's §5 (lint and
@@ -395,9 +397,7 @@ an inline checklist here.
 Honor its verdict the same way: `PASS` closes the run, `FIX_THEN_CLOSE` routes
 mechanical findings to `mechanical-worker` as their own follow-up unit(s) before
 closing, `RETURN_TO_UNIT` re-opens the named unit through its own executor,
-`STOP` (the plan under-specified an interaction, or the design has a gap)
-goes to the run report's **Отложено** with the findings attached; the run
-closes with it open.
+`STOP` goes to the user with the findings attached.
 
 Anything but `PASS`: before the first fix, add «Исправления по финальному
 ревью» to the progress file — every finding a row with who fixes it and
@@ -406,12 +406,12 @@ and post the link again before the first fix, pointing at the section:
 `Исправления по финальному ревью: [progress.md](documentation/plans/<version>/progress.md) — раздел внизу файла, обновляется по ходу работы.` Each fix then lands like a unit, updating its rows. After
 each round of fixes, run `code-review-full` again over that round's fix
 commits, until `PASS` (`pipeline` → `references/convergence.md`); when the rounds stop making
-progress, the open findings go to **Отложено** and the run closes.
+progress, stop and take the open findings to the user.
 
 At the close write the verdict path into the `Финальное ревью:` line
 (`RETURN_TO_UNIT → исправлено → PASS`, or plain `PASS`).
 
-Stop there. The last chat line is `План: <сделано> из <всего>`, plus `· отложено <N> — см. отчёт` when anything was parked, with the parked units listed above it. No PR, no
+Stop there. The last chat line is `План: <сделано> из <всего>`. No PR, no
 push, no CI watching. The branch stays local: the pipeline still has
 the UI acceptance run (`ui-test-cases`, when there are screens), `deploy-topology` and `ci-pipeline` ahead, and push and PR are the user's
 step after the whole pipeline, not after this run.
@@ -446,7 +446,7 @@ at Step 7, before writing the report.
   and every verdict is recorded — Step 7.
 - When the final review found problems, the progress file listed every fix
   as a task before the first fix, and each row ends `✅ исправлено`,
-  `📝 в отчёт` or `⛔ отложено` — Step 7.
+  `📝 в отчёт` or `⛔ остановлено` — Step 7.
 
 ## References
 

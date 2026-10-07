@@ -25,14 +25,14 @@ no changelog, no `sources:`.
 | U | Цель | Исполнитель | Статус | Ревью |
 |---|---|---|---|---|
 | U1 | <goal from the plan> | impl-lite | ✅ закоммичен | COMMIT |
-| U2 | … | impl-medium | ⛔ отложен: <one-line reason> | — |
+| U2 | … | impl-medium | ⛔ остановлен: <one-line reason> | — |
 | U3 | … | impl-hard | ⏳ ждёт | — |
 
 Финальное ревью: <не запускалось | verdict of code-review-full> · BASE `<sha>` · обновлено <YYYY-MM-DD HH:MM>
 ````
 
 Statuses: `⏳ ждёт`, `🔄 в работе`, `🔍 на ревью`, `✅ закоммичен`,
-`⛔ отложен: <причина>`, `⏸ ждёт U<n>` (depends on a parked unit), `⏭ вне объёма прогона`. Escalations add `(эскалация → impl-critical)` to the
+`⛔ остановлен: <причина>`, `⏭ вне объёма прогона`. Escalations add `(эскалация → impl-critical)` to the
 executor cell. The Ревью cell shows the unit review's path
 (`FIX_THEN_COMMIT (<что>) → исправлено`, `review-hard ×2: COMMIT`).
 
@@ -124,7 +124,7 @@ first fix (`work` → Step 7). Add this section under the units table, set the
   finding is `📝 в отчёт, не блокирует` and goes to the run report.
 - **Statuses** as for units: `⏳ ждёт` → `🔧 исправляется` → `✅ исправлено`
   (commit sha in the Ревью cell after its `code-review-unit` verdict), or
-  `⛔ отложено: <причина>`.
+  `⛔ остановлено: <причина>`.
 - **The units table follows:** a re-opened unit's row reads
   `🔁 исправление F1` while it is open and `✅ исправлен (F1)` once its fix
   commit lands; a follow-up gets its own `RF<n>` row at the bottom of the
@@ -137,5 +137,5 @@ first fix (`work` → Step 7). Add this section under the units table, set the
   ревью:` line shows the path (`RETURN_TO_UNIT → исправлено → RETURN_TO_UNIT
   → исправлено → PASS`). New findings of a round are added under the same
   table as `F4`, `F5`… When progress stops (`pipeline` →
-  `references/convergence.md`): «Повторное ревью: <verdict> → отложено, в
-  отчёт», the open rows `⛔ отложено: <причина>`; the run closes.
+  `references/convergence.md`): «Повторное ревью: <verdict> → остановлено,
+  решает пользователь», the open rows `⛔ остановлено: ждёт решения`.

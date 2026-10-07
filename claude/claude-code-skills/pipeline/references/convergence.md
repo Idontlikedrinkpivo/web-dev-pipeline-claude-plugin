@@ -35,12 +35,8 @@ Progress is either:
 
 ## When to stop and ask the user
 
-Inside `work` nothing stops to ask: what cannot pass is parked with its
-reason and the run goes on with whatever does not depend on it (`work` →
-the run report's **Отложено**). Elsewhere, stop and ask:
-
-Show what is open, what was tried, and the options «ещё круг», «беру на
-себя», «остановиться» — when:
+Stop the cycle and ask — what is open, what was tried, the options «ещё
+круг», «беру на себя», «остановиться» — when:
 
 1. **A closed finding came back** — two fixes undo each other;
 2. **a round closed nothing** — the same open set as before;

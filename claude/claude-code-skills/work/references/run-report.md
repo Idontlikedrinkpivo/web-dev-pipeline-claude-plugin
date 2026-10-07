@@ -25,9 +25,6 @@ grade, with the signal the cascade missed. This is the feedback that keeps
 **Cross-unit watch** — `OPEN` suspicions carried up from per-unit reviews, for
 `code-review-full` to resolve at Step 7.
 **Open** — units not attempted, and why.
-**Отложено** — every parked unit and open final-review finding: what blocks
-it, what was tried, the units waiting on it; the one place the user is
-asked to decide, after the run.
 **Lib docs** — which libraries Step 2b fetched (id + pinned version), or why
 it wrote `none`.
 **Full-plan review** — `code-review-full`'s verdict and findings from Step 7.
