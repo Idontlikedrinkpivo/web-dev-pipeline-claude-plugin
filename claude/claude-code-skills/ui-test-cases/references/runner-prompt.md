@@ -8,8 +8,9 @@ or the cases.
 SKILL           <path to ui-test-cases/SKILL.md> — follow Mode run;
                 <path to playwright-cli/SKILL.md> for locators, test
                 generation, traces
-CASES           documentation/ui/test-cases.md
-                (documentation/ui/<product>/test-cases.md with several UI products)
+CASES           documentation/ui/test-cases/ — README.md (roles, data,
+                shared texts) and one file per section
+                (documentation/ui/<product>/test-cases/ with several UI products)
 UI SPEC         documentation/ui/screen-specs/   FIGMA FILE  <fileKey> | none
 APP START       <what .claude/launch.json / README / compose say: commands,
                  ports, env, seed, test credentials source>
@@ -27,7 +28,8 @@ RULES
   scripts. Test credentials only from the project's seed or example config.
   No bypass of real auth the architecture did not provide as a test stub:
   that is BLOCKED.
-- One spec file per screen or flow; each test titled with its TC- id;
+- One spec file per section file, named like it (an existing suite keeps
+  its file names); each test titled with its TC- id;
   role/label locators from the spec's control names.
 - Keep or add the `test:e2e` script.
 - Expected wording comes from the «Тексты» table on each screen's Аннотация

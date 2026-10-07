@@ -195,7 +195,7 @@ commit (`references/changelog.md`).
 | Scenarios of an area | `documentation/architecture/scenarios/<area>/<area>.md`; key-scenario diagrams `diagrams/<use-case-kebab>.puml` (PlantUML) / `.svg` beside it | use-case names | plan |
 | Frames register | `documentation/ui/frames-register.md` | screen ids `S-n` · nested-step ids `M-n` — **unversioned**; Figma file, product type, widths, accessibility target, frame `nodeId`s | screen specs of changed screens |
 | Screen spec | `documentation/ui/screen-specs/S-<n>-<screen-slug>.md`, one per screen | element numbers · `operationId` cites | UI test cases, plan |
-| UI test cases | `documentation/ui/test-cases.md` | `TC-` ids — **unversioned**, `sources:` pins the SRS and the screen specs | `ui-test-cases` mode run; the E2E suite |
+| UI test cases | `documentation/ui/test-cases/` — `README.md` and one file per section | `TC-` ids, across the set — **unversioned**, `README.md`'s `sources:` pins the SRS and the screen specs | `ui-test-cases` mode run; the E2E suite |
 | Project map | `documentation/project-map/project-map.md` | none — index, **unversioned** | nobody; `repo-scaffold` writes it |
 | Deploy document | `documentation/deploy/deploy.md` | none — **unversioned**; derived from `docker-compose.prod.yml` and `.env.example`, kept true by `deploy-topology`'s sync test | the operators, as `release/<version>/DEPLOY.md` |
 | Implementation plan | `documentation/plans/<version>/plan.md`, one folder per service version | U-ids, per plan | the `work` skill |
@@ -240,7 +240,8 @@ exceptions are the Registry's own: a plan folder is named by the service
 version; screen specs sit one file per screen in `ui/screen-specs/`; files
 beside a folder's main document keep their own names (`domain.md`,
 `open-questions.md`, `ui-wishes.md`, `schema.md` with `migrations/`,
-`openapi.yaml`, `frames-register.md`, `test-cases.md`). Diagrams sit in a
+`openapi.yaml`, `frames-register.md`); test cases sit in `ui/test-cases/`,
+one file per section beside its `README.md`. Diagrams sit in a
 `diagrams/` subfolder next to the document that shows them, created only
 when it has something. None of these is a second document.
 

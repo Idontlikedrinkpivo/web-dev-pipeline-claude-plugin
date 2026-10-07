@@ -271,7 +271,7 @@ evidence; the files on disk are.
    the question below, never as the only way forward.
 4. Report both branches: the last stage present on each (for the design
    branch `documentation/ui/frames-register.md`, `ui/screen-specs/` and
-   `ui/test-cases.md`). The answer is the earliest
+   `ui/test-cases/`). The answer is the earliest
    unfinished point: a stale document's stage, else the next stage of a
    branch that is not done (both as options when both are open), else
    stage 10, with the unrun gates from step 3 as options.

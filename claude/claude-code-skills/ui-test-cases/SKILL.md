@@ -61,10 +61,11 @@ asking which model. The session writes no case file.
 
 **Progress file.** Before the dispatch, create
 `documentation/plans/<version>/progress-test-cases.md` per
-`pipeline` → `references/progress-files.md` — one row per screen spec plus «Без интерфейса», all
-`⏳ ждёт` — post its link in the chat, and pass it to the writer as
-`PROGRESS FILE`. A full set runs to hundreds of cases; the writer marks
-each screen as its cases are written.
+`pipeline` → `references/progress-files.md` — one row per section of the
+set (below) plus «Без интерфейса», all `⏳ ждёт` — post its link in the
+chat, and pass it to the writer as `PROGRESS FILE`. A full set runs to
+hundreds of cases; the writer marks each section as its cases are
+written.
 
 **What a case set must hold:**
 
@@ -93,11 +94,42 @@ each screen as its cases are written.
 - Preconditions name the data the case needs («у резидента активная бронь
   на завтра»), so the runner can seed it.
 
-**Artifact:** `documentation/ui/test-cases.md`, beside the frames register
-and `screen-specs/` (with several UI products, one per
-`documentation/ui/<product>/`), with `sources:` pinning the SRS and every
-screen spec as `path@<version>`, and `updated:`. Unversioned: an increment edits it in
-place, keeps every `TC-` id, and gives a new case the next free number.
+**Artifact:** the folder `documentation/ui/test-cases/`, beside the frames
+register and `screen-specs/` (with several UI products, one per
+`documentation/ui/<product>/`). A full set runs to hundreds of cases and
+thousands of lines; one file per section lets the writer, the runner and a
+reviewer read only the part they work on, and keeps a change to one screen
+in one or two files.
+
+```text
+documentation/ui/test-cases/
+├── README.md                  index and everything the sections share
+├── 01-login-session.md        1. Вход, сессия и выход — TC-1 … TC-25
+├── 02-home-not-found.md       2. Главная и неизвестный адрес
+└── …
+```
+
+- **`README.md`** — the frontmatter (`title`, `updated`, `sources:`
+  pinning the SRS and every screen spec as `path@<version>`); «Как читать
+  кейс», the roles and test data, the general handler's texts — whatever
+  every section shares; the «Разделы» table `№ | Файл | Экраны и сценарии |
+  Кейсы` (the `TC-` range and the count); then the coverage table, the
+  screen-states → cases table, «Без интерфейса» and the spec gaps found
+  while writing.
+- **One file per section**, `NN-<slug>.md` with a Latin slug: the heading
+  `# N. <Раздел> (S-ids, UC-ids)` and its cases, nothing shared repeated.
+  A section holds one screen's flow or a tight group of flows; a screen with
+  many flows spans several sections, and a section past ~600 lines is
+  split.
+- **`TC-` ids run across the whole set**, never renumbered or reused; a
+  new case takes the next free number, in the section where it belongs.
+- Unversioned: an increment edits the files in place.
+- **An existing single `test-cases.md`** (written before this layout) is
+  moved into the folder on the next write run, before anything else: its
+  `## N.` sections become section files, the shared parts and the closing
+  tables go to `README.md`, every case is copied unchanged with its id,
+  and the old file is deleted in the same change (git keeps its history).
+  The move rewrites no case; changes the run makes come after it.
 
 ```markdown
 ## TC-7. Резидент не может отменить начавшуюся бронь
@@ -112,9 +144,9 @@ place, keeps every `TC-` id, and gives a new case the next free number.
 | 3 | Выполнить «Отменить бронь» | в M2 текст «Бронь уже началась, отменить нельзя»; бронь осталась активной |
 ```
 
-The file ends with a coverage table: every AC id → its `TC-` ids, or the
-«Без интерфейса» line. An AC with neither is the writer's failure, not the
-reader's.
+`README.md` ends with the coverage table: every AC id → its `TC-` ids, or
+the «Без интерфейса» line. An AC with neither is the writer's failure, not
+the reader's.
 
 ## Mode run
 
@@ -214,7 +246,8 @@ tool the moment a case changes status — never from the shell (`python`,
 **Dispatch:** resolve `ui-test-runner` through `executor-catalog` with
 `references/runner-prompt.md`. The runner:
 
-1. writes one Playwright spec per screen or flow under the project's E2E
+1. writes one Playwright spec per section file of the cases, named like it
+   (`01-login-session.spec.ts`; an existing suite keeps its file names), under the project's E2E
    folder (`e2e/` unless the project has one), each test titled with its
    `TC-` id, using role- and label-based locators from the screen spec's element
    names, following `playwright-cli` → test generation;

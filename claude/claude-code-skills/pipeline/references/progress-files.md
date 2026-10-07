@@ -11,7 +11,7 @@ without asking and can tell a slow step from a stuck one.
 |---|---|---|---|
 | `ui-design` — style tiles, drawing, restyle, redraw | `progress-design.md` | screen, plus the direction tiles | the Figma builder as it draws each screen; the session as it verifies |
 | `screen-spec` | `progress-screen-specs.md` | screen | the session, around each dispatch |
-| `ui-test-cases` write | `progress-test-cases.md` | screen spec, plus «Без интерфейса» | the writer, as it finishes each screen |
+| `ui-test-cases` write | `progress-test-cases.md` | section of the case set, plus «Без интерфейса» | the writer, as it finishes each section |
 | `ui-test-cases` run | `test-run.md` | case | the runner — `ui-test-cases` → Mode run |
 | `clean-architecture-design` | `progress-architecture.md` | document | the writer as it settles and prints each document; the session as it inspects and reviews |
 | `repo-scaffold` | `progress-scaffold.md` | step | the session |
@@ -133,13 +133,13 @@ over the set: не запускалось → идёт → its verdict.
 ██████████████████████████████░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░ 30%
 ```
 
-Написано: 3 из 10 экранов · кейсов: 142
+Написано: 3 из 10 разделов · кейсов: 142
 
-| S-n | Экран | Статус | Кейсов |
-|---|---|---|---|
-| S-1 | Главная | ✅ написаны | 38 |
-| S-2 | Реестр | ✍️ пишутся | |
-| — | Без интерфейса | ⏳ ждёт | |
+| № | Раздел | Файл | Статус | Кейсов |
+|---|---|---|---|---|
+| 1 | Вход, сессия и выход | 01-login-session.md | ✅ написаны | 38 |
+| 2 | Главная и неизвестный адрес | 02-home-not-found.md | ✍️ пишутся | |
+| — | Без интерфейса | README.md | ⏳ ждёт | |
 
 Состояние: пишет ui-test-writer · обновлено 2026-10-07 14:20
 ````
