@@ -74,7 +74,7 @@ scaffolded. They meet before the plan.
 | 4 | API contract | `openapi-spec-generator` | `doc-review` | `clean-architecture-design` |
 | 5 | Architecture — foundation, domain model, scenarios by area | `clean-architecture-design` | `doc-review` on each document written | `repo-scaffold` |
 | 6 | Repository skeleton | `repo-scaffold` | none — also writes `documentation/project-map/project-map.md` | the meeting point — see "Two branches" |
-| 7 | Mockups | `ui-design` | none — frames are not a document | `screen-spec` once the API exists, else the backend branch's next stage; after a restyle of screens already built, `plan` |
+| 7 | Mockups | `ui-design` | none — frames are not a document | `screen-spec` once the API exists, else the backend branch's next stage; after a restyle of screens already built, `plan`; after a redraw on a new page, `screen-spec` for every screen |
 | 8 | Screen specs (ТЗ на экран) | `screen-spec` | `doc-review` | `ui-test-cases` (write) |
 | 9 | UI test cases | `ui-test-cases` — mode write | none | the meeting point — see "Two branches" |
 | 10 | Document set check | `docs-consistency` | none — it is the check | `plan` |

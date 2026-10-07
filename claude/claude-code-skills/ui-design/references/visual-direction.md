@@ -130,7 +130,7 @@ Write the register header line:
   выбрано 2026-10-06; отклонены: «Тёплый графит»
 ```
 
-On a restyle add `прежнее: «<имя>»`. Later runs read the tokens from
+On a restyle or a redraw add `прежнее: «<имя>»`. Later runs read the tokens from
 `🎨 Tokens` (`get_variable_defs`), not from this session's notes. The packet's `VISUAL DIRECTION` is the
 chosen plan from step 2 with the user's adjustments: the next `figma-opus`
 run in mode draw creates the tokens from it; `figma-sonnet` in `MODE

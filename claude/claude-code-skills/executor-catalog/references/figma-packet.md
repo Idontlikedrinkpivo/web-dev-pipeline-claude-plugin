@@ -16,7 +16,7 @@ repository.
 
 Contents:
 
-- **The packet** — the fields (FILE, MODE, VISUAL DIRECTION, OPTIONS,
+- **The packet** — the fields (FILE, MODE, PAGE, VISUAL DIRECTION, OPTIONS,
   SCREENS, …); RULES: scope, completeness, layer names, annotation, copy,
   real content, two passes, the file standard, tokens, usability and
   accessibility, the screenshot check; then the modes `direction`,
@@ -54,6 +54,9 @@ SKILL           Follow the Figma skills for building and editing frames
 EXECUTOR        figma-opus | figma-sonnet
 FILE            <figma.com URL>
 MODE            draw | edit | rename | direction | restyle
+PAGE            <the page new frames go on: the page that holds the
+                existing screens | a new page `✅ Экраны · «<имя>»` when
+                the whole interface is redrawn>
 SRS             documentation/requirements/srs/srs.md@v<N>
 PRODUCT TYPE    <B2B | B2C | per area: …>
 VIEWPORTS       <the Ширины line: the desktop width first, then the narrower ones>
@@ -123,11 +126,15 @@ RULES
   Полнота макета. A flow you cannot place is reported, not dropped.
 - A new screen in a file that already has frames reuses their look: the
   same components, variables, spacing, and naming as its neighbours, not a
-  fresh style — also when the neighbours were drawn by a designer.
+  fresh style — also when the neighbours were drawn by a designer. A
+  redraw on a new PAGE is the exception: it follows VISUAL DIRECTION.
 - A `правка` screen keeps its structure. Add or change what the packet
   lists; do not restyle the rest. Edit the state and nested-step frames
   that exist; draw one only when this run adds that state or step.
-- A `новый экран` or `редизайн` screen may be built anew.
+- A `новый экран` or `редизайн` screen may be built anew. A redrawn
+  screen keeps the № and layer name of every element its old annotation
+  lists wherever the element stays, so `screen-spec` maps it by new
+  nodeIds rather than anew.
 - Name interactive and data layers by what they do, not how they look, so
   `screen-spec` can map them: `действие: отмена брони`, `ввод:
   длительность`, `шаг: M2` (the control that opens a nested step),
@@ -163,8 +170,9 @@ RULES
   create these pages, in this order: `📄 Обложка`, `✅ Экраны`,
   `🧩 Компоненты` (local components, only when no library is linked),
   `🎨 Tokens`, `🗄 Архив`. In a file that already has its own pages, keep
-  them: put new frames on the page that holds the existing screens and do
-  not rename, move, or regroup what is there.
+  them: put new frames on PAGE — the page that holds the existing screens
+  unless PAGE names a new one — and do not rename, move, or regroup what is
+  there. A new PAGE gets the structure of `✅ Экраны` below.
   - `📄 Обложка`: one 1920×1080 frame with the product name, the SRS path
     and version, and today's date (ISO, `2026-10-04`); set it as the file
     thumbnail (`figma.setFileThumbnailNodeAsync`). Update the date and
@@ -178,9 +186,10 @@ RULES
   - Inside a section, one row per screen, left to right: the screen frame,
     its state frames, its nested-step frames, the narrower-width frames, then
     `S-1 · Аннотация`. Rows follow the user's path, top to bottom.
-  - `🗄 Архив`: a `редизайн` moves the old frames here, renamed with the
-    date first (`2026-10-04 · S-3 · Профиль`), before the new ones are
-    drawn. Nothing is deleted.
+  - `🗄 Архив`: a `редизайн` on the same page moves the old frames here,
+    renamed with the date first (`2026-10-04 · S-3 · Профиль`), before the
+    new ones are drawn. With a new PAGE the old frames stay where they are,
+    untouched. Nothing is deleted.
   - A new screen goes into its section below the existing rows; existing
     frames do not move.
 - Name each screen frame `S-1 · <ScreenName>`, each state frame

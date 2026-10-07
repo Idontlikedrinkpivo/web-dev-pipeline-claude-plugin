@@ -80,7 +80,8 @@ flow (`UC-3 Exc-1`), and `screen-spec` maps them to status codes later.
 4. Mode **draw**: screen set and coverage plan → drawing → verification.
    Mode **index**: indexing → completeness questions to the designer.
    **Restyle**: the existing frames take the chosen direction →
-   verification.
+   verification. **Redraw**: every screen drawn anew on a new page, the old
+   frames untouched → verification.
 5. Quality gate, then Closing and the next stage.
 
 A later run (an SRS increment, a redesign request, «дорисуй состояние»,
@@ -193,7 +194,7 @@ by every later run.
 |---|---|
 | Mode draw on a file with no product frames and no linked library | the step runs before the screen set is drawn |
 | Product frames exist, the register has no direction (they were drawn before this step existed), and nobody asks for a new look | no step: new screens follow the existing frames; the line says `по кадрам файла` |
-| The user asks for a new look of existing frames («перекрась», «новый стиль», «переработать интерфейс») — a designer's frames too | the step runs, then Restyle. When the request does not say whether only the look changes («переработать интерфейс»), ask once: only the look, or the structure of some screens too — those screens are then `редизайн`. On a designer's file, say once that their look changes and the old one is kept in `🗄 Архив` |
+| The user asks for a new look of existing frames («перекрась», «новый стиль», «переработать интерфейс», «нарисуй заново») — a designer's frames too | the step runs, then Restyle or Redraw. When the request does not say which, ask once: **перекрасить** — the same frames, only the look changes; or **нарисовать заново на отдельной странице** — every screen drawn anew in the new direction, the old frames left untouched on their page. On a restyle of a designer's file, say once that their look changes and the old one is kept in `🗄 Архив` |
 | A linked library, or a designer's frames (mode index), with no request for a new look | no step: the look is theirs; the line says `по библиотеке <имя>` or `по макетам дизайнера` |
 | The SRS or the user pins the look (a brand book, brand colours) | the options stay inside that; with everything pinned, one option and no question |
 
@@ -262,7 +263,8 @@ FRAMES`, and each in-scope screen gets its mark against them:
 | `перекраска` | Restyle: the frame takes the chosen direction; nothing else on it changes |
 
 A screen whose frame exists is never `новый экран`, whatever an earlier
-plan said. Existing screens are never redrawn: an increment touches only
+plan said. An increment never redraws existing screens (a redraw of the
+whole interface is the user's own request — Redraw on a new page): it touches only
 the screens its new or changed use cases reach (the SRS changelog since the
 register's `sources:` pin names them), and every other screen is `без изменений`,
 keeps its ids, and stays out of `SCREENS`. A frame the register cites but
@@ -342,6 +344,33 @@ the next stage is `plan`: its theme unit carries the `🎨 Tokens` variables
 into the project's theme file. The screen specs stay valid, because only
 the look changed.
 
+## Redraw on a new page
+
+The whole interface drawn anew in the chosen direction, on its own page.
+The old frames stay exactly as they are on theirs — a designer's work is
+neither restyled nor archived, and both versions can be compared side by
+side.
+
+1. The visual-direction step has run and the user has chosen.
+2. Read the file: `get_metadata` on every page. Every product frame goes
+   into `EXISTING FRAMES` and stays untouched.
+3. Dispatch `figma-opus` with `MODE draw`, `PAGE` a new page `✅ Экраны ·
+   «<имя направления>»`, every screen of the register in `SCREENS` marked
+   `редизайн` with its old frames as the reference, every app-wide state
+   `draw`, and `VISUAL DIRECTION`. The screens keep their S-ids and M-ids,
+   and each element keeps the № and layer name of the old annotation
+   wherever it stays, so the screen specs need new nodeIds rather than a
+   rewrite.
+4. Verify as in Drawing. The register then points at the new frames: the
+   frame, state and step cells take the new nodeIds; the header says
+   **Кадры рисует:** `ui-design`, drops **Слои по действиям**, and adds
+   **Прежние кадры:** the old page, who drew it, and that it is no longer
+   used.
+
+The next stage is `screen-spec` for every screen — the nodeIds changed,
+and an element the builder added or reshaped needs its row — then
+`ui-test-cases` (write) for the frame ids, then `plan`.
+
 ## Indexing (mode index)
 
 A designer drew the frames; this skill describes them and finds what is
@@ -390,7 +419,8 @@ row named in Closing.
 3. Every id in the register resolves in the file (`get_metadata`); none was
    copied from a report unchecked.
 4. No `без изменений` screen was redrawn, moved, or renamed; no frame in
-   `EXISTING FRAMES` changed outside the run's `SCREENS`.
+   `EXISTING FRAMES` changed outside the run's `SCREENS`; after a redraw on
+   a new page, no old frame changed at all.
 5. The header has **Тип продукта**, **Ширины** and **Доступность**, or the
    run stopped on their `Блокирует старт` rows.
 6. The register cites no `operationId`, column, or HTTP status — those
@@ -419,12 +449,13 @@ When frames were drawn, list the Figma sections whose name now ends in
 Mode — the pipeline cannot set that status itself. One line, not a
 question; the stage does not wait for it.
 
-After a restyle, name the direction and the screens restyled.
+After a restyle, name the direction and the screens restyled; after a
+redraw, the new page and the screens drawn on it.
 
 Then read `pipeline` and ask about the stage its table names after this one
 (normally `screen-spec`, which needs these frames and the OpenAPI contract;
 `pipeline` says what runs first when the contract is missing; after a
-restyle of screens already built, `plan`), per "Asking before a
-transition". A no stops the sitting. While frames are still
+restyle of screens already built, `plan`; after a redraw, `screen-spec`
+for every screen), per "Asking before a transition". A no stops the sitting. While frames are still
 missing (a failed dispatch, a blocking header row), the last message is the
 blocker, not the next stage.

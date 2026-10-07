@@ -278,7 +278,7 @@ fixes is revised by `plan-lite`.
 
 | Situation (`ui-design` decides) | Executor |
 |---|---|
-| Empty file, a new screen, or a redesign | `figma-opus` |
+| Empty file, a new screen, a redesign, or the whole interface redrawn on a new page | `figma-opus` |
 | Style tiles for choosing the visual direction (`MODE direction`) | `figma-opus` |
 | Elements only, on frames that already exist | `figma-sonnet` |
 | The existing frames take a chosen visual direction; structure, texts and ids stay (`MODE restyle`) | `figma-sonnet` |
