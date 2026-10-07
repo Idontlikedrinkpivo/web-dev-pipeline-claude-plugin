@@ -117,7 +117,7 @@ states the rule; fix the document there, not here.
 - Every error is a name from domain model §3, with a state policy and no
   HTTP status; every external call has a side-effect policy consistent
   with the foundation's transaction-model row.
-- Every `operationId` exists in `documentation/api/openapi.yaml`; every
+- Every `operationId` exists in the contract (searched over `documentation/api/`); every
   query names its operation and «Источник строк».
 - Every key scenario (≥ 3 ports or external calls, parallel calls, a
   transaction spanning an external call, retries / idempotency, a

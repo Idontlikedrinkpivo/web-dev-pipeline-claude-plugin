@@ -185,11 +185,11 @@ commit (`references/changelog.md`).
 | Document | Canonical path | ID namespaces to preserve | Downstream |
 |---|---|---|---|
 | Business requirements | `documentation/requirements/business-requirements/business-requirements.md` | R (product) — **unversioned** | SRS (offer; not a version cascade) |
-| SRS | `documentation/requirements/srs/srs.md` | A · FR · NFR · BR · UC · AC | DB schema, OpenAPI, domain model, scenarios, mockups (`ui-design`) |
+| SRS | `documentation/requirements/srs/srs.md` — the index, one version and journal — and `areas/NN-<slug>.md`, one per capability group | A · FR · NFR · BR · UC · AC | DB schema, OpenAPI, domain model, scenarios, mockups (`ui-design`) |
 | Interface wishes | `ui-wishes.md` beside the SRS | none — **unversioned**; one line per wish with its source quote and FR/UC | `ui-design` reads it as input; never a contract, never grounds for a finding |
 | DB schema | `documentation/db/schema.md` — DBML and notes, the whole current schema, no SQL; ER `diagrams/er.d2` / `.svg` beside it | table and column names | OpenAPI, domain model, plan. Not the design branch |
 | Migrations | `documentation/db/migrations/NNNN_<snake_slug>.sql` (`0001_init.sql`, …) | none — **unversioned** files, never edited after commit; the schema document carries the version and names the last file it covers in `migration:` | the application's migration tool runs them from this folder |
-| OpenAPI | `documentation/api/openapi.yaml` | `operationId` · schema names — `info.version` is the service version, or the contract's own SemVer when the API has external consumers (`pipeline` → Service version) | scenarios, screen specs, plan, generated clients |
+| OpenAPI | `documentation/api/openapi.yaml` — the root, one version — and the `paths/` and `components/` files it references | `operationId` · schema names — `info.version` is the service version, or the contract's own SemVer when the API has external consumers (`pipeline` → Service version) | scenarios, screen specs, plan, generated clients |
 | Architecture — foundation | `documentation/architecture/architecture.md`; its D2 views in `diagrams/` beside it, embedded in the sections they illustrate | module and area names · port signatures · assumptions `A-n` | scaffold when the tree or stack moved, scenarios that use a changed port, plan |
 | Domain model | `documentation/architecture/domain.md` | entity and value-object names · invariant rows · named errors | scenarios that cite a changed rule, plan |
 | Scenarios of an area | `documentation/architecture/scenarios/<area>/<area>.md`; key-scenario diagrams `diagrams/<use-case-kebab>.puml` (PlantUML) / `.svg` beside it | use-case names | plan |
@@ -243,7 +243,11 @@ beside a folder's main document keep their own names (`domain.md`,
 `openapi.yaml`, `frames-register.md`); test cases sit in `ui/test-cases/`,
 one file per section beside its `README.md`. Diagrams sit in a
 `diagrams/` subfolder next to the document that shows them, created only
-when it has something. None of these is a second document.
+when it has something. None of these is a second document — nor are the
+files a large document is split into: the SRS's `areas/`, the OpenAPI
+`paths/` and `components/`, the test cases' section files. Each set is one
+document with one version (where it has one) and one journal, kept in its
+index file — `srs.md`, `openapi.yaml`, `test-cases/README.md`.
 
 ## Открытые вопросы
 

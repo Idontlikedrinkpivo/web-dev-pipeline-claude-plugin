@@ -283,8 +283,8 @@ and writes the files itself; there is no `doc-typist` on this stage.
    API, and the Figma MCP serves one reader at a time better. A missing agent
    or a rejected alias is a stop per the catalog.
 6. **Inspect each file on disk** against the Quality gate below. Mechanical
-   checks first: every `operationId` in the file exists in
-   `documentation/api/openapi.yaml`; every non-success status those
+   checks first: every `operationId` in the file exists in the contract
+   (searched over `documentation/api/`); every non-success status those
    operations declare has a row in «Ошибки ответов»; every «Кадр» `nodeId`
    resolves (`get_metadata` on a sample of three, and on every one the
    writer flagged); no look words (`цвет`, `зелён`, `серым`, `обводк`, `px`,
@@ -342,7 +342,7 @@ the packet. Do not commit, and do not run `doc-review` or `pipeline`.
 2. Every element of the annotation has a row with `№`, behaviour per
    condition, method and fields (or `текст кадра`), and `nodeId` · variant.
 3. Every interactive branch ends in one outcome from the closed set; every
-   `операция` id exists in `documentation/api/openapi.yaml`.
+   `операция` id exists in the contract (`documentation/api/`).
 4. Every non-success status of every called operation has a row in «Ошибки
    ответов»; `общий обработчик` rows match the other screen files of the
    product word for word.

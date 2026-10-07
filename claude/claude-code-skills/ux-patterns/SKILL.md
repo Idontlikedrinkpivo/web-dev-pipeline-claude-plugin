@@ -133,7 +133,7 @@ finding.
   side panel may have its own). Others are secondary, outline or ghost.
   Two filled buttons side by side is a finding.
 - **UX-12 Labels are verb + object** in sentence case: «Сохранить
-  изменения», «Удалить инициативу». Never «ОК»/«Да» answering a question.
+  изменения», «Удалить бронь». Never «ОК»/«Да» answering a question.
 - **UX-13 Order is consistent across the product:** on a page or form the
   primary comes first (left), secondary after it; in a dialog the primary
   is last (right). The same order on every page and in every dialog of
@@ -262,9 +262,9 @@ finding.
 - **UX-35 Unsaved changes** are guarded: leaving inside the app asks
   «Уйти без сохранения?»; closing the tab uses `beforeunload`.
 - **UX-36 Reversible → undo, irreversible → confirm.** A confirmation names
-  the object in bold and its consequence («Удалить инициативу **X**?
+  the object in bold and its consequence («Удалить бронь **X**?
   Документы удалятся. Отменить нельзя.»), its button repeats the verb
-  («Удалить инициативу»), and it is not the default focus. Confirmations
+  («Удалить бронь»), and it is not the default focus. Confirmations
   for everything are a finding — users stop reading them.
 - **UX-37 Danger styling at every step:** a destructive action is red
   wherever it appears — on a page or in a menu as a danger control of

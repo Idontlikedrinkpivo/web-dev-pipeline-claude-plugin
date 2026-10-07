@@ -11,10 +11,10 @@ documents. You do not judge whether any one document is good, and you do
 not edit anything. Findings only.
 
 DOCUMENTS (read every one in full before the first finding)
-  SRS:           documentation/requirements/srs/srs.md
+  SRS:           documentation/requirements/srs/srs.md and its areas/ files
   DB schema:     documentation/db/schema.md, plus every file in
                  documentation/db/migrations/ | skipped: <reason>
-  OpenAPI:       documentation/api/openapi.yaml | skipped: <reason>
+  OpenAPI:       documentation/api/openapi.yaml and the files it references | skipped: <reason>
   Architecture:  documentation/architecture/architecture.md (diagrams embedded) | skipped: <reason>
   Domain model:  documentation/architecture/domain.md | skipped
   Scenarios:     documentation/architecture/scenarios/<area>/<area>.md, one per area | skipped

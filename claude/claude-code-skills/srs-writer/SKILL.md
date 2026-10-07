@@ -104,11 +104,11 @@ Do not run `grill-me`. On `MODE grill-reversal`, replace each contradicted line 
 
 ## Artifact Root and Resume
 
-Write to `<repo-root>/documentation/requirements/srs/srs.md` — one living SRS per project; the path carries no date and no topic name. Resolve `<repo-root>` via `git rev-parse --show-toplevel` (fall back to cwd if not a git repo). Create that folder if missing. Questions go in `open-questions.md` and interface wishes in `ui-wishes.md`, both in that same folder, not into the SRS.
+Write into `<repo-root>/documentation/requirements/srs/`: `srs.md` — the index and every section the whole product shares — plus `areas/NN-<slug>.md`, one file per capability group with its requirements and use cases (Document Structure → Layout). One living SRS per project; the paths carry no date and no topic name. Resolve `<repo-root>` via `git rev-parse --show-toplevel` (fall back to cwd if not a git repo). Create that folder if missing. Questions go in `open-questions.md` and interface wishes in `ui-wishes.md`, both in that same folder, not into the SRS.
 
 **Resume is increment mode, not a new SRS.** When `documentation/requirements/srs/srs.md` already exists:
 
-1. Read it and update that file in place. Do not ask whether to start fresh, and do not write a second SRS anywhere — both files would look current and nothing would say which one the code implements.
+1. Read `srs.md` and the area files it lists, and update them in place. A single-file SRS written before this layout is split first, before any change: each capability group's FR rows and the use cases that belong to it go to the group's area file, `srs.md` keeps the rest and gets the two map tables; no id, wording, version or journal row changes. Check it, not by eye: the set of ids and the text of every row and use case are the same before and after. The split is its own commit («docs: SRS разложен по группам»). Do not ask whether to start fresh, and do not write a second SRS anywhere — both files would look current and nothing would say which one the code implements.
 2. Read `doc-versioning`. Edit the file in place. This invocation is not a version event: do not change `version`, `updated`, or `## Журнал изменений`. The stamping commit (`doc-versioning`) writes the version and the rows.
 3. Keep the path.
 4. Keep every existing id. A new row placed between two rows takes a dotted number after the row above (`FR-10.1` between `FR-10` and `FR-11`); a new row at the end of a section takes the next whole number. Never renumber — Document Structure. Name the new ids in the report, and give each new or changed id the change type the edit implies — `добавляет` (a new id), `ломает` (an id whose meaning changed), `уточняет` (same meaning, new wording) — so the stamp can type its changelog rows.
@@ -147,6 +147,42 @@ version: <версия>
 ## 8. Допущения и зависимости
 ```
 
+### Layout
+
+The SRS is one document in several files, so a reader opens the group it
+works on instead of the whole product:
+
+```text
+documentation/requirements/srs/
+├── srs.md               frontmatter and «Журнал изменений»; 1 Кратко (1.1
+│                        Глоссарий); 2 Акторы; 3 — the groups table; 4
+│                        Нефункциональные требования; 5 Бизнес-правила, all of
+│                        them; 6 — the use-case table; 7 Границы; 8 Допущения
+├── areas/
+│   ├── 01-<slug>.md     one capability group: its FR rows and its use cases
+│   └── …
+├── open-questions.md
+└── ui-wishes.md
+```
+
+- **`srs.md` is the map.** §3 holds the table `№ | Группа | Файл | FR`
+  (the id range or list); §6 holds `UC | Название | Файл`, deprecated use
+  cases included. Every group file and every use case is in them.
+- **An area file** has no frontmatter of its own — the version, journal and
+  pins are `srs.md`'s — and reads: `# <Группа> — <Name>, SRS`, the line
+  «Часть SRS: версия, журнал, акторы, нефункциональные требования и
+  бизнес-правила — в `../srs.md`.», then `## Функциональные требования`
+  (the §3 table for this group) and `## Сценарии использования` (the §6
+  subsections of its use cases).
+- **A group** is a capability group of §3. Every FR and every use case
+  belongs to exactly one; a use case goes to the group whose FRs its flows
+  carry. A new group takes the next `NN`; a group past ~600 lines splits by
+  capability, ids unchanged.
+- **Business rules stay in `srs.md` §5** — they hold across use cases.
+- **Ids are unique across the SRS** and keep the ordering rule above
+  inside each file. Citations stay `srs.md@<version>`; a search for an id
+  runs over the folder.
+
 `<версия>` is the service version of the open iteration, the name of its `documentation/plans/<version>/` folder (`0.1.0` on greenfield), given in INPUTS. A greenfield SRS is born at it with the one «первый выпуск» row. An increment does not touch `version` or the changelog.
 
 ### 1. Кратко
@@ -168,6 +204,9 @@ Define every domain noun used in FR, BR, and UC once, in Russian, and use it ver
 **Quality rule — no generic actors.** `A-1. User` is a defect, not a placeholder. Every actor is a specific role or system with a distinct relationship to the product ("trial user," "warehouse scanner device," "billing cron job"). If the source material only says "the user," return `STATUS BLOCKED` and ask which specific role in `BLOCKER` — a generic actor propagates ambiguity into every Use Case that references it.
 
 ### 3. Функциональные требования
+
+The rows live in their group's area file; `srs.md` §3 holds the groups
+table (Layout).
 
 | Идентификатор | Требование | Приоритет |
 |---|---|---|
@@ -226,7 +265,8 @@ Rules that hold across Use Cases, not scoped to one — cross-cutting invariants
 
 ### 6. Сценарии использования
 
-One subsection per use case:
+The subsections live in their group's area file; `srs.md` §6 holds the
+use-case table (Layout). One subsection per use case:
 
 ```
 ### UC-<n>. <VerbPhrase>
@@ -295,7 +335,8 @@ The SRS has no open-questions section. Gaps this SRS could not settle, and a fin
 8. **Unambiguous** — no FR, NFR, BR, or `Then` rests on an unbounded word: «быстро», «удобно», «большой», «надёжно», «безопасно» (alone), «при необходимости», «по возможности», «и т.д.», «и/или», «все»/«никогда» without a scope, superlatives, or a negative-only statement. Replace each with a number, a named condition, or an observable result taken from the source. When the source has none, move the item to `open-questions.md`. An NFR row whose «Как проверяется» cell names no measurement fails this check.
 9. **Source covered** — check 5 runs from the SRS back to the source; this one runs the other way. Walk the source once more, item by item: every requirement, rule, acceptance example, scope line, and stated quality (limits, numbers, tone). Each lands on an SRS id, in Scope Boundaries, in `open-questions.md`, or — an interface wish — in `ui-wishes.md`. When the source is a `brainstorm` document, every source `R<n>` and `AE<n>` is reachable that way. An item dropped silently fails this check.
 
-10. **No interface** — no FR, UC step, trigger, or `Then` names a screen, a control, a gesture, a message wording, or a visual; each such line is rewritten as behaviour or moved to `ui-wishes.md` — Behaviour, not interface. On an increment, check the rows this pass touched; interface wording found in untouched rows goes to `CONCERNS`, not a silent rewrite.
+10. **Mapped** — `srs.md`'s groups and use-case tables list every area file and every use case; every FR and every use case sits in exactly one area file — Layout.
+11. **No interface** — no FR, UC step, trigger, or `Then` names a screen, a control, a gesture, a message wording, or a visual; each such line is rewritten as behaviour or moved to `ui-wishes.md` — Behaviour, not interface. On an increment, check the rows this pass touched; interface wording found in untouched rows goes to `CONCERNS`, not a silent rewrite.
 
 Fix formatting failures in place. If a fix requires a product decision, return `STATUS BLOCKED` rather than deciding it here.
 

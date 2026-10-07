@@ -105,7 +105,7 @@ the project is used as is, whether or not it meets the criterion.
    **Theme** comes from the Figma variables (`get_variable_defs`): each
    one maps to the project's theme variable for the same role — on
    shadcn/ui its theme variable of the same name; in a project with its
-   own names (`--surface-card`, `--ink-900`) the one for that role — light
+   own names (`--color-surface`, `--text-strong`) the one for that role — light
    and dark, in the project's one theme file; radius, shadows and fonts
    likewise. A restyle in Figma is a theme unit: the theme file changes,
    and the screens follow without edits unless one hardcodes a value — that

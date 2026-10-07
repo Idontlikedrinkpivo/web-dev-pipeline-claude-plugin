@@ -105,7 +105,7 @@ in one or two files.
 documentation/ui/test-cases/
 ├── README.md                  index and everything the sections share
 ├── 01-login-session.md        1. Вход, сессия и выход — TC-1 … TC-25
-├── 02-home-not-found.md       2. Главная и неизвестный адрес
+├── 02-room-schedule.md        2. Расписание переговорных
 └── …
 ```
 

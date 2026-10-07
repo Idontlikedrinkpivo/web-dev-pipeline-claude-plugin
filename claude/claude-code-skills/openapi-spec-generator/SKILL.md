@@ -1,7 +1,7 @@
 ---
 name: openapi-spec-generator
 description: >-
-  Generates a lintable OpenAPI 3.0 contract (documentation/api/openapi.yaml) from the SRS:
+  Generates a lintable OpenAPI 3.0 contract (documentation/api/: the root openapi.yaml plus one file per path and per schema) from the SRS:
   one use case per operation, request and response schemas, problem+json
   errors, status codes, security schemes; extends an existing spec for the
   next slice. Use after `srs-writer` and `db-schema-design` when the user
@@ -115,6 +115,14 @@ use case says is computed). Flag mismatches instead of inventing a
 second name.
 
 ### Step 1b — Existing spec: extend it under versioning rules
+
+**A single-file spec is split first** (Step 8 → Layout), before any change:
+`npx --yes @redocly/cli split documentation/api/openapi.yaml --outDir
+<tmp>`, its output moved into `documentation/api/`. The split changes no
+operation, schema, version or changelog row: bundle the old file and the new
+root (`npx --yes @redocly/cli bundle … -o …`) and compare — they must match.
+The move is its own commit («docs: OpenAPI разложен по файлам»), not a
+version event.
 
 An existing `documentation/api/openapi.yaml` is the canonical contract, not a draft to
 replace. Read the `doc-versioning` skill and follow it, plus what is specific
@@ -440,8 +448,38 @@ Before delivering the spec, verify:
 
 ### Step 8 — Output
 
-1. `doc-typist` writes `documentation/api/openapi.yaml` (the path `doc-versioning`
-   names); the orchestrator lints it.
+**Layout.** The contract is split into files, so a reader opens the
+operation or schema it needs instead of thousands of lines. It is the layout
+`redocly split` produces and `redocly bundle` reverses:
+
+```text
+documentation/api/
+├── openapi.yaml                    root: openapi, info (version, x-changelog,
+│                                   x-sources), servers, security, tags; every
+│                                   path and component listed by $ref
+├── paths/bookings_{id}.yaml        one file per path: /bookings/{id}
+└── components/
+    ├── schemas/Booking.yaml        one file per schema
+    ├── responses/ProblemResponse.yaml
+    ├── parameters/…
+    └── securitySchemes/…
+```
+
+- `openapi.yaml` keeps its path, so `openapi.yaml@<version>` citations,
+  the linter and the client generators keep working: they follow the
+  `$ref`s. A generator that cannot reads a bundle made in the build
+  (`npx --yes @redocly/cli bundle documentation/api/openapi.yaml -o
+  <build dir>/openapi.bundled.yaml`), never a committed second copy.
+- A new path gets its own file named as `redocly split` names it (`/` →
+  `_`, braces kept); a new schema, response or parameter its own file
+  under `components/`; both are listed in the root. A path file refers to a
+  schema by its file (`$ref: ../components/schemas/Booking.yaml`).
+- Searching the contract — an `operationId`, a schema, a status — runs over
+  `documentation/api/`, not over the root alone.
+
+1. `doc-typist` writes `documentation/api/openapi.yaml` and every file it
+   references (the paths `doc-versioning` names); the orchestrator lints the
+   root.
 2. The report has exactly the packet's fields. A use case left without an
    operation goes to CONCERNS; no summary table.
 3. Do not run `doc-review` or `pipeline` — the orchestrator closes the stage.

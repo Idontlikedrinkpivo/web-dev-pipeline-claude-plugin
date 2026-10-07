@@ -25,7 +25,8 @@ SKILL           <repo-relative path to srs-writer/SKILL.md>
 
 EXECUTOR        srs-author
 
-OUTPUT PATH     <repo-relative path the file must land at>
+OUTPUT PATH     documentation/requirements/srs/srs.md and its areas/
+                files (srs-writer → Document Structure → Layout)
 MODE            greenfield | increment | grill-reversal
 
 INPUTS YOU MUST FOLLOW (pasted, not linked)

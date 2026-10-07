@@ -235,14 +235,14 @@ sources:
 | Что | Путь |
 |---|---|
 | Бизнес-требования | `documentation/requirements/business-requirements/business-requirements.md` или «нет» |
-| SRS | `documentation/requirements/srs/srs.md` |
+| SRS | `documentation/requirements/srs/srs.md` — оглавление; группы требований — `documentation/requirements/srs/areas/` |
 | Архитектура — основа | `documentation/architecture/architecture.md` — §5 дерево, §2 модули; схемы встроены в разделы |
 | Доменная модель | `documentation/architecture/domain.md` |
 | Сценарии по областям | `documentation/architecture/scenarios/<area>/<area>.md`, по строке на область из §2 |
-| Экраны | `documentation/ui/` — `frames-register.md` и `screen-specs/`, или «нет UI» |
+| Экраны | `documentation/ui/` — `frames-register.md`, `screen-specs/` (файл на экран), `test-cases/` (`README.md` и файл на раздел), или «нет UI» |
 | Схема БД | `documentation/db/schema.md` или «нет» |
 | Миграции БД | `documentation/db/migrations/` или «нет» |
-| OpenAPI | `documentation/api/openapi.yaml` или «нет» |
+| OpenAPI | `documentation/api/openapi.yaml` — корень; операции — `paths/`, схемы — `components/`; или «нет» |
 | Открытые вопросы | `open-questions.md` в папке каждого документа |
 
 ## Как устроено
@@ -262,6 +262,25 @@ sources:
 - composition root: <path>
 - `make lint` → `lint-boundaries` (или эквивалент); `make typecheck`, `make test`
 - миграции: `documentation/db/migrations/`, команда <`make migrate` / `npm run migrate`> (или «пусто»)
+```
+
+### Point every session to the map
+
+Claude Code reads the repo's `CLAUDE.md` at the start of every session, so a
+pointer there tells any model — and any person — where the documents are
+before it starts searching. Add this section to `CLAUDE.md` at the repo root
+(create the file when there is none; in an existing one, add or refresh only
+this section and leave the rest as the owner wrote it):
+
+```markdown
+## Где что лежит
+
+Карта документов и кода — `documentation/project-map/project-map.md`.
+Большие документы разложены по файлам, у каждого есть оглавление:
+SRS — `documentation/requirements/srs/srs.md`, OpenAPI —
+`documentation/api/openapi.yaml`, тест-кейсы —
+`documentation/ui/test-cases/README.md`. Ищите id и operationId по папке
+документа, а не только в оглавлении.
 ```
 
 ## Quality gate

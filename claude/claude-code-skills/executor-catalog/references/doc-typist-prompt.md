@@ -23,7 +23,9 @@ SKILL           <repo-relative path to the stage skill's SKILL.md>
 PARENT          srs-author | design-lite | design-medium | design-hard | plan-lite | plan-medium | plan-hard
 OUTPUT PATH     <repo-relative path; db schema: documentation/db/schema.md
                 plus each documentation/db/migrations/<NNNN>_<slug>.sql
-                the parent settled>
+                the parent settled; OpenAPI: documentation/api/openapi.yaml
+                plus each paths/ and components/ file it references; SRS:
+                documentation/requirements/srs/srs.md plus each areas/ file>
 DIAGRAM PATH    <the `diagrams/` files next to the document: architecture
                 foundation D2 views (documentation/architecture/diagrams/<view>.d2),
                 scenario sequence views

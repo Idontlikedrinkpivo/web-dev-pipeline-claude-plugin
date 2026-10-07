@@ -54,7 +54,9 @@ OUTPUT PATH     <repo-relative path the file must land at, by document:
                   documentation/db/migrations/<NNNN>_<slug>.sql —
                   greenfield 0001_init.sql; an increment adds the next
                   number and never edits a committed file.
-                openapi-spec-generator: documentation/api/openapi.yaml>
+                openapi-spec-generator: documentation/api/openapi.yaml and
+                  the paths/ and components/ files it references
+                  (openapi-spec-generator → Step 8 → Layout)>
 DIAGRAM PATH    <by document; a `diagrams/` folder next to the document:
                 clean-architecture-design foundation:
                   documentation/architecture/diagrams/<view>.d2 for the
