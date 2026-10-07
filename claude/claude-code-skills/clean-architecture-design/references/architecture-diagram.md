@@ -9,6 +9,8 @@ through §4–§5. Each view is embedded in the foundation section it
 illustrates. The **sequence view** shows one key scenario of a scenarios
 document, step by step, in PlantUML (see Sequence view below).
 
+Contents: [Path](#path) · [Why D2, embedded](#why-d2-embedded) · [Embeds in the foundation](#embeds-in-the-foundation) · [Render](#render) · [What the diagram is allowed to show](#what-the-diagram-is-allowed-to-show) · [File shape](#file-shape) · [Sequence view (key scenarios) — PlantUML](#sequence-view-key-scenarios--plantuml) · [Sync](#sync) · [Editing](#editing)
+
 ## Path
 
 Diagrams live in a `diagrams/` folder next to the document that shows

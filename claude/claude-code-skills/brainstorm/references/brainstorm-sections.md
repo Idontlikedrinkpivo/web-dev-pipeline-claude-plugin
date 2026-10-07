@@ -381,10 +381,10 @@ not introduce one.
 
 ### Field-name stability
 
-Field names are stable across brainstorm revisions — never rename a field
-or repurpose its semantics. Agents composing new brainstorms MUST use these
-exact names; adding new fields is fine, but renaming `topic` to `subject`
-or `date` to `created` breaks filename construction and resume detection.
+Field names are stable across brainstorm revisions: a new brainstorm uses
+these exact names and never repurposes one, because the file name and the
+resume check are built from them — renaming `topic` to `subject` or `date`
+to `created` breaks both. Adding a new field is fine.
 
 ## ID and content rules
 
