@@ -36,7 +36,7 @@ into `open-questions.md` in order to show it. That file is updated only
 after the user chooses Отложить.
 
 ```
-**Замечание N. {title}**
+**Замечание N из M. {title}**
 
 Что не так: …полный текст замечания, не заголовок…
 Что изменится, если применить: …
@@ -45,7 +45,7 @@ after the user chooses Отложить.
 Рекомендация: A. Применить — одно предложение, почему.
 ```
 
-Terms in the finding stay; say what they mean for this fix. End the message with «Ответьте сообщением: буква или свой текст.» Options:
+M is the number of findings to route in this round, so the user sees how many are left. Terms in the finding stay; say what they mean for this fix. End the message with «Ответьте сообщением: буква или свой текст.» Options:
 
 - `A. Применить` — when that is the recommended action, append ` (Recommended)`
 - `B. Отложить`

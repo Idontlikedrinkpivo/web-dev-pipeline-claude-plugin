@@ -9,6 +9,7 @@ SKILL           <path to ui-test-cases/SKILL.md> — follow Mode write
 OUTPUT PATH     documentation/ui/test-cases.md
                 (documentation/ui/<product>/test-cases.md with several UI products)
 MODE            greenfield | increment (keep every TC- id; new cases take the next number)
+PROGRESS FILE   documentation/plans/<version>/progress-test-cases.md
 
 INPUTS (read in full)
   SRS:        documentation/requirements/srs/srs.md@<version> | none
@@ -19,6 +20,11 @@ INPUTS (read in full)
   Existing cases: <path> | none
 
 RULES
+- Progress: with the Edit tool, set a screen's row in PROGRESS FILE to
+  `✍️ пишутся` when you start its cases and `✅ написаны` with their count
+  when they are done, then the bar and the line «Написано: N из M экранов
+  · кейсов: K»; the «Без интерфейса» row likewise. Change nothing else
+  there.
 - One case per reachable AC (main, Alt, Exc), per state row and per
   user-causable response outcome not yet covered, per «Поля ввода» rule,
   per forbidden action per role.

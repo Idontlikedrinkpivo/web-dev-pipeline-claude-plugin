@@ -163,7 +163,7 @@ it. The plan's last unit bumps the manifest's `version` to the folder's
 name; `summary.md` and the tag close the iteration (End of the pipeline).
 
 **Plans stay out of git.** `documentation/plans/` is in `.gitignore`:
-the plan, its review, the progress file, the stage reports
+the plan, its review, the progress files, the stage reports
 (`docs-consistency.md`, `test-run.md`) and `summary.md` are working files
 on this machine. Git keeps what outlives the run — the code, the
 contract documents, a `Plan-Unit:` trailer on every unit commit, and the
@@ -506,6 +506,8 @@ that gate asks the next transition itself, using this section.
 
 ## References
 
+- `references/progress-files.md` — which stages keep a progress file in
+  `plans/<version>/`, its shape, and the link posted before the first step.
 - `doc-versioning` (skill) — the increment/greenfield decision, the canonical
   path per document type, the downstream verdict this file reads,
   the unversioned business-requirements draft, and document language

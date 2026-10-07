@@ -80,6 +80,11 @@ INPUTS YOU MUST FOLLOW (pasted, not linked)
   `.puml` files of the documents being edited when they exist (say
   which file wins if they disagree).>
 
+PROGRESS FILE   <architecture: documentation/plans/<version>/progress-architecture.md;
+                otherwise none. With the Edit tool, set each document's
+                Статус cell as you go — `✍️ решения` when you start it,
+                `🖨 печатается` when you hand it to doc-typist, `🖨 напечатан`
+                when the typist returns it — and change nothing else there>
 STACK           <chosen row, or: already a fact — see INPUTS>
                 If the architecture skill is waiting on a stack pick,
                 you should not have been dispatched. Stop and report

@@ -59,6 +59,13 @@ states). Not `ui-wishes.md`: it is never a source of expected behaviour.
 it under the Dispatch contract with `references/writer-prompt.md`, without
 asking which model. The session writes no case file.
 
+**Progress file.** Before the dispatch, create
+`documentation/plans/<version>/progress-test-cases.md` per
+`pipeline` → `references/progress-files.md` — one row per screen spec plus «Без интерфейса», all
+`⏳ ждёт` — post its link in the chat, and pass it to the writer as
+`PROGRESS FILE`. A full set runs to hundreds of cases; the writer marks
+each screen as its cases are written.
+
 **What a case set must hold:**
 
 - One case per acceptance criterion that a person can reach through the

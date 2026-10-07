@@ -267,7 +267,13 @@ and writes the files itself; there is no `doc-typist` on this stage.
    Ошибка сервера, Нет сети — each an `Общее · …` frame) and their texts;
    the session copies the returned rows into every later packet. A status
    the app must handle globally with no row there is a Разрыв (`design`).
-5. **Dispatch.** Read `executor-catalog`. Resolve `screen-writer`, write the
+5. **Progress file, then dispatch.** Before the first dispatch, create
+   `documentation/plans/<version>/progress-screen-specs.md` per
+   `pipeline` → `references/progress-files.md` with every screen in scope `⏳ ждёт`, and post its
+   link in the chat. A screen goes `✍️ пишется` when its writer is
+   dispatched, `🔍 проверка` when its file lands, and `✅ готово` with its
+   element and Разрывы counts after step 6 (or `🔁 возвращено: …`).
+   Read `executor-catalog`. Resolve `screen-writer`, write the
    resolved row (`screen-writer | dev-pipeline:screen-writer`) and dispatch it
    with `references/writer-prompt.md`, without asking which model and with no
    `model` on the call. One dispatch per screen; a batch of up to three only
@@ -365,7 +371,8 @@ Report in the chat:
 - the executor rows dispatched (`screen-writer` × N) and any re-dispatch.
 
 Then read `pipeline` and ask per "Asking before a transition": first the
-gate `doc-review` on the files just written (one review over the set), then
+gate `doc-review` on the files just written (one review over the set — its
+verdict goes on the progress file's «Ревью ТЗ» line), then
 the next stage its table names — `ui-test-cases` in mode write. A skipped
 gate is named in the report and blocks nothing; a declined offer stops the
 sitting.

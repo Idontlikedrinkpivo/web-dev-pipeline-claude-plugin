@@ -27,7 +27,8 @@ Contents:
 ## The packet
 
 ```
-You create or edit Figma frames. You do not edit the repository.
+You create or edit Figma frames. You do not edit the repository; the one
+file you may change is PROGRESS FILE.
 You do not invent a use case, a flow, a role, a rule, or a field that the
 SRS excerpt does not contain.
 
@@ -76,6 +77,7 @@ VISUAL DIRECTION <draw, edit, restyle: the chosen direction — its name;
                 only when the user declined the step>
 OPTIONS         <MODE direction only: two or three plans in the same shape,
                 each with its letter and name>
+PROGRESS FILE   <documentation/plans/<version>/progress-design.md>
 
 SRS EXCERPT     <pasted verbatim for the use cases in SCREENS: the actors
                 and roles; each UC with its Main, Alt-n and Exc-n flows and
@@ -111,6 +113,12 @@ EXISTING FRAMES <every product frame already in the file,
                 `none` for an empty file>
 
 RULES
+- Progress. Keep PROGRESS FILE current with the Edit tool, one row or line
+  per call: a screen's row `🎨 рисуется` when you start it, `🖼 нарисован`
+  with its frame's nodeId when its frames and annotation are done, then the
+  bar and the «Нарисовано» count; in MODE direction, each tile's row
+  `🎨 рисуется` → `✅ образец готов` with its nodeId. Change nothing else in
+  the file: the user watches it while you work.
 - One file. Do not split the work across parallel agents.
 - Draw only the screens in SCREENS and the APP-WIDE STATES marked `draw`.
   Every frame in EXISTING FRAMES that is not in SCREENS stays exactly as it

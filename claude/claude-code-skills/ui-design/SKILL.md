@@ -88,6 +88,16 @@ A later run (an SRS increment, a redesign request, «дорисуй состоя
 «перекрась макеты») starts at step 2 with the register it finds, and
 touches only what changed.
 
+**Progress file.** Before the first Figma dispatch of a run — style tiles,
+drawing, restyle, redraw, renaming — create
+`documentation/plans/<version>/progress-design.md` per `pipeline` → `references/progress-files.md`: the
+tiles and every screen of the run `⏳ ждёт`. Post its link in the chat
+before the dispatch and pass it to the builder as `PROGRESS FILE`; the
+builder marks each screen as it draws it, and the session marks `🔍
+проверка` → `✅ проверен` as it verifies each one. Drawing a dozen screens
+takes a long time, and the file is how the user tells progress from a
+hang.
+
 ## Entry question
 
 Ask once, when there is no register yet. One question in the chat, in

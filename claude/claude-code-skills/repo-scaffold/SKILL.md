@@ -88,6 +88,14 @@ would get neither folders nor a lint contract.
   scaffold work — it moves live code. Stop and name `plan`.
 - Run the Quality gate (lint with the canary, health), then Closing.
 
+## Progress file
+
+Before section 1, create `documentation/plans/<version>/progress-scaffold.md`
+per `pipeline` → `references/progress-files.md` — sections 1–6 below as rows, `⏳ ждёт` — and
+post its link in the chat. Set each row `🔄 в работе` → `✅ готово` as you
+go; the line under the table carries the quality gate. Installing the
+tooling and running the first lint and tests take minutes.
+
 ## 1. Folders
 
 Create every directory in foundation §5 with its real name. Do not add

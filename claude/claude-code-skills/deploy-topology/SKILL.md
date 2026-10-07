@@ -75,6 +75,13 @@ against each other to know what is active, are worth the duplication.
 
 ## Workflow
 
+Before Step 1, create `documentation/plans/<version>/progress-deploy.md` per
+`pipeline` → `references/progress-files.md` — Steps 1–8 as rows, `⏳ ждёт` — and post its link in
+the chat. Set each row `🔄 в работе` → `✅ готово` (or `⏭ не нужно: …`) as
+you go; the image build in Step 8 runs for minutes, and its row says so
+while it runs. The line under the table carries the compose-contract tests
+and the release folder.
+
 ### Step 1. Inventory before writing anything
 
 List every external dependency the architecture's adapters name: the

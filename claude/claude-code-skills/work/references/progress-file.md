@@ -1,7 +1,9 @@
 # The progress file
 
 Read this before creating the progress file (Step 1), when a unit lands
-(Step 5.5), and at the close (Step 7).
+(Step 5.5), and at the close (Step 7). The other stages' progress files
+share its shape; which stages keep one is in `pipeline` →
+`references/progress-files.md`.
 
 The user follows the run in `documentation/plans/<version>/progress.md`, next
 to the plan. It is a view of git, never a source of truth: the `Plan-Unit:`
