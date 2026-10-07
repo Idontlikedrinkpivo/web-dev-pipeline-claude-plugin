@@ -196,7 +196,8 @@ failure: grade 0 → Low → Mid → High → `impl-critical`.
   user (`pipeline` → `references/convergence.md`).
 - `impl-critical` is terminal. On the code branch the higher tier stays on the
   same alias (its agent file may raise the effort); the retry's value is the
-  previous report in a fresh dispatch.
+  previous report in a fresh dispatch. The one change of alias is grade 0 →
+  Low: `mechanical-worker` is `haiku`, `impl-lite` is `sonnet`.
 - `impl-ui` is not on that ladder: a difficulty return re-dispatches `impl-ui`
   once with the report.
 - Where an escalation is recorded: `work` Step 6. If the same *kind* of unit

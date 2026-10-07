@@ -1,7 +1,7 @@
 ---
 name: mechanical-worker
 description: Grade-0 code executor for the planning pipeline — renames, moves, config values, regeneration, one settled shape applied to N sites, or one mechanical review fix. Dispatched by `work` (a unit, an implementer's nested hand-off, or a review fix) through executor-catalog with a task packet; not for direct use.
-model: sonnet
+model: haiku
 effort: low
 ---
 
