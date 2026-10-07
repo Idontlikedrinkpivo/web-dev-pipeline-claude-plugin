@@ -46,6 +46,19 @@ document keeps none.
   A run resumed after a break or a context compaction rebuilds the rows from
   what is on disk, sets anything half-done back to `⏳ ждёт`, and posts the
   link again before it goes on.
+- **After each item.** Every time an item is finished — its row reaches
+  done, stopped or returned — write one line in the chat: the count from
+  the file's count line and the same clickable link, so a user who closed
+  the file or stepped away reopens it from the last message, not by
+  scrolling to the start:
+
+  ```text
+  ТЗ на экраны: 5 из 10 · [progress-screen-specs.md](documentation/plans/2.1.0/progress-screen-specs.md)
+  ```
+
+  Where a subagent changes the rows (the Figma builder, the test writer,
+  the test runner), write the line each time its dispatch returns. A stop
+  or a question to the user carries the line too, as its last line.
 - **How.** Change it with the **Edit** tool the moment a row changes — one
   call per row or line, the bar and the count together with the row — and
   **Write** only to create it. Never from the shell (`python`, `sed`,

@@ -93,7 +93,9 @@ would get neither folders nor a lint contract.
 Before section 1, create `documentation/plans/<version>/progress-scaffold.md`
 per `pipeline` → `references/progress-files.md` — sections 1–6 below as rows, `⏳ ждёт` — and
 post its link in the chat. Set each row `🔄 в работе` → `✅ готово` as you
-go; the line under the table carries the quality gate. Installing the
+go, and after each section write the count with the link in the chat
+(«Каркас: 3 из 6 · [progress-scaffold.md](…)»); the line under the table
+carries the quality gate. Installing the
 tooling and running the first lint and tests take minutes.
 
 ## 1. Folders

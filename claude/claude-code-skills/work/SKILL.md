@@ -117,9 +117,12 @@ run's scope, taken from the unit map. The default scope is every unit in
 the map. `<сделано>` is how many of those have a `Plan-Unit:` trailer in
 `BASE..HEAD`. A follow-up that is not in the plan does not change either
 number. After the committed set is known, and again after every Step 5
-commit, write one line: `План: <сделано> из <всего>`. Take both numbers
-from the map and from git, not from the previous message. A resumed or
-compacted session writes the line before the next dispatch.
+commit, every stop and every fix of the final review, write one line with
+the progress file's link: `План: <сделано> из <всего> ·
+[progress.md](documentation/plans/<version>/progress.md)`, so the user who
+closed the file or stepped away reopens it from the last message. Take both
+numbers from the map and from git, not from the previous message. A resumed
+or compacted session writes the line before the next dispatch.
 
 **Record the run base and resume from git.** Before the first dispatch, record
 `BASE=$(git rev-parse HEAD)` in the run report. Every unit commit carries the
@@ -151,7 +154,7 @@ opens it with one click and watches the run live:
 
 ```text
 Прогресс выполнения: [progress.md](documentation/plans/1.1.0/progress.md) — откройте, он обновляется по ходу работы.
-План: 0 из 6
+План: 0 из 6 · [progress.md](documentation/plans/1.1.0/progress.md)
 ```
 
 A resumed or compacted session posts the link again before its next dispatch.
@@ -329,7 +332,7 @@ Per unit, in this order, and never skip to the next unit on a broken tree:
    version and changelog belong to `doc-versioning`, which the user
    invokes. `plan` does not call it.
 6. **Update the task list and the run report file** (the unit's row and the
-   worker's `DECISIONS`), write `План: <сделано> из <всего>` in the chat
+   worker's `DECISIONS`), write the `План:` line with the link in the chat
    (Step 1), then move on. When the run stops on a unit instead (a
    design gap, rounds that stopped making progress), set that row to
    `⛔ остановлен: <причина>`.
@@ -428,7 +431,7 @@ progress, stop and take the open findings to the user.
 At the close write the verdict path into the `Финальное ревью:` line
 (`RETURN_TO_UNIT → исправлено → PASS`, or plain `PASS`).
 
-Stop there. The last chat line is `План: <сделано> из <всего>`. No PR, no
+Stop there. The last chat line is the `План:` line with the link. No PR, no
 push, no CI watching. The branch stays local: the pipeline still has
 the UI acceptance run (`ui-test-cases`, when there are screens), `deploy-topology` and `ci-pipeline` ahead, and push and PR are the user's
 step after the whole pipeline, not after this run.
@@ -452,8 +455,9 @@ at Step 7, before writing the report.
 - Every High and risk-floor unit had its red witnessed in a `tests-only`
   phase — Step 4b.
 - The plan document is byte-identical to how the run found it — Step 1.
-- The chat showed `План: <сделано> из <всего>` after the committed set was
-  known and after every commit — Step 1, Step 5.6.
+- The chat showed the `План:` line with the progress file's link after the
+  committed set was known, after every commit and every stop — Step 1,
+  Step 5.6.
 - The run report names grade corrections — Step 6.
 - Every changed decision is under «Изменённые решения» and committed in
   its documents before the next dispatch — Step 6.

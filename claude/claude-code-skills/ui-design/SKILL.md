@@ -99,7 +99,9 @@ drawing, restyle, redraw, renaming — create
 tiles and every screen of the run `⏳ ждёт`. Post its link in the chat
 before the dispatch and pass it to the builder as `PROGRESS FILE`; the
 builder marks each screen as it draws it, and the session marks `🔍
-проверка` → `✅ проверен` as it verifies each one. Drawing a dozen screens
+проверка` → `✅ проверен` as it verifies each one, writing the count with
+the link in the chat after each verified screen and each returned dispatch
+(`pipeline` → `references/progress-files.md` → After each item). Drawing a dozen screens
 takes a long time, and the file is how the user tells progress from a
 hang.
 

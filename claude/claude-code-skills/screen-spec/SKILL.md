@@ -272,7 +272,9 @@ and writes the files itself; there is no `doc-typist` on this stage.
    `pipeline` → `references/progress-files.md` with every screen in scope `⏳ ждёт`, and post its
    link in the chat. A screen goes `✍️ пишется` when its writer is
    dispatched, `🔍 проверка` when its file lands, and `✅ готово` with its
-   element and Разрывы counts after step 6 (or `🔁 возвращено: …`).
+   element and Разрывы counts after step 6 (or `🔁 возвращено: …`); each
+   finished screen puts the count with the link in the chat («ТЗ на экраны:
+   5 из 10 · [progress-screen-specs.md](…)»).
    Read `executor-catalog`. Resolve `screen-writer`, write the
    resolved row (`screen-writer | dev-pipeline:screen-writer`) and dispatch it
    with `references/writer-prompt.md`, without asking which model and with no

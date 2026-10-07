@@ -75,7 +75,8 @@ dispatch the typist.
    `pipeline` → `references/progress-files.md` — one row per document in `MODE`, all `⏳ ждёт` —
    post its link in the chat, and put its path in the packet's
    `PROGRESS FILE`: one dispatch writes every document, and the file is
-   where the user sees which one it is on. Read `executor-catalog` and
+   where the user sees which one it is on. Each document the session
+   inspects or reviews puts the count with the link in the chat. Read `executor-catalog` and
    `executor-catalog/references/design-complexity.md`. Grade each picked
    document by its mode's rules there, and dispatch the highest grade
    once for all of them. Why one: every writer re-reads the SRS, the

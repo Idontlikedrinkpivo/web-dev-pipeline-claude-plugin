@@ -65,7 +65,8 @@ asking which model. The session writes no case file.
 set (below) plus «Без интерфейса», all `⏳ ждёт` — post its link in the
 chat, and pass it to the writer as `PROGRESS FILE`. A full set runs to
 hundreds of cases; the writer marks each section as its cases are
-written.
+written, and each returned dispatch puts the count with the link in the
+chat.
 
 **What a case set must hold:**
 
@@ -240,7 +241,8 @@ with every case of the run `⏳ ждёт`, the pass-1 bar at 0% and `Verdict:
 идёт прогон` under the table, and post its link in the chat as a clickable
 Markdown link with its repo-relative path — the user opens it once and
 watches the cases turn over. Pass 2's section is added under pass 1 when
-pass 1 reaches 100%, and the link is posted again. A run resumed after a
+pass 1 reaches 100%, and the link is posted again — as it is with the count
+each time a runner dispatch returns and after each re-run round. A run resumed after a
 break or a context compaction keeps the report: every case without a result
 in the current pass goes back to `⏳ ждёт`, the link is posted again, and
 only then the runner goes on. The runner changes the report with the Edit

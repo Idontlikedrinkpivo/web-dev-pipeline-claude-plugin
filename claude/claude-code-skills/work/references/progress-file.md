@@ -49,7 +49,8 @@ edited and completed with the commit once they land:
 
 Create it before the first dispatch, with every in-scope unit `⏳ ждёт`; on a
 resumed run, rebuild it from the unit map and git. Then post its link in the
-chat before the first dispatch (`work` → Keep the progress file). It is never
+chat before the first dispatch (`work` → Keep the progress file), and again
+in the `План:` line after every commit and every stop. It is never
 committed — `documentation/plans/` is out of git — so it lives only on this
 machine, and git keeps the record through the `Plan-Unit:` trailers. A
 pre-existing progress file from another run of the same plan is overwritten,
