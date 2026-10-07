@@ -104,24 +104,25 @@ written in each source file.
    `doc-typist`.
 5. Inspect the file. A model slug in the body, an `Implementer` outside
    `assignable-implementers.md`, or a report whose `DELEGATED` is not
-   `doc-typist` comes back once. `BLOCKED` / `HARDER_THAN_EXPECTED`
-   escalates once (lite → medium → hard), and that dispatch asks again.
-   A second failure is a stop.
-6. Report the plan path and the writer's counts. Then follow `pipeline`
-   → "Asking before a transition". Ask about `plan-review` first. On a
-   no, stop. On a yes, run that gate; it returns without asking the next
-   stage. Branch on its verdict:
+   `doc-typist` comes back, until it is right. `BLOCKED` /
+   `HARDER_THAN_EXPECTED` escalates one tier per failure (lite → medium →
+   hard), and that dispatch asks again; the rounds go on while each makes
+   progress (`pipeline` → `references/convergence.md`).
+6. Report the plan path and the writer's counts. Then run `plan-review` at
+   once, without asking: every product decision is already settled in the documents, so what the review finds is the pipeline's own work to fix (`pipeline` → `references/gates.md`).
+   It returns without asking the next stage. Branch on its verdict:
    - `FIX_THEN_PROCEED` or `RETURN_TO_PLAN` — grade the revise on its
      own, not by the plan (`plan-complexity.md` → Grading a revise: the
      `Fix kind` of the blocking rows). Before the `Agent` call write
      `Revise grade | Executor | subagent_type`. Dispatch that `plan-*`
      row with MODE `revise`, the revise grade in COMPLEXITY, and the
      blocking rows pasted into FINDINGS, then re-run `plan-review` over
-     the changed units only. At most one revise round; a second blocking verdict is a stop
-     to the user.
+     the changed units only. Revise and re-review repeat until the verdict
+     passes, while each round makes progress; when progress stops, take it to
+     the user (`pipeline` → `references/convergence.md`).
    - `STOP` — stop and take it to the user.
-   - `PASS` — only then ask about the stage the table names after this
-     one. Do not name a next step from memory.
+   - `PASS` — only then ask, per `pipeline` → "Asking before a
+     transition", about the stage the table names after this one. Do not name a next step from memory.
 
 ## Writer (dispatched)
 

@@ -288,8 +288,10 @@ and writes the files itself; there is no `doc-typist` on this stage.
    operations declare has a row in «Ошибки ответов»; every «Кадр» `nodeId`
    resolves (`get_metadata` on a sample of three, and on every one the
    writer flagged); no look words (`цвет`, `зелён`, `серым`, `обводк`, `px`,
-   `курсор`, `ховер`). A miss sends that screen back once with the list. A
-   second miss is a stop with the report; do not edit the file yourself.
+   `курсор`, `ховер`). A miss sends that screen back with the list, round
+   after round while each round closes something; when progress stops it
+   is a stop with the report (`pipeline` → `references/convergence.md`). Do not edit the file
+   yourself.
    `BLOCKED` from the writer is reported as is; there is no escalation row.
 7. **Close** (below), then ask the gate and the next stage.
 

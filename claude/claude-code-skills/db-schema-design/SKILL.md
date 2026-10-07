@@ -17,7 +17,7 @@ description: >-
 
 The session writes no DBML, no migration file, and no ER `.d2`. The
 dispatched writer settles them and nests `doc-typist` to print them. A
-report whose `DELEGATED` is not `doc-typist` comes back once. The
+report whose `DELEGATED` is not `doc-typist` comes back until it is. The
 session does not dispatch the typist.
 
 1. Stop if the SRS is missing — no actors, no use cases, no rules. Name
@@ -40,16 +40,15 @@ session does not dispatch the typist.
    and the call passes no `model` (the agent file holds it) unless the
    user named one. A missing agent or a rejected alias is a stop.
 4. Inspect the files on disk. A DBML table without a table-level `Note`,
-   or a column without `note:`, is not done — send the writer back once
-   with the missing names. A missing `documentation/db/diagrams/er.d2`, or a slice
+   or a column without `note:`, is not done — send the writer back with
+   the missing names, until none is missing. A missing `documentation/db/diagrams/er.d2`, or a slice
    whose tables have no new file in `documentation/db/migrations/`, is not done either.
    A diff that edits a migration file already committed (`git diff HEAD --
    documentation/db/migrations/`) sends the writer back: that change is a new file.
    When that `.d2` exists and the `.svg` does not, run the render command
    in `references/er-diagram.md` once. Do not edit the `.d2`. Escalate
-   once on `BLOCKED` /
-   `HARDER_THAN_EXPECTED` to the next design row. A second failure is a
-   stop.
+   one design row per `BLOCKED` / `HARDER_THAN_EXPECTED`; every round goes
+   on while it makes progress (`pipeline` → `references/convergence.md`).
 5. Close the stage by asking, per `pipeline` → "Asking before a
    transition". First ask about `doc-review`. Run: run it; it returns
    without asking the next stage. Skip: name it in the report. Stop:

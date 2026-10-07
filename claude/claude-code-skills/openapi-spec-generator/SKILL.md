@@ -17,7 +17,7 @@ description: >-
 
 The session writes no OpenAPI spec. The dispatched writer settles it
 and nests `doc-typist` to print it. A report whose `DELEGATED` is not
-`doc-typist` comes back once. The session does not dispatch the typist.
+`doc-typist` comes back until it is. The session does not dispatch the typist.
 
 1. Stop if the SRS is missing. Name `srs-writer`. If the slice persists
    state and there is no schema document, stop and name `db-schema-design`.
@@ -41,11 +41,11 @@ and nests `doc-typist` to print it. A report whose `DELEGATED` is not
 4. Inspect `documentation/api/openapi.yaml` on disk. Run
    `npx --yes @redocly/cli lint documentation/api/openapi.yaml` (or `spectral lint` when
    the repo already has a `.spectral.yaml`). Any `error` sends the writer
-   back once with the rule ids and JSON pointers. When no linter can run
+   back with the rule ids and JSON pointers, until the lint is clean. When no linter can run
    (no Node, no network), say in the stage close that the spec was not
-   linted. Do not edit the spec yourself. Escalate once on `BLOCKED` /
-   `HARDER_THAN_EXPECTED` to the next design row. A second failure is a
-   stop.
+   linted. Do not edit the spec yourself. Escalate one design row per
+   `BLOCKED` / `HARDER_THAN_EXPECTED`; every round goes on while it makes
+   progress (`pipeline` → `references/convergence.md`).
 5. Close the stage by asking, per `pipeline` → "Asking before a
    transition". First ask about `doc-review`. Run: run it; it returns
    without asking the next stage. Skip: name it in the report. Stop:

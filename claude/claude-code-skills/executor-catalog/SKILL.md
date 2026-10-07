@@ -56,7 +56,7 @@ table, holds the model and effort.
 | **Low** | code | `impl-lite` | `work` | transcribing a fully specified artifact into working code against an existing local pattern — including README / changelog / doc-comment units |
 | **Mid** | code | `impl-medium` | `work` | closing the local decisions a Mid unit leaves open, then proving them |
 | **High** | code | `impl-hard` | `work` | designing the missing part inside given boundaries: auth, money, transaction and idempotency shape, cross-cutting contracts |
-| **Escalation** | code | `impl-critical` | `work` (escalation only) | one retry above High, for a unit that came back `BLOCKED` or `HARDER_THAN_EXPECTED`. Same model as `impl-hard`: a new dispatch with the previous report, not a stronger model. Not a retry of `impl-ui` |
+| **Escalation** | code | `impl-critical` | `work` (escalation only) | the tier above High, for a unit that came back `BLOCKED` or `HARDER_THAN_EXPECTED`; it repeats while each round makes progress (`pipeline` → `references/convergence.md`). Same model as `impl-hard`: a new dispatch with the previous report, not a stronger model. Not a retry of `impl-ui` |
 | **UI** | code | `impl-ui` | `work` | frontend that implements a screen spec citing a Figma `nodeId`: the screen and its states, or a component whose shape comes from that frame; or the theme unit that carries the `🎨 Tokens` variables into the theme file after a `ui-design` restyle. Any grade. A retry stays on this row. UI units never run in parallel (`work`). Not a Figma drawing (`figma-sonnet`, `figma-opus`) |
 | **Mid** | review | `review-medium` | `code-review-unit` | a Mid unit's diff against its unit spec; also the batched pass over accumulated Low units |
 | **High** | review | `review-hard` | `code-review-unit` | adversarial review of a High unit — deliberately not the implementer's alias |
@@ -182,13 +182,15 @@ unit (`work/references/two-phase-dispatch.md`).
 
 ## Escalation
 
-A unit returning `BLOCKED` or `HARDER_THAN_EXPECTED` moves up exactly one
-tier, once: grade 0 → Low → Mid → High → `impl-critical`.
+A unit returning `BLOCKED` or `HARDER_THAN_EXPECTED` moves up one tier per
+failure: grade 0 → Low → Mid → High → `impl-critical`.
 
 - Re-dispatch carries the previous attempt's report — what was tried, what
   failed, what it observed. A blind retry buys nothing.
-- A second failure at the escalated tier is a **stop**: the unit is
-  under-specified or the design is wrong, and both belong to the user.
+- At `impl-critical` the unit repeats, with every previous report, while
+  each round makes progress; when progress stops it is a **stop** — the
+  unit is under-specified or the design is wrong, and both belong to the
+  user (`pipeline` → `references/convergence.md`).
 - `impl-critical` is terminal. On the code branch the higher tier stays on the
   same alias (its agent file may raise the effort); the retry's value is the
   previous report in a fresh dispatch.

@@ -228,8 +228,9 @@ Round 1 — no prior decisions.
 Later rounds in the same session list applied / rejected findings with an
 `Evidence:` snippet (first evidence quote, ~120 characters). Skip and
 Defer count as rejected. A later session on the same file starts
-at round 1 with an empty primer. A round 2 starts only from the re-review
-question in `references/routing.md`, at most three rounds per session.
+at round 1 with an empty primer. After a round whose fixes were applied,
+the user is asked whether to run the next one (`references/routing.md` →
+Re-review); there is no limit on rounds.
 The primer rule inside each persona only reduces noise; synthesis step
 3.3a is what drops a re-raised rejection and checks that an applied fix
 landed.

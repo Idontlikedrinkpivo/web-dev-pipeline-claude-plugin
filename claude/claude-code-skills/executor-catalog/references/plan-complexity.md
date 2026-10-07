@@ -69,8 +69,8 @@ writer. Read the `Fix kind` column of `plan-review.md` over the blocking
 | any `reslice` — split or merge units, add a unit, change `Depends on` across several units, change a security, money, or migration decision | the plan's own grade (the cascade above) | that grade's row |
 
 A report without the column (an older review) grades the revise as the
-plan. `BLOCKED` or `HARDER_THAN_EXPECTED` escalates once, lite → medium →
-hard, as on a first write. The cascade above is unchanged for writing a
+plan. `BLOCKED` or `HARDER_THAN_EXPECTED` escalates one tier per failure,
+lite → medium → hard, as on a first write. The cascade above is unchanged for writing a
 plan.
 
 ## What each grade dispatches
@@ -82,6 +82,7 @@ plan.
 | **High** | `plan-hard` | hold Full-trigger, security, or cross-section slicing. `doc-typist` prints it |
 
 There is no grade 0 on this branch. `plan-hard` is terminal. A writer
-that returns `BLOCKED` or `HARDER_THAN_EXPECTED` escalates once
-(lite → medium → hard), and that dispatch asks again. A second failure
-is a stop.
+that returns `BLOCKED` or `HARDER_THAN_EXPECTED` escalates one tier per
+failure (lite → medium → hard), and that dispatch asks again; at
+`plan-hard` it repeats while each round makes progress
+(`pipeline` → `references/convergence.md`).

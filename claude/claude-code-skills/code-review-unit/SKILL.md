@@ -166,8 +166,8 @@ place at wave boundaries. A reviewer that blocks on naming stops the pipeline.
 adds or changes that it is about (for a missing scenario test, the scenario
 line instead). A problem in a context line the diff neither adds nor newly
 calls into is pre-existing — `OPEN`, never blocking. A false P1 sends the unit
-back to its implementer and moves it one step
-closer to the second-failure stop.
+back to its implementer for a round it did not need, and a round that
+closes nothing real stops the cycle (`pipeline` → `references/convergence.md`).
 
 Three dismissal rules, because they are where per-unit review generates its
 false positives:
@@ -192,7 +192,7 @@ approach" is not a verdict — put the doubt in the run report):
 | `COMMIT` | no P0/P1 | commit the unit; P2/P3 to the run report |
 | `FIX_THEN_COMMIT` | P0/P1 that is mechanical and fully specified | dispatch `mechanical-worker` with the finding, re-verify, commit |
 | `RETURN_TO_EXECUTOR` | P0/P1 needing the unit's judgment back | re-dispatch the unit's own implementer with the findings attached |
-| `STOP` | the finding is a design gap, or the unit's attempt budget is spent (`work` Step 6) | do not commit; take it to the user |
+| `STOP` | the finding is a design gap, or the rounds stopped making progress (`work` Step 6, `pipeline` → `references/convergence.md`) | do not commit; the unit goes back to `work`, which parks it and goes on |
 
 Follow-up `Agent` calls (`mechanical-worker`, the unit's implementer) resolve their
 own catalog row under the same Dispatch contract as Step 3.

@@ -315,9 +315,10 @@ app-wide state), is not written; that screen is not done. Then rerun the
 completeness check on what is really in the file — the layer names
 (`действие: …`, `ввод: …`, `шаг: M…`) and the state frames make it
 checkable from metadata; one `get_screenshot` of a screen's `S-n · Аннотация`
-frame shows its «Элементы» and «Тексты» tables. A miss goes back once to
-`figma-sonnet` with only the missing items; a second miss is a row in
-`open-questions.md` and the screen stays `черновик`.
+frame shows its «Элементы» and «Тексты» tables. A miss goes back to
+`figma-sonnet` with only the missing items, round after round while each
+round places at least one (`pipeline` → `references/convergence.md`); an item no round can
+place is a row in `open-questions.md` and the screen stays `черновик`.
 
 Write the verified ids into the register and set a screen to `готово к
 разработке` when its frames resolve, its completeness items pass, and its
@@ -345,8 +346,9 @@ change is `редизайн` and goes through Drawing.
    frames, `VISUAL DIRECTION` the chosen direction.
 4. Verify: every `nodeId` of the register still resolves under its name;
    one `get_screenshot` per screen shows the new look with no clipped text
-   and no template tells (UX-60). A miss goes back once with only the
-   missing items; a second miss is a row in `open-questions.md`.
+   and no template tells (UX-60). A miss goes back with only the missing
+   items, round after round while each round fixes at least one; what no
+   round can fix is a row in `open-questions.md`.
 
 The register's ids and statuses do not change; `updated:` moves on. When
 the frontend is already built (the repository holds the screens' code),

@@ -38,7 +38,7 @@ The session writes no architecture document. Same reason `work` writes no
 code: the grade is worthless if the chat model does the expensive part.
 The dispatched writer settles the sitting's documents and nests
 `doc-typist` to print them, including their diagrams. A report whose
-`DELEGATED` is not `doc-typist` comes back once. The session does not
+`DELEGATED` is not `doc-typist` comes back until it is. The session does not
 dispatch the typist.
 
 1. **Gather inputs.** Stop without
@@ -102,8 +102,9 @@ dispatch the typist.
    scenario its «Последовательность» row links. A missing file is an
    incomplete write. When a `.svg` is missing, run the render command in
    `references/architecture-diagram.md` once. Do not edit a `.d2` or a
-   `.puml`. A `BLOCKED` / `HARDER_THAN_EXPECTED` return escalates once
-   (lite → medium → hard). A second failure is a stop. A document the
+   `.puml`. A `BLOCKED` / `HARDER_THAN_EXPECTED` return escalates one
+   tier per failure (lite → medium → hard); every round goes on while it
+   makes progress (`pipeline` → `references/convergence.md`). A document the
    report lists under `ALSO CHANGED` (the writer added a name to it, see
    Writer) joins the documents of this sitting: it is reported as
    changed and goes to the same `doc-review` question.

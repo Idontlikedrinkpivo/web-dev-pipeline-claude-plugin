@@ -39,7 +39,7 @@ Inside `work`, the reviews in the Gates cell stay automatic.
 
 | Kind | Meaning |
 |---|---|
-| **gate** | the check listed for this stage (`grill-me`, `doc-review`, `plan-review`). Ask before starting it. A recommendation, not a lock: the user runs it, skips it and goes on, or stops. A skipped gate is named in the stage's report and blocks nothing. |
+| **gate** | the check listed for this stage (`grill-me`, `doc-review`). Ask before starting it; every question inside it — each grill question, each review finding — is the user's to answer. `plan-review` and the code reviews are not asked: they run on their own, because every product decision is already settled in the documents, so what the review finds is the pipeline's own work to fix. A recommendation, not a lock: the user runs it, skips it and goes on, or stops. A skipped gate is named in the stage's report and blocks nothing. |
 | **offer** | the one next stage in the table. Ask before starting it. A declined offer stops the sitting. |
 
 The exception is stage 12: `work` invokes `code-review-unit` per unit and
@@ -78,7 +78,7 @@ scaffolded. They meet before the plan.
 | 8 | Screen specs (ТЗ на экран) | `screen-spec` | `doc-review` | `ui-test-cases` (write) |
 | 9 | UI test cases | `ui-test-cases` — mode write | none | the meeting point — see "Two branches" |
 | 10 | Document set check | `docs-consistency` | none — it is the check | `plan` |
-| 11 | Implementation plan | `plan` | `plan-review` | `work` |
+| 11 | Implementation plan | `plan` | `plan-review` — **automatic, do not ask**; its findings are fixed round by round until it passes | `work` |
 | 12 | Execution | `work` | `code-review-unit` per unit → `code-review-full` once — **automatic, do not ask** | `ui-test-cases` (run) when the product has screens, else `deploy-topology` |
 | 13 | UI acceptance run | `ui-test-cases` — mode run | none | a fix plan (`plan`) when the verdict is `DEFECTS`, else `deploy-topology` |
 | 14 | Compose topology | `deploy-topology` | none | `ci-pipeline` |
@@ -379,8 +379,7 @@ just written. Keep the skill's real name. Explain it: `grill-me` is the
 interview that tries to knock down assumptions in the document; `doc-review`
 is a review of the written document by several checks, and it spends model
 calls; `docs-consistency` reads all the documents together and finds where
-they contradict each other or leave a requirement without a home; `plan-review` is the check that the plan's units, grades, and
-dependencies hold together; the next stage is the writer named in this
+they contradict each other or leave a requirement without a home; the next stage is the writer named in this
 table's offer cell, including a skip (no UI, no storage, no HTTP) — name
 the skill the skip selects and why the skipped ones do not apply.
 
@@ -447,8 +446,8 @@ and what is outstanding in the next question's chat block. User-deferred
 review items live in `open-questions.md` beside that document, not inside the
 contract document.
 
-`grill-me`, `doc-review`, and `plan-review`, when a stage invoked them as a
-gate, report and return. They do not ask the next transition. The stage
+`grill-me` and `doc-review`, when a stage invoked them as a gate, and
+`plan-review`, which `plan` runs on its own, report and return. They do not ask the next transition. The stage
 that called them asks. When the user opened one of those gates directly,
 that gate asks the next transition itself, using this section.
 
@@ -469,6 +468,8 @@ that gate asks the next transition itself, using this section.
 
 ## References
 
+- `references/convergence.md` — fix-and-check cycles repeat until they
+  pass; what keeps a round cheap and when lack of progress stops it.
 - `references/gates.md` — why each gate sits on its stage and what its
   question says about cost.
 - `references/progress-files.md` — which stages keep a progress file in

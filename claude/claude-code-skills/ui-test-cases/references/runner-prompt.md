@@ -55,9 +55,10 @@ RULES
   test code (sign-in, data setup, navigation) — pause, fix the helper,
   re-run those cases, go on.
 - Every re-run (a shared-break pause, a pass-2 round after test fixes —
-  at most two rounds) opens its own block the moment it starts, readable
+  rounds go on while each turns a test green or changes its failure; a
+  test that fails the same way after a fix is 🔧) opens its own block the moment it starts, readable
   by someone who never saw the run: heading «Перезапуск после починки
-  общего помощника» or «Перезапуск — круг N из 2: проверка исправленных
+  общего помощника» or «Перезапуск — круг N: проверка исправленных
   тестов»; «Что исправлено перед перезапуском:» in plain words with how
   many tests; «Что перезапускается:» which cases and from where; its own
   bar; «Перезапущено: N из M · прошли … · снова не прошли …»; at the end

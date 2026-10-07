@@ -195,8 +195,10 @@ sees how far the full picture is:
    failures say nothing about the app.
 3. **Pass 2 — triage of the failed.** A second section of the same report,
    with its own bar over the pass-1 `❌ не прошёл` cases. Each is triaged:
-   **test defect** — the test is fixed and the case re-run, at most two
-   attempts (`✅ тест исправлен, прошёл` or `🔧 тест не удалось исправить`);
+   **test defect** — the test is fixed and the case re-run, round after
+   round while each fix changes the failure (`✅ тест исправлен, прошёл`);
+   a test that fails the same way after a fix is `🔧 тест не удалось
+   исправить` (`pipeline` → `references/convergence.md`);
    **app defect** — the app contradicts the spec (`❌ дефект приложения`);
    **mockup mismatch** — works, but the screen differs from the frame
    (`🖼 расхождение с макетом`); **spec gap** — the spec never said
@@ -212,9 +214,9 @@ report the moment it starts, written so a reader who never saw the run
 understands it:
 
 - a heading that says which re-run it is and what kind: «Перезапуск после
-  починки общего помощника» or «Перезапуск — круг N из 2: проверка
-  исправленных тестов» (pass 2 allows two attempts per test, so two rounds
-  at most);
+  починки общего помощника» or «Перезапуск — круг N: проверка
+  исправленных тестов» (the rounds go on while a fixed test turns green or
+  its failure changes);
 - «Что исправлено перед перезапуском:» — what changed in the tests or
   helpers, in plain words and with how many tests («исправлено 18 тестов:
   кнопки искались по тексту вместо роли, тест не ждал загрузки кабинета»);
@@ -333,7 +335,7 @@ of pass 2 and of each re-run measure their own work, as described above:
 
 Сейчас: перезапуск, круг 1 — 1 из 2. Полоса разбора двинется после него.
 
-### Перезапуск — круг 1 из 2: проверка исправленных тестов
+### Перезапуск — круг 1: проверка исправленных тестов
 
 Что исправлено перед перезапуском: 2 теста — кнопка искалась по тексту
 вместо роли, тест не ждал загрузки списка броней.

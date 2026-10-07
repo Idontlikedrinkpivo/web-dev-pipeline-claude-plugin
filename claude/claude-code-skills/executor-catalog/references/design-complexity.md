@@ -83,5 +83,6 @@ settles all documents of the sitting, so the dispatch takes the
 | **High** | `design-hard` | hold Full-trigger / security / cross-section judgment. `doc-typist` prints it |
 
 There is no grade 0. `design-hard` is terminal on this branch. A
-writer that returns `BLOCKED` or `HARDER_THAN_EXPECTED` escalates once
-(lite → medium → hard). A second failure is a stop.
+writer that returns `BLOCKED` or `HARDER_THAN_EXPECTED` escalates one
+tier per failure (lite → medium → hard); at `design-hard` it repeats
+while each round makes progress (`pipeline` → `references/convergence.md`).

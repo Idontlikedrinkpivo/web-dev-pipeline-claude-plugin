@@ -156,12 +156,13 @@ Exactly one:
 | `PASS` | no P0/P1 | close the run; P2/P3 to the run report |
 | `FIX_THEN_CLOSE` | P0/P1 that is mechanical and fully specified (delete dead code, rename to converge, wire a missing registration) | dispatch `mechanical-worker` as a follow-up, re-verify, then close |
 | `RETURN_TO_UNIT` | P0/P1 that needs the judgment of the unit that caused it | re-open that unit through its own named executor with the finding attached; re-run this review after |
-| `STOP` | the finding shows the plan itself under-specified an interaction between units, or the design has a genuine gap | do not close; take it to the user |
+| `STOP` | the finding shows the plan itself under-specified an interaction between units, or the design has a genuine gap | do not close it as passed; the finding goes to the run report's **Отложено** for the user, and the run closes with it open |
 
-One re-review after a `FIX_THEN_CLOSE` or `RETURN_TO_UNIT` fix. It reads the
-fix commits' diff with the previous findings attached and answers per finding
-— resolved or not — plus anything the fixes broke; it does not re-review the
-whole run. A second blocking verdict → `STOP` to the user; no third pass.
+A re-review after every `FIX_THEN_CLOSE` or `RETURN_TO_UNIT` fix, until
+`PASS`. Each reads only that round's fix commits with the open findings
+attached and answers per finding — resolved or not — plus anything the fixes
+broke; it never re-reviews the whole run. The rounds go on while each makes
+progress, and stop for the user when it does not (`pipeline` → `references/convergence.md`).
 
 Follow-up `Agent` calls (`mechanical-worker`, a unit's implementer) resolve their
 own catalog row under the same Dispatch contract as Step 3.

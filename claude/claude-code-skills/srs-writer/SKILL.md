@@ -25,7 +25,7 @@ A short, messy, or differently headed description is still input: write the SRS 
 
 The session writes no SRS file. `srs-author` settles it and nests
 `doc-typist` to print it. A report whose `DELEGATED` is not `doc-typist`
-comes back once.
+comes back until it is.
 
 1. Resolve the source (Input Resolution, steps 1–3). If there is neither a file nor a description, route to `brainstorm`. Do not invent the product.
 2. **Fix the iteration's version before the dispatch.** Greenfield: `0.1.0`, no question. On an increment this is usually the iteration's first stage. An open `documentation/plans/<version>/` (no `summary.md`) is the current iteration: reuse it. None open: fix the version per `pipeline` → Service version, which owns the rule — propose the number with its level and a one-line reason (MAJOR is proposed when the increment adds a new capability group to §3), ask, and create the folder on the answer. Paste the version into the packet's INPUTS. A greenfield SRS is born at it; an increment leaves `version` to the stamping commit.

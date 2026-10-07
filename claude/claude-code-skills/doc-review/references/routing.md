@@ -15,7 +15,9 @@ defers it. It is not where the question is shown.
 - **C. Отложить все.** Замечания уходят в `open-questions.md` рядом с документом, сам документ не меняется.
 - **D. Только отчёт.** Никаких правок.
 
-Recommend one in a sentence. One question, then stop. The user answers by sending a message. Do not open a question card. Options:
+Recommend one in a sentence — by default **A**: the user sees every
+finding and decides each; recommend B only when every finding is a small,
+one-right-answer fix. One question, then stop. The user answers by sending a message. Do not open a question card. Options:
 
 - **A. Разобрать по одному.**
 - **B. Применить рекомендованное.**
@@ -69,15 +71,19 @@ On Proceed, execute the preview. Then see "Re-review" below.
 
 ## Re-review
 
-When at least one fix was applied in this session and this was round 1
-or 2, ask once more, one question in the chat:
-`A. Проверить ещё раз` / `B. Закончить`. Mark A `(Recommended)` after
-round 1 and B after round 2 — more rounds usually mean the problem is
-upstream, not in this document; say that in the chat block. A
-re-dispatches the same personas with the accumulated decision primer.
-After round 3, do not ask. C and D apply nothing, so they never reach
-this question. This question is inside the gate; it is not a pipeline
-transition.
+When at least one fix was applied in this round, ask once more, one
+question in the chat: `A. Проверить ещё раз` / `B. Закончить` — A
+`(Recommended)`, because a fix can open a new gap. There is no limit on
+rounds: they go on until one brings no finding the user has not decided —
+the report then says «Новых замечаний нет — ревью пройдено» — or progress
+stops (`pipeline` → `references/convergence.md`): a decided finding comes
+back past synthesis, or a round raises only what earlier rounds raised;
+then say so — a document that keeps producing new findings usually has its
+problem upstream — and recommend B. A re-dispatches the same personas with
+the accumulated decision primer. A round where every finding went to C or D
+applied nothing and ends the review. The rounds are inside the gate,
+not a pipeline transition; each opens with one line in the chat («Ревью,
+круг 3: новых замечаний 2»).
 
 ## C — All to the parking lot
 
