@@ -60,6 +60,13 @@ If there is no human-facing surface (an API, a worker, a CLI), say so in
 one line and stop. Do not invent a console. The whole design branch is
 skipped; `pipeline` names what follows.
 
+**Handed to another person?** In the session of a person who took
+this stage (`pipeline` → `references/team.md`): the version comes from the
+branch `iteration/<version>`, inputs arrive by `git pull --rebase`, only this
+stage's folder is written and committed, with no version change, and the
+stage ends with the «готов и запушен» line for the owner instead of a
+pipeline offer.
+
 ## Inputs
 
 | Input | When |

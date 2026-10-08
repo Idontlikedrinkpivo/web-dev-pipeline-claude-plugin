@@ -43,6 +43,13 @@ stay as `references/template.md` writes them.
 No human-facing surface means no frames register and no screens: the whole
 design branch is skipped per `pipeline` → Skips. Do not invent a console.
 
+**Handed to another person?** In the session of a person who took
+this stage (`pipeline` → `references/team.md`): the version comes from the
+branch `iteration/<version>`, inputs arrive by `git pull --rebase`, only this
+stage's folder is written and committed, with no version change, and the
+stage ends with the «готов и запушен» line for the owner instead of a
+pipeline offer.
+
 ## Inputs
 
 | Input | Required | Use |

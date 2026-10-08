@@ -42,6 +42,13 @@ cases file beside the screen specs → write; cases exist and the app's code
 exists → run; asked for both («составь и прогони») → write, then run in
 the same sitting. Unclear → one question.
 
+**Handed to another person?** In the session of a person who took
+mode write (`pipeline` → `references/team.md`): the version comes from the
+branch `iteration/<version>`, inputs arrive by `git pull --rebase`, only this
+stage's folder is written and committed, with no version change, and the
+stage ends with the «готов и запушен» line for the owner instead of a
+pipeline offer.
+
 ## Mode write
 
 **When:** after `screen-spec` finished. Without screen specs, stop and name

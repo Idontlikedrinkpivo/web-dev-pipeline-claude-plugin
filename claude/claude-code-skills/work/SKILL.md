@@ -42,7 +42,7 @@ may only replicate an assertion that implementer already wrote.
 |---|---|
 | Slicing units, grading, assigning executors | `plan` |
 | Deciding entity behavior, ports, contracts, screens | the design documents |
-| Branch strategy beyond one feature branch, PRs, CI | the user's shipping flow |
+| Branches beyond the iteration's, the merge into `main`, CI | the user's shipping flow |
 | Docker/compose topology for test, dev, prod | `deploy-topology`, once the plan's units are committed |
 
 **`work` runs on its own from the first dispatch to the run report**:
@@ -106,9 +106,9 @@ Read the plan's §1 digest, §2 unit map, §4 waves, and §5 definition of done.
 Read individual `### U<n>.` blocks lazily — one when you dispatch it, not all
 at the start.
 
-Branch: work on a feature branch, never the default branch without explicit
-permission. If the current branch is auto-generated (`worktree-happy-otter`),
-offer to rename it from the plan's version first.
+Branch: the iteration's `iteration/<version>` (`pipeline` → Service
+version), never `main`. On another branch, switch to it first; on an
+auto-generated one (`worktree-happy-otter`), say so and switch.
 
 Build a task list from the unit map: one task per unit, named from the unit's
 goal with the U-id appended (`Add order aggregate (U3)`). Do not edit the plan

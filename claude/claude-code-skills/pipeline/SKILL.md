@@ -92,12 +92,15 @@ scaffolded. They meet before the plan.
   when something must survive a restart, else `openapi-spec-generator`
   when there is HTTP, else `clean-architecture-design`) and `ui-design`
   when a human faces a screen. Recommend the backend branch first when the
-  user has no designer waiting; either order is correct.
+  user has no designer waiting; either order is correct. A third option
+  hands design stages to other people — a designer, an analyst — who run
+  them in parallel in the same iteration branch: `references/team.md`.
 - **`screen-spec` needs the API.** When stage 7 ends and stage 4 has not
   run, offer the backend branch's next stage and say that the screen specs
   wait for the contract.
 - **The meeting point.** Stages 6 and 9 offer stage 10 when the other
-  branch is done, else the other branch's next unfinished stage. A product
+  branch is done (every handed stage reported done), else the other
+  branch's next unfinished stage. A product
   without screens has no design branch: stage 6 offers stage 10 directly.
 - Stage 10 is a stage, not a gate, but it is skippable like one: B on its
   question goes on to `plan` and the skip is named in the report.
@@ -154,12 +157,25 @@ a question per "Asking before a transition" (`A. <версия> (Recommended)`,
 `B. Остановиться`, or another number), and creates the folder on the
 answer. Every stamp of the iteration writes that number.
 
+**One branch per iteration.** Opening the iteration also creates
+`iteration/<version>` from `main` and switches to it (or switches to it when
+it exists). Before creating it, update `main` from `origin`; when the
+previous iteration's branch is not merged into it yet, say so and ask —
+the new iteration would start without it. Every stage of the iteration, by
+everyone who works on it
+(`references/team.md`), commits there; nothing is committed to `main`
+during the iteration. Only that branch is pushed — the plugin gives the
+command, the user runs it — and `main` receives the iteration once, at the
+end, when the user merges it on GitHub.
+
 `plan` re-checks the level once every change is known, from the
 iteration's typed changes: its changelog rows, plus any change not stamped
 yet, typed the same way from the diff since the last tag. A changed level is asked again; on a yes the session
 renames the open folder and replaces the old number in that iteration's
 `version` fields, rows and pins in one commit (`docs: итерация <old> →
-<new>`) — it was never released, so nothing outside the iteration names
+<new>`), and renames the branch to `iteration/<new>` (the push command
+removes the old remote name too) — it was never released, so nothing
+outside the iteration names
 it. The plan's last unit bumps the manifest's `version` to the folder's
 name; `summary.md` and the tag close the iteration (End of the pipeline).
 
@@ -183,8 +199,9 @@ SemVer and its major in the path — `openapi-spec-generator` → Contract versi
 
 The pipeline ends after stage 16, or after the last stage that ran when
 14–16 were skipped. Say in the chat, in Russian, that the work is done and
-committed on the current branch (name it), and that push and the PR are the
-user's step; offer no other stage. Before that line, write the iteration's
+committed on `iteration/<version>`; give the command that pushes the branch
+and its tag (`git push origin iteration/<version> v<version>`), and say that
+the merge into `main` is the user's, on GitHub; offer no other stage. Before that line, write the iteration's
 summary (on disk only, like the rest of `plans/`) and tag the current commit
 `v<version>` — the baseline the next iteration's pins and diffs read
 against. Do both also when the user asks «итог», «как отработал пайплайн»,
@@ -193,46 +210,14 @@ folder with `summary.md` is done.
 
 ### The summary
 
-`documentation/plans/<version>/summary.md`, beside the plan — one
-iteration, one page, so the user judges the pipeline by numbers rather
-than by impression, and sees which stage to fix when something slipped.
-The session writes it from the reports already on disk; it reads no code
-and dispatches nothing. A report that is missing gives a `—` cell with the
-reason (stage skipped, gate skipped), never a guess.
+Its shape, where each number comes from, and the two tables the user fills:
+`references/summary.md`.
 
-```markdown
-# Итог итерации — <version>
-
-| Этап | Показатель | Значение | Источник |
-|---|---|---|---|
-| Документы | противоречий найдено до плана | 4 (P0 2, P1 2) → исправлено | docs-consistency.md |
-| План | грейд · вердикт plan-review с первого раза · доработок | Mid · FIX_THEN_PROCEED · 1 (plan-lite) | plan-review.md |
-| Код | юнитов · вернулось на переделку · эскалаций · исправлений грейда | 12 · 2 · 1 · 1 | run report (`.git/pipeline-work/<version>-run.md`) |
-| Ревью | находок P0/P1 по юнитам · вердикт финального ревью | 3 · PASS | run report, Full-plan review |
-| UI-тесты | кейсов · прошли с первого прогона · дефектов пережило ревью | 22 · 19 · 2 | test-run.md |
-| Безопасность | вердикт · P0/P1 найдено → исправлено · риск принят | FIX → PASS · 0/2 → 2 · 0 | security-audit.md |
-| Гейты | пропущены | grill-me (S-13, маленькая правка) | отчёты этапов |
-| Цена | токены / деньги / время, если сессия их показывает | — | статистика сессии |
-
-## Проскочившие дефекты
-Заполняет пользователь, когда находит дефект после «готово».
-| Дефект | Где нашли | Какой этап должен был поймать |
-|---|---|---|
-
-## Ручные вмешательства
-| Что поправили руками | Документ / план / код | Почему пайплайн не справился |
-|---|---|---|
-```
-
-Below the table, one line naming the weakest stage of this iteration (the
-most returns, defects, or interventions), or «слабых мест не видно». The
-two lower tables start empty; the user fills them later. Escaped defects
-are the main measure of the pipeline: each one names the stage whose skill
-needs a fix.
-
-No skill in this pipeline pushes, opens a PR, or merges. Everything stays
-local until the user ships it, so the user decides when the branch leaves
-the machine and reviews the whole result first, not a half-finished one.
+No skill in this pipeline pushes, opens a PR, or merges on its own.
+Everything stays local until the user ships it, so the user decides when the
+branch leaves the machine and reviews the whole result first. Only the
+iteration's branch is ever pushed, and the user merges it into `main` on
+GitHub.
 
 ## Where am I
 
@@ -270,7 +255,8 @@ evidence; the files on disk are.
    the question below, never as the only way forward.
 4. Report both branches: the last stage present on each (for the design
    branch `documentation/ui/frames-register.md`, `ui/screen-specs/` and
-   `ui/test-cases/`). The answer is the earliest
+   `ui/test-cases/`, read from `origin` when stages were handed to others —
+   `references/team.md`). The answer is the earliest
    unfinished point: a stale document's stage, else the next stage of a
    branch that is not done (both as options when both are open), else
    stage 10, with the unrun gates from step 3 as options.
@@ -479,6 +465,7 @@ that gate asks the next transition itself, using this section.
   `plans/<version>/`, its shape, and the link posted before the first step.
 - `references/decision-changes.md` — a decision changed after its stage
   closed: the owner, the cascade, the commit, where it happens.
+- `references/team.md` — design stages handed to other people.
 - `doc-versioning` (skill) — the increment/greenfield decision, the canonical
   path per document type, the downstream verdict this file reads,
   the unversioned business-requirements draft, and document language
