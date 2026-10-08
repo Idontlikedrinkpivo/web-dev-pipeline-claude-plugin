@@ -309,7 +309,8 @@ down.
    if Docker or buildx is not available here, say so instead of claiming the
    build. Add the «Сборка образов» section to the README.
 5. **Scan the images** with `trivy` over the tar (`security-audit` →
-   `references/scanners.md` → Docker images), HIGH and CRITICAL only. A
+   `references/scanners.md` → Docker images, with its proxy, cache and
+   fallback rules), HIGH and CRITICAL only. A
    CRITICAL with a fixed version in the base image is a stop with the same
    question as step 2; the rest go into the closing report and under
    «Образы» in `security-audit.md` when it exists. The

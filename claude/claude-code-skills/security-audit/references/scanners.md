@@ -7,6 +7,35 @@ below (tools rename subcommands between majors), and save the raw output
 under `OUT=$(git rev-parse --git-dir)/pipeline-work/security`. Never paste
 raw output into the chat or a packet: the auditor reads the file.
 
+## Network, proxy and caches
+
+Every scanner downloads its rules or vulnerability database on first use,
+and behind a corporate proxy that download is where a run stalls.
+
+- **Proxy.** Pass the machine's proxy into each container, both spellings:
+  `-e HTTPS_PROXY -e HTTP_PROXY -e NO_PROXY -e https_proxy -e http_proxy
+  -e no_proxy`. A proxy on the machine's own `localhost` is
+  `host.docker.internal` from inside a container (Docker Desktop); rewrite
+  the address for the container, not on the machine.
+- **Check before the run.** One quick request from a throwaway container
+  through the same proxy to each source the scanners use — `mirror.gcr.io`
+  and `ghcr.io` (trivy's database), `api.osv.dev` (osv-scanner),
+  `semgrep.dev` (rule packs). A source that does not answer is known before
+  a scanner hangs on it.
+- **Cache between runs.** Each database lives in a named volume, so it is
+  downloaded once and refreshed, not fetched whole every audit:
+  `-v pipeline-trivy-cache:/root/.cache/trivy`, `-v
+  pipeline-osv-cache:/root/.cache/osv-scanner`, `-v
+  pipeline-semgrep-cache:/root/.semgrep`. These volumes are the audit's
+  own and survive the stands' cleanup.
+- **A download that stops moving.** Watch the download's size, not the
+  clock: when it has not grown for a few checks in a row, switch to the
+  fallback source — trivy `--db-repository ghcr.io/aquasecurity/trivy-db`
+  (or `mirror.gcr.io/aquasec/trivy-db`, whichever was not tried); osv-scanner
+  and semgrep have no mirror — and when the fallback stalls too, the row
+  is `⚠️ не запускался: сеть (<источник>)` and the audit goes on with the
+  rest. A scanner never holds the audit hostage.
+
 ## Dependencies — `osv-scanner`
 
 Known vulnerabilities in the versions the lockfiles pin
