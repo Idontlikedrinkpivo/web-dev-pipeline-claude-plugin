@@ -75,6 +75,12 @@ as they are. The report names the number and what limited it («3 стенда:
   folds each result into the report with the Edit tool as it arrives — the
   case's row, one bar over all stands, and under the count line one line
   per stand («Стенд 2 · 8180: 120 из 188 · упало 4»).
+- **The bar shows what passed, not what ran.** In every test report — a UI
+  run, an e2e suite in `work`, a stand's line — the main bar is the share
+  of tests that passed, ⌊passed × 100 / (all − not automated)⌋; what ran,
+  failed and was skipped is the count line under it («Выполнено 635 из 672
+  · прошло 437 · упало 152 · пропущено 46»). A bar of tests run reads as
+  nearly done while a third of them fail.
 - **Timeouts under load** are re-run alone before triage: a test that
   passes alone is not a defect, and is noted as «падал под нагрузкой».
 - **A run already going on one stand** that turns out long may take more
