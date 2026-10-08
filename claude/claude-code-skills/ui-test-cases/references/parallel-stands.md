@@ -64,8 +64,17 @@ as they are. The report names the number and what limited it («3 стенда:
   reports do not mix.
 - **One worker per stand** while the tests share data; more only when
   every test works in its own data namespace.
-- **One report.** Results from all stands land in the same `test-run.md`
-  as they arrive, under one bar; a row names its stand.
+- **One report, one writer.** Several stands never mean several writers of
+  one file — their edits would overwrite each other — and never mean
+  dropping the live report either. Each stand writes only its own journal,
+  `documentation/plans/<version>/test-run/stand-<n>.log`, one line per
+  finished test (Playwright `--reporter=list` into that file); nothing else
+  writes it. The runner — never a stand — folds the journals into the one
+  `test-run.md` with the Edit tool as results arrive: the case's row, the
+  one bar over all stands, and under the count line one line per stand
+  («Стенд 2 · 8180: 120 из 188 · упало 4»). The same holds for an e2e
+  suite in `work`: its section in `progress.md` is written by the session
+  alone, from the stands' journals.
 - **Timeouts under load** are re-run alone before triage: a test that
   passes alone is not a defect, and is noted as «падал под нагрузкой».
 - **A run already going on one stand** that turns out long may take more

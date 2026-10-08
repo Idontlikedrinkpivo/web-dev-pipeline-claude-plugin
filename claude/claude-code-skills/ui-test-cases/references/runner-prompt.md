@@ -82,7 +82,10 @@ RULES
   "TC-<n>\b"), not the whole suite in one command, so each result lands as
   it happens; the stands in STANDS run their files side by side, one worker
   each, every row naming its stand (ui-test-cases →
-  references/parallel-stands.md). A timeout under load is re-run alone
+  references/parallel-stands.md). Each stand writes only its own journal
+  (plans/<version>/test-run/stand-<n>.log); you alone write REPORT PATH,
+  folding the journals in as results arrive — one bar over all stands and
+  a line per stand under the count. A timeout under load is re-run alone
   before it counts as a failure.
 - Keep the report live with the Edit tool — one Edit per status change.
   The same Edit updates the bars it touches (text code blocks: 100 cells,
