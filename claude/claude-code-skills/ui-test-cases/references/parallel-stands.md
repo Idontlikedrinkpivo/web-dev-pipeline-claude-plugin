@@ -64,17 +64,17 @@ as they are. The report names the number and what limited it («3 стенда:
   reports do not mix.
 - **One worker per stand** while the tests share data; more only when
   every test works in its own data namespace.
-- **One report, one writer.** Several stands never mean several writers of
-  one file — their edits would overwrite each other — and never mean
-  dropping the live report either. Each stand writes only its own journal,
-  `documentation/plans/<version>/test-run/stand-<n>.log`, one line per
-  finished test (Playwright `--reporter=list` into that file); nothing else
-  writes it. The runner — never a stand — folds the journals into the one
-  `test-run.md` with the Edit tool as results arrive: the case's row, the
-  one bar over all stands, and under the count line one line per stand
-  («Стенд 2 · 8180: 120 из 188 · упало 4»). The same holds for an e2e
-  suite in `work`: its section in `progress.md` is written by the session
-  alone, from the stands' journals.
+- **One report, one writer.** The user sees one report and nothing else:
+  `test-run.md` for a UI test run, the e2e section of `progress.md` for a
+  suite in `work`. Several stands never mean several reports, per-stand
+  files in `documentation/`, or no live report at all. A stand's raw
+  Playwright output (`--reporter=list`) goes to
+  `$(git rev-parse --git-dir)/pipeline-work/e2e/stand-<n>.log` — working
+  output nobody opens, removed after the run; the stands never touch the
+  report. The runner (the session, for `work`) is its only writer: it
+  folds each result into the report with the Edit tool as it arrives — the
+  case's row, one bar over all stands, and under the count line one line
+  per stand («Стенд 2 · 8180: 120 из 188 · упало 4»).
 - **Timeouts under load** are re-run alone before triage: a test that
   passes alone is not a defect, and is noted as «падал под нагрузкой».
 - **A run already going on one stand** that turns out long may take more
