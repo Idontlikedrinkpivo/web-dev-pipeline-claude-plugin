@@ -192,7 +192,7 @@ approach" is not a verdict — put the doubt in the run report):
 | `COMMIT` | no P0/P1 | commit the unit; P2/P3 to the run report |
 | `FIX_THEN_COMMIT` | P0/P1 that is mechanical and fully specified | dispatch `mechanical-worker` with the finding, re-verify, commit |
 | `RETURN_TO_EXECUTOR` | P0/P1 needing the unit's judgment back | re-dispatch the unit's own implementer with the findings attached |
-| `STOP` | the finding is a design gap, or the rounds stopped making progress (`work` Step 6, `pipeline` → `references/convergence.md`) | do not commit; take it to the user |
+| `STOP` | the finding is a design gap, or the rounds stopped making progress (`work` Step 6, `pipeline` → `references/convergence.md`) | do not commit; take it to the user. A finding whose fix would reverse a decision a document made on purpose is `STOP` too, with the decision quoted, whatever its severity (`pipeline` → `references/decision-changes.md` → A finding against a settled decision) |
 
 Follow-up `Agent` calls (`mechanical-worker`, the unit's implementer) resolve their
 own catalog row under the same Dispatch contract as Step 3.

@@ -87,6 +87,27 @@ the template's shape and the ids that other documents cite.
 - **Frames.** A change that alters what a screen shows goes to `ui-design`
   for the frame and to `screen-spec` for the spec, in that order.
 
+## A finding against a settled decision
+
+A review, an audit or a check may find something that a document already
+decided on purpose — a limit the SRS rules out, a risk the architecture
+accepted, a behaviour a decisions log fixed («предела по адресу нет»). Such
+a finding is not a fix: fixing it silently reverses a decision the user
+made. Every check that fixes on its own — `security-audit`,
+`code-review-unit`, `code-review-full`, `plan-review`, `docs-consistency` —
+does this, whatever the finding's severity:
+
+1. **Look before routing.** Search the SRS (NFR, BR), the architecture's
+   decisions and accepted risks, and the project's decisions log for what
+   the finding touches.
+2. **When a decision covers it, ask — never fix by default.** One question
+   with the decision quoted and its id, what the finding says, and two
+   options: keep the decision (the finding becomes an accepted risk with
+   that id as the reason) or change it (then this file, before any fix).
+   Recommend from evidence — a concrete way to break the application that
+   the decision did not consider — not from the finding's own advice.
+3. **Nothing is fixed, planned or committed for it before the answer.**
+
 ## Where it applies
 
 | Stage | The moment |

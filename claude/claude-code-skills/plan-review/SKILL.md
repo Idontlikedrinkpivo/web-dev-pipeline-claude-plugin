@@ -156,7 +156,7 @@ Exactly one:
 | `PASS` | no P0/P1 | the plan may proceed to the next stage per `pipeline`; P2/P3 recorded in the review report |
 | `FIX_THEN_PROCEED` | P0/P1 fully specified and mechanical in the plan text — a wrong `Parallel-safe`, a mistyped executor name, a missing citation whose target is obvious, a grade the floor decides | `plan` applies them in place, then this review re-runs over the changed units only |
 | `RETURN_TO_PLAN` | P0/P1 needing the planner's judgment — a dependency cycle, a unit that has to be split, a re-grade with knock-on executor changes, coverage that has no obvious home | `plan` re-opens with the findings attached; re-review after |
-| `STOP` | the finding is upstream: the design has a gap, a document contradicts another, or the plan cannot be fixed without a product decision | do not proceed to `work`; take it to the user, and the fix lands in the document, not the plan |
+| `STOP` | the finding is upstream: the design has a gap, a document contradicts another, or the plan cannot be fixed without a product decision | do not proceed to `work`; take it to the user, and the fix lands in the document, not the plan. A finding whose fix would reverse a decision a document made on purpose is `STOP` too, with the decision quoted, whatever its severity (`pipeline` → `references/decision-changes.md` → A finding against a settled decision) |
 
 Every P0/P1 row carries a **Fix kind**, so `plan` can pick the revise
 writer without re-reading the findings (`plan-complexity.md` → Grading a

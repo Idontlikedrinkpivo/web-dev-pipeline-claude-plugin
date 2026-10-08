@@ -158,7 +158,7 @@ Exactly one:
 | `PASS` | no P0/P1 | close the run; P2/P3 to the run report |
 | `FIX_THEN_CLOSE` | P0/P1 that is mechanical and fully specified (delete dead code, rename to converge, wire a missing registration) | dispatch `mechanical-worker` as a follow-up, re-verify, then close |
 | `RETURN_TO_UNIT` | P0/P1 that needs the judgment of the unit that caused it | re-open that unit through its own named executor with the finding attached; re-run this review after |
-| `STOP` | the finding shows the plan itself under-specified an interaction between units, or the design has a genuine gap | do not close; take it to the user |
+| `STOP` | the finding shows the plan itself under-specified an interaction between units, or the design has a genuine gap | do not close; take it to the user. A finding whose fix would reverse a decision a document made on purpose is `STOP` too, with the decision quoted, whatever its severity (`pipeline` → `references/decision-changes.md` → A finding against a settled decision) |
 
 A re-review after every `FIX_THEN_CLOSE` or `RETURN_TO_UNIT` fix, until
 `PASS`. Each reads only that round's fix commits with the open findings

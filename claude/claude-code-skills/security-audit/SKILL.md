@@ -123,18 +123,30 @@ scoped to the owner, a path unreachable from outside — and keeps what it
 cannot disprove. A disproved finding goes to «Отклонено» with the reason.
 P2 and P3 are not verified: they block nothing.
 
+**Against a settled decision.** Before the verdict, check every finding —
+P0 to P3 — against the SRS (NFR, BR), the architecture's security
+decisions and accepted risks, and the project's decisions log. A finding
+that a document already decided on purpose («предела по адресу нет») is
+marked `⚖ против решения <id>` and is never fixed, planned or sent to the
+report as a fix: it goes to the user as a question with that decision
+quoted (`pipeline` → `references/decision-changes.md` → A finding against a
+settled decision).
+
 ### 5. Verdict and next step
 
 - `PASS` — no P0 or P1 open. Offer `deploy-topology` (`pipeline` → Asking
   before a transition).
 - `FIX` — P0 or P1 open. Show them one per message, per `grill-me` → "How
-  a question is shown", each with the options «A. Исправить» (Recommended),
+  a question is shown" — a `⚖ против решения` finding first, with its
+  decision quoted — each with the options «A. Исправить»,
   «B. Принять риск» — the user's reason goes into the report, and an
   accepted finding no longer blocks — and «C. Отложить» (stays open). Then
   offer a fix plan: `plan` over the findings marked A, one unit per fix or
   per shared cause, then `work`. After that run, re-audit only what it
   touched: the fixed findings plus the scanners (`pipeline` →
-  `references/convergence.md`).
+  `references/convergence.md`). The recommendation comes from the evidence:
+  «Принять риск» when the finding goes against a settled decision and shows
+  no way to break the application that the decision missed.
 
 An open P0 blocks the release: `deploy-topology` does not build the image
 archive while this report holds one, unless the user says to build anyway

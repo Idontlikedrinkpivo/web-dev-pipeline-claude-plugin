@@ -23,8 +23,10 @@ ACCESS MATRIX   <path to the matrix file; your rows: operationIds>
 RULES ON RIGHTS <pasted: the SRS BR rows and use-case actors that say who
                  may do what in this area>
 SECURITY NFR    <pasted: the SRS security NFR rows>
-DECISIONS       <pasted: the architecture's security decisions table and
-                 where authentication is wired>
+DECISIONS       <pasted: the architecture's security decisions table,
+                 accepted risks, the decisions log's security lines, and
+                 where authentication is wired. A finding these already
+                 settle is reported with «Против решения», not as a defect>
 SENSITIVE DATA  <the schema's sensitive columns and owner columns, or: none>
 SCANNER FINDINGS <app-wide and verify only: paths to osv.json, gitleaks.json,
                  semgrep.json, or the findings to verify, pasted>
@@ -98,6 +100,8 @@ FINDINGS
     Как воспользоваться: <the concrete request or step>
     Нарушает: <BR-/NFR- id, matrix row, or OWASP category>
     Исправление: <in words>
+    Против решения: <the SRS / architecture / decisions-log line it goes
+                    against, quoted with its id — or: нет>
 DISPROVED       <verify only: F-id — why>
 NOT CHECKED     <what could not be read or run, and why — or: none>
 ```
