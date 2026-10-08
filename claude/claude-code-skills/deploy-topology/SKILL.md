@@ -160,7 +160,8 @@ invariants each file must hold. In outline:
   architecture has a client). Everything the test suite needs to run inside
   Docker with zero external network access. Copyable: no
   `container_name`, ports from variables with defaults, and
-  `scripts/e2e-stands.sh up N` / `down` beside it, so a long browser run
+  `scripts/e2e-stands.sh up N` / `down` beside it (`down` removes the
+  stands' containers, volumes and networks, never the images), so a long browser run
   takes several identical stands (`ui-test-cases` →
   `references/parallel-stands.md`).
 - `docker-compose.dev.yml` — same local infrastructure shape as test, mock

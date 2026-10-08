@@ -22,7 +22,9 @@ REPORT PATH     documentation/plans/<version>/test-run.md (the open version
                 the session with every case ⏳ ждёт; you keep it live
 
 RULES
-- Start the database and the app yourself; stop them when done. A
+- Start the database and the app yourself; at the end remove every stand
+  you started — containers, volumes, networks — and only those
+  (ui-test-cases → references/parallel-stands.md → Cleanup). A
   frontend repo without its backend: mock the API at the network boundary
   (page.route) with responses shaped by documentation/api/openapi.yaml,
   and say so in the report.

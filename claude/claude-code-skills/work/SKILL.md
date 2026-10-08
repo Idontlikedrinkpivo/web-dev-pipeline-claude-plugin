@@ -394,9 +394,9 @@ unit, and a plan carrying scars stops being a decision artifact.
 When every unit in scope is committed, first run two checks yourself and save
 each output under `$(git rev-parse --git-dir)/pipeline-work/`:
 
-- **Definition of done** — every command in the plan's §5 (lint and
-  dependency contracts, the end-to-end path, the test suite), with its exit
-  code.
+- **Definition of done** — every command in the plan's §5, with its exit
+  code; a browser suite runs and cleans up per `ui-test-cases` →
+  `references/parallel-stands.md`.
 - **Dead-code report** — the stack's detector over the whole repo: `knip` for
   TypeScript, `vulture` for Python (another stack: its usual unused-code
   tool). Use the repo's config when it has one; otherwise run it with defaults

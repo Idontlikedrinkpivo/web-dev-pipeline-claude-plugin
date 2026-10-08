@@ -98,7 +98,27 @@ as they are. The report names the number and what limited it («3 стенда:
   stands for its tail: start the stands, hand them the last files, stop the
   first run before the first handed-off file, and merge the results — the
   rows already passed stay.
-- When done, `scripts/e2e-stands.sh down` removes the extra stands.
+
+## Cleanup
+
+A run removes what it started, and nothing else.
+
+- **At the end** — passed, failed or stopped — every stand the run started
+  goes: `scripts/e2e-stands.sh down`, or `docker compose -p <project> down
+  -v --remove-orphans` per stand, so its containers, volumes and networks
+  are gone. Images stay: the next run starts its stands from them in
+  seconds.
+- **Only its own.** The run keeps the list of compose projects it started
+  and removes those. Stands it did not start — the user's `dev`, `demo`, a
+  stand another session is using — are never touched, and nothing is
+  pruned wholesale (`docker system prune`, `docker volume prune`).
+- **Leftovers of an interrupted run** — the same stand projects
+  (`<project>-e2e-*`) with no live run behind them — are removed at the
+  start of the next run, before it starts its own.
+- **Checked.** `docker ps -a --filter
+  label=com.docker.compose.project=<project>` is empty for every project
+  removed; the report ends with one line: «Стенды убраны: 3, контейнеров
+  15, тома удалены».
 
 ## In CI
 
