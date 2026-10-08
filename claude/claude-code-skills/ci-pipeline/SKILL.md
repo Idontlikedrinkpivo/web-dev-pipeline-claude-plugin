@@ -170,6 +170,12 @@ and the `.env.example`-sync test from `deploy-topology`, because those live
 in the project's own test suite — do not add a separate CI step for them and
 do not scope the test runner's invocation to exclude the file they live in.
 
+**Test-case trace** (the project has `scripts/check_trace.py`, copied there
+by `ui-test-cases`): one more step in the lint job, `python3
+scripts/check_trace.py --docs documentation --quiet` — a pull request whose
+test cases cite elements, frames or API calls the documents no longer have
+goes red, whoever edited them and whether or not their local hook ran.
+
 **Browser e2e** (a frontend with a `test:e2e` target — `repo-scaffold`,
 `frontend`): add it as its own job, `e2e`, that installs the browsers the
 Playwright config names, starts the app the way the config's `webServer`

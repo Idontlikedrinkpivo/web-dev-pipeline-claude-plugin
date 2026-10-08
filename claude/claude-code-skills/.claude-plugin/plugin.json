@@ -1,6 +1,6 @@
 {
   "name": "dev-pipeline",
-  "version": "1.2.79",
+  "version": "1.2.80",
   "description": "Пайплайн разработки от идеи до CI: требования, контракт, дизайн, архитектура, план, исполнение с ревью, контейнеры и CI — скиллы и агенты-исполнители с закреплёнными моделями.",
   "author": {
     "name": "Ilikedrinkpivo"
@@ -38,5 +38,6 @@
     "./_agents/ui-test-runner.md",
     "./_agents/ui-test-writer.md"
   ],
-  "license": "MIT"
+  "license": "MIT",
+  "hooks": "./hooks/hooks.json"
 }

@@ -92,6 +92,15 @@ changelog rows after the pin (`doc-versioning` → Staleness and cascade):
   home in the dependant or the document that should hold it.
 - **only «уточняет»** — nothing; the dependant's next stamp refreshes the pin.
 
+**Then the test cases' trace**, when the set has user test cases: run
+`ui-test-cases`'s `scripts/check_trace.py --docs documentation --quiet`
+(the project's copy in `scripts/` when it has one). Each broken reference —
+a step, an element, a frame or an API call the documents no longer have —
+is a P1 finding, axis «Трассировка», owned by `ui-test-cases`, or by the
+screen spec's stage when the spec lost an element the case still needs.
+No model reads for this; a hand edit of a case is caught here as surely as
+the agent's own.
+
 ### Step 2. Dispatch the checker
 
 Resolve `docs-consistency-checker` through `executor-catalog` and
