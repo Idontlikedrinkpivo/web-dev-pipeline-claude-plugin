@@ -52,7 +52,10 @@ make (`BLOCKED` on a missing design decision, a `STOP` from a review) or fix
 rounds that stop making progress (`pipeline` → `references/convergence.md`). That is a
 **stop and report**, not an improvisation: the unit's row `⛔ остановлен:
 <причина>`, and in the chat what blocks it, what was tried, and what the user
-can decide.
+can decide. Anywhere else a turn ends only with the next dispatch running in
+the background, the call made before the chat line, and the run never asks
+whether to continue (`pipeline` → `references/progress-files.md` → Keeping
+the run moving).
 
 **A decision that changes during the run goes into its documents at
 once**, committed before the next dispatch, without the user asking —

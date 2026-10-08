@@ -69,6 +69,34 @@ document keeps none.
 - **A new run** of the same stage in the same iteration rewrites the file.
   It is never committed and never cited by a document.
 
+## Keeping the run moving
+
+A long stage runs while the user is away — asleep, in a meeting — so a turn
+that ends with nothing running stops it for hours: nothing wakes the
+session until the user writes again.
+
+- **A turn ends only while the next step runs.** Until the last item is
+  done or the stage stops in one of its own stop cases, every turn ends
+  with the next step already started — an executor, a reviewer, a check,
+  dispatched in the background, whose completion wakes the session again.
+  Never end a turn on prose alone, and never on «продолжаю…» without the
+  call.
+- **Call first, then write.** Start the next step, then write the chat
+  line (After each item). Text written before the call can be cut off —
+  a dropped connection, a stream that ends mid-sentence — and the call
+  after it is lost with it; text after the call costs nothing if it is
+  cut.
+- **A message that is not a decision does not stop the run.** A stray
+  keystroke, «ну?», «ты тут?», a question about progress: answer in one
+  line with the count and the link, and go on. Only a stop («стоп»,
+  «подожди», «остановись») or a changed decision changes the run — the
+  latter through `pipeline` → `references/decision-changes.md`.
+- **Never ask whether to continue.** The run was agreed when it started; it
+  asks only in its stage's stop cases. A turn that finds the run idle — the
+  last one was cut off, the session was compacted, the user wrote into a
+  silence — rebuilds the rows from disk and git and starts the next step
+  at once, saying in one line that it resumed.
+
 ## The files
 
 ### `ui-design` — `progress-design.md`
