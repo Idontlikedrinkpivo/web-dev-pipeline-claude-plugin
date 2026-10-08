@@ -114,7 +114,11 @@ when business code is written, not now.
 Read `references/stack-files.md` for the chosen stack only. Install the
 minimum: language toolchain, HTTP framework, DB driver, test runner,
 boundary linter named in §6, and the dead-code detector (`knip` /
-`vulture`) that `work` runs before the final review.
+`vulture`) that `work` runs before the final review. When the repo already
+has `.githooks/` (the test-case trace check, `ui-test-cases`), wire
+`git config core.hooksPath .githooks` into the new manifest the same way
+`ui-test-cases` does — a `prepare` script, or the `install`, `lint` and
+`test` targets — so it switches itself on for everyone.
 
 Pin versions in the lockfile. Install the majors §1 Стек names; a
 lockfile that resolves a different major is a stop, not a silent
