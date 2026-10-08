@@ -78,6 +78,14 @@ One field per merged finding, most conservative first:
 - Contradiction that says "keep as-is" → Skip
 - Apply without a `suggested_fix` → downgrade to Defer
 
+A finding whose fix would reverse a decision made on purpose — in this
+document, the SRS, the architecture's decisions or accepted risks, or the
+decisions log — is `manual` whatever the persona labelled it, never in a
+bulk Apply, and is shown with that decision quoted and its id (`pipeline`
+→ `references/decision-changes.md` → A finding against a settled
+decision). Its recommendation comes from evidence the decision missed, not
+from the finding's own advice.
+
 Routing and bulk actions read this field. They do not recompute it.
 
 ## 3.7 Apply `safe_auto`

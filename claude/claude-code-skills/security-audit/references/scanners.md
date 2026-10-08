@@ -22,12 +22,13 @@ and behind a corporate proxy that download is where a run stalls.
   and `ghcr.io` (trivy's database), `api.osv.dev` (osv-scanner),
   `semgrep.dev` (rule packs). A source that does not answer is known before
   a scanner hangs on it.
-- **Cache between runs.** Each database lives in a named volume, so it is
-  downloaded once and refreshed, not fetched whole every audit:
-  `-v pipeline-trivy-cache:/root/.cache/trivy`, `-v
-  pipeline-osv-cache:/root/.cache/osv-scanner`, `-v
-  pipeline-semgrep-cache:/root/.semgrep`. These volumes are the audit's
-  own and survive the stands' cleanup.
+- **Cache between runs.** trivy's database lives in a named volume, so it
+  is downloaded once and refreshed, not fetched whole every scan: `-v
+  pipeline-trivy-cache:/root/.cache/trivy`. The volume is the audit's own
+  and survives the stands' cleanup. osv-scanner and semgrep keep nothing
+  to cache: they ask `api.osv.dev` and fetch the rule packs from
+  `semgrep.dev` on every run, so for them the check before the run is what
+  matters.
 - **A download that stops moving.** Watch the download's size, not the
   clock: when it has not grown for a few checks in a row, switch to the
   fallback source — trivy `--db-repository ghcr.io/aquasecurity/trivy-db`

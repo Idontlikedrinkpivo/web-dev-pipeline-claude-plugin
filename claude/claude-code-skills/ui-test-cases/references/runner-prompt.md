@@ -87,8 +87,8 @@ RULES
   references/parallel-stands.md). REPORT PATH is the one report: a stand's
   raw output goes to .git/pipeline-work/e2e/stand-<n>.log, never into
   documentation/, and you alone fold each result into the report as it
-  arrives — one bar over all stands and a line per stand under the count. A timeout under load is re-run alone
-  before it counts as a failure.
+  arrives — one bar over all stands and a line per stand under the count.
+  A timeout under load is re-run alone before it counts as a failure.
 - Keep the report live with the Edit tool — one Edit per status change.
   The same Edit updates the bars it touches (text code blocks: 100 cells,
   one per percent, every case weighing the same, filled cells = the

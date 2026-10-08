@@ -93,7 +93,7 @@ A review, an audit or a check may find something that a document already
 decided on purpose — a limit the SRS rules out, a risk the architecture
 accepted, a behaviour a decisions log fixed («предела по адресу нет»). Such
 a finding is not a fix: fixing it silently reverses a decision the user
-made. Every check that fixes on its own — `security-audit`,
+made. Every check that fixes on its own — `security-audit`, `doc-review`,
 `code-review-unit`, `code-review-full`, `plan-review`, `docs-consistency` —
 does this, whatever the finding's severity:
 
