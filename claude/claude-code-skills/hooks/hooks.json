@@ -11,6 +11,17 @@
           }
         ]
       }
+    ],
+    "SessionStart": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "python3 \"${CLAUDE_PLUGIN_ROOT}/ui-test-cases/scripts/hookspath_session.py\"",
+            "timeout": 15
+          }
+        ]
+      }
     ]
   }
 }

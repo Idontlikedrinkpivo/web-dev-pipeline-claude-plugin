@@ -148,12 +148,16 @@ runner needs goes into one «Трассировка» line under it.
   after every edit the agent makes.
 - **The project checks it too, for hand edits.** On the first write run,
   copy `scripts/check_trace.py` into the project's `scripts/` and
-  `assets/pre-commit` into `.githooks/pre-commit`, run
-  `git config core.hooksPath .githooks`, and add that command to the
-  README's setup section, so a commit whose cases no longer match the
-  documents is stopped whoever edited them. A project that already has a
-  hooks manager (`husky`, `lefthook`, its own `core.hooksPath`) gets the
-  same call added to its pre-commit instead. `ci-pipeline` runs the script
+  `assets/pre-commit` into `.githooks/pre-commit`, so a commit whose cases
+  no longer match the documents is stopped whoever edited them. Nobody has
+  to remember to switch it on: wire `git config core.hooksPath .githooks`
+  into what every developer already runs — a `prepare` script in
+  `package.json` (npm runs it on every install), or the first line of the
+  `install`, `lint` and `test` targets of the `Makefile` (or the project's
+  task runner); the plugin's session hook sets it for anyone who opens the
+  project in Claude Code. A project that already has a hooks manager
+  (`husky`, `lefthook`, its own `core.hooksPath`) gets the same call added
+  to its pre-commit instead. `ci-pipeline` runs the script
   in CI, and `docs-consistency` runs it before the plan.
 
 **Artifact:** the folder `documentation/ui/test-cases/`, beside the frames
