@@ -126,9 +126,6 @@ closed the file or stepped away reopens it from the last message. Take both
 numbers from the map and from git, not from the previous message. A resumed
 or compacted session writes the line before the next dispatch.
 
-**Test cases first:** with user test cases, run `ui-test-cases`'s
-`check_trace.py`; a broken trace is a stop before the first dispatch.
-
 **Record the run base and resume from git.** Before the first dispatch, record
 `BASE=$(git rev-parse HEAD)` in the run report. Every unit commit carries the
 trailer `Plan-Unit: <version>/U<n>` (Step 5.5). On start — and after any

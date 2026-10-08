@@ -267,6 +267,13 @@ and writes the files itself; there is no `doc-typist` on this stage.
    - The user named screens → those, plus nothing else.
    Write the list in the chat with the reason per screen («S-3 — кадр 22:10:
    новый элемент 7»), then dispatch; this is not a question.
+
+   **The test cases' trace**, when user test cases exist: run
+   `python3 ${CLAUDE_SKILL_DIR}/../ui-test-cases/scripts/check_trace.py --docs documentation`. Cases
+   on screens outside this run go to `ui-test-writer` (`MODE increment`) at
+   once, to rewrite each broken trace from the current spec; cases on
+   screens in this run go to it after their files land, at the close. What
+   a rewrite cannot fix goes into the close as a gap.
 4. **Settle the general handler once.** The rows for `401`, `429` and `5xx`
    must read the same in every file. When a screen file exists, copy its
    `общий обработчик` rows. Otherwise the first writer derives them from the
@@ -383,7 +390,8 @@ Report in the chat:
   committed with no version change, and one that needs design judgment (a
   new operation) is that stage's increment (`pipeline` →
   `references/decision-changes.md`);
-- the executor rows dispatched (`screen-writer` × N) and any re-dispatch.
+- the executor rows dispatched (`screen-writer` × N) and any re-dispatch;
+- the test cases' trace: broken before the run, rewritten, still open.
 
 Then read `pipeline` and ask per "Asking before a transition": first the
 gate `doc-review` on the files just written (one review over the set — its

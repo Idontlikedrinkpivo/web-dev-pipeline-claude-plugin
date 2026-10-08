@@ -93,13 +93,15 @@ changelog rows after the pin (`doc-versioning` → Staleness and cascade):
 - **only «уточняет»** — nothing; the dependant's next stamp refreshes the pin.
 
 **Then the test cases' trace**, when the set has user test cases: run
-`ui-test-cases`'s `scripts/check_trace.py --docs documentation --quiet`
-(the project's copy in `scripts/` when it has one). Each broken reference —
-a step, an element, a frame or an API call the documents no longer have —
-is a P1 finding, axis «Трассировка», owned by `ui-test-cases`, or by the
-screen spec's stage when the spec lost an element the case still needs.
-No model reads for this; a hand edit of a case is caught here as surely as
-the agent's own.
+`python3 ${CLAUDE_SKILL_DIR}/../ui-test-cases/scripts/check_trace.py --docs documentation --quiet`
+and fix what it finds before the dispatch, without asking: dispatch
+`ui-test-writer` (`ui-test-cases` → its writer packet, `MODE increment`)
+with the broken cases, to rewrite each one's trace from the current spec,
+then run the script again. What a rewrite cannot fix — the case needs an
+element, a frame or an operation the documents no longer have — is a P1
+finding, axis «Трассировка», owned by the screen spec's stage or by
+`ui-test-cases` when the case itself is wrong. A hand edit of a case is
+caught here as surely as the agent's own.
 
 ### Step 2. Dispatch the checker
 

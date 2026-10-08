@@ -136,29 +136,14 @@ runner needs goes into one «Трассировка» line under it.
   (`mock` before the status for a forced outcome) · any ARIA expectation.
   A case without it is not done: the runner builds its locators, mocks and
   frame comparison from it.
-- **The trace is checked, never trusted.** `scripts/check_trace.py`
-  resolves every reference against the current documents — the step exists
-  in the table, the element in the screen spec, the frame in the spec or
-  the register, the operation and its status in the OpenAPI. Run it
-  (`python3 ${CLAUDE_SKILL_DIR}/scripts/check_trace.py --docs documentation`)
-  after every write or edit of cases and after any change to a screen spec,
-  the frames or the API; an error is fixed by rewriting that case's trace
-  from the current spec, not by patching the number — or, when the spec is
-  what went stale, by its stage. In Claude Code the plugin's hook runs it
-  after every edit the agent makes.
-- **The project checks it too, for hand edits.** On the first write run,
-  copy `scripts/check_trace.py` into the project's `scripts/` and
-  `assets/pre-commit` into `.githooks/pre-commit`, so a commit whose cases
-  no longer match the documents is stopped whoever edited them. Nobody has
-  to remember to switch it on: wire `git config core.hooksPath .githooks`
-  into what every developer already runs — a `prepare` script in
-  `package.json` (npm runs it on every install), or the first line of the
-  `install`, `lint` and `test` targets of the `Makefile` (or the project's
-  task runner); the plugin's session hook sets it for anyone who opens the
-  project in Claude Code. A project that already has a hooks manager
-  (`husky`, `lefthook`, its own `core.hooksPath`) gets the same call added
-  to its pre-commit instead. `ci-pipeline` runs the script
-  in CI, and `docs-consistency` runs it before the plan.
+- **The trace is checked at two points, never trusted.**
+  `scripts/check_trace.py` resolves every reference against the current
+  documents — the step exists in the table, the element in the screen spec,
+  the frame in the spec or the register, the operation and its status in
+  the OpenAPI. It runs at the start of `screen-spec` (when cases already
+  exist) and in `docs-consistency` before the plan; both send what it finds
+  to `ui-test-writer`, which rewrites that case's trace from the current
+  spec — never patches a number.
 
 **Artifact:** the folder `documentation/ui/test-cases/`, beside the frames
 register and `screen-specs/` (with several UI products, one per
@@ -223,10 +208,7 @@ the reader's.
 
 **When:** after `work` closed its run and `code-review-full` passed (or the
 user chose to go on without it). Cases must exist; without them, offer
-mode write first. Before the dispatch, run `scripts/check_trace.py`: a case
-whose trace no longer resolves is not turned into a test — its row is
-`⛔ трассировка устарела` with the broken references, and the report names
-it, so a stale reference never becomes a test on the wrong element.
+mode write first.
 
 **The app must start locally.** Read `.claude/launch.json`, the README, and
 the compose file `repo-scaffold` wrote for the test database. The runner

@@ -35,8 +35,7 @@ RULES
   role) give the role/label locator; the trace's operationId and status
   give the mock or the seeded failure; its nodeId gives the frame to
   compare. A case with no trace line, or a step the trace does not map,
-  is ⛔ заблокирован with «нет трассировки», not guessed; a case the
-  session's trace check marked `⛔ трассировка устарела` is not built. A gap in one step
+  is ⛔ заблокирован with «нет трассировки», not guessed. A gap in one step
   does not drop the case: build every step it gives and mark only the
   missing one (`test.fixme` on a split-off part, or a skipped step with the
   reason), so the rest still checks.

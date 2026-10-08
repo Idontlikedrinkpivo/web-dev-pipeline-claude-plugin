@@ -1,9 +1,0 @@
-#!/bin/sh
-# Installed by ui-test-cases: blocks a commit whose test cases cite elements, frames or API calls the documents no longer have.
-if git diff --cached --name-only | grep -qE '^documentation/(ui/|api/)'; then
-  python3 scripts/check_trace.py --docs documentation --quiet || {
-    echo "Коммит остановлен: трассировка тест-кейсов не сходится с документами (список выше)." >&2
-    echo "Исправьте кейс или ТЗ; обойти один раз: git commit --no-verify" >&2
-    exit 1
-  }
-fi
