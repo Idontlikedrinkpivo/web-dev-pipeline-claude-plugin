@@ -206,7 +206,8 @@ summary (on disk only, like the rest of `plans/`) and tag the current commit
 `v<version>` — the baseline the next iteration's pins and diffs read
 against. Do both also when the user asks «итог», «как отработал пайплайн»,
 or «сводка» after `work`. They close the version: a `plans/<version>/`
-folder with `summary.md` is done.
+folder with `summary.md` is done. Then, before the last line, clear the
+closed iteration's working files: `references/closing-cleanup.md`.
 
 ### The summary
 
@@ -466,6 +467,7 @@ that gate asks the next transition itself, using this section.
 - `references/decision-changes.md` — a decision changed after its stage
   closed: the owner, the cascade, the commit, where it happens.
 - `references/team.md` — design stages handed to other people.
+- `references/closing-cleanup.md` — the working files a closed iteration drops.
 - `doc-versioning` (skill) — the increment/greenfield decision, the canonical
   path per document type, the downstream verdict this file reads,
   the unversioned business-requirements draft, and document language

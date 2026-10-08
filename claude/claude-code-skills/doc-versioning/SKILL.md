@@ -156,7 +156,9 @@ next stamp compares each document with its last stamped state, not with
 
 Everything under `documentation/plans/` — plan, plan review, progress, the
 stage reports and the summary — is out of git (`.gitignore`); see `pipeline` →
-Plans stay out of git.
+Plans stay out of git. When an iteration closes, its folder keeps only
+`summary.md`; the rest is removed on the user's yes (`pipeline` →
+`references/closing-cleanup.md`).
 
 Several UI products (client and admin) put the same `ui/` content in
 `documentation/ui/<product>/`; one product keeps it straight in `ui/`.
