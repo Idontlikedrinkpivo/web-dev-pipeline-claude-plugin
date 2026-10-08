@@ -30,10 +30,17 @@ RULES
 - One case per reachable AC (main, Alt, Exc), per state row and per
   user-causable response outcome not yet covered, per «Поля ввода» rule,
   per forbidden action per role.
-- Steps name actions and data by the spec's names and screen ids — never a
-  widget or a gesture («выполнить отмену брони», not «нажать кнопку»);
-  expected results quote the exact text the screen spec takes from the
-  frame's «Тексты» table and name the state row.
+- Two layers (ui-test-cases → What a case set must hold → Two readers):
+  the body for a person — roles and screens by name, steps as actions by
+  the label the user sees (never a widget, a gesture, or an element
+  number), «Что должно быть» as the labelled texts a person sees, a
+  server failure as a precondition in words; then the mandatory
+  «Трассировка» line — source ids, frame nodeId, state row, `шаг N → эл. M`
+  for every step that touches an element, operationId with status or mock,
+  ARIA expectations. A «Проверяет» line with the requirement ids opens each
+  case. Steps go through controls the spec names when another path exists;
+  expected texts carry real values computed from the preconditions, never
+  `{дата}` or «по кадру».
 - Preconditions name the data, so a runner can seed it.
 - README.md holds what every section shares, the «Разделы» table and,
   at its end, the coverage table: AC → TC ids, or «Без интерфейса» +

@@ -91,16 +91,49 @@ chat.
   checked, the exact error text.
 - Roles: a case for every forbidden action per role the SRS names (the
   resident who tries to cancel someone else's booking).
-- Expected results quote the exact text the screen spec takes from the
-  frame's «Тексты» table, and name the state row.
-- Steps name actions and data by the spec's names and screen ids, never a
-  widget, a gesture, CSS or coordinates: «На S-1 выполнить отмену своей
-  брони», not «нажать кнопку» or «выбрать в выпадающем меню». A
-  designer who turns a dropdown into a context menu must not have to
-  rewrite a case; the e2e test finds the element by its accessible role
-  and name on the built screen. Expected results name the state row.
-- Preconditions name the data the case needs («у резидента активная бронь
-  на завтра»), so the runner can seed it.
+**Two readers, two layers.** A case is read by a person — a tester, an
+analyst, the owner checking what will be tested — and turned into a test
+by the runner. The body is written for the person; everything only the
+runner needs goes into one «Трассировка» line under it.
+
+- **The body speaks the user's language.** Roles and screens by name, the
+  id in brackets on first mention («Резидент», «Расписание переговорных
+  (S-1)»). Steps are things a person does, named by the label the user
+  sees on the screen, without a widget, a gesture, CSS or coordinates:
+  «Выбрать «Отменить бронь»», not «нажать красную кнопку справа» and not
+  «выполнить действие эл. 13». A designer who turns a dropdown into a
+  context menu must not have to rewrite a case; a label survives that, and
+  the e2e test finds the element by the same accessible name.
+- **Every step is an action**; «Посмотреть на …» when the step only reads
+  the screen, never a bare «Проверить эл. 4».
+- **Take the path a test can walk.** When several paths reach the same
+  state, step through controls the screen spec names (a field, a button
+  with its label) rather than one it leaves without an accessible name (a
+  free cell of a grid, an icon with no label). A state reachable only
+  through an unnamed element still gets its case, and the gap goes to the
+  set's spec gaps («эл. 9 без доступного имени»), so `screen-spec` can fix
+  it.
+- **Real values, never placeholders.** Dates, times, names and counts in
+  steps and expected texts are concrete, computed from the preconditions
+  («завтра, 21.10», «Отменено 2 брони»); a date relative to the run is
+  written relative («Д+1») and defined once in the README. `{дата}` or
+  «по кадру» inside an expected text is a case the runner cannot check.
+- **«Что должно быть» is what a person sees.** The exact texts the screen
+  spec takes from the frame's «Тексты» table, each labelled — «заголовок
+  «…», ниже текст «…»», «под полем «Дата»: «…»», «уведомление: «…»». No
+  field names, derived values, response bodies, status codes or ARIA
+  attributes in the body; accessibility in words: «сообщение зачитывает
+  экранный диктор», «следующий Tab — «Повторить загрузку»».
+- **A server failure is a precondition in words** («сервер не может отдать
+  расписание»), its mock goes into the trace line.
+- **Preconditions name the data** («у резидента бронь «Байкал» завтра
+  10:00–11:00»), so the runner can seed it and a person can set it up.
+- **«Проверяет» opens the case**: the requirement ids it proves (AC, BR,
+  NFR, or the spec row), so an analyst traces it in a glance.
+- **The trace line is mandatory and exact**: the frame `nodeId`, the state row, and per step the element it
+  touches (`шаг 2 → эл. 19`), the `operationId` with the status or mock a
+  step needs, any ARIA expectation. A case without it is not done: the
+  runner builds its locators, mocks and frame comparison from it.
 
 **Artifact:** the folder `documentation/ui/test-cases/`, beside the frames
 register and `screen-specs/` (with several UI products, one per
@@ -142,16 +175,19 @@ documentation/ui/test-cases/
   case.
 
 ```markdown
-## TC-7. Резидент не может отменить начавшуюся бронь
+## TC-7. Резидент не может отменить бронь, которая уже началась
 
-**Источник:** UC-2 AC-Exc-2 · BR-4   **Экран:** S-1 → M2   **Кадр:** 12:160   **Роль:** A-1
-**Предусловия:** резидент вошёл; у него бронь «Байкал», начавшаяся 10 минут назад
+**Проверяет:** UC-2 AC-Exc-2 · BR-4
+**Кто:** резидент · **Экран:** Расписание переговорных (S-1), окно «Отмена брони»
+**Подготовка:** резидент вошёл; у него бронь «Байкал», начавшаяся 10 минут назад
 
-| # | Шаг | Ожидается |
+| # | Действие | Что должно быть |
 |---|---|---|
-| 1 | Открыть S-1 на сегодня | бронь видна как своя |
-| 2 | Выбрать свою бронь | открылся шаг M2 «Отмена брони» |
-| 3 | Выполнить «Отменить бронь» | в M2 текст «Бронь уже началась, отменить нельзя»; бронь осталась активной |
+| 1 | Открыть расписание на сегодня | бронь «Байкал» отмечена как своя |
+| 2 | Выбрать свою бронь «Байкал» | открылось окно «Отмена брони» |
+| 3 | Выбрать «Отменить бронь» | в окне текст «Бронь уже началась, отменить нельзя»; в расписании бронь осталась |
+
+<sub>Трассировка: кадр 12:160 · M2, состояние «Уже началась» · шаг 2 → эл. 11; шаг 3 → эл. 3 (M2), `cancelBooking` → 409 BOOKING_STARTED</sub>
 ```
 
 `README.md` ends with the coverage table: every AC id → its `TC-` ids, or

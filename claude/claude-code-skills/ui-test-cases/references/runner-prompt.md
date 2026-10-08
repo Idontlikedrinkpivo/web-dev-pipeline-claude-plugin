@@ -29,8 +29,16 @@ RULES
   No bypass of real auth the architecture did not provide as a test stub:
   that is BLOCKED.
 - One spec file per section file, named like it (an existing suite keeps
-  its file names); each test titled with its TC- id;
-  role/label locators from the spec's control names.
+  its file names); each test titled with its TC- id. Build each case from
+  its body and its «Трассировка» line: the step's visible label and the
+  element the trace names (`шаг N → эл. M`, the spec's control name and
+  role) give the role/label locator; the trace's operationId and status
+  give the mock or the seeded failure; its nodeId gives the frame to
+  compare. A case with no trace line, or a step the trace does not map,
+  is ⛔ заблокирован with «нет трассировки», not guessed. A gap in one step
+  does not drop the case: build every step it gives and mark only the
+  missing one (`test.fixme` on a split-off part, or a skipped step with the
+  reason), so the rest still checks.
 - Keep or add the `test:e2e` script.
 - Expected wording comes from the «Тексты» table on each screen's Аннотация
   frame; a case marked `текст — по кадру` takes it from there too.
