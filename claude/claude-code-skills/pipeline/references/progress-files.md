@@ -75,17 +75,22 @@ A long stage runs while the user is away — asleep, in a meeting — so a turn
 that ends with nothing running stops it for hours: nothing wakes the
 session until the user writes again.
 
-- **A turn ends only while the next step runs.** Until the last item is
-  done or the stage stops in one of its own stop cases, every turn ends
-  with the next step already started — an executor, a reviewer, a check,
-  dispatched in the background, whose completion wakes the session again.
-  Never end a turn on prose alone, and never on «продолжаю…» without the
-  call.
+- **A turn ends only while the next step runs — or on a question that
+  blocks it.** Until the last item is done, every turn ends with the next
+  step already started — an executor, a reviewer, a check, dispatched in
+  the background, whose completion wakes the session again. The one other
+  way to end a turn is a question the run cannot go past without the
+  user's answer — one of the stage's own stop cases (a missing decision, a
+  review's `STOP`, rounds that stopped making progress): then nothing is
+  started, the question is the end of the turn, and the row says
+  `⛔ остановлен`. Never end a turn on prose alone, and never on
+  «продолжаю…» without the call.
 - **Call first, then write.** Start the next step, then write the chat
   line (After each item). Text written before the call can be cut off —
   a dropped connection, a stream that ends mid-sentence — and the call
   after it is lost with it; text after the call costs nothing if it is
-  cut.
+  cut. A blocking question has no call after it, so it is simply the last
+  thing in the turn.
 - **A message that is not a decision does not stop the run.** A stray
   keystroke, «ну?», «ты тут?», a question about progress: answer in one
   line with the count and the link, and go on. Only a stop («стоп»,
