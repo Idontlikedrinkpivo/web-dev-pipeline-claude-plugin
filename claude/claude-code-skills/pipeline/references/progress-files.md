@@ -13,6 +13,7 @@ without asking and can tell a slow step from a stuck one.
 | `screen-spec` | `progress-screen-specs.md` | screen | the session, around each dispatch |
 | `ui-test-cases` write | `progress-test-cases.md` | section of the case set, plus «Без интерфейса» | the writer, as it finishes each section |
 | `ui-test-cases` run | `test-run.md` | case | the runner — `ui-test-cases` → Mode run |
+| `security-audit` | `security-audit.md` (the report itself) | scanner, area, the verify pass | the session — `security-audit` → `references/report.md` |
 | `clean-architecture-design` | `progress-architecture.md` | document | the writer as it settles and prints each document; the session as it inspects and reviews |
 | `repo-scaffold` | `progress-scaffold.md` | step | the session |
 | `work` | `progress.md` | unit, then fix | the session — `work` → `references/progress-file.md` |

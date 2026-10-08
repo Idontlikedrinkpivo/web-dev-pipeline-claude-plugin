@@ -63,7 +63,7 @@ scaffolded. They meet before the plan.
 
 ```
 1 → 2 ─┬─ 3 → 4 → 5 → 6 ─────────┐
-       └─ 7 → 8 → 9 ─────────────┴→ 10 → 11 → 12 → 13 → 14 → 15
+       └─ 7 → 8 → 9 ─────────────┴→ 10 → 11 → 12 → 13 → 14 → 15 → 16
 ```
 
 | # | Stage | Skill | Gates (ask, in order) | Then offer (ask) |
@@ -79,10 +79,11 @@ scaffolded. They meet before the plan.
 | 9 | UI test cases | `ui-test-cases` — mode write | none | the meeting point — see "Two branches" |
 | 10 | Document set check | `docs-consistency` | none — it is the check | `plan` |
 | 11 | Implementation plan | `plan` | `plan-review` — **automatic, do not ask**; its findings are fixed round by round until it passes | `work` |
-| 12 | Execution | `work` | `code-review-unit` per unit → `code-review-full` once — **automatic, do not ask** | `ui-test-cases` (run) when the product has screens, else `deploy-topology` |
-| 13 | UI acceptance run | `ui-test-cases` — mode run | none | a fix plan (`plan`) when the verdict is `DEFECTS`, else `deploy-topology` |
-| 14 | Compose topology | `deploy-topology` | none | `ci-pipeline` |
-| 15 | CI workflow | `ci-pipeline` | none | nothing — the pipeline ends; see "End of the pipeline" |
+| 12 | Execution | `work` | `code-review-unit` per unit → `code-review-full` once — **automatic, do not ask** | `ui-test-cases` (run) when the product has screens, else `security-audit` |
+| 13 | UI acceptance run | `ui-test-cases` — mode run | none | a fix plan (`plan`) when the verdict is `DEFECTS`, else `security-audit` |
+| 14 | Security audit — the whole application, once per iteration | `security-audit` | none — it is the check | a fix plan (`plan`) when the verdict is `FIX`, else `deploy-topology` |
+| 15 | Compose topology | `deploy-topology` | none | `ci-pipeline` |
+| 16 | CI workflow | `ci-pipeline` | none | nothing — the pipeline ends; see "End of the pipeline" |
 
 ### Two branches
 
@@ -180,18 +181,15 @@ SemVer and its major in the path — `openapi-spec-generator` → Contract versi
 
 ## End of the pipeline
 
-The pipeline ends after stage 15. If stages 14 and 15 were skipped or
-declined, it ends after the last stage that ran. At that point, say in the
-chat, in Russian, that the work is done and committed on the current branch
-(name it), and that push and the PR are the user's step. Do not offer
-another stage.
-
-Before that line, write the iteration's summary (on disk only, like the
-rest of `plans/`) and tag the current commit `v<version>` — the baseline
-the next iteration's pins and diffs read against. Also do both
-when the user asks «итог», «как отработал пайплайн», or «сводка» after
-`work`. They close the version: a `plans/<version>/` folder with
-`summary.md` is done.
+The pipeline ends after stage 16, or after the last stage that ran when
+14–16 were skipped. Say in the chat, in Russian, that the work is done and
+committed on the current branch (name it), and that push and the PR are the
+user's step; offer no other stage. Before that line, write the iteration's
+summary (on disk only, like the rest of `plans/`) and tag the current commit
+`v<version>` — the baseline the next iteration's pins and diffs read
+against. Do both also when the user asks «итог», «как отработал пайплайн»,
+or «сводка» after `work`. They close the version: a `plans/<version>/`
+folder with `summary.md` is done.
 
 ### The summary
 
@@ -212,6 +210,7 @@ reason (stage skipped, gate skipped), never a guess.
 | Код | юнитов · вернулось на переделку · эскалаций · исправлений грейда | 12 · 2 · 1 · 1 | run report (`.git/pipeline-work/<version>-run.md`) |
 | Ревью | находок P0/P1 по юнитам · вердикт финального ревью | 3 · PASS | run report, Full-plan review |
 | UI-тесты | кейсов · прошли с первого прогона · дефектов пережило ревью | 22 · 19 · 2 | test-run.md |
+| Безопасность | вердикт · P0/P1 найдено → исправлено · риск принят | FIX → PASS · 0/2 → 2 · 0 | security-audit.md |
 | Гейты | пропущены | grill-me (S-13, маленькая правка) | отчёты этапов |
 | Цена | токены / деньги / время, если сессия их показывает | — | статистика сессии |
 
@@ -243,11 +242,11 @@ evidence; the files on disk are.
 
 1. Probe the canonical paths in `doc-versioning` → Registry, in chain
    order. Note which exist, and the open `documentation/plans/<version>/`
-   (no `summary.md`, see "Service version"): it holds stages 10–13 so far.
+   (no `summary.md`, see "Service version"): it holds stages 10–14 so far.
    `plans/` is not in git, so a fresh clone has none: then the tags
    `v<version>` name the closed iterations, the `Plan-Unit:` trailers
    since the last tag name the units already landed, and the state of
-   stages 10–13 is unknown — say so rather than guessing.
+   stages 10–14 is unknown — say so rather than guessing.
 2. For each versioned document found, compare its `sources:` pins
    (`info.x-sources` in OpenAPI) with the sources' current `version`. A pin
    behind with a «ломает» row after it is stale — say which, per
@@ -319,7 +318,7 @@ changing this file:
 | No `grill-me` on mockups | The user judges mockups by looking at them in Figma; a grill interrogates written decisions, and the decisions the frames embody are written down by `screen-spec`, whose `doc-review` checks them. |
 | No `grill-me` on architecture, DB, or API | Those decisions are technical, not product, and the user is not the one who settles them. `doc-review` already carries the right instruments: `adversarial-document-reviewer` challenges the premise and `security-lens-reviewer` the security decisions. |
 | No gate on the Figma file | Frames are not a document. `ui-design` checks the returned `nodeId`s and its completeness checklist; `screen-spec`'s sync check (frame ↔ action ↔ API) and `doc-review` cover the rest. |
-| No whole-codebase audit stage | Deliberately not a stage. This pipeline reviews what a run produced: `code-review-full`'s `Drift` and `Superseded code` lenses cover technical debt introduced by the plan, and its security lens covers both declared requirements and the surface the diff introduced. A standing audit of code no plan touched is a different activity with a different cadence, and no stage here depends on one. |
+| No whole-codebase quality audit | Security has one — stage 14, once per iteration, because a hole anywhere in the application is a hole in the release. Quality does not: `code-review-full`'s `Drift` and `Superseded code` lenses cover the debt a plan introduced, and a standing audit of code no plan touched is a different activity on its own cadence that no stage depends on. |
 
 ## Increments
 
@@ -489,6 +488,7 @@ that gate asks the next transition itself, using this section.
   from the frames and the API (stage 8).
 - `ui-test-cases` (skill) — user test cases from the screen specs (stage 9)
   and their run through the interface after `work` (stage 13).
+- `security-audit` (skill) — the whole application's security (stage 14).
 - `ux-patterns` (skill) — the checkable UI/UX rules (`UX-<n>`, B2B/B2C
   variants) and the completeness checklist that `ui-design`, the Figma
   builders, `frontend` and the design lens apply; the product type comes

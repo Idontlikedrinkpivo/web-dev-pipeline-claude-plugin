@@ -151,6 +151,7 @@ next stamp compares each document with its last stamped state, not with
 | Plan progress | `progress.md` in the version folder | none — a view of git, **unversioned** | nobody; `work` updates it as each unit lands |
 | Docs consistency report | `docs-consistency.md` in the version folder | none — a check result, **unversioned**; first line `Verdict:`, a `checked:` hash per document path | nobody; `docs-consistency` overwrites it, `pipeline` and `plan` read it |
 | UI test run | `test-run.md` in the version folder (last run; a `Verdict:` line under the cases table) | none — **unversioned** | nobody; `ui-test-cases` mode run overwrites it |
+| Security audit | `security-audit.md` in the version folder; first line `Verdict:` | `F-` ids, per audit — **unversioned** | `deploy-topology` reads it before the release build; `pipeline` reads the verdict |
 | Iteration summary | `summary.md` in the version folder; its presence closes the version | none — **unversioned**; numbers from the stage reports, plus the user's escaped-defects and interventions tables | nobody; `pipeline` writes it at the end of an iteration |
 
 Everything under `documentation/plans/` — plan, plan review, progress, the

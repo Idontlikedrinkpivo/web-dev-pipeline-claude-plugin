@@ -61,6 +61,7 @@ table, holds the model and effort.
 | **Mid** | review | `review-medium` | `code-review-unit` | a Mid unit's diff against its unit spec; also the batched pass over accumulated Low units |
 | **High** | review | `review-hard` | `code-review-unit` | adversarial review of a High unit — deliberately not the implementer's alias |
 | **Run** | review | `review-full-plan` | `code-review-full` | once per run: cross-unit drift, aggregate invariant/AC coverage, definition of done, over the whole branch diff |
+| **Audit** | security | `security-auditor` | `security-audit` | once per iteration, over the whole application: one dispatch per area tracing each operation from route to data, one for the application-wide settings and the scanner findings, one `MODE verify` that tries to disprove the P0/P1. Read-only |
 | **Mid** | plan-review | `plan-review-medium` | `plan-review` | the structural half of a plan review: dependency graph, parallel safety, citation integrity, coverage ledger, executor names, plan hygiene |
 | **High** | plan-review | `plan-review-hard` | `plan-review` | the judgment half: whether a unit can land green alone, whether its grade survives the cascade, whether a scenario is writable before the code |
 | **Low** | docs-review | `doc-review-low` | `doc-review` | coherence and feasibility: the document agrees with itself. Always on |
@@ -307,6 +308,8 @@ Packet: `references/figma-packet.md`.
 - `references/srs-writer-prompt.md`, `references/design-writer-prompt.md`,
   `references/plan-writer-prompt.md`, `references/doc-typist-prompt.md`,
   `references/figma-packet.md` — the writer and Figma packets.
+- `security-audit/references/auditor-prompt.md` — the `security-auditor`
+  packet.
 - `references/model-economics.md` — why each row has its model and effort, and
   what was measured. Read before re-pointing a tier.
 - `references/maintaining.md` — adding, retiring, or re-pointing a row.

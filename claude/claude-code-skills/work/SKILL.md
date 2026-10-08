@@ -436,7 +436,7 @@ At the close write the verdict path into the `Финальное ревью:` li
 
 Stop there. The last chat line is the `План:` line with the link. No PR, no
 push, no CI watching. The branch stays local: the pipeline still has
-the UI acceptance run (`ui-test-cases`, when there are screens), `deploy-topology` and `ci-pipeline` ahead, and push and PR are the user's
+the UI acceptance run (`ui-test-cases`, when there are screens), `security-audit`, `deploy-topology` and `ci-pipeline` ahead, and push and PR are the user's
 step after the whole pipeline, not after this run.
 
 ## Run report

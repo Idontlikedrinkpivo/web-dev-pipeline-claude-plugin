@@ -62,6 +62,11 @@ batch, a Mid pass, a High pass plus the risk pass, and one whole-run pass).
 They do not pick a cheaper reviewer. `plan-review-hard` and `doc-review-hard`
 share `opus` on their own packets.
 
+`security-auditor` is `opus` at `high`, like the whole-run review: it
+reads the code that exists, not a diff, and a missed hole is the expensive
+failure. Scanners do the cheap, exhaustive part first, so the auditor reads
+routes and access checks, not every file. Not measured.
+
 There is no second whole-run pass. In the 2026-10-01 benchmark a second pass
 on Opus or Fable found nothing the first pass had missed (9 of 9 planted
 defects found by the first pass alone) and made the whole-run review 1.5–2

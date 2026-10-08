@@ -30,7 +30,7 @@ shrink to zero with the plan.
 |---|---|
 | Reviewing one unit's diff before its commit | `code-review-unit` |
 | Generic PR/branch review outside this planning pipeline | Claude Code's built-in `/code-review` |
-| Auditing code no unit in this plan touched | nobody in this pipeline — that is a standing activity on its own cadence, and no stage here depends on one |
+| Auditing code no unit in this plan touched | for security, `security-audit`, once per iteration; for quality, nobody in this pipeline |
 | Deciding *whether* a security requirement should exist | the SRS's Security NFR checklist and the architecture's decisions table, reviewed by `doc-review`'s security lens |
 | Whether the design decision was right | the design documents — and the user |
 | Applying a fix | the named unit's executor, or `mechanical-worker` for the mechanical part |

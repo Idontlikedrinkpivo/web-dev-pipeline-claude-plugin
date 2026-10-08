@@ -286,7 +286,13 @@ down.
    say), and how to update to a new version. Facts come from the prod
    compose file, the Dockerfiles and `.env.example`; Step 7's sync test holds
    them together.
-2. **Write `scripts/build-images.sh`** and a `build-images` target per
+2. **Check the security audit first.** Read the first line of
+   `documentation/plans/<version>/security-audit.md`. An open P0
+   (`релиз заблокирован`) stops the build: name the findings and ask —
+   fix first (a fix plan), or build anyway, which goes into the report's
+   «Принятый риск» with the date. No report means stage 14 did not run:
+   say so in one line and go on — a skipped stage blocks nothing.
+3. **Write `scripts/build-images.sh`** and a `build-images` target per
    `references/images.md` → Hand-over: one tag `<version>-<YYYYMMDD-HHMM>`
    for every image, `docker buildx build --platform linux/amd64 --load` per
    image, one `docker save` of all of them into
@@ -294,9 +300,16 @@ down.
    `release/1.4.0/room-booking-1.4.0.tar`), and a copy of
    `documentation/deploy/deploy.md` as `release/<version>/DEPLOY.md`.
    `release/` is in `.gitignore` and `.dockerignore`.
-3. **Run it once** and report the folder, the tar size and the image tags;
+4. **Run it once** and report the folder, the tar size and the image tags;
    if Docker or buildx is not available here, say so instead of claiming the
    build. Add the «Сборка образов» section to the README.
+5. **Scan the images** with `trivy` over the tar (`security-audit` →
+   `references/scanners.md` → Docker images), HIGH and CRITICAL only. A
+   CRITICAL with a fixed version in the base image is a stop with the same
+   question as step 2; the rest go into the closing report and under
+   «Образы» in `security-audit.md` when it exists. The
+   build itself does not run the scan, so an operator's rebuild does not
+   need it.
 
 `release/`, not `dist/`: `dist/` is the compiler's output folder, which
 `clean` scripts and bundlers empty before a build — a hand-over archive kept
