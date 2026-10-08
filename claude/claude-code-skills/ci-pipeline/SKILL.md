@@ -173,9 +173,12 @@ do not scope the test runner's invocation to exclude the file they live in.
 **Browser e2e** (a frontend with a `test:e2e` target — `repo-scaffold`,
 `frontend`): add it as its own job, `e2e`, that installs the browsers the
 Playwright config names, starts the app the way the config's `webServer`
-does, and runs `npm run test:e2e` — the same command a developer runs. When
-the repo has no such target, the workflow has no e2e step, and the close
-(Step 8) says that browser tests are not in CI.
+does, and runs `npm run test:e2e` — the same command a developer runs. A
+suite of several test files is split into shards by file — a matrix of
+`--shard=<i>/<N>` jobs, each with its own stand, and a last job that merges
+the reports (`ui-test-cases` → `references/parallel-stands.md` → In CI).
+When the repo has no such target, the workflow has no e2e step, and the
+close (Step 8) says that browser tests are not in CI.
 
 ### Step 5. Triggers
 

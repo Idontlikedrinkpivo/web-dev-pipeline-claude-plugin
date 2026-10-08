@@ -14,6 +14,8 @@ CASES           documentation/ui/test-cases/ — README.md (roles, data,
 UI SPEC         documentation/ui/screen-specs/   FIGMA FILE  <fileKey> | none
 APP START       <what .claude/launch.json / README / compose say: commands,
                  ports, env, seed, test credentials source>
+STANDS          <N stands, each: its addresses, its checkout or worktree, and
+                 its test files — or: one stand>
 E2E FOLDER      <existing folder> | e2e/
 REPORT PATH     documentation/plans/<version>/test-run.md (the open version
                 folder, the one without summary.md) — already created by
@@ -76,8 +78,12 @@ RULES
   their pass row until the new result is in; a case that passes on a
   re-run turns «✅ прошёл после исправления теста» in the pass table and
   counts on the main bar.
-- Run the cases one at a time (npx playwright test --grep "TC-<n>\b"), not
-  the whole suite in one command, so each result lands as it happens.
+- Run the cases one at a time on each stand (npx playwright test --grep
+  "TC-<n>\b"), not the whole suite in one command, so each result lands as
+  it happens; the stands in STANDS run their files side by side, one worker
+  each, every row naming its stand (ui-test-cases →
+  references/parallel-stands.md). A timeout under load is re-run alone
+  before it counts as a failure.
 - Keep the report live with the Edit tool — one Edit per status change.
   The same Edit updates the bars it touches (text code blocks: 100 cells,
   one per percent, every case weighing the same, filled cells = the

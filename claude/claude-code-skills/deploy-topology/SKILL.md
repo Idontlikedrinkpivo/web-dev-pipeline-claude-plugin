@@ -158,7 +158,11 @@ invariants each file must hold. In outline:
   one-shot init/seed containers) + a one-shot `migrate` service + `backend`
   with the mock gate on (+ `frontend`, the frontend image, when the
   architecture has a client). Everything the test suite needs to run inside
-  Docker with zero external network access.
+  Docker with zero external network access. Copyable: no
+  `container_name`, ports from variables with defaults, and
+  `scripts/e2e-stands.sh up N` / `down` beside it, so a long browser run
+  takes several identical stands (`ui-test-cases` →
+  `references/parallel-stands.md`).
 - `docker-compose.dev.yml` — same local infrastructure shape as test, mock
   gate off, real third-party credentials expected from `.env.dev.local`.
 - `docker-compose.prod.yml` — **no database service, no object-storage

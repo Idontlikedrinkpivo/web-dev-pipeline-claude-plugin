@@ -170,7 +170,11 @@ documented port, variable names in `.env.example`; values in a gitignored
 it renames this compose to `docker-compose.dev.yml`). `work` runs the
 integration tests against this database, so it exists before the first
 unit, not after `deploy-topology`. The `test` target documents how to start
-it (`docker compose up -d`) when a test needs it.
+it (`docker compose up -d`) when a test needs it. Write it ready for
+copies (`ui-test-cases` → `references/parallel-stands.md` → A stand that can
+be copied): ports and addresses from variables with defaults, no
+`container_name`, no fixed host volume path, and a Playwright `baseURL`
+read from a variable when the project has browser tests.
 
 **Migrations run from the documentation folder.** The SQL files in
 `documentation/db/migrations/` (`db-schema-design`) are the migrations —

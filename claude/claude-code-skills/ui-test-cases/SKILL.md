@@ -218,6 +218,14 @@ from the project's seed or example config. External sign-in (SSO, SMS)
 uses the test stub the architecture names; when there is none, that is a
 `BLOCKED` with the gap, not an improvised bypass.
 
+**Parallel stands.** Tests that share one stand run one at a time; speed
+comes from more stands, each with its own database and storage and its
+share of the test files. Before the dispatch, read
+`references/parallel-stands.md`: measure how many stands this machine
+holds, start them with `scripts/e2e-stands.sh`, and pass them to the runner
+as `STANDS`. A project whose stand cannot be copied yet (a fixed port, a
+`container_name`) runs on one stand, and the report names the fix.
+
 **A frontend repo without its backend** (the API is a separate service): the
 runner mocks the API at the network boundary (Playwright `page.route`) with
 responses shaped by `documentation/api/openapi.yaml` — each case's
@@ -467,6 +475,8 @@ fix plan must turn green.
 
 - `references/writer-prompt.md` — packet for `ui-test-writer`.
 - `references/runner-prompt.md` — packet for `ui-test-runner`.
+- `references/parallel-stands.md` — several identical stands for a long
+  run: what makes a stand copyable, how many the machine holds, the split.
 - `playwright-cli` — locators, test generation, traces, screenshots.
 - `ux-patterns` — what a frame comparison may flag besides the spec.
 - `pipeline` — where both modes sit.
