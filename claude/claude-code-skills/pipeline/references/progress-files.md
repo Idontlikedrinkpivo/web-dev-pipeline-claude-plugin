@@ -64,7 +64,15 @@ document keeps none.
 - **How.** Change it with the **Edit** tool the moment a row changes — one
   call per row or line, the bar and the count together with the row — and
   **Write** only to create it. Never from the shell (`python`, `sed`,
-  `cat >`): the user's file pane redraws only on edit-tool changes.
+  `cat >`), and never by a script that rewrites the file on a timer: the
+  user's file pane redraws only on edit-tool changes, so such a file is
+  fresh on disk and stale on screen until reopened. A script may compute
+  the numbers; the agent writes them.
+- **Results from background work** (stands, long commands) wake the agent,
+  and the agent edits: watch their output with the Monitor tool, which
+  wakes the session on each new line, or — without it — a background
+  `sleep 30` whose finish wakes the session to edit what changed and start
+  the next one.
 - **A subagent** that changes rows gets the path in its packet as
   `PROGRESS FILE` and changes only its rows, the bar and the count line;
   the title, the other sections and the state line stay the session's.

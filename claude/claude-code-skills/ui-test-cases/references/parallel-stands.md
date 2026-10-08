@@ -71,8 +71,12 @@ as they are. The report names the number and what limited it («3 стенда:
   Playwright output (`--reporter=list`) goes to
   `$(git rev-parse --git-dir)/pipeline-work/e2e/stand-<n>.log` — working
   output nobody opens, removed after the run; the stands never touch the
-  report. The runner (the session, for `work`) is its only writer: it
-  folds each result into the report with the Edit tool as it arrives — the
+  report. The runner (the session, for `work`) is its only writer, woken by
+  the journals (the Monitor tool on them, or a background `sleep 30`) and
+  never replaced by a script that rewrites the report on a timer — the
+  user's pane would not redraw (`pipeline` → `references/progress-files.md`
+  → How). It folds each result into the report with the Edit tool as it
+  arrives — the
   case's row, one bar over all stands, and under the count line one line
   per stand («Стенд 2 · 8180: 120 из 188 · упало 4»).
 - **The bar shows what passed, not what ran.** In every test report — a UI
