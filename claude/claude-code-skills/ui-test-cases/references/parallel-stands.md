@@ -79,6 +79,13 @@ as they are. The report names the number and what limited it («3 стенда:
   arrives — the
   case's row, one bar over all stands, and under the count line one line
   per stand («Стенд 2 · 8180: 120 из 188 · упало 4»).
+- **An e2e suite's progress is progress only.** In `work` its section of
+  `progress.md` holds the overall bar with its count line and, per stand, a
+  bar with its count line and state (`идёт`, `разбор падений`, `повтор после
+  исправлений`, `закончен`) — no list of tests, failed or passed. Which
+  tests failed and why belongs to the run report and the fixes, not the
+  progress view. A UI test run's `test-run.md` keeps its cases table: there
+  the table is the defect report.
 - **The bar shows what passed, not what ran.** In every test report — a UI
   run, an e2e suite in `work`, a stand's line — the main bar is the share
   of tests that passed, ⌊passed × 100 / (all − not automated)⌋; what ran,
