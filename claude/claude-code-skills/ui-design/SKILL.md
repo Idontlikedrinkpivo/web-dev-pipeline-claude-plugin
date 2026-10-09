@@ -115,8 +115,8 @@ returned dispatch. The file is how the user tells progress from a hang.
 Ask once, when there is no register yet, per `grill-me` → "How a question
 is shown", in the chat, no question card. When the iteration's design
 owner is known (`pipeline` → `references/design-owner.md`), show only what
-it leaves: «мы» — B and C; «дизайнер без плагина» — no options, only the
-link to the designer's file (A). A and B carry the file link, so this one
+it leaves: «мы» — B and C; «дизайнер с плагином» — the designer's
+session asks all three. A and B carry the file link, so this one
 message asks for it:
 
 ```text

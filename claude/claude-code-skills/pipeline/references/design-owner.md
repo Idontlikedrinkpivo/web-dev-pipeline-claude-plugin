@@ -2,8 +2,8 @@
 
 Read when an iteration opens on a product people use through screens, and
 at the fork after the SRS. Who draws the mockups decides the rest of the
-iteration's shape: whether the design branch runs in this session, in
-someone else's, or waits for frames drawn by hand. So it is asked once, at
+iteration's shape: whether the design branch runs in this session or in
+the designer's. So it is asked once, at
 the start, and every later stage builds on the answer instead of guessing.
 
 ## When to ask
@@ -33,8 +33,6 @@ One question per `grill-me` → "How a question is shown":
   A. Всё делаем сами — макеты рисует плагин в Figma, тест-кейсы тоже здесь.
   B. Отдельный дизайнер работает с плагином на своём компьютере — макеты (и
      тест-кейсы, если договоритесь) он ведёт сам в той же ветке итерации.
-  C. Отдельный дизайнер рисует в Figma руками, без плагина — когда макеты
-     будут готовы, плагин разметит их и проверит, всё ли нарисовано.
 
 Ответьте сообщением: буква или свой текст.
 ```
@@ -45,17 +43,17 @@ iteration and can change at any message («дизайнер ушёл, рисуе
 
 ## What follows from each answer
 
-| | A. Сами | B. Дизайнер с плагином | C. Дизайнер без плагина |
-|---|---|---|---|
-| Fork after the SRS (`references/branch-order.md`) | the usual options and recommendation | recommend «только бэкенд»; the hand-over (`references/team.md`) follows at once | recommend «сначала бэкенд»; the design branch here starts when the user says the frames are ready |
-| `ui-design` | in this session; its entry question offers only B and C (draw) | in the designer's session; it asks its own entry question | in this session, index mode: the entry question asks only for the link to the designer's file; completeness gaps are written as questions to the designer, ready to forward |
-| Screen specs and test cases | in this session | one question per stage — the designer, an analyst, or this session (`references/team.md` → Handing over) | in this session, or handed over the same way |
-| Meeting point (`docs-consistency`) | both branches done here | waits for each person's «готово и запушено» | both branches done here |
+| | A. Сами | B. Дизайнер с плагином |
+|---|---|---|
+| Fork after the SRS (`references/branch-order.md`) | the usual options and recommendation | recommend «только бэкенд»; the hand-over (`references/team.md`) follows at once |
+| `ui-design` | in this session; its entry question offers only B and C (draw) | in the designer's session; it asks its own entry question |
+| Screen specs and test cases | in this session | one question per stage — the designer, an analyst, or this session (`references/team.md` → Handing over) |
+| Meeting point (`docs-consistency`) | both branches done here | waits for each person's «готово и запушено» |
 
 ## Where the answer is kept
 
 In the frames register header, **Дизайн ведёт:** `мы` | `дизайнер с
-плагином` | `дизайнер без плагина`, written by the first session that has
+плагином`, written by the first session that has
 both the answer and the register, and committed with it. Before the
 register exists the answer lives in this session; a later session that
 finds neither the field nor a register asks again. It is separate from
