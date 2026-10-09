@@ -46,8 +46,9 @@ translate ids (`S-`, `M-`, `UC-`, `Alt-`, `Exc-`, `AC-`, `A-`, `BR-`).
 
 **USE when:**
 - An SRS exists and a human faces a screen
-- The user has a Figma file to fill (an empty one is enough), or a designer
-  already drew frames that need ids and a completeness check
+- The user has a Figma file to fill (an empty one is enough), wants one
+  created, or a designer already drew frames that need ids and a
+  completeness check
 - The SRS grew (an increment) and the frames must follow
 
 **NOT for:**
@@ -116,7 +117,7 @@ hang.
 
 Ask once, when there is no register yet. One question in the chat, in
 Russian, per `grill-me` → "How a question is shown". Do not open a question
-card. Both answers carry the file link, so this one message asks for it:
+card. A and B carry the file link, so this one message asks for it:
 
 ```text
 **Вопрос 1. Есть ли уже макеты**
@@ -129,13 +130,25 @@ card. Both answers carry the file link, so this one message asks for it:
      и состояния нарисованы; пробелы станут вопросами дизайнеру.
   B. Макетов нет — пришлите ссылку на файл, где рисовать (пустой подойдёт).
      Я решу набор экранов по сценариям SRS и нарисую их. (Recommended)
+  C. Макетов нет и файла нет — я создам пустой файл в вашем Figma сам и
+     нарисую в нём. Можно добавить ссылку на проект Figma, куда его
+     положить; без неё файл ляжет в черновики (Drafts).
 
-Ответьте сообщением: буква и ссылка на figma.com.
+Ответьте сообщением: буква и ссылка на figma.com (для C — не обязательна).
 ```
 
-Recommend the option the user's earlier messages point to. A reply with no
-`figma.com` link writes nothing: ask for the link again, because frames
-that cannot be opened cannot be drawn or indexed.
+Recommend the option the user's earlier messages point to. A reply A or B
+with no `figma.com` link writes nothing: ask for the link again, because
+frames that cannot be opened cannot be drawn or indexed.
+
+**C — creating the file.** Figma MCP `whoami` gives the user's plans (one
+is used as is; several are one question), then `create_new_file`:
+`editorType: "design"`, the plan's `key`, `fileName` «<продукт> — макеты»,
+the `projectId` from a project link if given. Post the link, record it and
+the `fileKey` in the register header, go on as B. Say in one line that a
+Drafts file is visible only to its owner and can be moved to the team's
+project (the link stays). No Figma MCP or a failed call: say why, ask for
+a link (B).
 
 Record the answer in the register header as **Кадры рисует:** `ui-design`
 (B, mode **draw**) or `дизайнер` (A, mode **index**). A later run reads the
