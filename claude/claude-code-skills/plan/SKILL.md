@@ -318,7 +318,10 @@ handed to the Mid implementer.
 Two rules override everything else in that file:
 
 - **Risk floor.** A unit touching auth, authorization, money, migrations on
-  existing data, secrets, or an external contract is never below **Mid**.
+  existing data, secrets, or an external contract is never below **Mid** —
+  a floor, not a verdict: it is **High** when the decision is open or the
+  money or access is decided under concurrency (a row lock, a racing
+  idempotency key), and the compound gate still runs after it.
 - **Spec floor.** A unit whose `Docs` do not fully determine the outcome is
   never below **Mid**, regardless of how few files it touches — undecided
   work is expensive work.

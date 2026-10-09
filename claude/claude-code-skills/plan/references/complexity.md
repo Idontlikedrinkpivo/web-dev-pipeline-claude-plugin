@@ -22,8 +22,9 @@ Score each signal, then run the cascade below. Never average them.
 
 ## The cascade
 
-Run in order. The first rule that fires decides. Later rules do not soften an
-earlier one.
+Run in order. The first rule that fires decides — except rule 1, which only
+sets a floor: a unit it lifts to Mid still goes through rule 2, and rule 2 can
+raise it to High. Later rules never lower a grade an earlier one set.
 
 **Order is load-bearing: every High gate sits above every Mid gate.** A
 cascade that asks "is anything expensive? → Mid" before it asks "is this
@@ -33,8 +34,13 @@ abstraction, an open algorithmic choice) to the Mid implementer.
 
 1. **Risk floor.** Signal 5 at the expensive end — auth, authorization, money,
    migration over existing rows, secrets, published contract — is **at least
-   Mid**, and **High** when signal 1 or 2 is also expensive. No file count
-   argues this down.
+   Mid**, and **High** when signal 1, 2 or 6 is also expensive: money or access
+   decided under concurrency (a row lock, two requests racing for one
+   idempotency key, a balance read and written in one transaction) is
+   unforgiving even when every step is written down, and only a race test
+   proves it. No file count argues this down, and no later rule grades a risk
+   unit Low or 0 — a fully quoted money invariant is still Mid. Then go on
+   to rule 2.
 2. **Compound gate.** Three or more signals at the expensive end, or signal 1
    expensive together with 3 or 6 → **High**. This is the route for work that
    is hard without being dangerous: nothing here mentions risk.
@@ -115,6 +121,8 @@ Schematic on purpose — match the shape, not the domain.
 | Repository adapter with an explicit storage model and mapper in the design | **Low** | rule 5 — unless it introduces the unit-of-work shape, then Mid |
 | Migration adding a nullable column plus its backfill over existing rows | **Mid** | rule 1 — stored-state cost, shape given |
 | Authorization check across two aggregates, or the token issue/refresh path | **High** | rule 1 — risk plus an open decision |
+| Money moved in one transaction under a row lock with an idempotency check, every step given by the architecture | **High** | rule 1 — risk plus signal 6: only a race test proves it |
+| An entity whose money invariant the design quotes in full (a charge's replay rule), no concurrency in the unit | **Mid** | rule 1 floor — never Low, however precise the docs |
 | Outbox / must-deliver side effect: transaction boundary, retry, idempotency key | **High** | rule 2 — three expensive signals |
 | Job scheduler's lease/heartbeat/reaper shape: no money, no secrets, but the design names the goal and leaves the mechanism open, and proving it needs time control and a second worker | **High** | rule 2 — signal 1 with 6, no risk surface at all |
 | First cross-ring abstraction in the repo (a unit-of-work, an event bus) whose shape the design sketches but does not fix | **High** | rule 2 — signals 1, 3, 4 expensive together |
@@ -131,7 +139,8 @@ assignment rule is in `executor-catalog/references/assignable-implementers.md`.
 The cascade is per-unit, but its output has a shape worth checking as a whole:
 
 - **No High anywhere in a plan that has a hard part.** Almost always means
-  rule 2 was skipped and risk was treated as the only route to High. Re-run
+  rule 2 was skipped, or rule 1 was read as a ceiling — money under
+  concurrency graded Mid because «rule 1 fired». Re-run
   the cascade on the units whose `Approach` still contains a decision.
 - **Everything Mid.** The cascade was not run — Mid is what a grade looks like
   when nobody counted signals. Real plans have 0 and Low units.
