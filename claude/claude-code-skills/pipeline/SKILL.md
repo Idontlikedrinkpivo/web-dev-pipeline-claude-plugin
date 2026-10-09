@@ -87,14 +87,15 @@ scaffolded. They meet before the plan.
 
 ### Two branches
 
-- **After the SRS** (stage 2) ask one question with both branches as
-  options: the backend branch's first applicable stage (`db-schema-design`
+- **After the SRS** (stage 2) ask one question about the order of the
+  branches: both in parallel, one after the other in either order, only
+  one of them, or stop — the options, the recommendation and how two
+  branches run in one session are in `references/branch-order.md`. The
+  backend branch starts at its first applicable stage (`db-schema-design`
   when something must survive a restart, else `openapi-spec-generator`
-  when there is HTTP, else `clean-architecture-design`) and `ui-design`
-  when a human faces a screen. Recommend the backend branch first when the
-  user has no designer waiting; either order is correct. A third option
-  hands design stages to other people — a designer, an analyst — who run
-  them in parallel in the same iteration branch: `references/team.md`.
+  when there is HTTP, else `clean-architecture-design`); the design branch
+  at `ui-design` when a human faces a screen. A branch someone else takes
+  is handed over by `references/team.md`.
 - **`screen-spec` needs the API.** When stage 7 ends and stage 4 has not
   run, offer the backend branch's next stage and say that the screen specs
   wait for the contract.
@@ -423,12 +424,16 @@ Example — the SRS gates are done; both branches open:
 ```text
 Чат: SRS готова. Дальше две независимые ветки: бэкенд (схема БД → API →
 архитектура → каркас) и дизайн (макеты в Figma по SRS → ТЗ на экраны →
-тест-кейсы). Их можно вести параллельно; ТЗ на экраны дождутся API.
+тест-кейсы). ТЗ на экраны в любом порядке дождутся API. Рекомендую
+параллельно: правки макетов небольшие, и ветки не мешают друг другу.
 
 Ответьте сообщением: буква или свой текст.
-  A. Начать бэкенд: db-schema-design (Recommended)
-  B. Начать дизайн: ui-design
-  C. Остановиться
+  A. Обе ветки параллельно, вопросы с пометкой [Бэкенд] / [Дизайн] (Recommended)
+  B. Последовательно: сначала бэкенд (db-schema-design), потом дизайн
+  C. Последовательно: сначала дизайн (ui-design), потом бэкенд
+  D. Только бэкенд — дизайн ведёт другой человек или позже
+  E. Только дизайн — бэкенд позже
+  F. Остановиться
 ```
 
 When a gate produced findings the user chose not to apply, say which gate
@@ -468,6 +473,8 @@ that gate asks the next transition itself, using this section.
   closed: the owner, the cascade, the commit, where it happens.
 - `references/team.md` — design stages handed to other people.
 - `references/closing-cleanup.md` — the working files a closed iteration drops.
+- `references/branch-order.md` — the order of the two branches after the
+  SRS, and both branches in one session.
 - `doc-versioning` (skill) — the increment/greenfield decision, the canonical
   path per document type, the downstream verdict this file reads,
   the unversioned business-requirements draft, and document language
