@@ -74,7 +74,12 @@ document keeps none.
   `cat >`), and never by a script that rewrites the file on a timer: the
   user's file pane redraws only on edit-tool changes, so such a file is
   fresh on disk and stale on screen until reopened. A script may compute
-  the numbers; the agent writes them.
+  the numbers; the agent writes them. The bar is printed, not counted by
+  hand: `python3 -c "d,t=<done>,<total>;p=d*100//t;print('█'*p+'░'*(100-p),f'{p}%')"`.
+- **Check what a subagent left.** Each time a dispatch that edits the file
+  returns, compare the bar and the count with the rows; when they disagree,
+  fix them with Edit before the chat line, and say in that line that the
+  bar was corrected.
 - **Results from background work** (stands, long commands) wake the agent,
   and the agent edits: watch their output with the Monitor tool, which
   wakes the session on each new line, or — without it — a background
