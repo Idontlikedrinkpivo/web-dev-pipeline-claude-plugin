@@ -90,6 +90,13 @@ document keeps none.
   with what is on disk before the chat line, and says in that line what it
   corrected. Output that is not files (Figma) is reconciled on return,
   from the report.
+- **Every watcher ends with its work.** A Monitor or a background wait the
+  run starts carries its own end: it watches until a condition that the
+  work's end makes true (the queue's last result, a done marker, the
+  process gone) and then exits, never only until its timeout. The run keeps
+  the ids of the watchers it started and, when it ends — finished, failed
+  or stopped — stops any still running (TaskStop) before its last line. A
+  watcher left behind keeps waking the session for nothing.
 - **Results from background work** (stands, long commands) wake the agent,
   and the agent edits: watch their output with the Monitor tool, which
   wakes the session on each new line, or — without it — a background
