@@ -92,9 +92,10 @@ writes long, exact tables; the decisions were made on the frames.
 cases are transcription from the documents, and the runner writes test
 code, which stays on the code alias. Not measured.
 
-## Writers: Sonnet, Opus, Fable — printed by Sonnet
+## Writers: Sonnet and Opus — printed by Sonnet
 
-Design and plan writers: Low is `sonnet`, Mid is `opus`, High is `fable`;
+Design and plan writers: Low is `sonnet`, Mid is `opus` at `high`, High is
+`opus` at `xhigh`;
 `srs-author` is `sonnet`. There are at most three writer dispatches per
 greenfield run. A long contract's output tokens are the expensive part, so
 the file is printed by `doc-typist` on `sonnet`, nested after the decisions
@@ -128,16 +129,16 @@ What was measured, and what was not:
 | Row | Effort | Evidence |
 |---|---|---|
 | `review-full-plan` | `high` | 2026-10-01: the planted defect found 12 of 12 times at `medium`, `high`, `xhigh`, `max`, no false blockers; `xhigh` cost 1.6× `medium`, `max` 2.8×, adding only P2 notes |
-| `design-hard` | `medium` | 2026-10-02, architecture only: Fable `medium` as deep as `high` (4 of 5 in every run), 27% cheaper, twice as fast. The same row writes the DB schema and OpenAPI; those were **not** measured and are assumed to behave the same |
+| `design-hard` | `xhigh`, `opus` | 2026-10-09, a Full-trigger ledger (money, partner API, tenant isolation, 54-ФЗ), two runs per arm, blind: Opus 5.5 `xhigh` against Fable 5.1 `medium`. DB schema — Opus won both pairs clearly, depth 4 against 3 (it puts tenant isolation, refund caps and audit into constraints); architecture — Opus won both clearly, depth 4–5 against 4 (Fable had a lock-order contradiction and a transaction held across a provider call); OpenAPI — one pair each, equal depth. Opus cheaper on the API and architecture ($3.5–4.9 and $14–15 against $6.2 and $17–19), dearer and about twice as slow on the schema ($7–8 against $5–6) |
 | `mechanical-worker` | `low`, `haiku` | 2026-10-07: Haiku 5.5 at `low` matched Sonnet 5.5 at `low` byte for byte on a four-unit mechanical plan, two runs each |
 | `doc-typist` | `low`, `sonnet` | 2026-10-07: Haiku 5.5 equal on SRS and OpenAPI, 15 minor slips against 1 on an architecture — kept on Sonnet |
-| `plan-hard` | `high` | not measured. Kept at `high` because High plans are rare and a weak plan costs a whole `work` run; lower it only after a measurement like the one above |
+| `plan-hard` | `xhigh`, `opus` | 2026-10-09, the same ledger, two runs per arm against Fable 5.1 `high`: equal depth (4) and assertions, Fable won both blind pairs only slightly (it closed decisions the inputs allowed; Opus raised some as blocking questions); review findings noisy both ways. Opus ~25% cheaper ($25–29 against $32–47 a plan with its review); the owner chose one model for every writer |
 
 ## What this produces on a typical plan
 
 Code output, `impl-ui`, and every review fix that needs judgment run on
 Sonnet; grade-0 units and mechanical fixes on Haiku. Code review runs on Opus: the screen is written once, and review runs
 once per reviewed unit (twice when the risk pass fires), and the whole run
-once. Design, SRS, and plan writers stay Sonnet, Opus, and Fable.
+once. Design, SRS, and plan writers stay Sonnet and Opus.
 If a plan's Opus spend is dominated by transcription-sized diffs that are
 not screens, the review roster is firing High passes on Low units.
