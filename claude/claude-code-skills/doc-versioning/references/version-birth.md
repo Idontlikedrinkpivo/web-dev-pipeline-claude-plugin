@@ -20,7 +20,8 @@ stage closes (its gates run or skipped — `pipeline` → Asking before a
 transition), and when the user asks to version or publish. A writer, a
 gate or a review mid-stage never stamps.
 
-**At a stage's close** the steps below run over that stage's documents
+**At a stage's close** — or when the user stops at a gate or transition
+question after the document is written — the steps below run over that stage's documents
 only — the SRS, the schema (with its new migration files), the API, the
 three architecture documents, or the screen specs — with no question, and
 the commit message names them: `docs: <документ> <version>` («docs: SRS

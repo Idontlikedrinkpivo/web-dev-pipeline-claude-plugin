@@ -375,10 +375,11 @@ the skill the skip selects and why the skipped ones do not apply.
 
 One question, then stop, answered by a message; no question card.
 
-**Commit before offering the next stage.** A finished document (gates run
-or skipped) is committed first, without asking — by the stamp
-(`doc-versioning` → `references/version-birth.md`), or plainly for the
-frames register and the test cases — so the next stage starts from a commit.
+**Commit before offering the next stage, or stopping.** A written document
+is committed without asking — by the stamp (`doc-versioning` →
+`references/version-birth.md`), plainly for the frames register and test
+cases — once its gates ran or were skipped, or when the user stops at a
+gate's or transition's question (the stop line names the gates not run).
 
 For a **gate**, three options:
 
