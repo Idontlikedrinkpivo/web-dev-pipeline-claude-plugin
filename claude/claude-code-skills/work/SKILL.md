@@ -325,7 +325,7 @@ Per unit, in this order, and never skip to the next unit on a broken tree:
    unit's `Commit` message plus the
    trailer `Plan-Unit: <version>/U<n>`, staging only that unit's files —
    never `git add .`, which drags a sibling unit's half-work into this commit —
-   then set the unit's row in the progress file to `✅ закоммичен` with its
+   then set the unit's row in the progress file to `✅ готово` with its
    review verdict.
    Never batch several units into one commit because it was faster. Do not
    stage a contract document (SRS, OpenAPI, DB schema, architecture, UI
@@ -337,7 +337,7 @@ Per unit, in this order, and never skip to the next unit on a broken tree:
    worker's `DECISIONS`), write the `План:` line with the link in the chat
    (Step 1), then move on. When the run stops on a unit instead (a
    design gap, rounds that stopped making progress), set that row to
-   `⛔ остановлен: <причина>`.
+   `⛔ остановлено: <причина>`.
 
 Fixing a worker's output yourself is the one thing this loop forbids, even a
 one-liner. A failing test, a missed scenario, or a review finding goes back —
@@ -470,8 +470,8 @@ at Step 7, before writing the report.
   at most once more over the fix commits; it checked the definition of done,
   and every verdict is recorded — Step 7.
 - When the final review found problems, the progress file listed every fix
-  as a task before the first fix, and each row ends `✅ исправлено`,
-  `📝 в отчёт` or `⛔ остановлено` — Step 7.
+  as a task before the first fix, and each row ends `✅ готово`,
+  `⏭ пропущено: в отчёт` or `⛔ остановлено` — Step 7.
 
 ## References
 

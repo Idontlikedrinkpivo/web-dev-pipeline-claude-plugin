@@ -34,7 +34,7 @@ and behind a corporate proxy that download is where a run stalls.
   fallback source — trivy `--db-repository ghcr.io/aquasecurity/trivy-db`
   (or `mirror.gcr.io/aquasec/trivy-db`, whichever was not tried); osv-scanner
   and semgrep have no mirror — and when the fallback stalls too, the row
-  is `⚠️ не запускался: сеть (<источник>)` and the audit goes on with the
+  is `⛔ остановлено: не запускался — сеть (<источник>)` and the audit goes on with the
   rest. A scanner never holds the audit hostage.
 
 ## Dependencies — `osv-scanner`
@@ -103,6 +103,6 @@ docker run --rm -v "$PWD/release/<version>:/r" aquasec/trivy:latest \
 ## When a scanner cannot run
 
 No Docker and no local tool, no network for the rule packs, an image that
-will not pull: write the row `⚠️ не запускался: <причина>` and name it in
+will not pull: write the row `⛔ остановлено: не запускался — <причина>` and name it in
 the verdict line. The audit still runs its trace; the gap is the user's to
 see, not the audit's to hide.

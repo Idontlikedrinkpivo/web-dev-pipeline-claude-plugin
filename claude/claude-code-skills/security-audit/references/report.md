@@ -21,7 +21,7 @@ Verdict: идёт аудит
 | Секреты (gitleaks) | ✅ готово | 0 |
 | Шаблоны (semgrep) | ✅ готово | 7 срабатываний → разбор |
 | Область «Бронирования» | ✅ готово | P1 1 |
-| Область «Обслуживание» | 🔍 аудит | |
+| Область «Обслуживание» | 🔍 проверка: аудит | |
 | Приложение целиком | ⏳ ждёт | |
 | Проверка находок | ⏳ ждёт | |
 
@@ -60,13 +60,13 @@ P0 adds `· релиз заблокирован`; the user's «собирать 
 under «Принятый риск» with the date. A scanner that did not run adds
 `· не запускался: <сканер>` to the verdict line.
 
-Rows: `⏳ ждёт`, `🔄 в работе` (a scanner), `🔍 аудит` (an auditor
-dispatched), `✅ готово`, `⚠️ не запускался: <причина>`. The bar counts
-`✅` and `⚠️`. «Решение» per finding: `исправить`, `риск принят`,
+Rows: `⏳ ждёт`, `🔄 в работе` (a scanner), `🔍 проверка: аудит` (an auditor
+dispatched), `✅ готово`, `⛔ остановлено: не запускался — <причина>`. The bar counts
+`✅` and `⛔ остановлено: не запускался`. «Решение» per finding: `исправить`, `риск принят`,
 `отложено`, `в отчёт` (P2/P3).
 
 `deploy-topology` adds a section «Образы» when it scans the built images
 (Step 8): image, HIGH/CRITICAL count, what the base image update fixes.
 
 A re-audit after a fix plan rewrites the verdict line and the rows it
-re-ran, marks fixed findings `✅ исправлено <commit>`, and keeps the rest.
+re-ran, marks fixed findings `✅ готово: <commit>`, and keeps the rest.

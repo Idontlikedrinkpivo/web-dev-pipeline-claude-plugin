@@ -24,15 +24,15 @@ no changelog, no `sources:`.
 
 | U | Цель | Исполнитель | Статус | Ревью |
 |---|---|---|---|---|
-| U1 | <goal from the plan> | impl-lite | ✅ закоммичен | COMMIT |
-| U2 | … | impl-medium | ⛔ остановлен: <one-line reason> | — |
+| U1 | <goal from the plan> | impl-lite | ✅ готово | COMMIT |
+| U2 | … | impl-medium | ⛔ остановлено: <one-line reason> | — |
 | U3 | … | impl-hard | ⏳ ждёт | — |
 
 Финальное ревью: <не запускалось | verdict of code-review-full> · BASE `<sha>` · обновлено <YYYY-MM-DD HH:MM>
 ````
 
-Statuses: `⏳ ждёт`, `🔄 в работе`, `🔍 на ревью`, `✅ закоммичен`,
-`⛔ остановлен: <причина>`, `⏭ вне объёма прогона`. Escalations add `(эскалация → impl-critical)` to the
+Statuses: `⏳ ждёт`, `🔄 в работе`, `🔍 проверка: ревью`, `✅ готово`,
+`⛔ остановлено: <причина>`, `⏭ пропущено: вне объёма прогона`. Escalations add `(эскалация → impl-critical)` to the
 executor cell. The Ревью cell shows the unit review's path
 (`FIX_THEN_COMMIT (<что>) → исправлено`, `review-hard ×2: COMMIT`).
 
@@ -66,8 +66,8 @@ create it or rebuild it on a resumed run. Never write it from the shell
 the pane keeps showing the old version until the user reopens it.
 
 Change it the moment a status changes, not in a batch at the commit:
-`🔄 в работе` when the unit is dispatched (with its executor), `🔍 на ревью`
-when `code-review-unit` starts, `✅ закоммичен` right after the unit's commit
+`🔄 в работе` when the unit is dispatched (with its executor), `🔍 проверка: ревью`
+when `code-review-unit` starts, `✅ готово` right after the unit's commit
 lands — and the progress bar line and the `Обновлено` time with each change. A
 resumed run resets any in-between status from git (no `Plan-Unit:` trailer →
 `⏳ ждёт`).
@@ -95,11 +95,11 @@ rest — then the percent. The code block keeps it on one monospace line in
 the file pane instead of wrapping into the prose around it. Every unit
 weighs the same, whatever its grade or size: percent = ⌊done × 100 /
 total⌋, rounded down so the bar never shows 100% before the last unit
-lands, and the filled cells equal the percent. Done means `✅ закоммичен`
+lands, and the filled cells equal the percent. Done means `✅ готово`
 (units out of the run's scope do not count). The bar and the count change
 in the same Edit as the row; the line under the table carries the run's
 state and the update time. The fixes section has its own bar, in the same
-shape, over its blocking findings (`✅ исправлено` of the rows that block).
+shape, over its blocking findings (`✅ готово` of the rows that block).
 
 ## Fixes after the final review
 
@@ -122,7 +122,7 @@ first fix (`work` → Step 7). Add this section under the units table, set the
 |---|---|---|---|---|---|---|
 | F1 | лимит вместимости проверяется в сценарии, а не в сущности (BR-5) | P1 | U2 | impl-medium | ⏳ ждёт | — |
 | F2 | старый валидатор вместимости остался в HTTP-адаптере | P1 | RF1 (U2, U5) | mechanical-worker | ⏳ ждёт | — |
-| F3 | имя `roomCap` против `capacity` | P2 | — | — | 📝 в отчёт, не блокирует | — |
+| F3 | имя `roomCap` против `capacity` | P2 | — | — | ⏭ пропущено: в отчёт, не блокирует | — |
 
 Вердикт: RETURN_TO_UNIT · замечаний 3 (P1 — 2, P2 — 1) · повторное ревью: ждёт · обновлено <YYYY-MM-DD HH:MM>
 ````
@@ -133,12 +133,12 @@ first fix (`work` → Step 7). Add this section under the units table, set the
   a fix that spans units or a mechanical `FIX_THEN_CLOSE` item
   (`mechanical-worker`), with the units it touches in brackets; its commit
   trailer is `Plan-Unit: <version>/review-fix-<n>`. A P2/P3
-  finding is `📝 в отчёт, не блокирует` and goes to the run report.
-- **Statuses** as for units: `⏳ ждёт` → `🔧 исправляется` → `✅ исправлено`
+  finding is `⏭ пропущено: в отчёт, не блокирует` and goes to the run report.
+- **Statuses** as for units: `⏳ ждёт` → `🔄 в работе` → `✅ готово`
   (commit sha in the Ревью cell after its `code-review-unit` verdict), or
   `⛔ остановлено: <причина>`.
 - **The units table follows:** a re-opened unit's row reads
-  `🔁 исправление F1` while it is open and `✅ исправлен (F1)` once its fix
+  `🔁 возвращено: F1` while it is open and `✅ готово: исправлено в F1` once its fix
   commit lands; a follow-up gets its own `RF<n>` row at the bottom of the
   units table.
 - **Each fix updates its rows when its commit lands** (both tables, the

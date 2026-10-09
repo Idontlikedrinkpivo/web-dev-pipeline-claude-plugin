@@ -60,7 +60,7 @@ RULES
 - Two passes (ui-test-cases → Mode run → Two passes). Pass 1: write and
   run every case once (each case × mode its own row) — ✅ прошёл /
   ❌ не прошёл (seen vs expected) / ⛔ заблокирован (a missing stub that can
-  be added) / 🙅 не автоматизирован (needs a failure that would break the
+  be added) / ⏭ не автоматизирован (needs a failure that would break the
   shared stand, an app restart with other settings, or a state the stand
   never has — say why and how to check it by hand); no test fixes, no
   triage. Exception: several cases in a row failing for one cause in shared
@@ -68,7 +68,7 @@ RULES
   re-run those cases, go on.
 - Every re-run (a shared-break pause, a pass-2 round after test fixes —
   rounds go on while each turns a test green or changes its failure; a
-  test that fails the same way after a fix is 🔧) opens its own block the moment it starts, readable
+  test that fails the same way after a fix is ⛔) opens its own block the moment it starts, readable
   by someone who never saw the run: heading «Перезапуск после починки
   общего помощника» or «Перезапуск — круг N: проверка исправленных
   тестов»; «Что исправлено перед перезапуском:» in plain words with how

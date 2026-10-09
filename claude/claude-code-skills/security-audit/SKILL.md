@@ -86,7 +86,7 @@ under `$(git rev-parse --git-dir)/pipeline-work/security/`, never paste it.
 | secrets — `gitleaks` | keys, tokens, passwords in files **and in history** |
 | patterns — `semgrep`, OWASP and stack rule packs | injection, unsafe deserialization, disabled TLS checks, weak crypto, `eval` |
 
-A scanner that cannot run is a row `⚠️ не запускался: <причина>` and a line
+A scanner that cannot run is a row `⛔ остановлено: не запускался — <причина>` and a line
 in the verdict, never a silent skip. Check each tool's flags against the
 pulled version (`--help`) before relying on them.
 
@@ -168,7 +168,7 @@ decides.
 
 ## Before you finish
 
-- Every scanner ran or has its `⚠️ не запускался` row — Step 1.
+- Every scanner ran or has its `⛔ остановлено: не запускался` row — Step 1.
 - Every operation of the contract is a matrix row, and every row was traced
   by an auditor — Steps 2–3.
 - Every P0 and P1 survived the verify pass or sits in «Отклонено» with a

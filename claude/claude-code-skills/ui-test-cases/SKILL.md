@@ -240,7 +240,7 @@ sees how far the full picture is:
    gets a pass-1 result: `✅ прошёл`, `❌ не прошёл` (with what was seen
    against what was expected), `⛔ заблокирован: <причина>` (a missing
    piece that can be added — a test stub for sign-in or SMS), or
-   `🙅 не автоматизирован: <причина>` (the case cannot be checked honestly
+   `⏭ не автоматизирован: <причина>` (the case cannot be checked honestly
    by an interface test on the shared stand — it needs a storage failure
    that would break the stand for everyone, an app restart with other
    settings, or a state the stand never has; the comment says how to check
@@ -386,7 +386,7 @@ of pass 2 and of each re-run measure their own work, as described above:
 | TC-1 | Список комнат на сегодня | ✅ прошёл | rooms.spec.ts |
 | TC-7 | Отмена начавшейся брони | ❌ не прошёл | bookings.spec.ts · «Ошибка 409» вместо «Бронь уже началась, отменить нельзя» · e2e/artifacts/TC-7.png |
 | TC-12 | Вход через SMS | ⛔ заблокирован: нет тестовой заглушки SMS | |
-| TC-19 | Ошибка при недоступном хранилище файлов | 🙅 не автоматизирован: остановка хранилища сломает общий стенд | вручную: остановить хранилище на отдельном стенде, загрузить файл, ждать «Не удалось сохранить файл, попробуйте позже» |
+| TC-19 | Ошибка при недоступном хранилище файлов | ⏭ не автоматизирован: остановка хранилища сломает общий стенд | вручную: остановить хранилище на отдельном стенде, загрузить файл, ждать «Не удалось сохранить файл, попробуйте позже» |
 
 ## Проход 2 — разбор упавших
 
@@ -415,7 +415,7 @@ of pass 2 and of each re-run measure their own work, as described above:
 |---|---|---|---|---|
 | TC-7 | Отмена начавшейся брони | ❌ не прошёл | приложение отвечает 409 без текста из ТЗ | ❌ дефект приложения |
 | TC-8 | Отмена за час до начала | ❌ не прошёл | локатор кнопки по тексту, а не по роли | ✅ тест исправлен, прошёл |
-| TC-9 | Отмена чужой брони | ❌ не прошёл | — | ▶️ разбирается |
+| TC-9 | Отмена чужой брони | ❌ не прошёл | — | 🔍 проверка |
 | TC-15 | … | ❌ не прошёл | | ⏳ ждёт |
 
 Verdict: идёт прогон · коммит 1a2b3c4 · обновлено 2026-10-06 14:32
@@ -424,20 +424,20 @@ Verdict: идёт прогон · коммит 1a2b3c4 · обновлено 202
 The comment cell holds the spec file, and for a failure what was seen
 against what was expected and the screenshot path.
 
-Statuses. Pass 1: `⏳ ждёт`, `✍️ пишется тест`, `▶️ выполняется`, then
+Statuses. Pass 1: `⏳ ждёт`, `🔄 в работе`, then the outcome
 `✅ прошёл`, `❌ не прошёл`, `⛔ заблокирован: <причина>`,
-`🙅 не автоматизирован: <причина>`, and later `✅ прошёл после исправления
+`⏭ не автоматизирован: <причина>`, and later `✅ прошёл после исправления
 теста` for a case a re-run turned green; the main count line is
 «Проверено: N из M · успешно … · не прошли … · заблокировано … · не
 автоматизированы …», always with the «Проверено:» label. Pass 2:
-`⏳ ждёт`, `▶️ разбирается`, then `✅ тест исправлен, прошёл`,
-`🔧 тест не удалось исправить`, `❌ дефект приложения`,
+`⏳ ждёт`, `🔍 проверка`, then `✅ тест исправлен, прошёл`,
+`⛔ тест не удалось исправить`, `❌ дефект приложения`,
 `🖼 расхождение с макетом`, `❓ пробел в ТЗ`; its count line is «Разобрано:
 N из M» with the results that occurred. After pass 2 the runner sets the
 `Verdict:` line: `PASS` when every automated case passed (directly or
 after a test fix), `DEFECTS` when any app defect, mockup mismatch, spec gap or screen-check
 breach remains, `BLOCKED` when blocked cases leave a screen unchecked. Under
-it, a «Проверить вручную» list names every `🙅 не автоматизирован` case
+it, a «Проверить вручную» list names every `⏭ не автоматизирован` case
 with its reason and the manual steps — they are not a defect, but nobody
 has checked them yet — and a «Проверка экрана» list names each breach of
 the screen check with its screen and `UX-n` («S-2 · 375 — страница

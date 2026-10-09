@@ -59,7 +59,7 @@ document so the others can pull it.
   lies outside it — the SRS, the API, the architecture — is not edited here
   (`references/decision-changes.md` stays the owner's): write it in the chat
   as a request to the owner, ready to forward («Нужно решение владельца:
-  …»), mark the item `⛔ ждёт решения владельца`, go on with the rest, and
+  …»), mark the item `⛔ остановлено: ждёт решения владельца`, go on with the rest, and
   pull once the owner has landed it.
 - **Commit and share as you go.** Each finished screen, spec or section is a
   commit with only the stage's folder staged and no `version`, changelog or

@@ -58,9 +58,8 @@ document keeps none.
   ТЗ на экраны: 5 из 10 · [progress-screen-specs.md](documentation/plans/2.1.0/progress-screen-specs.md)
   ```
 
-- **One word for done.** A finished row is `✅ готово` in every progress
-  file — a drawn screen, a written section, a printed document — so the
-  user reads every file the same way; other states differ by stage.
+- **One set of statuses** in every progress file (below), so the user reads
+  every file the same way.
 - **The file is never named without its link.** Any message that mentions
   the progress file — an update, a resume, «запускаю следующего» — carries
   the clickable Markdown link with the repo-relative path. «Обновил
@@ -94,6 +93,30 @@ document keeps none.
 - **A new run** of the same stage in the same iteration rewrites the file.
   It is never committed and never cited by a document.
 
+
+## Statuses
+
+Every row of every progress file — a unit, a screen, a document, a
+section, a scanner, a fix, a stand — uses only these seven. A stage may add
+a short detail after a colon (`🔄 в работе: печать`, `🔍 проверка: ревью`),
+never a new word or emoji:
+
+| Status | Means |
+|---|---|
+| `⏳ ждёт` | not started |
+| `🔄 в работе` | started: dispatched, drawing, writing, running, being fixed |
+| `🔍 проверка` | done by its maker, being checked: the session's inspection, a review, an audit, a triage |
+| `✅ готово` | finished and accepted; the bar counts these |
+| `🔁 возвращено: <что>` | sent back for rework after a check |
+| `⛔ остановлено: <причина>` | cannot go on without a decision or a missing input, or could not run |
+| `⏭ пропущено: <почему>` | not needed, out of the run's scope, or moved to the report |
+
+The one exception is a test case's **outcome** in a UI test run's
+`test-run.md`, whose table is the defect report: `✅ прошёл`,
+`❌ не прошёл`, `⛔ заблокирован: <причина>`, `⏭ не автоматизирован:
+<причина>`, and the triage results (`ui-test-cases` → Statuses). While a
+case waits or runs it uses `⏳ ждёт` and `🔄 в работе` like any row.
+
 ## Keeping the run moving
 
 A long stage runs while the user is away — asleep, in a meeting — so a turn
@@ -108,7 +131,7 @@ session until the user writes again.
   user's answer — one of the stage's own stop cases (a missing decision, a
   review's `STOP`, rounds that stopped making progress): then nothing is
   started, the question is the end of the turn, and the row says
-  `⛔ остановлен`. Never end a turn on prose alone, and never on
+  `⛔ остановлено`. Never end a turn on prose alone, and never on
   «продолжаю…» without the call.
 - **Call first, then write.** Start the next step, then write the chat
   line (After each item). Text written before the call can be cut off —
@@ -139,7 +162,7 @@ session until the user writes again.
 | Вариант | Образец | Статус |
 |---|---|---|
 | A «Спокойный синий» | 501:2 | ✅ готово |
-| B «Тёплый графит» | — | 🎨 рисуется |
+| B «Тёплый графит» | — | 🔄 в работе |
 
 Выбор: ждёт ответа
 
@@ -155,16 +178,16 @@ session until the user writes again.
 |---|---|---|---|---|
 | S-1 | Вход | редизайн | ✅ готово | 412:10 |
 | S-2 | Расписание переговорных | редизайн | ✅ готово | 415:2 |
-| S-3 | Мои брони | редизайн | 🎨 рисуется | — |
+| S-3 | Мои брони | редизайн | 🔄 в работе | — |
 | Общее | Общие состояния | draw | ⏳ ждёт | — |
 
 Состояние: рисует figma-opus, страница «✅ Экраны · «Спокойный синий»» · обновлено 2026-10-07 14:20
 ````
 
 «Направление» appears only when the visual-direction step runs; its rows
-change `⏳ ждёт` → `🎨 рисуется` → `✅ готово`, and «Выбор» names the
-chosen option. Screen statuses: `⏳ ждёт`, `🎨 рисуется`, `✅ готово`
-(the builder), `🔁 дорисовка: <что>`, `⛔ остановлен: <причина>` (the
+change `⏳ ждёт` → `🔄 в работе` → `✅ готово`, and «Выбор» names the
+chosen option. Screen statuses: `⏳ ждёт`, `🔄 в работе`, `✅ готово`
+(the builder), `🔁 возвращено: <что>`, `⛔ остановлено: <причина>` (the
 session, when its check of a drawn screen fails). «Работа» is the screen's mark
 (`новый экран`, `правка`, `редизайн`, `перекраска`, `переименование слоёв`).
 The bar counts `✅ готово`.
@@ -184,13 +207,13 @@ The bar counts `✅ готово`.
 |---|---|---|---|---|
 | S-1 | Вход | ✅ готово | 12 | — |
 | S-2 | Расписание переговорных | ✅ готово | 41 | design 6 |
-| S-3 | Мои брони | ✍️ пишется | | |
+| S-3 | Мои брони | 🔄 в работе | | |
 | S-4 | Переговорные | ⏳ ждёт | | |
 
 Ревью ТЗ: не запускалось · обновлено 2026-10-07 14:20
 ````
 
-Statuses: `⏳ ждёт`, `✍️ пишется` (dispatched), `🔍 проверка` (the
+Statuses: `⏳ ждёт`, `🔄 в работе` (dispatched), `🔍 проверка` (the
 session's inspection), `✅ готово`, `🔁 возвращено: <что>`,
 `⛔ остановлено: <причина>`. The state line names the `doc-review` gate
 over the set: не запускалось → идёт → its verdict.
@@ -209,13 +232,13 @@ over the set: не запускалось → идёт → its verdict.
 | № | Раздел | Файл | Статус | Кейсов |
 |---|---|---|---|---|
 | 1 | Вход, сессия и выход | 01-login-session.md | ✅ готово | 38 |
-| 2 | Расписание переговорных | 02-room-schedule.md | ✍️ пишутся | |
+| 2 | Расписание переговорных | 02-room-schedule.md | 🔄 в работе | |
 | — | Без интерфейса | README.md | ⏳ ждёт | |
 
 Состояние: пишет ui-test-writer · обновлено 2026-10-07 14:20
 ````
 
-Statuses: `⏳ ждёт`, `✍️ пишутся`, `✅ готово`. The «Без интерфейса» row
+Statuses: `⏳ ждёт`, `🔄 в работе`, `✅ готово`. The «Без интерфейса» row
 counts the acceptance criteria listed there, and is not in the bar.
 
 ### `clean-architecture-design` — `progress-architecture.md`
@@ -233,15 +256,15 @@ counts the acceptance criteria listed there, and is not in the bar.
 |---|---|---|
 | Основа — architecture.md | ✅ готово | — |
 | Доменная модель | ✅ готово | — |
-| Сценарии: бронирования | 🖨 печатается | — |
+| Сценарии: бронирования | 🔄 в работе: печать | — |
 | Сценарии: переговорные | ⏳ ждёт | — |
 
 Состояние: пишет design-medium · обновлено 2026-10-07 14:20
 ````
 
-Statuses: `⏳ ждёт`, `✍️ решения`, `🖨 печатается`, `🖨 напечатан` (the
-writer), `🔍 проверка`, `✅ готово`, `⛔ остановлен: <причина>` (the
-session). «Ревью» takes the `doc-review` verdict of that document when the
+Statuses: `⏳ ждёт`, `🔄 в работе: решения`, `🔄 в работе: печать`,
+`🔍 проверка` (the writer, then the session's inspection), `✅ готово`,
+`⛔ остановлено: <причина>` (the session). «Ревью» takes the `doc-review` verdict of that document when the
 gate runs. The bar counts `✅ готово`.
 
 ### `repo-scaffold` — `progress-scaffold.md` and `deploy-topology` — `progress-deploy.md`
@@ -270,7 +293,7 @@ gate runs. The bar counts `✅ готово`.
 The rows are the stage's own steps: for `repo-scaffold` its sections 1–6,
 for `deploy-topology` its Steps 1–8 («Сборка образов» under Step 8 can run
 for minutes — its row says so while it runs). Statuses: `⏳ ждёт`,
-`🔄 в работе`, `✅ готово`, `⏭ не нужно: <почему>`, `⛔ остановлено:
+`🔄 в работе`, `✅ готово`, `⏭ пропущено: <почему>`, `⛔ остановлено:
 <причина>`. The state line carries the closing check: the quality gate for
 the scaffold, the compose-contract tests and the release folder for the
 topology.

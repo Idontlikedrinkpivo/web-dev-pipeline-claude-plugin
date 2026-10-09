@@ -284,7 +284,7 @@ and writes the files itself; there is no `doc-typist` on this stage.
 5. **Progress file, then dispatch.** Before the first dispatch, create
    `documentation/plans/<version>/progress-screen-specs.md` per
    `pipeline` → `references/progress-files.md` with every screen in scope `⏳ ждёт`, and post its
-   link in the chat. A screen goes `✍️ пишется` when its writer is
+   link in the chat. A screen goes `🔄 в работе` when its writer is
    dispatched, `🔍 проверка` when its file lands, and `✅ готово` with its
    element and Разрывы counts after step 6 (or `🔁 возвращено: …`); each
    finished screen puts the count with the link in the chat («ТЗ на экраны:

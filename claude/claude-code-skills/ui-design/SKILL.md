@@ -106,8 +106,8 @@ drawing, restyle, redraw, renaming) create
 `documentation/plans/<version>/progress-design.md` per `pipeline` →
 `references/progress-files.md`, every tile and screen `⏳ ждёт`; post its
 link and pass it to the builder as `PROGRESS FILE`. The builder marks each
-screen `🎨 рисуется` → `✅ готово`; the session checks each one (a failed
-one → `🔁 дорисовка: <что>`) and writes the count with the link after each
+screen `🔄 в работе` → `✅ готово`; the session checks each one (a failed
+one → `🔁 возвращено: <что>`) and writes the count with the link after each
 returned dispatch. The file is how the user tells progress from a hang.
 
 ## Entry question

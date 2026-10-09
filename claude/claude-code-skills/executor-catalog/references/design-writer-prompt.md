@@ -84,8 +84,8 @@ INPUTS YOU MUST FOLLOW (pasted, not linked)
 
 PROGRESS FILE   <architecture: documentation/plans/<version>/progress-architecture.md;
                 otherwise none. With the Edit tool, set each document's
-                Статус cell as you go — `✍️ решения` when you start it,
-                `🖨 печатается` when you hand it to doc-typist, `🖨 напечатан`
+                Статус cell as you go — `🔄 в работе: решения` when you start it,
+                `🔄 в работе: печать` when you hand it to doc-typist, `🔍 проверка`
                 when the typist returns it — and change nothing else there>
 STACK           <chosen row, or: already a fact — see INPUTS>
                 If the architecture skill is waiting on a stack pick,
