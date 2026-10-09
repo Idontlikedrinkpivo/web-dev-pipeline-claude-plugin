@@ -15,8 +15,18 @@ finished (`pipeline` → `references/decision-changes.md`). Opening an iteration
 → Service version), not a document's: a document takes that number only
 when a commit stamps a change in it.
 
-**Only this skill stamps, and only when the user explicitly asks to version
-or publish.** Loaded as a reference by another skill → never stamp.
+**Stamps happen at two moments, by these steps only:** when a document
+stage closes (its gates run or skipped — `pipeline` → Asking before a
+transition), and when the user asks to version or publish. A writer, a
+gate or a review mid-stage never stamps.
+
+**At a stage's close** the steps below run over that stage's documents
+only — the SRS, the schema (with its new migration files), the API, the
+three architecture documents, or the screen specs — with no question, and
+the commit message names them: `docs: <документ> <version>` («docs: SRS
+2.1.1», «docs: схема БД и миграция 0007 2.1.1»). A later change in the same
+iteration (a decision changed, a gate re-run) stamps again at its own close
+under the same version: rows of this version are amended, not doubled.
 
 1. Compare each contract file with its **last stamped state** — the
    commit that last moved its `version` line (`info.version` for
@@ -54,7 +64,8 @@ or publish.** Loaded as a reference by another skill → never stamp.
    schema journal, or the SRS journal.
 5. In the same files, refresh each pin whose source rows after the pin are
    all «уточняет» (Staleness and cascade). Move no other pin.
-6. One commit, message `docs: publish document versions`. Stage
+6. One commit — at a stage's close `docs: <документ> <version>`, on the
+   user's request `docs: publish document versions`. Stage
    only the files just stamped, plus a new file in `db/migrations/` or a
    rebuilt unversioned diagram that belongs to a dirty schema or
    architecture. Do not stage a plan folder's file.

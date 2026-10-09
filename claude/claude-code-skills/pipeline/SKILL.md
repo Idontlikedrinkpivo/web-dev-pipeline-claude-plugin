@@ -313,7 +313,7 @@ changing this file:
 A second feature does not restart the pipeline, and it does not run all of it
 either. `doc-versioning` is what decides the difference. Writers, `grill-me`,
 and `doc-review` edit an existing document in place and never touch its
-`version` or changelog; the stamp the user asks for writes both, one typed
+`version` or changelog; the stamp at the stage's close writes both, one typed
 row per change (ломает / добавляет / уточняет). `plan` does not call it.
 The writer names each change with its type and a **downstream verdict per
 consumer** in its report — must update, or unaffected with the reason, for
@@ -374,8 +374,12 @@ they contradict each other or leave a requirement without a home; the next stage
 table's offer cell, including a skip (no UI, no storage, no HTTP) — name
 the skill the skip selects and why the skipped ones do not apply.
 
-One question, then stop. The user answers by sending a message. Do not
-open a question card.
+One question, then stop, answered by a message; no question card.
+
+**Commit before offering the next stage.** A finished document (gates run
+or skipped) is committed first, without asking — by the stamp
+(`doc-versioning` → `references/version-birth.md`), or plainly for the
+frames register and the test cases — so the next stage starts from a commit.
 
 For a **gate**, three options:
 

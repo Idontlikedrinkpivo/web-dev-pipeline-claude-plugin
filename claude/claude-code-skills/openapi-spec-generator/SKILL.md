@@ -122,7 +122,7 @@ second name.
 operation, schema, version or changelog row: bundle the old file and the new
 root (`npx --yes @redocly/cli bundle … -o …`) and compare — they must match.
 The move is its own commit, made before the change («docs: OpenAPI
-разложен по файлам»), not a version event. It is a move, not a version stamp, so it needs no request from the user (`doc-versioning`'s «only in a commit the user asks for» is about stamps); the change that follows stays uncommitted like any other.
+разложен по файлам»), not a version event. It is a move, not a version stamp; the change that follows is committed by the stamp when the stage closes.
 
 An existing `documentation/api/openapi.yaml` is the canonical contract, not a draft to
 replace. Read the `doc-versioning` skill and follow it, plus what is specific
