@@ -27,6 +27,31 @@ run needs no code change later:
   stand), database and storage, migrated and seeded, and prints each
   stand's addresses; `down` removes them and their volumes.
 
+## A stand that cannot be copied yet
+
+A project whose test topology was written before these rules runs on one
+stand until someone fixes it — and a silent fallback means nobody does. So
+when the stand cannot be copied, the machine holds more than one stand (How
+many stands) and the run has more than one test file, ask once, before the
+run, per `grill-me` → "How a question is shown":
+
+```text
+Стенд пока нельзя копировать: <что мешает — фиксированные порты, container_name, нет scripts/e2e-stands.sh>.
+Машина тянет <N> стенда (<что ограничило>), кейсов <M> в <K> файлах.
+
+  A. Сделать стенд копируемым сейчас и прогнать на <N> стендах (Recommended)
+  B. Прогнать на одном стенде
+```
+
+A: the change is mechanical — ports, addresses and the database URL from
+variables with today's values as defaults, no `container_name`, no fixed
+host volume path, the Playwright `baseURL` from a variable, and
+`scripts/e2e-stands.sh up N` / `down` — dispatched to `mechanical-worker`
+before the run and committed alone (`test(e2e): копируемый стенд`); the
+existing single-stand commands keep working. The same question comes in
+`work` before a browser suite in the definition of done. The answer holds
+for the project: once copyable, later runs split without asking.
+
 ## Tests that can be split
 
 - **Each test file stands alone**: it prepares the data it needs and does

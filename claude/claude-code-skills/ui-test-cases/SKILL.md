@@ -223,8 +223,12 @@ comes from more stands, each with its own database and storage and its
 share of the test files. Before the dispatch, read
 `references/parallel-stands.md`: measure how many stands this machine
 holds, start them with `scripts/e2e-stands.sh`, and pass them to the runner
-as `STANDS`. A project whose stand cannot be copied yet (a fixed port, a
-`container_name`) runs on one stand, and the report names the fix.
+as `STANDS`. A stand that cannot be copied yet (a fixed port, a
+`container_name`, no `scripts/e2e-stands.sh`) is not a reason to run long
+on one: when the machine holds more than one stand and the run has more
+than one test file, ask once before the run — make it copyable now and run
+on N, or one stand (`references/parallel-stands.md` → A stand that cannot
+be copied yet).
 
 **A frontend repo without its backend** (the API is a separate service): the
 runner mocks the API at the network boundary (Playwright `page.route`) with
