@@ -23,7 +23,7 @@ INPUTS (read in full)
 
 RULES
 - Progress: with the Edit tool, set a section's row in PROGRESS FILE to
-  `✍️ пишутся` when you start a section's cases and `✅ написаны` with
+  `✍️ пишутся` when you start a section's cases and `✅ готово` with
   their count when they are done, then the bar and the line «Написано: N
   из M разделов · кейсов: K»; the «Без интерфейса» row likewise. Change nothing else
   there.

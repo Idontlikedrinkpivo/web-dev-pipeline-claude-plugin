@@ -58,6 +58,9 @@ document keeps none.
   ТЗ на экраны: 5 из 10 · [progress-screen-specs.md](documentation/plans/2.1.0/progress-screen-specs.md)
   ```
 
+- **One word for done.** A finished row is `✅ готово` in every progress
+  file — a drawn screen, a written section, a printed document — so the
+  user reads every file the same way; other states differ by stage.
 - **The file is never named without its link.** Any message that mentions
   the progress file — an update, a resume, «запускаю следующего» — carries
   the clickable Markdown link with the repo-relative path. «Обновил
@@ -135,7 +138,7 @@ session until the user writes again.
 
 | Вариант | Образец | Статус |
 |---|---|---|
-| A «Спокойный синий» | 501:2 | ✅ образец готов |
+| A «Спокойный синий» | 501:2 | ✅ готово |
 | B «Тёплый графит» | — | 🎨 рисуется |
 
 Выбор: ждёт ответа
@@ -143,15 +146,15 @@ session until the user writes again.
 ## Экраны
 
 ```text
-████████████████████████████████████░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░ 36%
+██████████████████░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░ 18%
 ```
 
-Нарисовано: 4 из 11 · проверено: 3
+Готово: 2 из 11
 
 | S-n | Экран | Работа | Статус | Кадр |
 |---|---|---|---|---|
-| S-1 | Вход | редизайн | ✅ проверен | 412:10 |
-| S-2 | Расписание переговорных | редизайн | 🖼 нарисован | 415:2 |
+| S-1 | Вход | редизайн | ✅ готово | 412:10 |
+| S-2 | Расписание переговорных | редизайн | ✅ готово | 415:2 |
 | S-3 | Мои брони | редизайн | 🎨 рисуется | — |
 | Общее | Общие состояния | draw | ⏳ ждёт | — |
 
@@ -159,12 +162,12 @@ session until the user writes again.
 ````
 
 «Направление» appears only when the visual-direction step runs; its rows
-change `⏳ ждёт` → `🎨 рисуется` → `✅ образец готов`, and «Выбор» names the
-chosen option. Screen statuses: `⏳ ждёт`, `🎨 рисуется`, `🖼 нарисован`
-(the builder), `🔍 проверка`, `✅ проверен`, `🔁 дорисовка: <что>`,
-`⛔ остановлен: <причина>` (the session). «Работа» is the screen's mark
+change `⏳ ждёт` → `🎨 рисуется` → `✅ готово`, and «Выбор» names the
+chosen option. Screen statuses: `⏳ ждёт`, `🎨 рисуется`, `✅ готово`
+(the builder), `🔁 дорисовка: <что>`, `⛔ остановлен: <причина>` (the
+session, when its check of a drawn screen fails). «Работа» is the screen's mark
 (`новый экран`, `правка`, `редизайн`, `перекраска`, `переименование слоёв`).
-The bar counts drawn screens — `🖼`, `🔍` and `✅`.
+The bar counts `✅ готово`.
 
 ### `screen-spec` — `progress-screen-specs.md`
 
@@ -205,14 +208,14 @@ over the set: не запускалось → идёт → its verdict.
 
 | № | Раздел | Файл | Статус | Кейсов |
 |---|---|---|---|---|
-| 1 | Вход, сессия и выход | 01-login-session.md | ✅ написаны | 38 |
+| 1 | Вход, сессия и выход | 01-login-session.md | ✅ готово | 38 |
 | 2 | Расписание переговорных | 02-room-schedule.md | ✍️ пишутся | |
 | — | Без интерфейса | README.md | ⏳ ждёт | |
 
 Состояние: пишет ui-test-writer · обновлено 2026-10-07 14:20
 ````
 
-Statuses: `⏳ ждёт`, `✍️ пишутся`, `✅ написаны`. The «Без интерфейса» row
+Statuses: `⏳ ждёт`, `✍️ пишутся`, `✅ готово`. The «Без интерфейса» row
 counts the acceptance criteria listed there, and is not in the bar.
 
 ### `clean-architecture-design` — `progress-architecture.md`
@@ -228,8 +231,8 @@ counts the acceptance criteria listed there, and is not in the bar.
 
 | Документ | Статус | Ревью |
 |---|---|---|
-| Основа — architecture.md | ✅ готов | — |
-| Доменная модель | ✅ готов | — |
+| Основа — architecture.md | ✅ готово | — |
+| Доменная модель | ✅ готово | — |
 | Сценарии: бронирования | 🖨 печатается | — |
 | Сценарии: переговорные | ⏳ ждёт | — |
 
@@ -237,9 +240,9 @@ counts the acceptance criteria listed there, and is not in the bar.
 ````
 
 Statuses: `⏳ ждёт`, `✍️ решения`, `🖨 печатается`, `🖨 напечатан` (the
-writer), `🔍 проверка`, `✅ готов`, `⛔ остановлен: <причина>` (the
+writer), `🔍 проверка`, `✅ готово`, `⛔ остановлен: <причина>` (the
 session). «Ревью» takes the `doc-review` verdict of that document when the
-gate runs. The bar counts `✅ готов`.
+gate runs. The bar counts `✅ готово`.
 
 ### `repo-scaffold` — `progress-scaffold.md` and `deploy-topology` — `progress-deploy.md`
 

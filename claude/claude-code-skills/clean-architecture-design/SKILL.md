@@ -97,7 +97,7 @@ dispatch the typist.
    `foundation, domain` and then every `scenarios:<area>`; the second
    reads the first from disk.
 6. **Inspect each document** as it lands (its progress row `🔍
-   проверка`, then `✅ готов`): the file; for `foundation`,
+   проверка`, then `✅ готово`): the file; for `foundation`,
    each `.d2` in `diagrams/` it requires and its embed in the section;
    for `scenarios`, a `.puml` in the area's `diagrams/` for every
    scenario its «Последовательность» row links. A missing file is an
