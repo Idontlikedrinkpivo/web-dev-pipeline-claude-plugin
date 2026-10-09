@@ -21,8 +21,10 @@ apply — a product without screens has no design branch and no question):
 - **Только дизайн** — the backend later.
 - **Остановиться.**
 
-Recommend from the situation, not from habit: «только бэкенд» when a
-designer on the team takes the design branch; «параллельно» when one
+Recommend from the situation, not from habit — first from who runs the
+design (`references/design-owner.md`): «только бэкенд» when a designer
+with the plugin takes the design branch, «сначала бэкенд» when a designer
+draws by hand; «параллельно» when one
 person runs both and the design work is small (edits to existing frames);
 «сначала бэкенд» when the design is large and the user wants to answer one
 branch's questions at a time. Say in one sentence why.

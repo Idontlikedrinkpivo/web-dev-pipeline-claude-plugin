@@ -101,23 +101,23 @@ A later run (an SRS increment, a redesign request, «дорисуй состоя
 «перекрась макеты») starts at step 2 with the register it finds, and
 touches only what changed.
 
-**Progress file.** Before the first Figma dispatch of a run — style tiles,
-drawing, restyle, redraw, renaming — create
-`documentation/plans/<version>/progress-design.md` per `pipeline` → `references/progress-files.md`: the
-tiles and every screen of the run `⏳ ждёт`. Post its link in the chat
-before the dispatch and pass it to the builder as `PROGRESS FILE`; the
-builder marks each screen `🎨 рисуется` → `✅ готово`, and the session
-checks each one, setting a failed one to `🔁 дорисовка: <что>`; it writes
-the count with the link in the chat after each returned dispatch
-(`pipeline` → `references/progress-files.md` → After each item). Drawing a dozen screens
-takes a long time, and the file is how the user tells progress from a
-hang.
+**Progress file.** Before the first Figma dispatch of a run (tiles,
+drawing, restyle, redraw, renaming) create
+`documentation/plans/<version>/progress-design.md` per `pipeline` →
+`references/progress-files.md`, every tile and screen `⏳ ждёт`; post its
+link and pass it to the builder as `PROGRESS FILE`. The builder marks each
+screen `🎨 рисуется` → `✅ готово`; the session checks each one (a failed
+one → `🔁 дорисовка: <что>`) and writes the count with the link after each
+returned dispatch. The file is how the user tells progress from a hang.
 
 ## Entry question
 
-Ask once, when there is no register yet. One question in the chat, in
-Russian, per `grill-me` → "How a question is shown". Do not open a question
-card. A and B carry the file link, so this one message asks for it:
+Ask once, when there is no register yet, per `grill-me` → "How a question
+is shown", in the chat, no question card. When the iteration's design
+owner is known (`pipeline` → `references/design-owner.md`), show only what
+it leaves: «мы» — B and C; «дизайнер без плагина» — no options, only the
+link to the designer's file (A). A and B carry the file link, so this one
+message asks for it:
 
 ```text
 **Вопрос 1. Есть ли уже макеты**
@@ -150,9 +150,9 @@ Drafts file is visible only to its owner and can be moved to the team's
 project (the link stays). No Figma MCP or a failed call: say why, ask for
 a link (B).
 
-Record the answer in the register header as **Кадры рисует:** `ui-design`
-(B, mode **draw**) or `дизайнер` (A, mode **index**). A later run reads the
-header and asks neither question again.
+Record the answer as **Кадры рисует:** `ui-design` (B, **draw**) or
+`дизайнер` (A, **index**), with **Дизайн ведёт** when known, in the register
+header; a later run reads it and asks neither question again.
 
 The answer and the file disagree — they chose A and the file has no product
 frames, or chose B and the file already holds frames for these screens —

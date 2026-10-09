@@ -29,7 +29,9 @@ everything after stage 9 stay with the owner.
 
 1. At the fork after the SRS (`pipeline` → Two branches), or whenever the
    user asks, ask which stages go to whom: one question per person, the
-   options the rows above.
+   options the rows above. When the iteration's design owner is a designer
+   with the plugin (`references/design-owner.md`), `ui-design` is theirs
+   without asking; ask only about the other stages.
 2. Make sure everything those stages read is committed on the iteration
    branch — the SRS, `ui-wishes.md`, the API when it exists — and give the
    push command (`git push -u origin iteration/<version>`); the plugin never

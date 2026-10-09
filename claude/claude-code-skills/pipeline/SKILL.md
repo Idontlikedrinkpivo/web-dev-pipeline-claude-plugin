@@ -156,7 +156,9 @@ Otherwise the stage proposes the number after the manifest's, with its
 level and a one-line reason («MINOR: новые UC-5, UC-6 в бронированиях»), as
 a question per "Asking before a transition" (`A. <версия> (Recommended)`,
 `B. Остановиться`, or another number), and creates the folder on the
-answer. Every stamp of the iteration writes that number.
+answer. Every stamp of the iteration writes that number. Right after it, a
+product with screens is asked once who runs the design
+(`references/design-owner.md`); the stages that follow build on it.
 
 **One branch per iteration.** Opening the iteration also creates
 `iteration/<version>` from `main` and switches to it (or switches to it when
@@ -180,15 +182,12 @@ outside the iteration names
 it. The plan's last unit bumps the manifest's `version` to the folder's
 name; `summary.md` and the tag close the iteration (End of the pipeline).
 
-**Plans stay out of git.** `documentation/plans/` is in `.gitignore`:
-the plan, its review, the progress files, the stage reports
-(`docs-consistency.md`, `test-run.md`) and `summary.md` are working files
-on this machine. Git keeps what outlives the run — the code, the
-contract documents, a `Plan-Unit:` trailer on every unit commit, and the
-tag `v<version>` at the close. The first stage that writes into `plans/`
-checks `.gitignore` and adds `documentation/plans/` if it is missing; if
-the folder is already tracked, it untracks it with
-`git rm -r --cached documentation/plans` (the files stay on disk) in its
+**Plans stay out of git.** `documentation/plans/` is in `.gitignore`: the
+plan, its review, progress files, stage reports and `summary.md` are working
+files on this machine; git keeps the code, the contract documents, a
+`Plan-Unit:` trailer per unit commit and the tag `v<version>`. The first
+stage that writes into `plans/` adds it to `.gitignore` if missing, or
+untracks it (`git rm -r --cached documentation/plans`, files stay) in its
 own commit. No stage stages a file under `plans/`.
 
 **The API's own version.** Called only by the project's own client, the API
@@ -479,6 +478,7 @@ that gate asks the next transition itself, using this section.
 - `references/closing-cleanup.md` — the working files a closed iteration drops.
 - `references/branch-order.md` — the order of the two branches after the
   SRS, and both branches in one session.
+- `references/design-owner.md` — who runs the design, asked at the start.
 - `doc-versioning` (skill) — the increment/greenfield decision, the canonical
   path per document type, the downstream verdict this file reads,
   the unversioned business-requirements draft, and document language
