@@ -58,6 +58,13 @@ document keeps none.
   ТЗ на экраны: 5 из 10 · [progress-screen-specs.md](documentation/plans/2.1.0/progress-screen-specs.md)
   ```
 
+- **The file is never named without its link.** Any message that mentions
+  the progress file — an update, a resume, «запускаю следующего» — carries
+  the clickable Markdown link with the repo-relative path. «Обновил
+  прогресс в progress-design.md — файл можно открыть» is wrong: the name in
+  plain text or in backticks opens nothing, and the user has to search for
+  the file. Write `[progress-design.md](documentation/plans/2.1.1/progress-design.md)`.
+
   Where a subagent changes the rows (the Figma builder, the test writer,
   the test runner), write the line each time its dispatch returns. A stop
   or a question to the user carries the line too, as its last line.
