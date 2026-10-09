@@ -22,11 +22,13 @@ INPUTS (read in full)
   Existing cases: <the test-cases/ folder | an old test-cases.md> | none
 
 RULES
-- Progress: with the Edit tool, set a section's row in PROGRESS FILE to
-  `🔄 в работе` when you start a section's cases and `✅ готово` with
-  their count when they are done, then the bar and the line «Написано: N
-  из M разделов · кейсов: K»; the «Без интерфейса» row likewise. Change nothing else
-  there.
+- Progress comes first in every section: before the section's first edit,
+  set its row in PROGRESS FILE to `🔄 в работе` with the Edit tool; right
+  after its last edit, `✅ готово` with the case count, then the bar and
+  the line «Написано: N из M разделов · кейсов: K». The same for a section
+  you only repair (a broken trace) and for the «Без интерфейса» row. The
+  user watches this file while you work; a section edited without its row
+  looks like a hang. Change nothing else there.
 - One case per reachable AC (main, Alt, Exc), per state row and per
   user-causable response outcome not yet covered, per «Поля ввода» rule,
   per forbidden action per role.
@@ -57,4 +59,5 @@ STATUS        DONE | DONE_WITH_CONCERNS | BLOCKED
 FILES WRITTEN README.md and each section file written or changed | none
 COUNTS        N cases · M AC covered of K · L «Без интерфейса»
 GAPS          one line per behaviour the spec did not decide, or none
+PROGRESS      each section's row set before and after it: yes | no — which not
 ```

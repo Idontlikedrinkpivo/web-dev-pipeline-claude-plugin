@@ -339,6 +339,8 @@ REPORT (last message, exactly these fields)
 
 ```
 STATUS            DONE | BLOCKED
+PROGRESS          each screen's row, bar and count set as you went: yes |
+                  no — which not
 FILE KEY          the fileKey
 TOKENS            library | local (created) | local (updated) | none
 TILES             MODE direction only, per option: <letter> <nodeId> — as

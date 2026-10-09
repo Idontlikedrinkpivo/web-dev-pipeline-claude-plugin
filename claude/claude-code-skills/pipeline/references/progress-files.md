@@ -78,10 +78,18 @@ document keeps none.
   fresh on disk and stale on screen until reopened. A script may compute
   the numbers; the agent writes them. The bar is printed, not counted by
   hand: `python3 -c "d,t=<done>,<total>;p=d*100//t;print('█'*p+'░'*(100-p),f'{p}%')"`.
-- **Check what a subagent left.** Each time a dispatch that edits the file
-  returns, compare the bar and the count with the rows; when they disagree,
-  fix them with Edit before the chat line, and say in that line that the
-  bar was corrected.
+- **A subagent's rows are watched, not trusted.** A subagent deep in its
+  task forgets the progress file, and then the user sees a hang. So while
+  a dispatch that owns rows runs and writes files, the session watches its
+  output folder with the Monitor tool — a loop that prints each file as it
+  changes, e.g. `while sleep 20; do git status --porcelain --
+  documentation/ui/test-cases; done | awk '!seen[$0]++'` — and on each new
+  line sets that item's row to `🔄 в работе` if the subagent has not
+  (without Monitor: a background `sleep 30`, then the same check). When
+  the dispatch returns, it reconciles every row, the bar and the count
+  with what is on disk before the chat line, and says in that line what it
+  corrected. Output that is not files (Figma) is reconciled on return,
+  from the report.
 - **Results from background work** (stands, long commands) wake the agent,
   and the agent edits: watch their output with the Monitor tool, which
   wakes the session on each new line, or — without it — a background
