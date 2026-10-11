@@ -239,8 +239,8 @@ evidence; the files on disk are.
    `doc-versioning` → Staleness and cascade; behind by «добавляет» only is
    for stage 10, not a stale stage.
 3. A business-requirements document with no `grilled:` has an unrun
-   gate. An SRS has no `grilled:`, `reviewed:`, `status`, or
-   `sources`; do not read their absence as an unrun gate. Any other
+   gate. An SRS's gates are in its last stamp commit (`grill: … ·
+   review: …`); none named, or changed since — the grill comes next. Any other
    document whose row lists `doc-review`, with no `reviewed:`
    (`info.x-reviewed` for OpenAPI), had its review skipped or never
    run — offer it rather than assuming either. An open version folder
@@ -405,8 +405,7 @@ not start a skill the user did not pick. Do not ask the following
 transition in the same turn as the one just answered, except after a
 skip, where the next question is the answer.
 
-Do not present a menu of every remaining stage. Do not treat "ok" on a
-summary as a yes. The user's message is the yes.
+No menu of every remaining stage; "ok" on a summary is not a yes.
 
 Example — the SRS was just written and its grill closed; the next unrun
 transition in row 2 is `doc-review`:
