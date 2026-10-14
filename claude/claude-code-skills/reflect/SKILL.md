@@ -50,7 +50,13 @@ rules (check them — the session may have run an older version).
    gives the window: from the iteration's first commit (or the folder's
    date) to now. List this project's sessions in it:
    `python3 ${CLAUDE_SKILL_DIR}/scripts/sessions.py list "$PWD" --since <YYYY-MM-DD>`.
-   Only this project's sessions — never another project's.
+   Only this project's sessions — never another project's. When the
+   project's folder was renamed or moved during the iteration, add its old
+   path with `--also <old path>`; when the first session found starts after
+   the iteration opened, say so in the report — sessions may sit under a
+   path not passed. The script lists a session copied under both paths once,
+   and skips one that a later session continued (its messages are the start
+   of the longer one) as «повтор».
 2. **Digest.** For each session:
    `python3 ${CLAUDE_SKILL_DIR}/scripts/sessions.py digest <session.jsonl> <tmp>/<n>.md`
    — the user's typed messages, Claude's replies, the skills and agents
@@ -66,7 +72,7 @@ rules (check them — the session may have run an older version).
    that already says the right thing is marked «уже в правилах с <version>,
    нарушено» rather than proposed again.
 5. **Write.** Append one section to
-   `~/.claude/dev-pipeline-feedback/<project folder name>.md` (create the
+   `~/.claude/dev-pipeline-feedback/<project folder's basename>.md` (create the
    folder and the file when missing; never rewrite earlier sections). Shape
    below. Nothing is written into the project and nothing is committed.
 6. **Report** in one line: the file as a clickable link, how many findings,

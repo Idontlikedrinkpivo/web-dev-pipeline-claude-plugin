@@ -245,7 +245,7 @@ unused number. Deletion leaves a gap; gaps are fine.
 | | |
 |---|---|
 | **Docs** | scenarios/orders `<UseCase>` · domain §4 <rule row> · SRS UC-2 / AC-Exc-1 · BR-3 · api `POST /orders` |
-| **Files** | repo-relative paths, including the test file |
+| **Files** | repo-relative paths, including the test file. A unit that removes or changes a field, a constant, an environment variable, a response shape or a public symbol searches the repository for every use first (code, tests, e2e, CI, documents) and lists each in `Files` or under «Не затрагивается» with the reason |
 | **Pattern** | repo-relative path(s) whose conventions this unit mirrors (`path (U<n>)` when a unit in `Depends on` creates it, or the arch section that fixes the shape), or `— first of its kind` |
 | **Depends on** | U-ids, or `—` |
 | **Parallel-safe** | yes / no — and with what it contends when no |

@@ -2,7 +2,11 @@
 """Find this project's Claude Code sessions and boil each down to a readable digest for `reflect`.
 
 usage:
-  sessions.py list   <project-dir> [--since YYYY-MM-DD]   one line per main session: path, start, end, size
+  sessions.py list   <project-dir> [--since YYYY-MM-DD[THH:MM]] [--also <old-project-dir> ...]
+                     one line per main session: path, start, end, size; a session copied
+                     under several project folders is listed once, and a session whose typed
+                     messages all reappear, in order, at the start of a longer one (it was
+                     resumed into a new file) is marked «# повтор <id>» and skipped
   sessions.py digest <session.jsonl> <out.md>             the session as a short chronological digest
 
 The transcripts live in ~/.claude/projects/<project dir with every non-alphanumeric character as '-'>/.
@@ -39,14 +43,41 @@ def span(path: Path) -> tuple[str, str]:
     return first[:16], last[:16]
 
 
-def cmd_list(cwd: str, since: str | None) -> None:
-    d = project_dir(cwd)
-    if not d.is_dir():
-        print(f"no sessions: {d}", file=sys.stderr)
+def typed(path: Path) -> list[str]:
+    out = []
+    for line in open(path, errors="ignore"):
+        if '"kind":"human"' not in line:
+            continue
+        try:
+            d = json.loads(line)
+        except json.JSONDecodeError:
+            continue
+        txt = text_of(d.get("message", {}).get("content")).strip()
+        if txt:
+            out.append(txt[:200])
+    return out
+
+
+def cmd_list(cwd: str, since: str | None, also: list[str]) -> None:
+    dirs = [project_dir(cwd)] + [project_dir(a) for a in also]
+    if not any(d.is_dir() for d in dirs):
+        print(f"no sessions: {dirs[0]}", file=sys.stderr)
         sys.exit(1)
-    for p in sorted(d.glob("*.jsonl"), key=lambda p: p.stat().st_mtime):
+    seen: dict[str, Path] = {}
+    for d in dirs:
+        for p in d.glob("*.jsonl") if d.is_dir() else []:
+            if p.stem not in seen or p.stat().st_size > seen[p.stem].stat().st_size:
+                seen[p.stem] = p
+    rows = []
+    for p in sorted(seen.values(), key=lambda p: p.stat().st_mtime):
         a, b = span(p)
-        if since and b and b[:10] < since:
+        if since and b and b[:len(since)] < since:  # a date, or a date and time (2026-10-09T12:10)
+            continue
+        rows.append((p, a, b, typed(p)))
+    for p, a, b, msgs in rows:
+        dup = next((q for q, _, _, m in rows if q != p and msgs and len(m) > len(msgs) and m[:len(msgs)] == msgs), None)
+        if dup:
+            print(f"# повтор {dup.stem[:8]}: {p}")
             continue
         print(f"{p}\t{a}\t{b}\t{p.stat().st_size // 1024} KB")
 
@@ -88,7 +119,8 @@ def cmd_digest(src: str, out: str) -> None:
 if __name__ == "__main__":
     if len(sys.argv) >= 3 and sys.argv[1] == "list":
         since = sys.argv[sys.argv.index("--since") + 1] if "--since" in sys.argv else None
-        cmd_list(sys.argv[2], since)
+        also = [sys.argv[i + 1] for i, x in enumerate(sys.argv) if x == "--also"]
+        cmd_list(sys.argv[2], since, also)
     elif len(sys.argv) == 4 and sys.argv[1] == "digest":
         cmd_digest(sys.argv[2], sys.argv[3])
     else:

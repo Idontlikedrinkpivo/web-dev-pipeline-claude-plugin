@@ -42,9 +42,17 @@ Work the tree one question at a time. The **frontier** is every decision whose p
 ### How a question is shown
 
 The reader is a business or systems analyst, including a junior one. They
-must be able to see what the choice changes. Use the real terms (`OQ-1`,
-`Bearer`, `to-be`, a file name, an id). In the same place, say what that
-term means for this choice.
+must be able to see what the choice changes. **Open with one sentence in
+plain words — what a person will see, or what breaks — with a concrete
+example** (an input and what comes out: «файл «Отчёт.docx» скачается как
+«download»»). Ids and terms come after it, in brackets, never first: a
+question or a finding that opens with `FR-2`, `UC-5` or «хранимые поля» is
+read as noise. Use the real terms (`OQ-1`, `Bearer`, `to-be`, a file name,
+an id) after that sentence, and say what each means for this choice.
+
+**An answer that fits no open question is not guessed.** A lone letter
+after the question it belonged to was closed, or a letter that two open
+questions both offer, gets one line back: which question it answers.
 
 One question. One message. No card. `AskQuestion` and the other harness
 pickers (`AskUserQuestion`, `request_user_input`, `ask_question`,

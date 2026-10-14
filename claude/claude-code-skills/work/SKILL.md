@@ -396,8 +396,9 @@ When every unit in scope is committed, first run two checks yourself and save
 each output under `$(git rev-parse --git-dir)/pipeline-work/`:
 
 - **Definition of done** — every command in the plan's §5, with its exit
-  code; a browser suite runs after the project's verify skill's doctor says
-  READY, on parallel stands, and cleans up per `ui-test-cases` →
+  code; a browser suite opens its e2e section in `progress.md` and posts the
+  link before it starts, runs after the verify skill's doctor says READY, on
+  parallel stands, and cleans up per `ui-test-cases` →
   `references/parallel-stands.md` (a stand not yet copyable is a question
   there, not a silent single stand).
 - **Dead-code report** — the stack's detector over the whole repo: `knip` for

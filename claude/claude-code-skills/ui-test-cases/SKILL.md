@@ -457,7 +457,10 @@ A `DEFECTS` verdict names, per defect, the unit or screen it points at, so
 the next step is one increment plan of fix units, not a hunt. Ask about that
 per `pipeline`; do not fix here.
 
-A spec gap, or a defect the user rules is the spec's and not the app's
+A spec gap goes to the user as one plain line per `grill-me` → How a
+question is shown — the situation in everyday words, what the screen does
+now, the recommendation, and whether it means a spec edit — never as a
+bare «пробел в ТЗ S-13». A spec gap, or a defect the user rules is the spec's and not the app's
 («так и должно быть»), is a changed decision: the screen spec — and the SRS
 or the API when the rule lives there — and the cases that test it are
 fixed and committed at once, with no version change (`pipeline` →

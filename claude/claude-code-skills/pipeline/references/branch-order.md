@@ -39,7 +39,8 @@ order; the user may change the order at any of those questions.
   (writers, Figma builders) runs in the background, so neither branch
   waits on the other.
 - **Every question names its branch** — the chat line starts with
-  `[Бэкенд]` or `[Дизайн]` — and questions still come one at a time: a
+  `[Бэкенд]` or `[Дизайн]`, and its letters carry the branch too («Б-A»,
+  «Д-A») so a bare letter cannot answer the wrong one — and questions still come one at a time: a
   question of the other branch waits until this one is answered, while
   that branch's background work goes on.
 - **Separate files, separate commits.** Each branch writes only its own

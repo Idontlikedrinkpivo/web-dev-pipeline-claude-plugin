@@ -47,7 +47,7 @@ after the user chooses Отложить.
 Рекомендация: A. Применить — одно предложение, почему.
 ```
 
-M is the number of findings to route in this round, so the user sees how many are left. Terms in the finding stay; say what they mean for this fix. End the message with «Ответьте сообщением: буква или свой текст.» Options:
+M is the number of findings to route in this round, so the user sees how many are left. Open each finding with one plain sentence — what a person will see or what breaks — and a concrete example (an input and what comes out); the finding's ids and terms follow in brackets and stay, with what they mean for this fix (`grill-me` → How a question is shown). End the message with «Ответьте сообщением: буква или свой текст.» Options:
 
 - `A. Применить` — when that is the recommended action, append ` (Recommended)`
 - `B. Отложить`

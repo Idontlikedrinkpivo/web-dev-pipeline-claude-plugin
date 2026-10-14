@@ -141,7 +141,8 @@ A run removes what it started, and nothing else.
   (`<project>-e2e-*`) with no live run behind them — are removed at the
   start of the next run, before it starts its own.
 - **Watchers too.** Every Monitor or background wait the run started for
-  its stands and queues is stopped with them (`pipeline` →
+  its stands and queues is stopped with them, and the verdict waits until
+  the task list shows none of the run's own watchers (`pipeline` →
   `references/progress-files.md` → Every watcher ends with its work).
 - **Checked.** `docker ps -a --filter
   label=com.docker.compose.project=<project>` is empty for every project
