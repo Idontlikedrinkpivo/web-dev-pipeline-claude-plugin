@@ -210,8 +210,11 @@ the reader's.
 user chose to go on without it). Cases must exist; without them, offer
 mode write first.
 
-**The app must start locally.** Read `.claude/launch.json`, the README, and
-the compose file `repo-scaffold` wrote for the test database. The runner
+**The app must start locally.** Read the project's verify skill
+(`.claude/skills/verify/`) and run its doctor first; with none, write and
+prove it before the dispatch (`deploy-topology` →
+`references/verify-skill.md`), from `.claude/launch.json`, the README and
+the test compose file. Pass its path to the runner as `VERIFY`. The runner
 starts the database and the app, seeds the preconditions through the API
 or the seed scripts the project has, and signs in with test credentials
 from the project's seed or example config. External sign-in (SSO, SMS)

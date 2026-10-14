@@ -12,8 +12,9 @@ CASES           documentation/ui/test-cases/ — README.md (roles, data,
                 shared texts) and one file per section
                 (documentation/ui/<product>/test-cases/ with several UI products)
 UI SPEC         documentation/ui/screen-specs/   FIGMA FILE  <fileKey> | none
-APP START       <what .claude/launch.json / README / compose say: commands,
-                 ports, env, seed, test credentials source>
+VERIFY          .claude/skills/verify/SKILL.md — launch, ready, doctor,
+                 roles, evidence, cleanup and the stand's traps; follow it
+APP START       <anything VERIFY does not cover yet, or: see VERIFY>
 STANDS          <N stands, each: its addresses, its checkout or worktree, and
                  its test files — or: one stand>
 E2E FOLDER      <existing folder> | e2e/
@@ -22,6 +23,10 @@ REPORT PATH     documentation/plans/<version>/test-run.md (the open version
                 the session with every case ⏳ ждёт; you keep it live
 
 RULES
+- Launch, check and clean up the stand as VERIFY says; run its doctor
+  before the first case and after any surprising failure. A stand fault
+  VERIFY does not list yet goes into its Traps before your report (the only
+  project file you may edit besides tests).
 - Start the database and the app yourself; at the end stop every watcher
   (Monitor, background wait) you started and remove every stand you
   started — containers, volumes, networks — and only those

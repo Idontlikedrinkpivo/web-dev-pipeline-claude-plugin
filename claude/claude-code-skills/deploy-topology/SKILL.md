@@ -76,7 +76,7 @@ against each other to know what is active, are worth the duplication.
 ## Workflow
 
 Before Step 1, create `documentation/plans/<version>/progress-deploy.md` per
-`pipeline` → `references/progress-files.md` — Steps 1–8 as rows, `⏳ ждёт` — and post its link in
+`pipeline` → `references/progress-files.md` — Steps 1–8 and 7a as rows, `⏳ ждёт` — and post its link in
 the chat. Set each row `🔄 в работе` → `✅ готово` (or `⏭ пропущено: …`) as
 you go, and after each step write the count with the link in the chat; the
 image build in Step 8 runs for minutes, and its row says so
@@ -276,6 +276,17 @@ default) fails CI instead of shipping. Infra regressions are exactly the
 class of bug nobody notices locally and everybody notices in prod, so
 "it's just infra" is not a reason to skip them.
 
+### Step 7a. The project's verify skill
+
+Write `.claude/skills/verify/` — how to launch the test stand, what
+«ready» means, a read-only doctor, how to drive it per role, where evidence
+goes, how to clean up, and the stand's traps — per
+`references/verify-skill.md`, then prove it by running it end to end once.
+Every later stage that runs the app reads it instead of rediscovering the
+stand. An existing one is refreshed, not rewritten: doctor, one drive per
+feature this iteration changed, the map extended, drift fixed
+(`references/verify-skill.md` → Keeping it honest).
+
 ### Step 8. The release for hand-over
 
 The operators get one folder per release and nothing else: the image
@@ -353,6 +364,7 @@ its folder's contents.
   zero outbound network calls — Step 4.
 - Bootstrap and `up-<environment>` targets for all three — Step 6.
 - A passing compose-contract test for every Step 7 invariant — Step 7.
+- `.claude/skills/verify/` written and proven end to end — Step 7a.
 
 ## References
 
@@ -364,6 +376,8 @@ its folder's contents.
   they are with the `<<…>>` values filled (Step 2).
 - `references/compose-shape.md` — the concrete file-by-file compose
   skeleton and the exact invariants each service must hold (Step 4).
+- `references/verify-skill.md` — the project's verify skill: its sections,
+  the doctor's checks, the proof run, how stages use and refresh it (Step 7a).
 - `references/env-and-config-contract.md` — the env-var categories, the
   fail-fast validation shape, and the `.env.example`-sync test pattern
   (Steps 5–7).
