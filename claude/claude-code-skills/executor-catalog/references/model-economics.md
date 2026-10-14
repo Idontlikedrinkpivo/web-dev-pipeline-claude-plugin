@@ -109,6 +109,19 @@ and one agent file cannot hold two models. A writer that pastes the
 finished file into the typist's prompt has already spent the tokens the row
 exists to save.
 
+No arena on design writers. Measured 2026-10-14 on the same Full-trigger
+ledger, two runs per arm: two independent High candidates (Opus + Opus, or
+Opus + Fable `medium`), a blind Opus judge scoring both on a checklist, the
+winner taking the other's right items. The Fable candidate never won (Opus
+6 of 6); the judge gave every winner zero risk marks, so grafting moved 4
+minor items in 8 arenas. Two Opus on the architecture won both blind pairs
+against one writer, only slightly, and scored lower depth against the key
+(4 against 5); the schema and the API were even. At 2–2.5 times the cost
+($14 against $7 a schema, $32–38 against $15 an architecture) one writer
+stays. What the measurement did show — two independent writers miss
+different risks — is used where tests can pick the winner: two approaches
+at `impl-critical` (`work/references/two-approaches.md`).
+
 ## Effort
 
 Effort buys thinking where a row decides, not where it types:

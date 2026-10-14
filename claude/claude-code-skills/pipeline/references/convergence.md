@@ -53,6 +53,9 @@ have failed the same check**, the third is not written yet:
    tier) goes on, with the check as evidence. It is false — the next fix
    targets what the check found, and the two failed fixes are reverted when
    they only served the false premise.
+   On the code branch at `impl-critical`, a false approach gets two
+   approaches from one base, chosen by the tests (`work` →
+   `references/two-approaches.md`).
 
 This comes before escalation and before the stop rules below: a round that
 merely changes the error text looks like progress while the premise is

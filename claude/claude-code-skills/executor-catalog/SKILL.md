@@ -202,6 +202,10 @@ failure: grade 0 → Low → Mid → High → `impl-critical`.
   Low: `mechanical-worker` is `haiku`, `impl-lite` is `sonnet`.
 - `impl-ui` is not on that ladder: a difficulty return re-dispatches `impl-ui`
   once with the report.
+- At `impl-critical`, when the premise check finds the unit's approach
+  itself false, the next round dispatches two `impl-critical` with two named
+  approaches from one base commit; the tests pick the winner
+  (`work/references/two-approaches.md`).
 - Where an escalation is recorded: `work` Step 6. If the same *kind* of unit
   escalates repeatedly across runs, fix the cascade in
   `plan/references/complexity.md`, not the individual grades.

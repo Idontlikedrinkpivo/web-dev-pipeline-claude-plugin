@@ -355,17 +355,17 @@ is purely mechanical.
 | Scope breach | revert the out-of-scope part, re-dispatch the unit narrowed |
 | A red test made green by editing its assertion | treat as `BLOCKED`, not a pass — it hides a real conflict between the scenario and the design |
 
-**Repeat until it passes.** A unit is re-dispatched — `RETURN_TO_EXECUTOR`,
-an escalation, a corrected `Files` — round after round until its review
-says `COMMIT`, as long as each round makes progress (`pipeline` → `references/convergence.md`):
-the re-review reads only what the round changed, every re-dispatch carries
-the open findings and the previous reports, and a finding that survives a
-fix moves the unit one tier up. A `FIX_THEN_COMMIT` fix by
-`mechanical-worker` is confirmed by the orchestrator's own check. When
-progress stops — a closed finding came back, a round closed nothing, a
-finding survived a fix at `impl-critical` — the unit or the design is
-wrong: stop and say so. The progress file's Ревью cell shows the rounds
-(`RETURN_TO_EXECUTOR ×2 → COMMIT`).
+**Repeat until it passes.** A unit is re-dispatched — `RETURN_TO_EXECUTOR`, an escalation,
+a corrected `Files` — round after round until its review says `COMMIT`, as long as each
+round makes progress (`pipeline` → `references/convergence.md`): the re-review reads only
+what the round changed, every re-dispatch carries the open findings and the previous
+reports, and a finding that survives a fix moves the unit one tier up. A `FIX_THEN_COMMIT`
+fix by `mechanical-worker` is confirmed by the orchestrator's own check. At
+`impl-critical`, when the premise check finds the approach itself false (or cannot tell),
+the next round is two approaches from one base, picked by the tests
+(`references/two-approaches.md`). When progress stops — a closed finding came back, a round
+closed nothing, a finding survived a fix at `impl-critical` — the unit or the design is
+wrong: stop and say so. The Ревью cell shows the rounds (`RETURN_TO_EXECUTOR ×2 → COMMIT`).
 
 **A fix after a commit** — from a Low batch review or from the final review —
 is a new commit on top, never a rewrite of history. It goes to the executor
@@ -487,13 +487,13 @@ at Step 7, before writing the report.
 - `references/progress-file.md` — the progress file: units table, the fixes section after the final review, statuses, commits.
 - `pipeline` → `references/decision-changes.md` — a decision that changes
   during the run: the owner document, the cascade, the commit.
-- `executor-catalog/references/worker-prompt.md` — the packet and the report
-  format, used verbatim per dispatch.
+- `executor-catalog/references/worker-prompt.md` — the packet and the report format, used verbatim per dispatch.
 - `references/context7.md` — the Step 2b library-docs procedure; read before
   the first dispatch when a unit calls a public library API. Context7 is not a
   stage and not a substitute for language skills.
 - `references/two-phase-dispatch.md` — the witnessed-red protocol; read before
   dispatching a High or risk-floor unit.
+- `references/two-approaches.md` — two approaches at `impl-critical` when the approach is in doubt.
 - `pipeline` (skill) — read it after `code-review-full` closes the run.
   The reviews inside this run stay automatic. The handoff to the next
   stage is a question, per `pipeline` → "Asking before a transition".
