@@ -1,6 +1,6 @@
 {
   "name": "dev-pipeline",
-  "version": "1.2.113",
+  "version": "1.2.114",
   "description": "Пайплайн разработки от идеи до CI: требования, контракт, дизайн, архитектура, план, исполнение с ревью, контейнеры и CI — скиллы и агенты-исполнители с закреплёнными моделями.",
   "author": {
     "name": "Ilikedrinkpivo"
@@ -34,6 +34,7 @@
     "./_agents/review-medium.md",
     "./_agents/screen-writer.md",
     "./_agents/security-auditor.md",
+    "./_agents/session-reviewer.md",
     "./_agents/srs-author.md",
     "./_agents/ui-test-runner.md",
     "./_agents/ui-test-writer.md"

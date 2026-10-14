@@ -206,8 +206,8 @@ summary (on disk only, like the rest of `plans/`) and tag the current commit
 `v<version>` — the baseline the next iteration's pins and diffs read
 against. Do both also when the user asks «итог», «как отработал пайплайн»,
 or «сводка» after `work`. They close the version: a `plans/<version>/`
-folder with `summary.md` is done. Then, before the last line, clear the
-closed iteration's working files: `references/closing-cleanup.md`.
+folder with `summary.md` is done. Then, before the last line, run `reflect`
+unasked, then clear the working files (`references/closing-cleanup.md`).
 
 ### The summary
 
@@ -476,6 +476,7 @@ that gate asks the next transition itself, using this section.
   closed: the owner, the cascade, the commit, where it happens.
 - `references/team.md` — design stages handed to other people.
 - `references/closing-cleanup.md` — the working files a closed iteration drops.
+- `reflect` (skill) — the plugin's own failures in the iteration's sessions.
 - `references/branch-order.md` — the order of the two branches after the
   SRS, and both branches in one session.
 - `references/design-owner.md` — who runs the design, asked at the start.
