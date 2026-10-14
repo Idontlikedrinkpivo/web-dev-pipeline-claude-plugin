@@ -159,6 +159,19 @@ session until the user writes again.
   line with the count and the link, and go on. Only a stop («стоп»,
   «подожди», «остановись») or a changed decision changes the run — the
   latter through `pipeline` → `references/decision-changes.md`.
+- **Check, don't ask, when a run can find out.** Before a question to the
+  user inside a run (`work`, a UI test run, an audit), sort it: a fact the
+  session can observe by running something — which port the stand uses,
+  whether the API returns a field, whether a test passes without the fix,
+  whether a failure is the app's or the test's, whether a library supports
+  a call — is not the user's to answer: run the check and record it as
+  «решил по проверке: <что запустил> → <результат>». Only a decision —
+  product, scope, a rule the documents leave open, a finding against a
+  settled decision — goes to the user. The design stages ask their
+  questions on purpose and are not affected.
+- **Pause and pick up through the resume note.** A long run keeps
+  `resume.md` beside its progress file and reads it first when it resumes
+  (`references/pause-and-resume.md`).
 - **Never ask whether to continue.** The run was agreed when it started; it
   asks only in its stage's stop cases. A turn that finds the run idle — the
   last one was cut off, the session was compacted, the user wrote into a

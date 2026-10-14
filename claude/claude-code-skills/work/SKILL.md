@@ -129,7 +129,8 @@ or compacted session writes the line before the next dispatch.
 **Record the run base and resume from git.** Before the first dispatch, record
 `BASE=$(git rev-parse HEAD)` in the run report. Every unit commit carries the
 trailer `Plan-Unit: <version>/U<n>` (Step 5.5). On start — and after any
-context compaction — derive the committed set from
+context compaction — read `resume.md` if the run left one (`pipeline` →
+`references/pause-and-resume.md`), then derive the committed set from
 `git log BASE..HEAD --format=%B | grep '^Plan-Unit: <version>/'`, not from
 memory: a unit listed there is done and is never re-dispatched. Re-dispatching
 finished units after losing your place is the single most expensive way a run
