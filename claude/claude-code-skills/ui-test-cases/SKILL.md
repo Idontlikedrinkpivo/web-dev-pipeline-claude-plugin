@@ -266,8 +266,10 @@ sees how far the full picture is:
    with its own bar over the pass-1 `❌ не прошёл` cases. Each is triaged:
    **test defect** — the test is fixed and the case re-run, round after
    round while each fix changes the failure (`✅ тест исправлен, прошёл`);
-   a test that fails the same way after a fix is `🔧 тест не удалось
-   исправить` (`pipeline` → `references/convergence.md`);
+   after two failed fixes on one assumption the assumption is checked
+   before a third (`pipeline` → `references/convergence.md` → Attack the
+   premise); a test that fails the same way after a fix is `⛔ тест не
+   удалось исправить`;
    **app defect** — the app contradicts the spec (`❌ дефект приложения`);
    **mockup mismatch** — works, but the screen differs from the frame
    (`🖼 расхождение с макетом`); **spec gap** — the spec never said

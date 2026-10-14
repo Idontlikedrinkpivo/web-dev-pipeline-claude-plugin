@@ -17,7 +17,9 @@ that converges is never cut off, and a run that circles is stopped at once.
 - **History travels.** The fixer gets every open finding with what was
   already tried for it, so no approach is repeated blind.
 - **Strength rises only when needed.** A finding that survives a fix goes to
-  the next tier of its ladder (`executor-catalog` → Escalation); a first
+  the next tier of its ladder (`executor-catalog` → Escalation) — after the
+  premise check below when two fixes have already failed it, so the stronger
+  tier gets the right target, not a better version of the same miss; a first
   fix stays on the cheapest tier that can make it. A mechanical finding
   stays with `mechanical-worker`, and the session's own check confirms it —
   no reviewer dispatch.
@@ -32,6 +34,30 @@ Progress is either:
 - the open set shrank, or
 - the only new findings sit in what the last fix changed and none of them
   was closed before.
+
+## Attack the premise
+
+Each failed fix built on one assumption is evidence against the assumption,
+not a reason to tune the fix. So when **two fixes that share one premise
+have failed the same check**, the third is not written yet:
+
+1. **Write the premise** in one sentence — what both fixes took for granted
+   («the element appears, only slowly»; «this database belongs to this
+   code»; «the file pane redraws on a subagent's Edit»).
+2. **Run a check that would come out differently if the premise were
+   false** — not another fix: log where the request really goes, list the
+   migrations the database recorded against the files, screenshot the page
+   at the moment of the timeout, open the file and watch it. A script when
+   it can be rerun.
+3. **Act on what it shows.** The premise holds — the next fix (or the next
+   tier) goes on, with the check as evidence. It is false — the next fix
+   targets what the check found, and the two failed fixes are reverted when
+   they only served the false premise.
+
+This comes before escalation and before the stop rules below: a round that
+merely changes the error text looks like progress while the premise is
+wrong. The round's line says it: «Круг 3: допущение «запрос доходит до
+стенда» — ложно: уходит на :8080 чужого стенда».
 
 ## When to stop and ask the user
 
