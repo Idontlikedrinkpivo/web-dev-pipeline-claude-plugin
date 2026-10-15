@@ -76,7 +76,8 @@ result goes into the chat in a line.
    only where the task needs it) and for log filters (JSON lines on the
    container's stdout, whatever collects them). Each row names what is
    behind it (table, `file`, operationId) in its own column — the duty
-   developer's way in; the operator reads the rest.
+   developer's way in; the operator reads the rest. No requirement ids
+   (FR, NFR, BR, UC, actors, frames) — the facts themselves, screens by title.
 4. **Prove it on the test stand** per `references/proof.md`: start the stand
    (the verify skill's doctor first), make one record of each kind through
    the API or the UI, run every query and every command of the document,
