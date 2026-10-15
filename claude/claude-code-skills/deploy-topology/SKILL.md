@@ -314,7 +314,9 @@ down.
    image, one `docker save` of all of them into
    `release/<version>/<project>-<version>.tar` (e.g.
    `release/1.4.0/room-booking-1.4.0.tar`), and a copy of
-   `documentation/deploy/deploy.md` as `release/<version>/DEPLOY.md`.
+   `documentation/deploy/deploy.md` as `release/<version>/DEPLOY.md` — and of
+   `documentation/operations/operations.md` as `OPERATIONS.md` when it exists
+   (`operations-doc`, the next stage).
    `release/` is in `.gitignore` and `.dockerignore`.
 4. **Run it once** and report the folder, the tar size and the image tags;
    if Docker or buildx is not available here, say so instead of claiming the

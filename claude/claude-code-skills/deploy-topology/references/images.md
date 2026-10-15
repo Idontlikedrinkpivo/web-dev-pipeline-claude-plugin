@@ -150,6 +150,8 @@ Images are handed over as one file, never pushed to a registry. Write
    (e.g. `release/1.4.0/room-booking-1.4.0.tar`);
 4. copies `documentation/deploy/deploy.md` to `release/<APP_VERSION>/DEPLOY.md`,
    replacing `<версия>` with the version and `<тег>` with the image tag;
+   and `documentation/operations/operations.md`, when it exists, to
+   `release/<APP_VERSION>/OPERATIONS.md` (`operations-doc`);
 5. prints the folder, the tar size, and both image names with tags.
 
 The file name carries the version so the releases sit side by side and an

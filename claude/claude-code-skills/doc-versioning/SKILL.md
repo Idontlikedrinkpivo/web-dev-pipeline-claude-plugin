@@ -147,6 +147,7 @@ next stamp compares each document with its last stamped state, not with
 | UI test cases | `documentation/ui/test-cases/` — `README.md` and one file per section | `TC-` ids, across the set — **unversioned**, `README.md`'s `sources:` pins the SRS and the screen specs | `ui-test-cases` mode run; the E2E suite |
 | Project map | `documentation/project-map/project-map.md` | none — index, **unversioned** | nobody; `repo-scaffold` writes it |
 | Deploy document | `documentation/deploy/deploy.md` | none — **unversioned**; derived from `docker-compose.prod.yml` and `.env.example`, kept true by `deploy-topology`'s sync test | the operators, as `release/<version>/DEPLOY.md` |
+| Operations document | `documentation/operations/operations.md` | `З-`, `П-` ids — **unversioned**; derived from the schema, the architecture and the code, kept true by `operations-doc`'s query test | the operators and developers on duty, as `release/<version>/OPERATIONS.md` |
 | Implementation plan | `documentation/plans/<version>/plan.md`, one folder per service version | U-ids, per plan | the `work` skill |
 | Plan review | `plan-review.md` in the version folder | none — a check result, **unversioned**; first line `Verdict:` | `plan`, `work` and `pipeline` read it |
 | Plan progress | `progress.md` in the version folder | none — a view of git, **unversioned** | nobody; `work` updates it as each unit lands |

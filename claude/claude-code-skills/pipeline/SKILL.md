@@ -63,7 +63,7 @@ scaffolded. They meet before the plan.
 
 ```
 1 → 2 ─┬─ 3 → 4 → 5 → 6 ─────────┐
-       └─ 7 → 8 → 9 ─────────────┴→ 10 → 11 → 12 → 13 → 14 → 15 → 16
+       └─ 7 → 8 → 9 ─────────────┴→ 10 → 11 → 12 → 13 → 14 → 15 → 16 → 17
 ```
 
 | # | Stage | Skill | Gates (ask, in order) | Then offer (ask) |
@@ -82,8 +82,9 @@ scaffolded. They meet before the plan.
 | 12 | Execution | `work` | `code-review-unit` per unit → `code-review-full` once — **automatic, do not ask** | `ui-test-cases` (run) when the product has screens, else `security-audit` |
 | 13 | UI acceptance run | `ui-test-cases` — mode run | none | a fix plan (`plan`) when the verdict is `DEFECTS`, else `security-audit` |
 | 14 | Security audit — the whole application, once per iteration | `security-audit` | none — it is the check | a fix plan (`plan`) when the verdict is `FIX`, else `deploy-topology` |
-| 15 | Compose topology | `deploy-topology` | none | `ci-pipeline` |
-| 16 | CI workflow | `ci-pipeline` | none | nothing — the pipeline ends; see "End of the pipeline" |
+| 15 | Compose topology | `deploy-topology` | none | `operations-doc` |
+| 16 | Operations document — journals, jobs, alarms, how to see each | `operations-doc` | none — its queries are proven on the test stand | `ci-pipeline` |
+| 17 | CI workflow | `ci-pipeline` | none | nothing — the pipeline ends; see "End of the pipeline" |
 
 ### Two branches
 
@@ -197,16 +198,14 @@ SemVer and its major in the path — `openapi-spec-generator` → Contract versi
 
 ## End of the pipeline
 
-The pipeline ends after stage 16, or after the last stage that ran when
-14–16 were skipped. Say in the chat, in Russian, that the work is done and
-committed on `iteration/<version>`; give the command that pushes the branch
-and its tag (`git push origin iteration/<version> v<version>`), and say that
-the merge into `main` is the user's, on GitHub; offer no other stage. Before that line, write the iteration's
-summary (on disk only, like the rest of `plans/`) and tag the current commit
-`v<version>` — the baseline the next iteration's pins and diffs read
-against. Do both also when the user asks «итог», «как отработал пайплайн»,
-or «сводка» after `work`. They close the version: a `plans/<version>/`
-folder with `summary.md` is done. Then, before the last line, run `reflect`
+The pipeline ends after stage 17, or after the last stage that ran when 14–17 were skipped. Say in
+the chat, in Russian, that the work is done and committed on `iteration/<version>`; give the
+command that pushes the branch and its tag (`git push origin iteration/<version> v<version>`), and
+say that the merge into `main` is the user's, on GitHub; offer no other stage. Before that line,
+write the iteration's summary (on disk only, like the rest of `plans/`) and tag the current commit
+`v<version>` — the baseline the next iteration's pins and diffs read against. Do both also when
+the user asks «итог», «как отработал пайплайн», or «сводка» after `work`. They close the version:
+a `plans/<version>/` folder with `summary.md` is done. Then, before the last line, run `reflect`
 unasked, then clear the working files (`references/closing-cleanup.md`).
 
 ### The summary
