@@ -96,7 +96,7 @@ SELECT (SELECT count(*) FROM room_booking.bookings WHERE ends_at < now() - inter
 Отфильтровать по событию (строки stdout в файле или потоке):
 
 ```bash
-jq -c 'select(.event == "booking_rejected") | {time, code, reqId}' backend.log
+jq -cR 'fromjson? | select(.event == "booking_rejected") | {time, code, reqId}' backend.log
 ```
 
 ## Проверки и метрики
@@ -154,7 +154,12 @@ WHERE id = $1 AND status = 'pending';
   naming each, and says why a personal field is shown when it is.
 - **A log filter** works on JSON lines from the container's stdout — no
   path to a log file inside a container, no collector-specific syntax
-  unless `deploy.md` names the collector.
+  unless `deploy.md` names the collector. It reads raw lines and skips what
+  is not JSON (`jq -R 'fromjson? | …'`): a runtime writes its own warnings
+  to the same stream, and a plain `jq` stops at the first one. The field
+  names come from a real line of the stand's log, not from the logger's
+  documentation (one request may be two lines — the address on the first,
+  the status on the second).
 - **«Обязательные журналы»** comes first after «Доступы» and holds only
   the required records (`required-records.md`); a section with none says
   «Обязательных журналов нет». A required record the system does not keep

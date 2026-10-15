@@ -78,7 +78,7 @@ result goes into the chat in a line.
    the report. Never invent a screen or an operation.
 3. **Write `documentation/operations/operations.md`** per
    `references/template.md`: sections, row shapes, the rules for queries
-   (read-only, schema-qualified, bounded, parameters as `$1`, personal data
+   (read-only, schema-qualified, bounded, numbered parameters, personal data
    only where the task needs it) and for log filters (JSON lines on the
    container's stdout, whatever collects them). Each row names what is
    behind it (table, `file`, operationId) in its own column — the duty
@@ -102,7 +102,13 @@ result goes into the chat in a line.
    the document as a link, a required record the system does not keep or
    keeps shorter than its basis first, how many records, jobs, events and alarms it
    covers, the queries proven, every gap from step 2 and every difference
-   from step 1 — then the next stage the `pipeline` table names.
+   from step 1 — then the next stage the `pipeline` table names. Report the
+   differences in three groups, because each is fixed differently: **the code
+   contradicts a document** (a defect — a fix in code; prove it on the stand
+   when you can), **a document is behind the code** (the document's owner
+   stage fixes the text), **the documents are silent** (nobody decided — a
+   question for the user before any code). An item that looks like a
+   difference but a document states it on purpose is not one.
 
 ## On an increment
 

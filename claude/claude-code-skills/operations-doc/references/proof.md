@@ -10,14 +10,17 @@ document is committed, and a test keeps the queries true afterwards.
    (`.claude/skills/verify/`) and its doctor first; without one,
    `deploy-topology`'s test compose. A doctor that is not READY is fixed
    first or reported — never proven on a broken stand.
-2. **Make one record of each kind** through the API or the UI, the way a
+2. **Have one record of each kind.** Records the stand already holds
+   (earlier test runs leave plenty) count — list what is there first and
+   make only the missing kinds, through the API or the UI, the way a
    user would — never by inserting rows: a booking, its cancellation, a
    maintenance block that queues a letter. A record that needs an external
    failure (a letter that cannot be sent) uses the stand's fake of that
    system when the test compose has one; otherwise its rows are proven only
    by the query test and the report says so.
 3. **Run every query** with the read-only role when the document names one,
-   with the parameters of the records just made; every log filter over the
+   with the parameters of real records — `PREPARE` the block as written and
+   `EXECUTE` it with values, inside `BEGIN READ ONLY … ROLLBACK`; every log filter over the
    container's stdout (`docker compose logs --no-log-prefix backend`); every
    health and metrics call.
 4. **Check the answer**, not just the exit code: the row the query should
@@ -41,6 +44,17 @@ start with `SELECT` or `WITH`. A failure names the query id (`З-2`) and the
 database error. It runs with the integration tests, so a migration that
 renames a column fails the build that renames it.
 
-A write procedure (`П-<n>`) has its statement in a ` ```sql ` block too: the
-test prepares it inside a transaction it rolls back, and the read-only check
-skips blocks under a `П-` heading.
+A procedure (`П-<n>`) has its statements in a ` ```sql ` block too: the
+test runs them inside a transaction it always rolls back (DDL such as
+`CREATE ROLE` included — PostgreSQL rolls it back), and the read-only check
+skips blocks under a `П-` heading. A psql variable in a procedure
+(`:'readonly_password'` — how the operator passes a secret) is replaced by a
+literal in the test.
+
+**Where it runs.** The project's integration database, never the stand's:
+other integration suites reset their database, so pointing them at the
+stand would wipe its data. To run the new test once during this stage, make
+a throwaway database on the stand's server (`CREATE DATABASE …`), migrate it
+the project's way, run only this test file there, then drop that database.
+Prove the test can fail: rename one column a query uses in the throwaway
+database and see exactly the queries that use it fail.
