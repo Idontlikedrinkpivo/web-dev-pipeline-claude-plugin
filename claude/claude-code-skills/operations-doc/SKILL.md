@@ -52,6 +52,12 @@ result goes into the chat in a line.
    - **records** — tables whose rows are a record of what happened: audit
      marks (`cancelled_by`, `created_by`), event and history tables,
      outgoing queues (outbox), received events, idempotency keys;
+   - **required records** — every record a law, a regulation or the SRS
+     says must be kept: processing of personal data, consents, data-subject
+     requests, access to personal data, security audit. For each: the
+     basis, the retention the basis sets against the retention the system
+     has, and who may read it. A required record the system does not keep
+     at all is the worst gap this stage can find (`references/required-records.md`);
    - **jobs** — every scheduled or looping process: schedule, what it
      changes, how a run leaves a trace;
    - **log events** — every named event the code writes
@@ -93,7 +99,8 @@ result goes into the chat in a line.
    yet, say that the next build carries it.
 7. **Commit** the document and the test (`docs: эксплуатация`), then close
    per `pipeline` → "Asking before a transition": the report first —
-   the document as a link, how many records, jobs, events and alarms it
+   the document as a link, a required record the system does not keep or
+   keeps shorter than its basis first, how many records, jobs, events and alarms it
    covers, the queries proven, every gap from step 2 and every difference
    from step 1 — then the next stage the `pipeline` table names.
 
@@ -125,6 +132,8 @@ leaves the document in the same commit.
 
 ## References
 
+- `references/required-records.md` — records a law, a regulation or the
+  SRS requires: how to find them, what their section holds, the gaps.
 - `references/template.md` — the document's sections and row shapes, with
   the room-booking example.
 - `references/proof.md` — the proof run on the test stand and the query
