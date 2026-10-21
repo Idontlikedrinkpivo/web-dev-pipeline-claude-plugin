@@ -47,12 +47,22 @@ document keeps none.
   edit; **the link the user gets is always the page**, never the `.md`.
 - **When.** Create the file before the first step or dispatch, every row
   `⏳ ждёт`; make sure its page exists beside it (run the command above
-  when it does not). Then post the page's link in the chat — a clickable
-  Markdown link with the repo-relative path — before the first step
-  starts:
+  when it does not). Then open it and post its link before the first step
+  starts.
+- **Open it.** In the desktop app (the built-in browser's tools are
+  there), a page opened as a file is not reloaded — serve the folder:
+  `python3 <pipeline skill folder>/scripts/progress_server.py
+  documentation/plans/<version>` prints `http://127.0.0.1:<port>/` (it
+  reuses a server already running for that folder). Open
+  `<that base><page>.html` in the built-in browser yourself, and give that
+  address as the link. Without the built-in browser (a terminal, Codex)
+  the link is the page's repo-relative path; the user's browser reloads a
+  file by itself. Stop the server at the iteration's close
+  (`references/closing-cleanup.md`) or when the user says they are done
+  watching: the same script with `--stop`.
 
   ```text
-  Прогресс ТЗ на экраны: [progress-screen-specs.html](documentation/plans/2.1.0/progress-screen-specs.html) — откройте, страница обновляется сама.
+  Прогресс ТЗ на экраны: [progress-screen-specs.html](http://127.0.0.1:8790/progress-screen-specs.html) — открыл во встроенном браузере, страница обновляется сама.
   ```
 
   A run resumed after a break or a context compaction rebuilds the rows from

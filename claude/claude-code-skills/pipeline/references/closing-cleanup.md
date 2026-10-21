@@ -12,12 +12,16 @@ question.
 | In the closed iteration | Fate |
 |---|---|
 | `documentation/plans/<version>/summary.md` | **stays** — the iteration's numbers and the mark that it is closed |
-| the rest of `documentation/plans/<version>/`: `plan.md`, `plan-review.md`, every `progress*.md`, `test-run.md`, `docs-consistency.md`, `security-audit.md`, inventories and other working files | removed |
+| the rest of `documentation/plans/<version>/`: `plan.md`, `plan-review.md`, every `progress*.md` and its `.html` page, `.progress-server`, `test-run.md`, `docs-consistency.md`, `security-audit.md`, inventories and other working files | removed |
 | `$(git rev-parse --git-dir)/pipeline-work/` files of this iteration's runs (diffs, run reports, stand logs) | removed |
 | contract documents — SRS, schema, API, architecture, screen specs, test cases — and everything else in git | never touched here |
 
 Earlier closed folders that still hold more than `summary.md` get the
 same treatment in the same question.
+
+**First, stop the progress server** of each folder being cleared, when one
+runs (`documentation/plans/<version>/.progress-server` exists):
+`python3 <pipeline skill folder>/scripts/progress_server.py documentation/plans/<version> --stop`.
 
 **Before removing**, move what only a working file still holds into its
 owner document: an accepted risk in `security-audit.md` goes to the

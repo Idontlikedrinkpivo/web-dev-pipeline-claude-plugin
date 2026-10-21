@@ -37,8 +37,9 @@ only has numbers.
 3. **Read the report** the script prints: pages, ids per kind, ids mentioned but never defined, broken links.
    An id that is mentioned and defined nowhere, or a broken link between documents, is a defect of the
    documents, not of the site: name each in the close. Do not edit a document to make the site prettier.
-4. **Look at it** before handing it over: open `documentation/site/index.html` (in the browser pane, or tell the user to
-   open it from disk), follow one requirement link, one test-case link and the API page, try the search with
+4. **Look at it** before handing it over: open `documentation/site/index.html` in the built-in browser when the
+   desktop app has one (or tell the user: `open documentation/site/index.html` — opening it from the file tree
+   shows the HTML source in the editor), follow one requirement link, one test-case link and the API page, try the search with
    one number. A page that renders wrong — a table that broke, a diagram missing — is a fix in
    `scripts/mdhtml.py`, reported, not hidden.
 5. **Close** with one line: the link to `documentation/site/index.html`, pages and ids, the audience, and what the report
