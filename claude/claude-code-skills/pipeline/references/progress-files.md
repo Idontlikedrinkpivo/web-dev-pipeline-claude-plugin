@@ -37,21 +37,22 @@ document keeps none.
   `references/progress-file.md` → The progress bar); then the count line
   with its label; then the table; under the table one state line ending
   «обновлено YYYY-MM-DD HH:MM».
-- **The page.** Every progress file of the iteration is shown on one page,
-  `documentation/plans/<version>/progress.html`: a bar per stage, then each
-  file in full; it reloads itself every 5 seconds. The plugin's hook
-  rebuilds it after every edit of a progress file, a subagent's included;
-  `python3 <pipeline skill folder>/scripts/progress_page.py` rebuilds it by
-  hand. The Markdown file stays the source the agents edit; **the link the
-  user gets is always the page**, never the `.md`.
+- **The page.** Each progress file has its page beside it, the same name
+  in `.html` (`progress-screen-specs.md` → `progress-screen-specs.html`):
+  the bar drawn as a bar, the count, the status counts, then the file in
+  full; it reloads itself every 5 seconds. The plugin's hook rebuilds the
+  page after every edit of its file, a subagent's included;
+  `python3 <pipeline skill folder>/scripts/progress_page.py <file.md>`
+  rebuilds one by hand. The Markdown file stays the source the agents
+  edit; **the link the user gets is always the page**, never the `.md`.
 - **When.** Create the file before the first step or dispatch, every row
-  `⏳ ждёт`; make sure `progress.html` exists beside it (run the command
-  above when it does not). Then post the page's link in the chat — a
-  clickable Markdown link with the repo-relative path — before the first
-  step starts:
+  `⏳ ждёт`; make sure its page exists beside it (run the command above
+  when it does not). Then post the page's link in the chat — a clickable
+  Markdown link with the repo-relative path — before the first step
+  starts:
 
   ```text
-  Прогресс ТЗ на экраны: [progress.html](documentation/plans/2.1.0/progress.html) — откройте, страница обновляется сама.
+  Прогресс ТЗ на экраны: [progress-screen-specs.html](documentation/plans/2.1.0/progress-screen-specs.html) — откройте, страница обновляется сама.
   ```
 
   A run resumed after a break or a context compaction rebuilds the rows from
@@ -64,7 +65,7 @@ document keeps none.
   scrolling to the start:
 
   ```text
-  ТЗ на экраны: 5 из 10 · [progress.html](documentation/plans/2.1.0/progress.html)
+  ТЗ на экраны: 5 из 10 · [progress-screen-specs.html](documentation/plans/2.1.0/progress-screen-specs.html)
   ```
 
 - **One set of statuses** in every progress file (below), so the user reads
@@ -74,7 +75,7 @@ document keeps none.
   the clickable Markdown link with the repo-relative path. «Обновил
   прогресс в progress-design.md — файл можно открыть» is wrong: the name in
   plain text or in backticks opens nothing, and the user has to search for
-  the file. Write `[progress.html](documentation/plans/2.1.1/progress.html)`.
+  the file. Write `[progress-design.html](documentation/plans/2.1.1/progress-design.html)`.
 
   Where a subagent changes the rows (the Figma builder, the test writer,
   the test runner), write the line each time its dispatch returns. A stop
