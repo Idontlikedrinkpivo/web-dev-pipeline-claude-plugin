@@ -66,9 +66,13 @@ searches work on the Markdown (`doc-versioning` → Registry).
   («### UC-4. …»), a bold paragraph start («**З-2. …**») or a screen-spec file name (`S-3-card.md`); every
   other mention links there. Query and procedure ids (`З-`, `П-`) link only inside the operations document.
   `` `bookRoom` `` links to its operation on the API page; `` `../db/schema.md` `` to that page.
-- **The API page** is Swagger UI over the contract bundled into one JSON (`api/spec.js`): operations by tag,
+- **The API page** is Swagger UI over the contract bundled into one JSON (`api/openapi.json`, linked into
+  `api/spec.js` with the ids made links): operations by tag,
   request and response schemas and examples, read-only — «Try it out» is off, the site has no API behind it.
   Swagger UI's own files (pinned version) sit in `assets/swagger/`, so the page works offline.
+- **What a number means** shows on hover: every linked id carries its definition's text (a requirement row's
+  text, a heading's title), on the pages and in the API page's descriptions alike — nobody remembers what
+  BR-32 says.
 - **Search** over titles and text, and straight to a definition when the query is a number.
 - **Light and dark** follow the system; narrow screens get a menu button; print drops the chrome.
 

@@ -54,6 +54,18 @@ background:#1f2328;color:#e6e6e6;font:14px -apple-system,BlinkMacSystemFont,"Seg
 .swagger-ui .opblock .opblock-summary-operation-id{font-size:12.5px;white-space:nowrap;word-break:normal;flex-shrink:0;
 color:#6b7280;margin-left:12px}
 .swagger-ui .opblock .opblock-summary-description{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.swagger-ui .markdown p,.swagger-ui .renderedMarkdown p,.swagger-ui .markdown li,.swagger-ui .renderedMarkdown li{
+font:14.5px/1.65 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;color:#2b2f36;max-width:880px}
+.swagger-ui .markdown p,.swagger-ui .renderedMarkdown p{margin:0 0 12px}
+.swagger-ui .markdown code,.swagger-ui .renderedMarkdown code{background:#eef0f3!important;color:#24292f!important;
+font-weight:500!important;font-size:12.5px!important;padding:1px 5px!important;border-radius:4px;border:0!important;
+font-family:ui-monospace,SFMono-Regular,Menlo,monospace!important;white-space:nowrap}
+.swagger-ui .markdown a,.swagger-ui .renderedMarkdown a{color:#2f5fd0;text-decoration:none;border-bottom:1px dotted #2f5fd0;
+white-space:nowrap;position:relative}
+.swagger-ui .info{max-width:960px}.swagger-ui .opblock-description-wrapper{padding:14px 20px}
+[data-tip]:hover::after{content:attr(data-tip);position:absolute;left:0;bottom:calc(100% + 6px);z-index:50;width:max-content;
+max-width:380px;white-space:normal;background:#1f2328;color:#f3f4f6;font:13px/1.45 -apple-system,BlinkMacSystemFont,sans-serif;
+padding:8px 10px;border-radius:8px;box-shadow:0 6px 20px rgba(0,0,0,.18);pointer-events:none}
 </style></head><body>
 <div class="bar"><a href="../index.html">← К документации</a><span>{title} · контракт API</span></div>
 <div id="swagger-ui"></div>
@@ -64,6 +76,12 @@ window.ui = SwaggerUIBundle({
   defaultModelsExpandDepth: 0, defaultModelExpandDepth: 3, displayOperationId: true, filter: true,
   supportedSubmitMethods: [], tryItOutEnabled: false, syntaxHighlight: {activated: true, theme: "agate"}
 });
+// a requirement link's title becomes the page's own tooltip (instant, readable) instead of the browser's
+new MutationObserver(function () {
+  document.querySelectorAll(".swagger-ui .markdown a[title], .swagger-ui .renderedMarkdown a[title]").forEach(function (a) {
+    a.setAttribute("data-tip", a.title); a.removeAttribute("title");
+  });
+}).observe(document.body, {childList: true, subtree: true});
 </script></body></html>
 """
 
@@ -83,6 +101,23 @@ def args() -> dict:
     return opt
 
 
+def plain(s: str) -> str:
+    s = re.sub(r"\[([^\]]*)\]\([^)]*\)", r"\1", s)
+    return re.sub(r"\s+", " ", re.sub(r"[*`_]|<br\s*/?>", " ", s)).strip()
+
+
+def summary_of(line: str, ident: str, limit: int = 220) -> str:
+    """What a defining line says: a table row's text cells (priority, «—» and the like left out), or the rest of
+    a heading or bold lead after the id."""
+    if line.lstrip().startswith("|"):
+        cells = [plain(c) for c in line.strip().strip("|").split("|")[1:]]
+        cells = [c for c in cells if c and c not in ("—", "-") and not re.fullmatch(r"(must|should|could|won't|\d+)", c, re.I)]
+        text = " — ".join(cells)
+    else:
+        text = plain(re.sub(rf"^[#*\s]*{re.escape(ident)}[.:)\s]*", "", line.strip()))
+    return text if len(text) <= limit else text[:limit - 1].rsplit(" ", 1)[0] + "…"
+
+
 def rel(target: str, frm: str) -> str:
     """Relative URL from page `frm` (site path) to site path `target`."""
     return os.path.relpath(target, os.path.dirname(frm) or ".").replace(os.sep, "/")
@@ -96,6 +131,7 @@ class Site:
         self.title = title or self.project_name()
         self.pages: list[dict] = []          # {src, url, section, title, text}
         self.defs: dict[str, str] = {}       # id -> url#anchor (or url)
+        self.def_text: dict[str, str] = {}   # id -> what it says, short — shown on hover over a mention
         self.ops: dict[str, str] = {}        # operationId -> "METHOD /path · summary"
         self.op_tags: dict[str, str] = {}    # operationId -> its first tag (Swagger UI links by tag)
         self.mentioned: dict[str, int] = {}
@@ -161,11 +197,14 @@ class Site:
             m = re.match(r"^(S-\d+)-", pg["src"].name)
             if m:
                 self.defs[m.group(1)] = pg["url"]
+                self.def_text[m.group(1)] = re.sub(r"^S-\d+\.\s*", "", pg.get("short", pg["title"]))
         for pg in self.pages:
             for line in pg["text"].splitlines():
                 m = re.match(rf"^\|\s*[*`]*({ID})[*`]*\s*\|", line) or re.match(rf"^#{{1,6}}\s+[*`]*({ID})\b", line) or re.match(rf"^\*\*({ID})\.", line)
                 if m and m.group(1) not in self.defs:
                     self.defs[m.group(1)] = f"{pg['url']}#{m.group(1)}"
+                if m and m.group(1) not in self.def_text:
+                    self.def_text[m.group(1)] = summary_of(line, m.group(1))
 
     def index_ops(self) -> None:
         api = self.docs / "api"
@@ -235,7 +274,9 @@ class Site:
                     return i
                 page, _, frag = d.partition("#")
                 href = (rel(page, url) if page != url else "") + (f"#{frag}" if frag else "")
-                return f'<a class="ref" href="{html.escape(href or "#")}">{i}</a>'
+                tip = self.def_text.get(i, "")
+                attr = f' data-tip="{html.escape(tip)}"' if tip else ""
+                return f'<a class="ref" href="{html.escape(href or "#")}"{attr}>{i}</a>'
             return ID_RE.sub(one, text)
 
         def anchor(text: str) -> str | None:
@@ -351,6 +392,29 @@ class Site:
             return "api/index.html#/" + urllib.parse.quote(tag, safe="") + "/" + urllib.parse.quote(op, safe="")
         return f"api/index.html#operation/{op}"
 
+    def write_swagger(self, api: Path, doc: dict) -> None:
+        """spec.js — the bundled contract with every requirement id in a description turned into a Markdown link to
+        its definition, its text as the link's title (shown on hover) — and the page itself."""
+        def link(m: re.Match) -> str:
+            i = m.group(1)
+            d = self.defs.get(i)
+            if not d or i[0] in "ЗП":
+                return i
+            tip = self.def_text.get(i, "").replace('"', "”")
+            return f'[{i}](../{d} "{tip}")' if tip else f"[{i}](../{d})"
+
+        def walk(node):
+            if isinstance(node, dict):
+                return {k: (ID_RE.sub(link, v) if k == "description" and isinstance(v, str) else walk(v))
+                        for k, v in node.items()}
+            if isinstance(node, list):
+                return [walk(x) for x in node]
+            return node
+        (api / "spec.js").write_text("window.SPEC=" + json.dumps(walk(doc), ensure_ascii=False, sort_keys=True) + ";",
+                                     encoding="utf-8")
+        (api / "index.html").write_text(SWAGGER_PAGE.replace("{title}", html.escape(self.title)), encoding="utf-8")
+        self.api_mode = "Swagger UI"
+
     def build_api(self) -> None:
         """The contract as a Swagger UI page: the spec bundled into one JSON (Redocly), shown read-only («Try it
         out» off — the site has no API behind it), Swagger UI's files inside the site so it works offline. Without
@@ -362,14 +426,13 @@ class Site:
         api, assets = self.out / "api", self.out / "assets" / "swagger"
         api.mkdir(parents=True, exist_ok=True)
         built_api, built_assets = self.final / "api", self.final / "assets" / "swagger"
-        if self.api_on == "keep" and (built_api / "spec.js").exists() and (built_assets / "swagger-ui-bundle.js").exists():
-            for f in ("spec.js", "operations.json"):  # the slow part; the page itself is the template, written anew
+        if self.api_on == "keep" and (built_api / "openapi.json").exists() and (built_assets / "swagger-ui-bundle.js").exists():
+            for f in ("openapi.json", "operations.json"):  # the slow part; the rest is written anew from them
                 if (built_api / f).exists():
                     shutil.copy(built_api / f, api / f)
             shutil.copytree(built_assets, assets, dirs_exist_ok=True)
-            (api / "index.html").write_text(SWAGGER_PAGE.replace("{title}", html.escape(self.title)), encoding="utf-8")
             self.op_tags = json.loads((api / "operations.json").read_text()) if (api / "operations.json").exists() else {}
-            self.api_mode = "Swagger UI"
+            self.write_swagger(api, json.loads((api / "openapi.json").read_text()))
             return
         swagger = self.swagger_assets()
         bundled = api / ".openapi.json"
@@ -389,12 +452,10 @@ class Site:
             assets.mkdir(parents=True, exist_ok=True)
             for f in ("swagger-ui-bundle.js", "swagger-ui.css"):
                 shutil.copy(swagger / f, assets / f)
-            (api / "spec.js").write_text("window.SPEC=" + json.dumps(doc, ensure_ascii=False, sort_keys=True) + ";",
-                                         encoding="utf-8")
+            (api / "openapi.json").write_text(json.dumps(doc, ensure_ascii=False, sort_keys=True, indent=1), encoding="utf-8")
             (api / "operations.json").write_text(json.dumps(self.op_tags, ensure_ascii=False, sort_keys=True, indent=0),
                                                  encoding="utf-8")
-            (api / "index.html").write_text(SWAGGER_PAGE.replace("{title}", html.escape(self.title)), encoding="utf-8")
-            self.api_mode = "Swagger UI"
+            self.write_swagger(api, doc)
             return
         rows = "".join(f'<tr id="operation/{html.escape(o)}"><td><code>{html.escape(o)}</code></td>'
                        f"<td>{html.escape(d)}</td></tr>" for o, d in sorted(self.ops.items(), key=lambda x: x[1]))

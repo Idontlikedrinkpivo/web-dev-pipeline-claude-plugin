@@ -19,7 +19,8 @@ main{padding:24px 0 80px;min-width:0}main h1{font-size:30px;line-height:1.25;mar
 main h2{font-size:22px;margin:36px 0 12px;padding-top:8px;border-top:1px solid var(--line)}main h3{font-size:18px;margin:28px 0 8px}
 main h4{font-size:16px;margin:22px 0 6px}.hash{margin-left:8px;color:var(--line);text-decoration:none;opacity:0}
 h1:hover .hash,h2:hover .hash,h3:hover .hash,h4:hover .hash{opacity:1}
-a{color:var(--acc)}a.ref{text-decoration:none;border-bottom:1px dotted var(--acc);white-space:nowrap}
+a{color:var(--acc)}a.ref{text-decoration:none;border-bottom:1px dotted var(--acc);white-space:nowrap;position:relative}
+a.ref[data-tip]:hover::after{content:attr(data-tip);position:absolute;left:0;bottom:calc(100% + 6px);z-index:50;width:max-content;max-width:380px;white-space:normal;background:#1f2328;color:#f3f4f6;font:13px/1.45 -apple-system,BlinkMacSystemFont,sans-serif;padding:8px 10px;border-radius:8px;box-shadow:0 6px 20px rgba(0,0,0,.18);pointer-events:none;font-weight:400}
 code{background:var(--code);padding:1px 5px;border-radius:5px;font:13.5px/1.4 ui-monospace,SFMono-Regular,Menlo,Consolas,monospace}
 pre{background:var(--code);padding:12px 14px;border-radius:8px;overflow:auto}pre code{padding:0;background:none}
 .table{overflow-x:auto;margin:12px 0}table{border-collapse:collapse;font-size:14.5px;min-width:50%}
