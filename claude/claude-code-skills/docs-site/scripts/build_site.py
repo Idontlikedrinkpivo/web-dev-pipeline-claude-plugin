@@ -95,15 +95,33 @@ class Site:
                 continue
             if self.audience == "customer" and (p.name in CUSTOMER_SKIP or top in CUSTOMER_SKIP_DIRS):
                 continue
-            files.append((order.get(top, len(SECTIONS)), str(r), p, top))
-        for _, r, p, top in sorted(files):
+            natural = [int(x) if x.isdigit() else x for x in re.split(r"(\d+)", str(r))]  # S-2 before S-11
+            files.append((order.get(top, len(SECTIONS)), natural, str(r), p, top))
+        for _, _, r, p, top in sorted(files, key=lambda f: (f[0], [(0, x) if isinstance(x, int) else (1, x) for x in f[1]])):
             text = p.read_text(encoding="utf-8", errors="replace")
             meta, body = mdhtml.split_frontmatter(text)
             m = re.search(r"^#\s+(.+)$", body, re.M)
             title = re.sub(r"[`*]", "", m.group(1)).strip() if m else meta.get("title") or p.stem
-            short = title.split(" — ")[0].strip() or title
-            self.pages.append({"src": p, "rel": r, "url": r[:-3] + ".html", "section": top, "title": title, "short": short,
+            self.pages.append({"src": p, "rel": r, "url": r[:-3] + ".html", "section": top, "title": title,
                                "text": text, "meta": meta})
+
+    def short_titles(self) -> None:
+        """Menu titles: drop the tail a section's pages share («… — Реестр ИИ инициатив, SRS»), keep the rest
+        («Заявка — подача»); a title that would still repeat in its section stays whole."""
+        from collections import Counter
+        by_section: dict = {}
+        for pg in self.pages:
+            by_section.setdefault(pg["section"], []).append(pg)
+        for pages in by_section.values():
+            tails = Counter(pg["title"].split(" — ")[-1] for pg in pages if " — " in pg["title"])
+            common = {tail for tail, n in tails.items() if n >= 2}
+            for pg in pages:
+                parts = pg["title"].split(" — ")
+                pg["short"] = " — ".join(parts[:-1]) if len(parts) > 1 and parts[-1] in common else pg["title"]
+            seen = Counter(pg["short"] for pg in pages)
+            for pg in pages:
+                if seen[pg["short"]] > 1:
+                    pg["short"] = pg["title"]
 
     def index_ids(self) -> None:
         for pg in self.pages:  # a screen-spec file names its screen: S-3-card.md defines S-3
@@ -303,6 +321,7 @@ class Site:
             shutil.rmtree(self.out)
         (self.out / "assets").mkdir(parents=True)
         self.collect()
+        self.short_titles()
         self.index_ids()
         self.index_ops()
         self.build_api()

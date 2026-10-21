@@ -5,8 +5,8 @@ description: >-
   section (requirements, data, API, architecture, interface, deploy, operations), search, and cross-links — every
   FR, NFR, BR, UC, TC and screen number links to where it is defined, an operationId to the API page; diagrams
   shown in place; the API contract as an interactive page. Opens from disk, no server. Use when the user asks for
-  a documentation site, «собери сайт документации», «покажи документацию заказчику», «выгрузи документы в HTML»,
-  «опубликуй документацию», or wants the documents as pages instead of Markdown. Not for writing or fixing
+  a documentation site, «собери сайт документации», «открой документацию», «покажи документацию заказчику»,
+  «выгрузи документы в HTML», «опубликуй документацию», or wants the documents as pages instead of Markdown. Not for writing or fixing
   documents, and not the progress page (that one rebuilds itself — pipeline → progress-files).
 ---
 
@@ -37,14 +37,21 @@ only has numbers.
 3. **Read the report** the script prints: pages, ids per kind, ids mentioned but never defined, broken links.
    An id that is mentioned and defined nowhere, or a broken link between documents, is a defect of the
    documents, not of the site: name each in the close. Do not edit a document to make the site prettier.
-4. **Look at it** before handing it over: open `documentation/site/index.html` in the built-in browser when the
-   desktop app has one (or tell the user: `open documentation/site/index.html` — opening it from the file tree
-   shows the HTML source in the editor), follow one requirement link, one test-case link and the API page, try the search with
-   one number. A page that renders wrong — a table that broke, a diagram missing — is a fix in
+4. **Open it and look at it.** In the desktop app the built-in browser shows a page given as a file without its
+   stylesheet and scripts — no menu, no search — so serve the site:
+   `python3 "${CLAUDE_SKILL_DIR}/scripts/site_server.py"` prints `http://127.0.0.1:<port>/index.html` (it reuses
+   a server already running for this site). Open that address in the built-in browser yourself and give it as
+   a link in the chat — that link is the user's one click back to the site. Without a built-in browser (a
+   terminal), give `open documentation/site/index.html`: the user's own browser shows the file whole. Never
+   point at the file in the file tree — it shows the HTML source. Then check it: follow one requirement link,
+   one test-case link and the API page, try the search with one number. A page that renders wrong — a table that broke, a diagram missing — is a fix in
    `scripts/mdhtml.py`, reported, not hidden.
-5. **Close** with one line: the link to `documentation/site/index.html`, pages and ids, the audience, and what the report
+5. **Close** with one line: the site's link from step 4, pages and ids, the audience, and what the report
    found. Publishing (GitHub Pages, a server, a zip for the customer) is the user's step — the site holds
    the project's whole documentation, so it leaves the machine only on their word.
+
+**«Открой документацию»** with a site already built: step 4 alone. Stop the server when the user is done with
+the site (`site_server.py --stop`); the iteration's close stops it too.
 
 `documentation/site/` is generated: never edit it, and never read it as a source — documents, checks and
 searches work on the Markdown (`doc-versioning` → Registry).

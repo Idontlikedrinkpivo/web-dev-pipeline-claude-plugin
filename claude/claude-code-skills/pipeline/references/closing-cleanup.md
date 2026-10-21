@@ -22,6 +22,8 @@ same treatment in the same question.
 **First, stop the progress server** of each folder being cleared, when one
 runs (`documentation/plans/<version>/.progress-server` exists):
 `python3 <pipeline skill folder>/scripts/progress_server.py documentation/plans/<version> --stop`.
+The documentation site's server too, when it runs:
+`python3 <docs-site skill folder>/scripts/site_server.py --stop` — after the site is rebuilt and committed.
 
 **Before removing**, move what only a working file still holds into its
 owner document: an accepted risk in `security-audit.md` goes to the
