@@ -1,14 +1,9 @@
 ---
 name: fastapi-sqlalchemy
 description: >-
-  Persistence for FastAPI on SQLAlchemy async and Alembic: models as storage
-  records mapped to domain entities, repository adapters behind ports,
-  AsyncSession and unit-of-work commits, migrations, the problem+json error
-  handler, and auth wiring. Use when adding or changing models,
-  repositories, sessions, commits or migrations, wiring errors or login, or
-  debugging MissingGreenlet and lost commits. Not for the skeleton
-  (`repo-scaffold`), schema design, route style (`fastapi`), or tests
-  (`pytest-patterns`).
+  SQLAlchemy async and Alembic under FastAPI: records mapped to domain entities, repositories, a session per request,
+  commits, migrations, the problem+json error handler, login wiring. Use for models, repositories, sessions,
+  migrations, MissingGreenlet or lost commits. Not routes (`fastapi`), schema design or tests.
 ---
 
 # FastAPI + SQLAlchemy async

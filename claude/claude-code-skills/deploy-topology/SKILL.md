@@ -1,14 +1,9 @@
 ---
 name: deploy-topology
 description: >-
-  Wraps a working app in docker-compose test, dev and prod files, an image
-  per container (backend; SPA on unprivileged nginx), fail-fast config,
-  compose-contract tests, a deploy document for the operators, and a script
-  that builds the images for linux/amd64 into one tar and puts it with that
-  document in a release folder for hand-over. Use after `work`
-  when the user asks to containerize, write a Dockerfile or compose, set
-  up environments, build images, or says «докер», «окружения», «собери
-  образ». Not for CI, registries, Kubernetes or deploying.
+  Packs a working app into Docker: an image per container, docker-compose for test, dev and prod, a deploy document,
+  and a script that builds the images into one tar for hand-over. Use for «докер», «окружения», «собери образ», a
+  Dockerfile or compose. Not CI, registries, Kubernetes or deploying.
 ---
 
 # Deploy Topology

@@ -1,14 +1,9 @@
 ---
 name: openapi-spec-generator
 description: >-
-  Generates a lintable OpenAPI 3.0 contract (documentation/api/: the root openapi.yaml plus one file per path and per schema) from the SRS:
-  one use case per operation, request and response schemas, problem+json
-  errors, status codes, security schemes; extends an existing spec for the
-  next slice. Use after `srs-writer` and `db-schema-design` when the user
-  asks for OpenAPI, an API spec, endpoints, routes, or which status an error
-  returns — «опиши API», «какие эндпоинты». Not for tables, screens, layers,
-  Swagger 2.0, reverse-engineering controllers, or generating tests, mocks
-  or SDKs.
+  Writes the OpenAPI 3.0 contract in documentation/api/ from the SRS: one operation per use case, schemas,
+  problem+json errors, statuses, security; extends it for the next slice. Use for «опиши API», «какие эндпоинты», an
+  API spec, routes, or which status an error returns. Not tables, screens, Swagger 2.0 or reverse-engineering code.
 ---
 
 # OpenAPI 3.0 Specification Generator

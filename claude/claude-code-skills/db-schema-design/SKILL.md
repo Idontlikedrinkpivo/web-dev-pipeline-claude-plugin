@@ -1,13 +1,9 @@
 ---
 name: db-schema-design
 description: >-
-  Designs the relational schema for a slice from the SRS: DBML with notes,
-  numbered SQL migration files with CHECK / UNIQUE / FK constraints, and an
-  ER diagram under documentation/db/; extends an existing schema for the next slice.
-  Use after `srs-writer` when the user asks for a database schema, tables,
-  DBML, an ER diagram, keys, indexes, the first migration, or «какие таблицы
-  нужны». Not for tuning a live database, the HTTP contract
-  (`openapi-spec-generator`), or entities and layers
+  Designs the relational schema from the SRS: DBML, numbered SQL migrations with constraints, an ER diagram and a page
+  per table in documentation/db/; extends it for the next slice. Use for a database schema, tables, keys, indexes or
+  migrations — «какие таблицы нужны». Not the API (`openapi-spec-generator`) or entities
   (`clean-architecture-design`).
 ---
 

@@ -1,15 +1,9 @@
 ---
 name: docs-site
 description: >-
-  Builds the project's documentation/ into one static site to read and share: navigation by
-  section (requirements, data, API, architecture, interface, deploy, operations), search, and cross-links — every
-  FR, NFR, BR, UC, TC and screen number links to where it is defined, an operationId to the API page; diagrams
-  shown in place; the API contract as a Swagger UI page. Committed in documentation/_web-docs; opened in the
-  built-in browser through a local server, or from disk in any browser. Use when the user asks for a
-  documentation site, «собери сайт документации», «выгрузи документы в HTML», «опубликуй документацию», or
-  wants the documents as pages instead of Markdown. Not for opening a site already built («открой сайт» —
-  `open-docs`), writing or fixing documents, or the progress page (that one rebuilds itself — pipeline →
-  progress-files).
+  Builds documentation/ into a static site in documentation/_web-docs: a menu by section, search, every requirement
+  and screen id linked to its definition, diagrams in place, the API as a Swagger page. Use for «собери сайт
+  документации», «выгрузи документы в HTML», «опубликуй документацию». Opening a site already built is `open-docs`.
 ---
 
 # Documentation site

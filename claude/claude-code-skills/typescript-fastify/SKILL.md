@@ -1,13 +1,9 @@
 ---
 name: typescript-fastify
 description: >-
-  Conventions for Fastify services in TypeScript: routes that implement
-  documentation/api/openapi.yaml (operationId, statuses, Problem Details, page shape),
-  thin handlers that call use cases, plugins, auth hooks, one error handler,
-  cursor validation, idempotency keys, side-by-side API versions. Use when
-  creating or changing Fastify routes, handlers, plugins, hooks, auth,
-  errors, pagination or idempotent writes. Not for Express or NestJS;
-  persistence is `typescript-drizzle-orm`, schema rules are `zod-skill`.
+  Fastify in TypeScript: routes implementing openapi.yaml, thin handlers calling use cases, plugins, auth hooks, one
+  problem+json error handler, cursors, idempotency keys. Use when Fastify routes, handlers, plugins, hooks or errors
+  are written or changed. Not Express or NestJS, persistence or validation.
 ---
 
 # Fastify

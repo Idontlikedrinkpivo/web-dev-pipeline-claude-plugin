@@ -1,11 +1,9 @@
 ---
 name: open-docs
 description: >-
-  Opens the project's documentation site in the built-in browser and gives its link in the chat — the fresh
-  site, waiting for a rebuild still running, building it first when the project has none; stops its local server
-  on request. Use when the user asks «открой сайт», «открой документацию», «запусти сайт», «покажи сайт
-  документации», «дай ссылку на сайт», or «закрой сайт» / «останови сайт». Not for building the site with its
-  report and checks or publishing it (`docs-site`), or for the progress pages of a stage.
+  Opens the project's documentation site in the built-in browser and gives its link, building it first when there is
+  none; stops its local server on request. Use for «открой сайт», «открой документацию», «дай ссылку на сайт», «закрой
+  сайт». Building or publishing the site is `docs-site`.
 ---
 
 # Open the documentation site

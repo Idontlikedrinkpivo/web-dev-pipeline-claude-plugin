@@ -1,16 +1,10 @@
 ---
 name: doc-versioning
 description: >-
-  The convention for evolving project documents: one canonical file per
-  type, edited in place in Russian, stable ids, a `version` that names the
-  service release the document last changed in, changelog rows typed
-  ломает / добавляет / уточняет, `sources:` pins as `path@version`, all
-  stamped in the commit that closes the document's stage, or one the user
-  asks for. Use when a feature lands on a
-  system that already has requirements, API, DB, UI, architecture or plan
-  documents, when asked to version or publish documents, or to find stale
-  citations. Read by the writer stages as a reference; it does not write
-  the contract body.
+  How project documents evolve: edited in place, stable ids, a version per service release, changelog rows ломает /
+  добавляет / уточняет, `sources:` pins, stamped when a stage closes. Use when a feature lands on a system that
+  already has documents, when asked to version or publish documents, or to find stale citations. Writes no document
+  body.
 ---
 
 # Document Versioning

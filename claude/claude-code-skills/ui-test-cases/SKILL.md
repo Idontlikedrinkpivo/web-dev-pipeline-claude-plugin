@@ -1,15 +1,9 @@
 ---
 name: ui-test-cases
 description: >-
-  User test cases for a product with screens, in two modes. write — after
-  the screen specs: turns SRS acceptance criteria and the screen specs into
-  numbered cases (steps by action, expected states and texts from the
-  frames, frame ids). run — after `work` and its reviews: turns
-  the cases into Playwright tests, runs them against the app started
-  locally, compares screens with the frames, and reports. Use when the
-  stage offers it, or the user asks for «тест-кейсы», «пользовательские
-  сценарии», «протыкай приложение», acceptance or E2E testing through the
-  UI. Not for unit or API tests, and not for fixing the app.
+  User test cases for a product with screens. write: SRS acceptance criteria and screen specs become numbered cases
+  with steps and expected texts. run: the cases become Playwright tests run against the local app and compared with
+  the frames. Use for «тест-кейсы», «протыкай приложение», UI acceptance testing. Not unit or API tests.
 ---
 
 # UI Test Cases

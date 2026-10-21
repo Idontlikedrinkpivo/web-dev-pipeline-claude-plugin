@@ -1,13 +1,9 @@
 ---
 name: srs-writer
 description: >-
-  Turns any product or feature description — a brainstorm document, a note,
-  a ticket, a chat paste — into a numbered SRS with FR / NFR / BR / UC ids
-  and Given/When/Then acceptance criteria, or updates the existing SRS in
-  place. Use when the user asks for an SRS, requirements, use cases or
-  acceptance criteria — «напиши ТЗ», «оформи требования» — or a brainstorm
-  is ready to become a contract. Not for deciding what to build
-  (`brainstorm`), grilling (`grill-me`), or architecture, API or DB design.
+  Turns any product or feature description — a brainstorm, a note, a ticket, a chat paste — into a numbered SRS (FR /
+  NFR / BR / UC, Given/When/Then criteria), or updates the existing one. Use for «напиши ТЗ», «оформи требования»,
+  requirements, use cases or acceptance criteria. Not deciding what to build (`brainstorm`) or design.
 ---
 
 # SRS Writer

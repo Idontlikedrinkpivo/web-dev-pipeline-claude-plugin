@@ -1,12 +1,9 @@
 ---
 name: typescript
 description: >-
-  TypeScript language rules an agent breaks by default: errors as distinguishable types with a `kind` and their
-  cause, exhaustive handling, promises that are awaited, no `any` or unchecked casts, impossible states made
-  unrepresentable, one home per rule. Most are lint rules (`repo-scaffold/references/quality-gates.md`); the rest
-  are what a reviewer checks. Loaded by `work` for every TypeScript unit and by `code-review-unit` for its review;
-  use whenever TypeScript code is written, reviewed or refactored. Not the framework (`typescript-fastify`), the
-  database (`typescript-drizzle-orm`), schemas (`zod-skill`), React (`react`) or tests (`vitest`).
+  TypeScript rules agents break by default: errors as types with a `kind` and their cause, exhaustive switch, awaited
+  promises, no any or unchecked casts, impossible states unrepresentable, one home per rule. Use whenever .ts / .tsx
+  code is written, reviewed or refactored. Not React, Fastify, Drizzle, Zod or test specifics.
 ---
 
 # TypeScript

@@ -1,13 +1,10 @@
 ---
 name: grill-me
 description: >-
-  A round-by-round interview that stress-tests an existing requirements
-  draft, SRS, plan or design until no silent assumption is left,
-  then writes the agreed reversals into that document. Use when the user
-  asks to grill, допросить требования, выжечь допущения or stress-test a
-  draft, and when `brainstorm` or `srs-writer` offer it as their
-  gate. Not for writing documents, persona review (`doc-review`), inventing
-  a subject to grill, or implementation.
+  A round-by-round interview that stress-tests an existing requirements draft, SRS, plan or design until no silent
+  assumption is left, then writes the agreed changes into it. Use for «допроси требования», «выжги допущения», a
+  stress-test, or as the gate after `brainstorm` / `srs-writer`. Not persona review (`doc-review`) or writing
+  documents.
 ---
 
 Interview the user relentlessly until you reach a shared understanding. Map this as a **design tree**: every decision branches into the decisions that hang off it. Ask every question in Russian. Do not translate cited tokens when you quote them.

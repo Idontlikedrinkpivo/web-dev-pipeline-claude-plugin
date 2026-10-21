@@ -1,18 +1,10 @@
 ---
 name: frontend-design
 description: >-
-  How to make frames and a visual direction read as made for this product,
-  not as a template — Anthropic's frontend-design fitted to the pipeline:
-  ground the look in the product's subject and audience, plan tokens, type
-  and layout before drawing, check the plan for template tells (UX-60),
-  spend boldness in one place (restrained in B2B), critique by screenshot,
-  write copy by UX-79. Used by `ui-design`'s «Визуальное направление» step
-  and by `figma-opus` / `figma-sonnet` when they draw or restyle frames.
-  Use it whenever frames or a visual direction are being made, and when
-  the user wants a less generic look («сделай менее шаблонно», «нужен
-  характер», «перерисуй стильнее»), even without naming it. A change of
-  the product's look starts in `ui-design`. Not screen code (`frontend`),
-  not the UX rules (`ux-patterns`).
+  Makes mockups and a visual direction look made for this product, not a template: the look grounded in its subject
+  and audience, boldness in one place, critique by screenshot. Use whenever frames or a visual direction are drawn, or
+  for «сделай менее шаблонно», «нужен характер», «перерисуй стильнее». A new look starts in `ui-design`; not code or
+  UX rules.
 ---
 
 # Frontend Design

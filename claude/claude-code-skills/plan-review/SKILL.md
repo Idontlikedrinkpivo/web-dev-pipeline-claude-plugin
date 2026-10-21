@@ -1,13 +1,9 @@
 ---
 name: plan-review
 description: >-
-  Independently reviews a finished implementation plan before any code is
-  written — one commit per unit, dependencies and parallel safety, grades
-  against the complexity cascade, citations, invariant and AC coverage — and
-  returns one verdict. Use after `plan` writes or revises a plan, or when
-  the user asks to check a task breakdown, work order or unit list. Not for
-  design documents (`doc-review`), re-planning (`plan` edits), or code
-  review.
+  Reviews a finished implementation plan before any code: one commit per unit, dependencies, parallel safety, grades,
+  citations, coverage of rules and acceptance criteria; returns one verdict. Use after `plan`, or when asked to check
+  a task breakdown. Not design documents (`doc-review`) or code.
 ---
 
 # Plan Review

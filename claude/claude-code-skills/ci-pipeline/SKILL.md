@@ -1,13 +1,9 @@
 ---
 name: ci-pipeline
 description: >-
-  Writes `.github/workflows/ci.yml`: a hardened GitHub Actions workflow that
-  re-runs the project's own lint, typecheck and tests on every push and PR
-  against `docker-compose.test.yml`; adapts the same checks to GitLab CI or
-  CircleCI. Use after `deploy-topology` when the user asks for CI, GitHub
-  Actions, PR checks, or «чтобы сломанный код не попал в main». Not for CD,
-  release images, branch protection, the test topology (`deploy-topology`),
-  or adding lint and test tooling the repo lacks.
+  Writes the CI workflow (GitHub Actions; GitLab CI or CircleCI on request) that re-runs the project's own lint,
+  typecheck and tests on every push and PR. Use for CI, PR checks, «чтобы сломанный код не попал в main». Not CD,
+  releases, branch protection or compose files (`deploy-topology`).
 ---
 
 # CI Pipeline

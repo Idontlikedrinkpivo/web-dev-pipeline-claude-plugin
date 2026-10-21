@@ -1,14 +1,9 @@
 ---
 name: frontend
 description: >-
-  Turns a screen spec (ТЗ на экран: elements, behaviour per condition,
-  states, response outcomes, Figma nodeIds) and the OpenAPI contract into
-  typed, accessible screens on the stack the architecture names, with React
-  + Vite and Next.js profiles. Use whenever a plan unit or task writes
-  frontend code from a screen spec, or the user asks to build or fix
-  screens, pages, forms or components — «сверстай экран», «сделай
-  страницу», a screen id like S-1. Not for drawing screens (`ui-design`),
-  backend code, or Playwright test details (`playwright-cli`).
+  Builds screens from a screen spec (ТЗ на экран) and the OpenAPI contract on React + Vite or Next.js: every element,
+  state and error mapped, a typed client, accessible markup. Use for «сверстай экран», «сделай страницу», a screen id
+  like S-1, or fixing pages, forms and components. Not drawing (`ui-design`) or E2E tests.
 ---
 
 # Frontend

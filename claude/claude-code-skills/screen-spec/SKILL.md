@@ -1,13 +1,9 @@
 ---
 name: screen-spec
 description: >-
-  Writes the front-end spec for each screen (ТЗ на экран), one file per S-n,
-  after the mockups exist: reads the frames register, the Figma frames via
-  MCP and documentation/api/openapi.yaml, and maps every frame element to
-  its behaviour per condition, operationId and fields, plus states,
-  response errors and derived values, citing the SRS. Use after `ui-design` when asked for «ТЗ на фронт»,
-  «ТЗ на экран», «опиши экран для фронта» or a screen spec. Not for drawing
-  frames (`ui-design`) or screen code (`frontend`).
+  Writes the front-end spec per screen (ТЗ на экран, one file per S-n) from the Figma frames, the OpenAPI contract and
+  the SRS: each element's behaviour, operation and fields, states, errors. Use once mockups exist, for «ТЗ на фронт»,
+  «ТЗ на экран», «опиши экран для фронта». Not drawing (`ui-design`) or code (`frontend`).
 ---
 
 # Screen Spec

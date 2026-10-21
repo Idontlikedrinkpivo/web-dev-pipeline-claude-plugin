@@ -1,14 +1,10 @@
 ---
 name: clean-architecture-design
 description: >-
-  Writes the architecture as three documents from the settled SRS, schema
-  and OpenAPI: a foundation (stack, modules, ports, file tree, lint rules,
-  D2 diagrams), a domain model (rich entities and the invariant table that
-  homes every rule), and one living scenarios document per SRS capability group, in its area's folder
-  (use cases, queries, sequence diagrams for key ones). Use after the
-  schema and OpenAPI, or for «спроектируй архитектуру», «доменная модель»,
-  «сценарии», Clean / hexagonal / DDD layering. Not for inventing tables,
-  operations or scope, screens, plan units, or code.
+  Writes the architecture from the settled SRS, schema and OpenAPI: a foundation (stack, modules, file tree, lint
+  rules, diagrams), a domain model with the invariant table, and a scenarios document per SRS group. Use for
+  «спроектируй архитектуру», «доменная модель», «сценарии», Clean / hexagonal / DDD layering. Not tables, API
+  operations, screens or code.
 ---
 
 # Clean Architecture Design from Requirements

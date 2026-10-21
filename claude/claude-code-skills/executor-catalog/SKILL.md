@@ -1,13 +1,9 @@
 ---
 name: executor-catalog
 description: >-
-  The single map from a named executor (implementers, reviewers, writers,
-  doc-typist, Figma rows) to its agent file, which alone holds the model and
-  effort, and to who dispatches it, with nesting and escalation. No OpenAI /
-  gpt-* models. Use when a stage routes a unit or dispatches a writer or
-  reviewer, when asked which model runs a task, or when adding, retiring or
-  re-pointing an executor. Not a workflow: it decides no order and
-  implements nothing.
+  Internal routing table of the pipeline: which agent runs each executor (implementers, reviewers, writers, Figma
+  builders), how it is dispatched, nested and escalated. Read by stages before a dispatch, or when asked which model
+  runs a task or to add an executor. Not a workflow.
 ---
 
 # Executor Catalog

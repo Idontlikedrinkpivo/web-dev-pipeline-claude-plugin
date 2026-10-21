@@ -1,14 +1,9 @@
 ---
 name: pytest-patterns
 description: >-
-  House conventions for pytest suites of FastAPI / SQLAlchemy async
-  backends: tests by architecture layer (entities per invariant, use cases
-  with fakes, adapters and mapper round-trips on a real PostgreSQL, one
-  end-to-end path), conftest hierarchy, factories, auth fixtures, error
-  paths from documentation/api/openapi.yaml, coverage. Use when writing, fixing or
-  reviewing backend tests, conftest files or factories, or auditing
-  coverage. Not for TypeScript tests (`vitest`), browser E2E
-  (`playwright-cli`), or app code.
+  pytest for FastAPI / SQLAlchemy async backends: tests per layer, a fake per port, real PostgreSQL with rollback,
+  conftest and factories, auth fixtures, error paths from openapi.yaml, coverage. Use for backend tests, conftest.py
+  or factories. Not TypeScript tests (`vitest`) or E2E.
 license: MIT
 compatibility: 'Python, pytest, pytest-asyncio, httpx, factory_boy; versions come from the project lockfile'
 metadata:

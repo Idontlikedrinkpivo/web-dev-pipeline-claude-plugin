@@ -1,18 +1,10 @@
 ---
 name: ui-ux-pro-max
 description: >-
-  Searchable design data behind the pipeline's visual direction: product
-  types with their styles, palettes in shadcn-style roles, font pairings
-  checked for Cyrillic, landing-page patterns, chart types, icons, and
-  React / Next.js / shadcn / Tailwind notes; every UX row names its
-  `ux-patterns` rule. Used by `ui-design` in the «Визуальное направление»
-  step (a new product, or a restyle of existing mockups), by the Figma
-  builders and by `frontend`. Use it whenever a palette, typeface, style,
-  density or landing layout is being chosen or compared for a web
-  product — «подбери палитру», «какой шрифт», «стиль интерфейса» — even
-  when the user does not name it. A change of the product's look itself
-  starts in `ui-design`, whose visual-direction step uses this data. Not
-  the UX rules (`ux-patterns`) and not drawing (`ui-design`).
+  Design data for choosing a look: product types and their styles, palettes, font pairs checked for Cyrillic, landing
+  patterns, chart types, icons. Use whenever a palette, typeface, style or density is chosen or compared — «подбери
+  палитру», «какой шрифт», «стиль интерфейса». A new product look starts in `ui-design`; not the UX rules
+  (`ux-patterns`).
 ---
 
 # UI UX Pro Max — design data

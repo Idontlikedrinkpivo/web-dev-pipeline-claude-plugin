@@ -1,12 +1,9 @@
 ---
 name: plan
 description: >-
-  Turns settled design documents, or existing code for brownfield work, into
-  an implementation plan in the version folder documentation/plans/: atomic one-commit
-  units, a complexity grade, and a named executor per unit. Use when the
-  design is done and the user asks for a plan, tickets, or an order of work
-  — «составь план», «разбей на задачи». Not for product behaviour, choosing
-  a stack, document versions, or writing code — `work` executes the plan.
+  Turns settled design documents, or existing code, into an implementation plan in documentation/plans/<version>/:
+  one-commit units, each with a complexity grade and a named executor. Use for «составь план», «разбей на задачи»,
+  tickets or an order of work. Not product decisions or code — `work` executes the plan.
 ---
 
 # Implementation Plan with Executor Routing

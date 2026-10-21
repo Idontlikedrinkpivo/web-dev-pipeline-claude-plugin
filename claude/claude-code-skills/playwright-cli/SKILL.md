@@ -1,13 +1,9 @@
 ---
 name: playwright-cli
 description: >-
-  Drives a real browser from the shell with playwright-cli — snapshots,
-  clicks by element ref, request mocks, sessions, traces and video — and
-  runs Playwright Test end to end: config, debugging, and generating tests
-  through plan, generate, heal. Use when a task needs to check or reproduce
-  web UI behaviour, write or fix E2E tests, set up playwright.config, or
-  attach screenshots to a PR. Not for unit or API tests without a browser
-  (Vitest, pytest) or fetching a page that needs no interaction.
+  Drives a real browser with playwright-cli (snapshots, clicks by ref, mocks, traces) and writes, runs or heals
+  Playwright Test E2E specs and config. Use to reproduce UI behaviour, write or fix E2E tests, set up
+  playwright.config, attach screenshots to a PR. Not unit or API tests.
 allowed-tools: Bash(playwright-cli:*) Bash(npx playwright:*) Bash(npx @playwright/cli:*)
 ---
 

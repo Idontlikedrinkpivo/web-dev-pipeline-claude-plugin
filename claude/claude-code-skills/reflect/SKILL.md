@@ -1,18 +1,10 @@
 ---
 name: reflect
 description: >-
-  Reads this project's Claude Code sessions of the closing iteration and
-  writes down where the dev-pipeline plugin itself worked badly — the user
-  correcting a stage («а где ссылка?», «прогресс не обновляется»), a stage
-  doing what its skill forbids or skipping what it requires, a rule
-  forgotten after a compaction, time lost on something the rules should
-  have said — each with the user's own words as evidence, the skill and
-  rule it touches, and the change it suggests. Appends the findings to one
-  feedback file per project outside the repository, which the plugin's
-  maintainer reads. Runs on its own at the end of an iteration (`pipeline`
-  → End of the pipeline) and when the user asks «разбери сессии для
-  плагина», «что в плагине сработало не так», «/reflect». Not a review of
-  the project's code or documents, and it never edits the plugin.
+  Reads the closing iteration's Claude Code sessions and records where the dev-pipeline plugin itself worked badly —
+  the user's own words, the skill and rule involved, a suggested change — in a feedback file outside the repository.
+  Runs at the end of an iteration or on «разбери сессии для плагина», «/reflect». Not a project review; never edits
+  the plugin.
 ---
 
 # Reflect

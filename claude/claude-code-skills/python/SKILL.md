@@ -1,12 +1,9 @@
 ---
 name: python
 description: >-
-  Python language rules an agent breaks by default: strict typing with the tests included, domain exceptions with
-  fields and `raise … from`, no bare or silent `except`, exhaustive `match` with `assert_never`, closed sets as
-  `Literal` or `StrEnum`, frozen value objects, kept asyncio task references, aware datetimes, one home per rule.
-  Most are Ruff and type-checker rules (`repo-scaffold/references/quality-gates.md`). Loaded by `work` for every
-  Python unit and by `code-review-unit`; use whenever Python code is written or reviewed. Not FastAPI
-  (`fastapi`), SQLAlchemy (`fastapi-sqlalchemy`) or tests (`pytest-patterns`).
+  Python rules agents break by default: strict typing, domain exceptions with fields and `raise … from`, no silent
+  except, exhaustive match, closed sets as Literal or StrEnum, aware datetimes, kept asyncio tasks. Use whenever
+  Python code is written or reviewed. Not FastAPI, SQLAlchemy or pytest specifics.
 ---
 
 # Python

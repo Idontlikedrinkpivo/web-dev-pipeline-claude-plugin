@@ -1,12 +1,9 @@
 ---
 name: zod-skill
 description: >-
-  Where and how to validate with Zod in TypeScript: parse untrusted data
-  once at the boundary, give the use case its own input type, keep zod out
-  of the domain and raw input out of errors and logs, evolve schemas safely,
-  and test them. Use when code imports zod or touches z.object, z.infer,
-  safeParse, env parsing, or request, form or external-API validation. Not a
-  Zod API catalogue: signatures come from the installed version.
+  Zod at the boundary: parse untrusted data once, the use case gets its own input type, no zod in the domain, no raw
+  input in errors or logs, env and form schemas, schema tests. Use when code imports zod or validates requests, forms,
+  env or external APIs. Not a Zod API catalogue.
 license: MIT
 compatibility: "TypeScript projects using zod"
 metadata:

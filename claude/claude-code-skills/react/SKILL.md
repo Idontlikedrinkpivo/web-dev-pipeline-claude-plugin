@@ -1,13 +1,10 @@
 ---
 name: react
 description: >-
-  React rules an agent breaks by default: no state that can be computed, effects only for outside systems, server
-  data only through the data layer, a page split into a data hook and its view, minimal grouped state, forms from
-  one schema and one rules module, tests through Testing Library. Most are lint rules (react-hooks v7,
-  testing-library, restricted imports — `repo-scaffold/references/quality-gates.md`); the rest are what a reviewer
-  checks. Loaded by `work` for every unit touching React files and by `code-review-unit` for its review; use
-  whenever React components, hooks or their tests are written, reviewed or refactored. Not what to build from a
-  screen spec (`frontend`), accessibility and markup (`web-design-guidelines`) or TypeScript itself (`typescript`).
+  React rules agents break by default: compute instead of storing, effects only for outside systems, server data
+  through the data layer, a page as a data hook plus a view, one form schema, Testing Library tests. Use whenever
+  React components, hooks or their tests are written, reviewed or refactored. Not what to build from a screen spec
+  (`frontend`).
 ---
 
 # React

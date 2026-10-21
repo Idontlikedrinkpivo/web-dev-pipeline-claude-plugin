@@ -1,13 +1,9 @@
 ---
 name: upgrade-docs
 description: >-
-  Brings a project in line with a newer dev-pipeline plugin: lists the plugin's format changes the project's files
-  do not have yet (a new document, a new section, a new rule for an existing document, the documentation site),
-  explains each in plain words, asks the user which to make now, makes the chosen ones through the skill that owns
-  them on a branch — one commit per change — and stamps the plugin version in documentation/.dev-pipeline.json. Use
-  when the session-start hook says the project is behind the plugin, after `claude plugin update`, or when the user
-  asks «обнови проект под плагин», «что поменялось в плагине», «приведи документы к новой версии». Not for writing
-  a project's documents from scratch (the pipeline's stages) or updating the plugin itself.
+  Brings a project's documents up to a newer dev-pipeline plugin: lists the format changes the project lacks, asks
+  which to make, makes them one commit each. Use when the session-start hook says the project is behind, after a
+  plugin update, or for «обнови проект под плагин», «что поменялось в плагине». Not writing documents from scratch.
 ---
 
 # Upgrade a project to the installed plugin

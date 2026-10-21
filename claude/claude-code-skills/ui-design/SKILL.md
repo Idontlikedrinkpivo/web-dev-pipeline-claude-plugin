@@ -1,17 +1,10 @@
 ---
 name: ui-design
 description: >-
-  Design stage: picks the visual direction (two or three options from
-  `ui-ux-pro-max`, drawn as style tiles, the user chooses), draws the Figma
-  mockups straight from the SRS (no API needed), restyles existing mockups
-  to a new direction, and keeps the frames register
-  documentation/ui/frames-register.md — screen ids S-n, nodeIds, states,
-  nested steps. Decides the screen set from use cases and roles, runs the
-  completeness checklist, dispatches figma-opus / figma-sonnet, or indexes
-  frames a designer already drew. Use for «нарисуй макеты», «дизайн
-  экранов», «макеты в фигме», «перекрась макеты», «новый стиль
-  интерфейса», «визуальное направление», mockups or screens. Not the
-  screen spec (`screen-spec`), not code (`frontend`).
+  Design stage: picks the visual direction (options drawn as style tiles), draws Figma mockups from the SRS, restyles
+  existing ones, and keeps the frames register with screen ids S-n. Use for «нарисуй макеты», «дизайн экранов»,
+  «макеты в фигме», «перекрась макеты», «визуальное направление». Not the screen spec (`screen-spec`) or code
+  (`frontend`).
 ---
 
 # UI Design

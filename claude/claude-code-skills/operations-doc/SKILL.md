@@ -1,17 +1,10 @@
 ---
 name: operations-doc
 description: >-
-  Writes the operations document for a built system (documentation/operations/operations.md,
-  handed over as OPERATIONS.md beside DEPLOY.md): what the system records and where — audit
-  marks, event and history tables, outgoing queues, log events, metrics — and how to see each
-  one (a screen, an API operation, a ready read-only SQL query, a log filter), jobs, alarms,
-  routine operations, troubleshooting by symptom. For operators and developers on duty alike:
-  every row names the table, file or operation behind it. Every query is proven on the test
-  stand and kept true by a test. Use after `deploy-topology`
-  builds the images, and whenever the user asks for operations or support documentation,
-  a runbook, «эксплуатационная документация», «где посмотреть журналы», «как смотреть
-  аудит», «инструкция для поддержки», «что делать, если письма не уходят». Not for installing
-  and starting the system (`deploy-topology` → deploy.md), CI, or monitoring setup.
+  Writes the operations document for a built system: what it records and where (audit, history tables, queues, logs,
+  metrics), how to see each — a screen, an API call, a ready SQL query, a log filter — jobs, alarms, troubleshooting
+  by symptom. Use for «эксплуатационная документация», «где посмотреть журналы», «инструкция для поддержки», a
+  runbook. Not installation (`deploy-topology`).
 ---
 
 # Operations document

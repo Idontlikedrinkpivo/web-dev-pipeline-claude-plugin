@@ -1,13 +1,9 @@
 ---
 name: typescript-drizzle-orm
 description: >-
-  Persistence with Drizzle ORM in TypeScript: repository adapters that map
-  records to domain entities, queries and joins, keyset pagination,
-  transactions, idempotent inserts, driver-error classification, applying
-  the SQL migration files. Use when code imports drizzle-orm or drizzle-kit, or a task
-  adds or changes a repository, query, transaction or migration. Tables
-  follow the schema document; not for designing tables, HTTP routes
-  (`typescript-fastify`), or validation (`zod-skill`).
+  Drizzle ORM in TypeScript: repositories mapping records to domain entities, joins, keyset pages, transactions,
+  idempotent inserts, driver-error classification, running the SQL migrations. Use when code imports drizzle-orm or a
+  task changes a repository, query or transaction. Not table design, routes or validation.
 ---
 
 # Drizzle ORM

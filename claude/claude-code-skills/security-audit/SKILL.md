@@ -1,19 +1,10 @@
 ---
 name: security-audit
 description: >-
-  Audits the whole application's security once per iteration, before the
-  release is built: scanners over all the code and git history (vulnerable
-  dependencies, secrets, OWASP patterns), then an Opus auditor per area
-  tracing every OpenAPI operation from route to data — authentication,
-  access per role from the SRS, other users' data (IDOR), input at the
-  boundary, data and errors leaking out, the SRS security requirements and
-  the architecture's security decisions — and a second pass that tries to
-  disprove each blocking finding. Writes `security-audit.md` with one
-  verdict; P0/P1 become a fix plan. Use after `work` and the UI acceptance
-  run, before `deploy-topology`, or when the user asks «проверь
-  безопасность», «аудит безопасности», «нет ли дыр», a security or OWASP
-  review of the app. Not the per-run code reviews, a penetration test of a
-  live server, or fixing the code.
+  Audits the whole application's security once per iteration, before release: scanners over the code and history, then
+  every API operation traced from route to data — authentication, access per role, other users' data, input, leaks —
+  with blocking findings double-checked. Use for «проверь безопасность», «аудит безопасности», «нет ли дыр», an OWASP
+  review. Not a live pentest or fixing code.
 ---
 
 # Security Audit
