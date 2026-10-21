@@ -8,8 +8,8 @@ case "$input" in
   *) exit 0 ;;
 esac
 dir="${CLAUDE_PROJECT_DIR:-$PWD}"
-[ -f "$dir/documentation/site/index.html" ] || exit 0
-paths=$(printf '%s' "$input" | grep -o 'documentation/[^"[:space:]\\]*' | grep -v -e '^documentation/plans/' -e '^documentation/site/' -e '^documentation/\.' | sort -u)
+[ -f "$dir/documentation/_site/index.html" ] || exit 0
+paths=$(printf '%s' "$input" | grep -o 'documentation/[^"[:space:]\\]*' | grep -v -e '^documentation/plans/' -e '^documentation/_site/' -e '^documentation/\.' | sort -u)
 [ -n "$paths" ] || exit 0
 root="$(cd "$(dirname "$0")/.." && pwd)"
 script="$root/docs-site/scripts/rebuild.py"

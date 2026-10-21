@@ -69,7 +69,7 @@ under the same version: rows of this version are amended, not doubled.
    user's request `docs: publish document versions`. Stage
    only the files just stamped, plus a new file in `db/migrations/` or a
    rebuilt unversioned diagram that belongs to a dirty schema or
-   architecture, and — when the project has `documentation/site/` — the
+   architecture, and — when the project has `documentation/_site/` — the
    site, after waiting for its rebuild (`python3 <docs-site skill
    folder>/scripts/rebuild.py . --wait`). Do not stage a plan folder's
    file.

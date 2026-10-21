@@ -5,7 +5,7 @@
 
 The built-in browser opens a page given as a file without its stylesheet and scripts — no menu, no search; served
 from http://127.0.0.1 the site works as in any browser. The server serves only the site folder (default
-documentation/site), listens on 127.0.0.1 only, runs detached, and is remembered outside the committed site, in
+documentation/_site), listens on 127.0.0.1 only, runs detached, and is remembered outside the committed site, in
 <git dir>/pipeline-work/site-server, so a second call reuses it. Ports 8800-8809; the first free one is taken.
 """
 from __future__ import annotations
@@ -47,7 +47,7 @@ def state_file(site: Path) -> Path:
 
 def main() -> None:
     args = [a for a in sys.argv[1:] if a != "--stop"]
-    site = Path(args[0] if args else "documentation/site").resolve()
+    site = Path(args[0] if args else "documentation/_site").resolve()
     if not (site / "index.html").exists():
         sys.exit(f"no site at {site} — build it first (build_site.py)")
     state = state_file(site)

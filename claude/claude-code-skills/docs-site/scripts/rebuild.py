@@ -4,7 +4,7 @@
     python3 rebuild.py <project dir> --wait    # block until no rebuild runs or is queued
 
 Called by the plugin's PostToolUse hook (hooks/site-rebuild.sh) on every edit under documentation/ — plans/ and the
-site itself left out — and only in a project that already has a site (documentation/site/index.html). One build
+site itself left out — and only in a project that already has a site (documentation/_site/index.html). One build
 runs at a time: an edit during a build queues exactly one more, so a burst of edits costs two builds, not twenty.
 Without --api the API page is reused (Redoc takes minutes); with it, rebuilt. State in <git dir>/pipeline-work/:
 site-build.lock (the running worker's pid) and site-build.pending (a queued rebuild, «api» when the contract
@@ -56,7 +56,7 @@ def worker(root: Path, d: Path) -> None:
             api = pending.read_text().strip() == "api"
             pending.unlink()
             subprocess.run([sys.executable, str(HERE / "build_site.py"), "--docs", str(root / "documentation"),
-                            "--out", str(root / "documentation" / "site")] + ([] if api else ["--keep-api"]),
+                            "--out", str(root / "documentation" / "_site")] + ([] if api else ["--keep-api"]),
                            cwd=root, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL, timeout=600)
     finally:
         lock.unlink(missing_ok=True) if sys.version_info >= (3, 8) else None
@@ -65,7 +65,7 @@ def worker(root: Path, d: Path) -> None:
 def main() -> None:
     args = sys.argv[1:]
     root = Path(next((a for a in args if not a.startswith("--")), os.getcwd())).resolve()
-    if not (root / "documentation" / "site" / "index.html").exists():
+    if not (root / "documentation" / "_site" / "index.html").exists():
         return  # this project has no site: nothing to keep fresh
     d = work_dir(root)
     lock, pending = d / "site-build.lock", d / "site-build.pending"
