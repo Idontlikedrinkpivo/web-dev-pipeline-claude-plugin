@@ -1,13 +1,22 @@
 (function () {
   var nav = document.getElementById("nav"), page = window.PAGE || "";
   if (nav && window.NAV) {
+    var root0 = window.SITE_ROOT || ".";
+    var h = function (t) { return t.replace(/[&<>]/g, function (c) { return {"&": "&amp;", "<": "&lt;", ">": "&gt;"}[c]; }); };
+    var link = function (it) {
+      return '<a href="' + root0 + "/" + it[0] + '"' + (it[0] === page ? ' class="cur" aria-current="page"' : "") + ">" +
+        (it[2] ? '<b class="id">' + h(it[2]) + "</b>" : "") + "<span>" + h(it[1]) + "</span></a>";
+    };
     nav.innerHTML = window.NAV.map(function (sec) {
-      var open = sec.items.some(function (it) { return it[0] === page; });
-      return "<details" + (open ? " open" : "") + "><summary>" + sec.label + "</summary>" + sec.items.map(function (it) {
-        return '<a href="' + (window.SITE_ROOT || ".") + "/" + it[0] + '"' + (it[0] === page ? ' class="cur"' : "") + ">" +
-          it[1].replace(/[&<>]/g, function (c) { return {"&": "&amp;", "<": "&lt;", ">": "&gt;"}[c]; }) + "</a>";
-      }).join("") + "</details>";
+      return '<div class="sec"><div class="sec-h">' + h(sec.label) + "</div>" + sec.items.map(function (it) {
+        if (!it.g) return link(it);
+        var open = it.items.some(function (x) { return x[0] === page; });
+        return '<details class="grp"' + (open ? " open" : "") + "><summary><span>" + h(it.g) + "</span><em>" +
+          it.items.length + "</em></summary><div>" + it.items.map(link).join("") + "</div></details>";
+      }).join("") + "</div>";
     }).join("");
+    var cur = nav.querySelector("a.cur");
+    if (cur) nav.scrollTop = cur.offsetTop - nav.clientHeight / 2;  // the menu only, not the page
   }
   var foot = document.getElementById("foot");
   if (foot && window.FOOT) foot.textContent = window.FOOT;

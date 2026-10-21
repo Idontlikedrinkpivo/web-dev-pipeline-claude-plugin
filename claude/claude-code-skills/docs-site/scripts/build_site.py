@@ -299,35 +299,70 @@ class Site:
 
         return mdhtml.Hooks(link=link, autolink=autolink, anchor=anchor, code_link=code_link)
 
+    def nav_role(self, pg: dict) -> tuple:
+        """Where a page goes in the menu: (order in its section, group or None, title, badge). By the document's
+        role, not its heading — «Системный анализ (новая версия) — SRS» is the SRS of whatever project."""
+        parts, stem = pg["rel"].split("/"), pg["src"].stem
+        folders = parts[1:-1]
+        end = lambda *names: any(stem == n or stem.endswith("-" + n) for n in names)
+        title = pg.get("short", pg["title"])
+        if end("open-questions"):
+            return 9, None, "Открытые вопросы", ""
+        m = re.match(r"^(S-\d+)-", pg["src"].name)
+        if m:
+            return 2, ("screens", "ТЗ на экраны"), re.sub(r"^S-\d+\.\s*", "", pg["title"]), m.group(1)
+        if "test-cases" in folders:
+            if stem.lower() in ("readme", "index"):
+                return 2.9, ("tests", "Тест-кейсы"), "Обзор", ""  # the group's first item
+            return 3, ("tests", "Тест-кейсы"), re.sub(r"\s*\((?:[^()]*\d[^()]*)\)\s*$", "",
+                                                      re.sub(r"^\d+\.\s*", "", pg["title"])), ""
+        if "areas" in folders:
+            return 2, ("areas", "Области требований"), title, ""
+        if "scenarios" in folders or "scenarios-" in stem:
+            name = re.sub(r"^Сценарии\s*[:—-]\s*", "", pg["title"]).strip()
+            return 4, ("scenarios", "Сценарии"), name[:1].upper() + name[1:], ""
+        for names, order, label in (
+                (("business-requirements",), 0, "Бизнес-требования"),
+                (("srs",), 1, "Требования к системе (SRS)"),
+                (("ui-wishes",), 3, "Пожелания к интерфейсу"),
+                (("architecture",), 0, "Основа архитектуры"),
+                (("architecture-diagram",), 1, "Схемы архитектуры"),
+                (("domain",), 2, "Доменная модель"),
+                (("schema",), 0, "Схема БД"),
+                (("frames-register", "frames"), 0, "Реестр макетов"),
+                (("deploy",), 0, "Инструкция по развёртыванию"),
+                (("operations",), 0, "Эксплуатационная документация"),
+                (("project-map",), 0, "Карта проекта")):
+            if end(*names):
+                return order, None, label, ""
+        return 5, None, title, ""
+
     def nav_data(self) -> list:
-        """[{label, items: [[url, title], …]}] for assets/nav.js; site.js draws it and marks the current page."""
+        """[{label, items}] for assets/nav.js; an item is [url, title, badge] or a group {g, items}. site.js draws
+        it, opens the current page's group and marks the page."""
         out = []
         labels = dict(SECTIONS)
         for name, label in SECTIONS + [("", "Прочее")]:
             pages = [p for p in self.pages if (p["section"] or "") == name or (name == "" and p["section"] not in labels)]
-            items = [["api/index.html", "Контракт API"]] if name == "api" and self.api_mode != "нет" else []
-            items += [[p["url"], p.get("short", p["title"])] for p in pages]
+            rows = [((-1, 0), None, ["api/index.html", "Контракт API", ""])] if name == "api" and self.api_mode != "нет" else []
+            for n, pg in enumerate(pages):
+                order, group, title, badge = self.nav_role(pg)
+                rows.append(((order, n), group, [pg["url"], title, badge]))
+            items, groups = [], {}
+            for _, group, item in sorted(rows, key=lambda r: r[0]):
+                if group is None:
+                    items.append(item)
+                elif group[0] in groups:
+                    groups[group[0]]["items"].append(item)
+                else:
+                    groups[group[0]] = {"g": group[1], "items": [item]}
+                    items.append(groups[group[0]])
+            for g in groups.values():  # a group of one page is just that page
+                if len(g["items"]) == 1:
+                    items[items.index(g)] = g["items"][0]
             if items:
                 out.append({"label": label, "items": items})
         return out
-
-    def nav(self, current: str) -> str:
-        out = []
-        labels = dict(SECTIONS)
-        for name, label in SECTIONS + [("", "Прочее")]:
-            pages = [p for p in self.pages if (p["section"] or "") == name or
-                     (name == "" and p["section"] not in labels)]
-            items = []
-            if name == "api" and self.api_mode != "нет":
-                items.append(("api/index.html", "Контракт API"))
-            items += [(p["url"], p.get("short", p["title"])) for p in pages]
-            if not items:
-                continue
-            links = "".join(f'<a href="{html.escape(rel(u, current))}"{" class=cur" if u == current else ""}>'
-                            f"{html.escape(t)}</a>" for u, t in items)
-            opened = any(u == current for u, _ in items)
-            out.append(f'<details{" open" if opened else ""}><summary>{label}</summary>{links}</details>')
-        return "".join(out)
 
     def page(self, url: str, title: str, body: str, toc: list, meta: dict) -> str:
         root = "/".join([".."] * url.count("/")) or "."

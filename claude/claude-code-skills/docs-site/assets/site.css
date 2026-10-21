@@ -12,9 +12,18 @@ header{position:sticky;top:0;z-index:10;display:flex;align-items:center;gap:16px
 #results a:hover,#results a.on{background:var(--accbg)}#results small{display:block;color:var(--muted);font-size:12.5px}
 .wrap{display:grid;grid-template-columns:270px minmax(0,1fr) 220px;gap:32px;max-width:1440px;margin:0 auto;padding:0 16px}
 nav{position:sticky;top:56px;height:calc(100vh - 56px);overflow:auto;padding:16px 4px 40px 0;font-size:14px}
-nav details{margin-bottom:6px}nav summary{cursor:pointer;font-weight:600;padding:4px 6px;border-radius:6px}
-nav a{display:block;padding:3px 6px 3px 18px;color:var(--muted);text-decoration:none;border-radius:6px;line-height:1.35}
-nav a:hover{color:var(--fg);background:var(--panel)}nav a.cur{color:var(--acc);background:var(--accbg);font-weight:600}
+nav .sec{margin:0 0 20px}
+nav .sec-h{padding:0 10px 6px;font-size:11.5px;font-weight:700;letter-spacing:.07em;text-transform:uppercase;color:var(--muted)}
+nav a{display:flex;align-items:baseline;gap:8px;padding:5px 10px;color:var(--fg);text-decoration:none;border-radius:7px;line-height:1.35}
+nav a:hover{background:var(--panel)}nav a.cur{color:var(--acc);background:var(--accbg);font-weight:600}
+nav a .id{flex:none;min-width:34px;font:600 11.5px/1.6 ui-monospace,SFMono-Regular,Menlo,monospace;color:var(--muted)}
+nav a.cur .id{color:var(--acc)}
+nav details.grp summary{display:flex;align-items:center;gap:8px;padding:5px 10px;border-radius:7px;cursor:pointer;list-style:none;user-select:none}
+nav details.grp summary::-webkit-details-marker{display:none}nav details.grp summary:hover{background:var(--panel)}
+nav details.grp summary::before{content:"";flex:none;width:6px;height:6px;margin:0 2px 0 1px;border:solid var(--muted);border-width:0 1.5px 1.5px 0;transform:rotate(-45deg);transition:transform .15s}
+nav details.grp[open] summary::before{transform:rotate(45deg)}
+nav details.grp summary em{margin-left:auto;padding:0 7px;border-radius:9px;background:var(--panel);color:var(--muted);font-size:12px;font-style:normal;line-height:1.6}
+nav details.grp > div{margin:2px 0 6px 15px;padding-left:6px;border-left:1px solid var(--line)}
 main{padding:24px 0 80px;min-width:0}main h1{font-size:30px;line-height:1.25;margin:8px 0 16px}
 main h2{font-size:22px;margin:36px 0 12px;padding-top:8px;border-top:1px solid var(--line)}main h3{font-size:18px;margin:28px 0 8px}
 main h4{font-size:16px;margin:22px 0 6px}.hash{margin-left:8px;color:var(--line);text-decoration:none;opacity:0}
