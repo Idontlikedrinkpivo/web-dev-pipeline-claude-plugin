@@ -3,7 +3,9 @@
 Read before a commit stamps a row, and when `doc-review` checks one.
 Placement and the one-row-per-change rule are in `SKILL.md` → Changelog;
 the types are in `SKILL.md` → What a version is. This file holds the
-columns, the example, and what each cell must carry.
+columns, the example, and what each cell must carry. «Изменение» is one or two sentences — what changed
+and why, in plain words; the detail lives in the document body and in git, and a row that retells the whole
+diff is unreadable in a table.
 
 ## Where the table lives
 

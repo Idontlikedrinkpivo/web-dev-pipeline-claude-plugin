@@ -39,6 +39,18 @@ KINDS = ["FR", "NFR", "BR", "UC", "TC", "S", "З"]
 KIND_LABEL = {"FR": "функциональных требований", "NFR": "нефункциональных требований", "BR": "бизнес-правил",
               "UC": "сценариев", "TC": "тест-кейсов", "S": "экранов", "З": "запросов эксплуатации"}
 
+def fold_log(body: str) -> str:
+    """«Журнал изменений» folded under its heading: history for whoever opens it, not a wall before the content."""
+    m = re.search(r'<h2 id="([^"]*)">((?:(?!</h2>).)*?Журнал изменений(?:(?!</h2>).)*?)</h2>', body)
+    if not m:
+        return body
+    end = body.find("<h2", m.end())
+    end = len(body) if end < 0 else end
+    title = re.sub(r'<a class="hash"[^>]*>#</a>', "", m.group(2))
+    return (body[:m.start()] + f'<details class="log" id="{m.group(1)}"><summary><h2>{title}</h2></summary>'
+            + body[m.end():end] + "</details>" + body[end:])
+
+
 OLD_SITES = ("site", "_site")  # the site's folder before 1.2.129 and before 1.2.147: never read as documents
 
 ASSET_EXT = {".svg", ".png", ".jpg", ".jpeg", ".gif", ".webp"}
@@ -574,7 +586,8 @@ class Site:
             res = mdhtml.convert(pg["text"], self.hooks(pg))
             target = self.out / pg["url"]
             target.parent.mkdir(parents=True, exist_ok=True)
-            target.write_text(self.page(pg["url"], pg["title"], res.html, res.headings, res.meta), encoding="utf-8")
+            target.write_text(self.page(pg["url"], pg["title"], fold_log(res.html), res.headings, res.meta),
+                              encoding="utf-8")
             plain = re.sub(r"\s+", " ", re.sub(r"<[^>]+>", " ", res.html))
             search.append({"t": pg["title"], "u": pg["url"], "s": dict(SECTIONS).get(pg["section"], ""),
                            "x": html.unescape(plain)[:6000]})

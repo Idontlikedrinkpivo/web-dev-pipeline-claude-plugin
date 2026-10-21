@@ -48,3 +48,6 @@ img{max-width:100%;height:auto;background:#fff;border-radius:8px;border:1px soli
 @media (max-width:820px){.wrap{grid-template-columns:1fr}.menu{display:block}nav{display:none;position:fixed;top:56px;left:0;right:0;bottom:0;z-index:9;background:var(--bg);padding:16px}
 body.nav-open nav{display:block}.brand{max-width:50%}}
 @media print{header,nav,aside,footer{display:none}.wrap{display:block}}
+details.log{margin:36px 0 12px;border-top:1px solid var(--line);padding-top:8px}details.log>summary{cursor:pointer;list-style:none}
+details.log>summary::-webkit-details-marker{display:none}details.log>summary h2{display:inline;border:0;margin:0;padding:0;font-size:18px;color:var(--muted)}
+details.log>summary h2::after{content:" — показать";font-size:14px;font-weight:400}details.log[open]>summary h2::after{content:" — скрыть"}

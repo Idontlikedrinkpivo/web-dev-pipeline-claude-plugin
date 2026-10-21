@@ -34,6 +34,9 @@ those groups: one living document per group (`<group>` and its Russian
 heading — `references/output-template-scenarios.md`), edited in place; a
 new area gets a new folder `scenarios/<area>/`, a new group a new file.
 
+Every document is written to be scanned: a table cell is one fact, a mechanism is a subsection with a list, each
+fact lives once, no decision dates in the body — `references/writing.md`.
+
 ## Orchestrator (session)
 
 The session writes no architecture document. Same reason `work` writes no
@@ -474,6 +477,8 @@ Read each file at the step named; skip the rest.
 - `references/final-check.md` — the final checklist, by mode. Before you finish.
 - `references/increment.md` — which modes run and what changes when the documents exist (orchestrator step 2, Step 1b).
 - `references/nfr-decisions.md` — the eleven security sub-items; «Решения по NFR» (foundation §1).
+- `references/writing.md` — how every architecture document reads: short cells, lists, one home per fact;
+  `scripts/facts_check.py` proves a rewrite kept its facts.
 - `references/stack-proposal.md` — constraints, cards, chat prompt, after the pick (Step 2b).
 - `references/rich-entities.md` — entity vs ORM model, invariants, value objects, when anemic is fine (mode `domain`).
 - `references/use-cases-and-boundaries.md` — why use cases orchestrate, queries, side effects, typed boundaries, layer roster (mode `scenarios`; foundation §3).

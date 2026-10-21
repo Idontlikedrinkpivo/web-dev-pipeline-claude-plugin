@@ -11,14 +11,14 @@ Turn each applicable sub-item of the input's Security NFR checklist (an
 SRS's `NFR-*` Security sub-items, or an equivalent stated by the user)
 into one concrete decision, not a restatement of the requirement.
 
-The **NFR-ID** cell is copied from the SRS that `srs-writer` produced:
+The **Требование** cell (`NFR-<n>`) is copied from the SRS that `srs-writer` produced:
 `documentation/requirements/srs/srs.md`, section 4, id `NFR-<n>`.
 That file is listed in `sources`. Do not write `(to-be)`, `(as-is)`,
 `—`, or an id this document made up. A `Not applicable` row keeps the
 SRS id. Security rows are not a new sequence starting at 1: `NFR-<n>`
 is continuous across the whole SRS section 4.
 
-| NFR-ID | Sub-item | Decision |
+| Требование | Подпункт | Решение |
 |---|---|---|
 | e.g. NFR-3 | Authentication & session policy | e.g. "Bearer JWT, 15-min access / 7-day rotating refresh" |
 | e.g. NFR-4 | Authorization model | e.g. "ownership check per resource — step 1 of each scenario, «Доступ» row" |
@@ -28,6 +28,10 @@ is continuous across the whole SRS section 4.
 | e.g. NFR-8 | Encryption in transit / at rest | e.g. "TLS terminates at the ingress proxy; no column or bucket encryption — no payment data" |
 | e.g. NFR-9 | Retention & deletion | e.g. "no retention window; delete = object store first, then the row" |
 | e.g. NFR-10 | Audit trail | e.g. "append-only `audit_log` written by an `AuditLog` port on every admin mutation" |
+
+A «Решение» cell is the decision in one or two sentences; the mechanism (hooks, files, libraries, the order of
+checks) goes to a `#### <Подпункт> (NFR-n)` subsection under the table, one fact per line —
+`references/writing.md` has this very row as its example.
 
 The last three rows are decisions with a shape: encryption says where TLS
 terminates and what is *not* encrypted; retention says how long data lives
@@ -69,12 +73,12 @@ names) gets one row in foundation §1 «Решения по NFR». Without the r
 like «p95 < 300 мс» or «RPO 1 ч» reaches no one: the plan and the reviews
 read the architecture, not the SRS table.
 
-| NFR-ID | Решение | Где в дизайне |
+| Требование | Решение | Где в дизайне |
 |---|---|---|
 | e.g. NFR-1 | e.g. «список площадок — один запрос с индексом по `venue_id`, без N+1» | e.g. сценарии `venues`: `VenueQueries.list`; индекс в схеме |
 | e.g. NFR-2 | e.g. «вне архитектуры — `deploy-topology`: две реплики, ежедневный бэкап» | — |
 
-- **NFR-ID** follows the same rule as the security table: copied from
+- **Требование** follows the same rule as the security table: copied from
   the SRS, continuous numbering, never invented.
 - **Где в дизайне** points at a section, a file, or a port. A decision
   with no place in the design is prose, not a decision.
