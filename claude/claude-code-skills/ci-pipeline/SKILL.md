@@ -64,7 +64,11 @@ instead of trusting the run report.
 Without the project's own commands already existing, stop and name the gap
 — do not write `ruff check .` directly into the workflow when there is no
 local `lint` target calling it; add the target first, or hand back to
-whichever skill owns that tooling. Without `docker-compose.test.yml`,
+whichever skill owns that tooling. This holds per part: a repository with
+a backend and a frontend needs `lint`, `typecheck` and `test` in each, and
+a part missing one is a stop that names it, never a job that quietly
+skips it — the quality gates are `repo-scaffold/references/quality-gates.md`.
+Without `docker-compose.test.yml`,
 stop the same way: do not invent infra services or emit a workflow —
 hand back to `deploy-topology`, since CI can only mirror a test topology
 that already exists.

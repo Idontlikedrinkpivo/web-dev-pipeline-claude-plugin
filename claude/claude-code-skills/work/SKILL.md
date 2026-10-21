@@ -285,12 +285,12 @@ Per unit, in this order, and never skip to the next unit on a broken tree:
    unit's `Файлы` is a scope breach: revert it. If the unit truly needed it,
    the plan mis-listed the footprint — record why in the run report and
    re-dispatch with the corrected `Файлы` (Step 6), so the review sees the file
-   inside the unit's scope instead of flagging it as a breach.
+   inside the unit's scope instead of flagging it as a breach. A deleted or loosened earlier test, or a left `.only` / `.skip`, is a return.
 2. **Check the diff against the unit spec.** Does it implement the cited
    design, or something adjacent? Does it re-decide something the design
    already fixed?
-3. **Run the tests** — the unit's own tests plus whatever the plan's definition
-   of done names for this ring. This run is authoritative; the worker's
+3. **Run the checks** — `lint`, `typecheck` (tests too) and the unit's tests plus what the plan names for
+   this ring (`repo-scaffold/references/quality-gates.md`). This run is authoritative; the worker's
    self-check is not. Then check the proof, not just the green: every scenario
    the plan listed exists as a test in the diff and asserts what the scenario
    names (a test named after a scenario that asserts nothing reports coverage

@@ -98,7 +98,17 @@ the project is used as is, whether or not it meets the criterion.
 5. **Fields** follow «Поля ввода»: the rule, when it is checked, the exact
    error text next to the field. Derive the form schema from the generated
    request type so a contract change breaks the build, not the user.
-6. **Focus** follows the frame and `ux-patterns` (dialog focus, error
+   A format rule the server also checks (an email, a link) comes from the one
+   frontend module the domain model's «Кто ещё применяет» names — never a
+   regex typed into the form; what the user may do (a button shown or not)
+   comes from the response when the contract carries it, never re-derived.
+6. **Shape the code to stay changeable**: network calls only through the
+   shared data layer (one hook or query library, one way to load a
+   dictionary), shared Loading / Error / Empty components, and a page split
+   into a data hook and its view — the quality gates refuse a function over
+   80 lines and a file over 500 (`repo-scaffold/references/quality-gates.md`).
+   A second copy of a component or helper is a reuse, not a paste.
+7. **Focus** follows the frame and `ux-patterns` (dialog focus, error
    summary). **Widths** go desktop first: the desktop width of the frames
    register is built first, then each narrower width follows the frame
    drawn at it, with no sideways page scroll at any width (UX-74).
@@ -115,7 +125,7 @@ the project is used as is, whether or not it meets the criterion.
    (the framework's font loader or self-hosted files, UX-59) instead of
    letting the browser fall back to a system font, because a fallback changes every text width and weight on
    the screen.
-7. **Behaviour follows `ux-patterns`** (load it; the variant from the
+8. **Behaviour follows `ux-patterns`** (load it; the variant from the
    frames register's **Тип продукта**) where the spec and the frame leave the
    mechanics open: validation on blur and again on submit, the error
    clears once fixed, the error summary takes focus after a failed submit
@@ -131,13 +141,13 @@ the project is used as is, whether or not it meets the criterion.
    for every text the code adds, such as an `aria-label` [UX-78, UX-79].
    A test that pins one of these names the rule id. Where the screen spec
    records an «Исключение UX-<n>», build what it says — it was reviewed.
-8. **Texts** come from the frame's «Тексты» table (as quoted in the screen
+9. **Texts** come from the frame's «Тексты» table (as quoted in the screen
    spec) and live where the project keeps UI strings (i18n catalog keyed by
    `S-n`, or a per-feature messages module); tests assert them verbatim. A
    designer's rewording changes the frame, the screen spec and this
    catalog — never the SRS.
 
-9. **Code-level rules** are in `web-design-guidelines`: the code form of
+10. **Code-level rules** are in `web-design-guidelines`: the code form of
    every `ux-patterns` rule — semantics and keyboard, focus, forms, motion
    under reduced motion, long content, images, performance, touch,
    theming, `Intl`, Next.js hydration. Keep CSS specificity flat: styles
@@ -180,7 +190,10 @@ test); a missing one is reported, not invented.
 
 1. Typecheck, lint, unit/component tests — all green. One component test per
    state row and per mapped response outcome, with the API mocked at the
-   network boundary by fixtures typed from the generated types.
+   network boundary by fixtures typed from the generated types. Test helpers
+   (render with router and session, the network mock, typed fixtures) live in
+   one shared test folder, never copied into a test file; tests are grouped by
+   behaviour, not by plan unit, and never read a stylesheet or a source file.
 2. E2E for the screen's main path, written per `playwright-cli`.
 3. When the spec cites a `nodeId`: run the app, `playwright-cli resize` to
    each width in the frames register, `screenshot` the page and each state, get

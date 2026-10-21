@@ -18,7 +18,8 @@ Create:
   capture, `tsPreCompilationDeps: true`, `tsConfig` pointing at the root
   `tsconfig.json` (so `paths` aliases resolve), the `not-to-unresolvable`
   rule, and `severity: 'error'` on every rule
-- `npm` / `pnpm` scripts `lint-boundaries` → `depcruise src --config .dependency-cruiser.cjs`; `lint` (runs `lint-boundaries` + the stack linter + `knip`), `typecheck` (`tsc --noEmit`), `test`
+- `eslint.config.js` — ESLint with `typescript-eslint`, the rules and thresholds of `quality-gates.md`
+- `npm` / `pnpm` scripts `lint-boundaries` → `depcruise src --config .dependency-cruiser.cjs`; `lint` (runs `lint-boundaries` + ESLint + `knip` + `jscpd`), `typecheck` (`tsc --noEmit` over `src` and the tests), `test`
 - `bootstrap/server.ts` — health route only. Fastify: build the instance in a
   `buildServer()` factory with the one type provider and the one global error
   handler the architecture names (problem+json per `documentation/api/openapi.yaml`), so
@@ -43,8 +44,10 @@ Layout, default libraries, and command names: the profile in
 `frontend/references/react-vite.md` or `frontend/references/nextjs.md` —
 follow it, do not restate it here. Create:
 
-- `package.json` + lockfile with scripts `dev`, `build`, `lint` (ESLint +
-  `knip`), `typecheck` (`tsc --noEmit`), `test` (Vitest + Testing Library),
+- `package.json` + lockfile with scripts `dev`, `build`, `lint` (ESLint with
+  the `quality-gates.md` rules and React hooks rules + `dependency-cruiser`
+  over the frontend's layers + `knip` + `jscpd`), `typecheck` (`tsc --noEmit`,
+  tests included), `test` (Vitest + Testing Library),
   `test:e2e` (Playwright), and `api:gen` — the OpenAPI client generator over
   `documentation/api/openapi.yaml`, writing to the folder the profile names
 - `tsconfig.json`, the bundler / framework config, ESLint config,

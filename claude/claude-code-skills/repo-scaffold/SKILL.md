@@ -113,8 +113,10 @@ when business code is written, not now.
 
 Read `references/stack-files.md` for the chosen stack only. Install the
 minimum: language toolchain, HTTP framework, DB driver, test runner,
-boundary linter named in §6, and the dead-code detector (`knip` /
-`vulture`) that `work` runs before the final review.
+boundary linter named in §6, the dead-code detector (`knip` /
+`vulture`), and the quality gates — the code linter with its thresholds,
+types over tests, duplicates, test hygiene (`references/quality-gates.md`) —
+for every part of the repository, the frontend included.
 
 Pin versions in the lockfile. Install the majors §1 Стек names; a
 lockfile that resolves a different major is a stop, not a silent
@@ -148,7 +150,7 @@ run it. If it fails on the empty tree, fix the config (usually a
 leftover placeholder), not the tree.
 
 Also wire the three check targets `ci-pipeline` later calls verbatim:
-`make lint` (runs `lint-boundaries` plus the stack's linter),
+`make lint` (runs `lint-boundaries`, the code linter, dead code and duplicates — `references/quality-gates.md`),
 `make typecheck`, and `make test` — or `npm run lint` / `npm run
 typecheck` / `npm test` for a Node-only repo. Use hyphens, not colons,
 in Make target names: `lint:boundaries` breaks Make.

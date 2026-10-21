@@ -99,8 +99,12 @@ RULES
   copied: write the new code right and name the old site in OUT OF SCOPE,
   so the review does not send the unit back for the pattern it was told to
   mirror.
-- Never make a test pass by weakening it. If a scenario and the design
+- Never make a test pass by weakening it, and never delete or loosen a test
+  an earlier unit wrote, nor leave `.only` / `.skip`. If a scenario and the design
   contradict each other, stop and report BLOCKED with both quoted.
+- Before reporting, run the project's `lint` and `typecheck` (tests included)
+  and fix what they say about your files — the orchestrator runs them too, and
+  an error is a return (`repo-scaffold/references/quality-gates.md`).
 - In PHASE tests-only, write tests and nothing else — no production code, no
   stub beyond what the test needs to compile. Report the red and stop.
 - In PHASE implementation, the tests are already there and red. Make them pass

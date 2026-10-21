@@ -53,12 +53,14 @@ sources:
 Таблица: Ошибка · Поднимает (метод сущности / VO, или шаг сценария для
 `…NotFound` / `Forbidden`) · Когда · Правило (SRS id). Здесь — каждое имя,
 которое могут вернуть сценарии; сценарии их не переопределяют. Статус HTTP
-не писать — он в фундаменте, §4.
+не писать — он в фундаменте, §4. Каждая ошибка — свой тип с полем-меткой
+(`kind`), а у сбоя внешнего вызова — и с причиной: пустые классы компилятор не
+различает, и пропущенная ветка уходит молча.
 
 ## 4. Инварианты
 Таблица без вступления и без абзаца под ней: Правило → Владелец → Где
 проверяется → Ограничение в схеме (`none` / `CHECK` / `UNIQUE` / `FK`) →
-Исход. Ячейка «Правило» начинается с id из SRS (`BR-3: …`), дальше слова
+Исход → Кто ещё применяет. Ячейка «Правило» начинается с id из SRS (`BR-3: …`), дальше слова
 требования. Схему пишет колонка «Ограничение в схеме», тесты — «Где
 проверяется»; это правило писателя, в файл не копировать.
 
@@ -83,15 +85,24 @@ HTTP (или решение отдавать, со ссылкой на стро�
 
 These stay in the skill; the file never glosses them.
 
-| Правило | Владелец | Где проверяется | Ограничение в схеме | Исход |
-|---|---|---|---|---|
-| SRS id first, then the requirement's words, capital first letter; column is «Правило», never «Правило (цитата)» | type that holds the data | method or constructor that refuses, same signature as in the sketch | `none` / `CHECK` / `UNIQUE` / `FK`, copied from the schema document | named error (from §3), resulting state, or derived value |
+| Правило | Владелец | Где проверяется | Ограничение в схеме | Исход | Кто ещё применяет |
+|---|---|---|---|---|---|
+| SRS id first, then the requirement's words, capital first letter; column is «Правило», never «Правило (цитата)» | type that holds the data | method or constructor that refuses, same signature as in the sketch | `none` / `CHECK` / `UNIQUE` / `FK`, copied from the schema document | named error (from §3), resulting state, or derived value | every other place that must apply the same rule — a query's filter, a screen's form or its buttons, another module — and how it gets the rule from its owner; `—` when none |
 
 - «Где проверяется» is always an entity or value-object method. Never a
   use case, controller, adapter, `Clock`, or the word `database`.
 - «Ограничение в схеме» copies the schema: `CHECK`, `UNIQUE`, or `FK` when
   that document created the constraint, `none` when it left the rule to
   the entity. Do not add a constraint the schema does not have.
+- «Кто ещё применяет» makes a copy impossible to miss. A query, a screen or another module never re-types the rule:
+  it imports the owner's constant or value object (a status list exported by the domain module, a shared email or
+  URL value object in `shared/domain`), or receives the result from the server (the allowed actions in a response —
+  a contract field, so the OpenAPI carries it). A rule a screen must apply before the server answers (a form's
+  format check) names the one frontend module that mirrors it and the test that compares the two. In the
+  room-booking sample, the row for NFR-4 (a resident cancels only their own bookings) reads
+  «Расписание: «Отменить» у резидента — по полю `is_mine` ответа», so the screen never re-derives ownership; the
+  row for BR-2 (30-minute steps inside working hours) names the booking form's check module and the test that
+  compares it with the domain rule.
 - Assumed rows tag `(A-n)` and point at
   `documentation/architecture/open-questions.md`.
 
