@@ -109,3 +109,11 @@ This skill does not pin library facts that change between releases (signatures, 
 - **Form and validator quirks** — `model_fields_set` with `Form()` models, optional `Literal` form fields, `Json` inside a form, union-typed path parameters, and whether a `ValueError` in a validator becomes 422 or 500. Probe before relying on any of them.
 - **Background work** — whether tasks added to an injected `BackgroundTasks` survive returning a `Response` that carries its own `background`.
 - **Postponed annotations** — whether `from __future__ import annotations` with a forward-referenced dependency type still produces the right OpenAPI schema.
+
+## Install and errors
+
+- Async SQLAlchemy needs `sqlalchemy[asyncio]` — from 2.1 greenlet is no longer installed by default, and its
+  absence shows up as `MissingGreenlet` at the first query. 2.1 also autoflushes before every executed statement;
+  check the installed line.
+- A repository raises a domain exception with fields (`raise BookingOverlap(room_id=…) from e`), never a bare
+  re-raise of the driver's error and never `except Exception: pass` (`python`).

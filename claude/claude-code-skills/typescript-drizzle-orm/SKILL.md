@@ -98,6 +98,12 @@ This skill does not pin library facts that change between releases (signatures, 
 
 ### Check before relying on it
 
+- **Docs ahead of the installed line.** Drizzle's documentation and context7 may show the 1.0 line
+  (relational queries v2, `defineRelations`, a new migrations folder) while the installed package is 0.x — check the
+  version in the lockfile before copying an API.
+- **A query applies a business rule only by its owner's constant.** A filter by status or role imports the list from
+  the domain module (the domain model's «Кто ещё применяет»), never a literal in SQL; an adapter writes what the
+  domain decided and never re-derives the rule, an upsert's conflict branch included.
 - **Relations API.** Major lines ship different relation and relational-query APIs (declaration
   helper, `where` as operator vs object filter). Use the one the installed version supports and
   the repo already uses; code for the other line does not compile.

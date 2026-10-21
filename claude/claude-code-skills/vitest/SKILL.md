@@ -26,7 +26,10 @@ description: >-
 9. When `work` asks for it, mutation-test the unit's files with Stryker in incremental mode; a surviving mutant names the missing assertion.
 10. Review findings: `file:line` — what is wrong — rule number — fix. Report only; do not edit in a review.
 
-A browser flow (open a page, type, click, see text) is Playwright, not Vitest: route it to `playwright-cli` and add no DOM environment for it.
+A whole-application browser flow (log in, open a page, type, click, see the result) is Playwright, not Vitest:
+route it to `playwright-cli`. A component test is Vitest with Testing Library (jsdom, or Browser Mode where the
+project uses it): render through the shared `renderWithProviders`, mock the network with MSW, query by role and
+label, act with `userEvent`, wait with `findBy*` — the rules are `react` rule 14.
 
 ## Version-sensitive behaviour — verify
 
@@ -39,4 +42,6 @@ Read the installed version from the lockfile, then check docs via context7 (`res
 - `projects`: whether inline projects inherit root plugins, setup files, and environment, and how to opt out.
 - Sharding: which reporter shards need, where each shard writes its blob report, where the merge reads from, and how coverage merges.
 - Concurrent tests: whether the global `expect` misattributes snapshots and assertion counts (use the test-context `expect`).
-- Upgrades: read every crossed major's migration guide, walk this list against the config and suite.
+- Upgrades: read every crossed major's migration guide, walk this list against the config and suite (Vitest 5:
+  `clearMocks` on by default, an un-awaited `resolves` / `rejects` fails the test; Vitest 4: `workspace` became
+  `projects`, `poolOptions` removed; MSW 3: `onUnhandledRequest` became `onUnhandledFrame`).

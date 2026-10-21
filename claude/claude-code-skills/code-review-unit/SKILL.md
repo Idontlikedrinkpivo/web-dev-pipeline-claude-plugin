@@ -43,9 +43,10 @@ judgment made from inside one unit's packet.
 
 | Input | Required | Notes |
 |---|---|---|
-| Unit spec | **yes** | the `### U<n>.` block: Goal, Docs, Files, Approach, Test scenarios, Verification, Complexity |
+| Unit spec | **yes** | the `### U<n>.` block: Цель, Документы, Файлы, Подход, Тестовые сценарии, Проверка, Сложность (a plan before plugin 1.2.152 names them in English) |
+| Stack review rules | **yes** | the «The reviewer checks» sections of the unit's stack skills — `typescript`, `react`, `python` and the library skills `work/references/stack-skills.md` picks for its files |
 | The diff | **yes** | `git diff HEAD` after `git add -N <unit Files>` (intent-to-add, so untracked files in scope show up) — the orchestrator commits per unit, so uncommitted work *is* this unit's work. A Low batch is built from commits instead (Low batch, Step 3). Handed to the reviewer as a file path under `$(git rev-parse --git-dir)/pipeline-work/`, not pasted: pasted text stays in the orchestrator's context for the whole run |
-| Cited design excerpts | **yes** | the sections named in `Документы`, pasted, not linked — resolved under `documentation/` (`scenarios/orders` is `architecture/scenarios/orders/orders.md`, `api` is `api/openapi.yaml`) |
+| Cited design excerpts | **yes** | the sections named in `Документы`, pasted, not linked — resolved under `documentation/` (`scenarios/orders` is the group's document under `architecture/scenarios/orders/`, `api` is `api/openapi.yaml`) |
 | Worker report | when there was one | `TESTS`, `RED OBSERVED`, `CONCERNS`, `OUT OF SCOPE` |
 | Prior findings this run | when any | so a known issue is not raised twice |
 

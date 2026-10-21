@@ -16,7 +16,7 @@ tests/integration/conftest.py — see SKILL.md, "Test layout".
 Dependencies:
   pip install pytest pytest-asyncio httpx sqlalchemy[asyncio] asyncpg factory-boy
 
-Requires asyncio_mode = "auto" in [tool.pytest.ini_options]. The session-scoped `engine`
+Requires asyncio_mode = "auto" and asyncio_default_test_loop_scope = "session" in [tool.pytest.ini_options]. The session-scoped `engine`
 must share the event loop with the tests that use it; which options set fixture and test
 loop scope depends on the installed pytest-asyncio — check it (SKILL.md, "Check before
 relying on it") before copying this file.
@@ -37,6 +37,7 @@ schema, triggers, extensions, data), run `alembic upgrade head` against the test
 import os
 
 import pytest
+import pytest_asyncio
 from httpx import ASGITransport, AsyncClient
 from sqlalchemy.ext.asyncio import AsyncSession, create_async_engine
 
@@ -61,7 +62,11 @@ TEST_DATABASE_URL = os.environ.get(
 
 # ─── Engine & Session ────────────────────────────────────────────────────────────
 
-@pytest.fixture(scope="session")
+# pytest-asyncio 1.x runs each test in a function-scoped loop by default; a session engine must live in the
+# session loop: `loop_scope="session"` here and `asyncio_default_test_loop_scope = "session"` in pytest config.
+# With an architecture document the schema comes from the SQL migrations (documentation/db/migrations/) — apply
+# them instead of `create_all`, so the CHECK constraints the migrations hold take part in the tests.
+@pytest_asyncio.fixture(scope="session", loop_scope="session")
 async def engine():
     """Create an async engine, create all tables once per session, drop them at the end."""
     engine = create_async_engine(TEST_DATABASE_URL, echo=False)

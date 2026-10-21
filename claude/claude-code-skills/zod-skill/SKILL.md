@@ -89,3 +89,9 @@ This skill does not pin library facts that change between releases (signatures, 
   says about it.
 - **Date/ISO and URL helpers:** string format or codec, offsets accepted, schemes and hosts accepted.
 - **Parse options and global config:** the raw-input-in-issues option, error maps and their timing.
+
+## On the frontend
+
+A form's format rule comes from the schema generated from the contract (or the one rules module the domain model's
+«Кто ещё применяет» names), never a regex typed into the form — a copy of a server rule drifts from it (`react`
+rule 11).

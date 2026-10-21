@@ -50,7 +50,7 @@ tests/
 - **Adapter tests** — the repository and query adapters against the real database: save and reload, filters, ordering, constraint violations mapped to the named error. With several tenants, one test proves tenant A never reads or writes B's rows.
 - **One end-to-end path** — at least one API test runs HTTP → use case → real repository for the primary action without overriding anything but the session, proving the `bootstrap/` wiring.
 - Name files `test_<module>.py`, classes `Test<Feature>` (no `__init__`), functions `test_<action>_<expected_outcome>`, fixtures as nouns (`db_session`, `authenticated_client`). A failure line should say what broke without opening the file.
-- Declare markers `unit`, `integration`, `slow` in `[tool.pytest.ini_options]` and run subsets with `-m`. Use `asyncio_mode = "auto"` so async tests need no per-test marker.
+- Declare markers `unit`, `integration`, `slow` in `[tool.pytest.ini_options]` and run subsets with `-m`. Use `asyncio_mode = "auto"` so async tests need no per-test marker. With a session-scoped async engine also set `asyncio_default_test_loop_scope = "session"` (pytest-asyncio 1.x runs each test in its own loop otherwise, and the engine breaks across loops); check the installed version. Build the test schema from the SQL migrations, not `create_all`, so their CHECK constraints are tested.
 - Put an autouse fixture that requests `db_session` only in `tests/integration/conftest.py`: autouse applies to every test under that directory, and at the root it would make each unit test connect to the database.
 
 ## Real database, not mocks

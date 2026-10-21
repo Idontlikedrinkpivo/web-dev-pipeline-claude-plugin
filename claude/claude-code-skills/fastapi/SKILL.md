@@ -50,7 +50,8 @@ Start the app with `fastapi dev` locally and `fastapi run` in production (throug
 
 ## Tooling and libraries
 
-- uv for dependencies, Ruff for lint and format (enable its FastAPI rules), ty for type checking, when available.
+- uv for dependencies, Ruff for lint and format (enable its FastAPI rules), and `mypy --strict` or pyright
+  `strict` for type checking in CI — ty beside them while it is in beta. Language rules: `python`.
 - Asyncer (`asyncify` / `syncify`) when mixing blocking and async code; prefer it over raw AnyIO or asyncio.
 - HTTPX for outbound HTTP; prefer it over Requests.
 - SQLModel only if the user asks for it, and never beside an existing SQLAlchemy layer: that gives two model systems for one table.

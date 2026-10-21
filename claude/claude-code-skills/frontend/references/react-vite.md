@@ -22,13 +22,13 @@ Name the `S-n` in the page file's first comment line so a search for `S-1` finds
 
 | Concern | Default | Note |
 |---|---|---|
-| Routing | React Router; TanStack Router if already in the repo | one route per `S-n`, lazy-loaded |
+| Routing | React Router; TanStack Router if already in the repo | one route per `S-n`, lazy-loaded. React Router 8 dropped the `react-router-dom` package — import from `react-router` / `react-router/dom` and check the React version it requires; declarative routes with TanStack Query as the one source of server data |
 | Server state | TanStack Query | query per read `operationId`, mutation per write; invalidate the list after a write |
 | API client | openapi-typescript types + openapi-fetch | @hey-api/openapi-ts or Orval if the repo already uses one |
 | Forms | React Hook Form + Zod via its resolver | schema typed against the generated request body |
 | Styling / UI kit | Tailwind CSS + shadcn/ui | Radix-based primitives bring dialog focus trap and keyboard handling |
 | Component tests | Vitest + Testing Library + jsdom, MSW at the network boundary | queries by role and accessible name |
-| E2E / a11y | Playwright (`playwright-cli`); eslint-plugin-jsx-a11y | `@axe-core/playwright` scan of each state |
+| E2E / a11y | Playwright (`playwright-cli`); eslint-plugin-jsx-a11y | `@axe-core/playwright` scan of each state; jsx-a11y has had no release since 2024-10 — check that it loads with the installed ESLint major before relying on it |
 
 ## Stack conventions
 

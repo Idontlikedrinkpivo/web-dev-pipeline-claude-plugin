@@ -68,7 +68,7 @@ Step 6, **A decision changed during the run**.
 | `executor-catalog` skill | **yes** | read before the first dispatch; it is the only source of name → agent routing (each agent's file holds its model) |
 | The design documents the plan cites | on demand | read the cited section when building a worker packet, not up front |
 | Context7 MCP (`resolve-library-id`, `query-docs`) | no | live library docs for the packet's `CURRENT LIB DOCS` (Step 2b). Missing MCP is a skip, not a stop |
-| Language skill files the user attached | no | forwarded as `STACK SKILLS`. Do not invent a stack pack |
+| Stack skills | yes | chosen per unit from §1 «Стек» and the unit's files — `typescript`, `react`, `python`, the library skills — plus any the user attached, forwarded as `STACK SKILLS` (`references/stack-skills.md`) |
 | `frontend` and `web-design-guidelines` skills | for frontend units | every `impl-ui` unit, and any unit whose `Файлы` are browser UI code, gets them in `STACK SKILLS` without being attached: the `frontend` `SKILL.md` in full plus the one `references/<profile>.md` that matches architecture §1 «Стек» (or the line `no profile — <stack>`), and the `web-design-guidelines` `SKILL.md` in full. Backend units never get them |
 
 ### Readiness gate
@@ -225,9 +225,9 @@ by splitting the run.
 Build the packet from `executor-catalog/references/worker-prompt.md`. Fill
 every slot: paste the cited design excerpts rather than telling the worker to
 go read the architecture, list the exact files, carry the unit's `Подход`,
-`Тестовые сценарии` and `Проверка` verbatim, paste `STACK SKILLS` from
-language skills the user attached, plus the `frontend` skill, its one
-profile and `web-design-guidelines` for a frontend unit (see Inputs), or `none — no language skills attached`,
+`Тестовые сценарии` and `Проверка` verbatim, paste `STACK SKILLS` chosen by
+`references/stack-skills.md` (the `frontend` skill, its one
+profile and `web-design-guidelines` for a frontend unit too — see Inputs),
 paste `CURRENT LIB DOCS` from Step 2b, fill `FROM DEPENDENCIES` from the run
 report's `Decisions` of every `Зависит от` unit, and include the `DELEGATION`
 block only when the unit has a `Вложенный` row — nesting hands typing to
@@ -306,7 +306,7 @@ Per unit, in this order, and never skip to the next unit on a broken tree:
       Never paste it: pasted text stays in your context for the rest of the
       run and brings on the compaction Step 1 exists to survive.
    2. Invoke `code-review-unit` with the unit spec, that diff path, the cited
-      design excerpts, the worker report, and the findings already recorded
+      design excerpts, the stack skills' review sections, the worker report, and the findings already recorded
       this run. It sizes its own roster from the grade (0 needs no dispatch,
       Low batches at the wave boundary) and returns findings plus one verdict.
    3. Before acting on `RETURN_TO_EXECUTOR`, confirm each blocking finding's

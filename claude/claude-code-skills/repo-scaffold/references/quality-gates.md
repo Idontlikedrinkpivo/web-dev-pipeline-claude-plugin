@@ -36,13 +36,26 @@ The numbers are the defaults; foundation §6 may tighten them, never loosen them
 
 ### By stack
 
-- **TypeScript (backend and frontend):** ESLint flat config with `typescript-eslint` (type-aware for
-  `no-floating-promises` and `switch-exhaustiveness-check`), core `complexity`, `max-lines`, `max-lines-per-function`,
-  `max-depth`, `max-params`, `no-empty`; `eslint-plugin-react-hooks` on a React frontend; a `tsconfig` for tests (or
+- **TypeScript (backend and frontend):** ESLint flat config with `typescript-eslint` `recommended-type-checked`
+  as the base (type-aware, `projectService`) plus `no-floating-promises`, `no-misused-promises`,
+  `switch-exhaustiveness-check`, `only-throw-error`, `prefer-promise-reject-errors`, `consistent-type-assertions`,
+  `no-non-null-assertion`, `return-await` (`in-try-catch`), `no-unnecessary-condition`; core `preserve-caught-error`;
+  `no-restricted-syntax` against an empty error subclass and an empty `catch` block; on the frontend
+  `no-restricted-syntax` against a regex literal in components and `no-restricted-imports` / `no-restricted-globals`
+  keeping `fetch` and the API client inside the data layer; `@eslint-community/eslint-comments`
+  (`require-description`, `no-unlimited-disable`) so a rule is never silenced without a reason; the rule set the
+  `typescript` and `react` skills name; core `complexity`, `max-lines`, `max-lines-per-function`,
+  `max-depth`, `max-params`, `no-empty`; `eslint-plugin-react-hooks` v7 with its `recommended` config on a React
+  frontend (it carries the compiler rules: purity, refs, set-state-in-effect, static components);
+  `eslint-plugin-testing-library` and `@vitest/eslint-plugin` (focused and disabled tests, tests without an
+  assertion) for the tests; a `tsconfig` for tests (or
   tests in the main one) so `typecheck` covers them; `dependency-cruiser` per part; `knip` per part; `jscpd` with
-  `--threshold` (3 for production code, 8 for tests); Vitest with `allowOnly: false` under CI.
-- **Python:** Ruff with `C901` (max-complexity 15), `PLR0912`, `PLR0913`, `PLR0915`, `E722`, `BLE001`, `S110`; the type
-  checker over `tests/` too; `import-linter`; `vulture`; `jscpd`; pytest without committed `skip` marks except with a
+  `--threshold` (3 for production code, 8 for tests). The TypeScript major is a decision, not `latest`: pin the
+  newest one `typescript-eslint` supports in its peer range (TypeScript 7 is not yet in it as of 2026-10), and
+  record it in foundation §1 «Стек».
+- **Python:** Ruff with `C901` (max-complexity 15), `PLR0912`, `PLR0913`, `PLR0915`, `E722`, `BLE001`, `S110`, `B`
+  (including `B904`, `raise … from`), `TRY`, `ASYNC`, `RUF006`, `FAST`, `PT`, `DTZ`, `UP`; `mypy --strict` or pyright
+  `strict` over `src` and `tests/` (ty only beside them while it is in beta); `import-linter`; `vulture`; `jscpd`; pytest without committed `skip` marks except with a
   reason.
 - **Other stacks:** the linter the stack file names, configured to the same table.
 

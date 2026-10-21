@@ -19,7 +19,10 @@ description: >-
   case, and maps the result. `documentation/api/openapi.yaml`
   (from `openapi-spec-generator`) is the only source for paths, `operationId`, statuses, the
   Problem body, the validation status, JSON casing, and the page shape; this skill defines none of
-  them. Named errors map to statuses through the architecture's «Named error → HTTP» table.
+  them. Named errors map to statuses through the architecture's «Named error → HTTP» table — one module, an
+  exhaustive `switch` over the errors' `kind` with `assertNever`, never a mapper per route (`typescript` rules 1–2).
+  A failure of an outside call reaches the handler wrapped with its `cause`; where the client only sees a generic
+  answer, the handler writes one warn line with the cause's name — never keys, addresses or secrets.
 - **No architecture document, existing repo:** follow the repo's layout, error classes, error body,
   validation status, casing, and page shape for the change at hand, even where they differ from the
   spec defaults above. Do not migrate the contract or restructure unasked; propose it in the answer

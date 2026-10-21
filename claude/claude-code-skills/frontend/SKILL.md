@@ -106,7 +106,9 @@ the project is used as is, whether or not it meets the criterion.
    shared data layer (one hook or query library, one way to load a
    dictionary), shared Loading / Error / Empty components, and a page split
    into a data hook and its view — the quality gates refuse a function over
-   80 lines and a file over 500 (`repo-scaffold/references/quality-gates.md`).
+   80 lines and a file over 500, and `no-restricted-imports` / `no-restricted-globals` keep `fetch` and the API
+   client inside the data layer (`repo-scaffold/references/quality-gates.md`). How the React code itself
+   stays changeable — state, effects, data, forms, tests: the `react` skill.
    A second copy of a component or helper is a reuse, not a paste.
 7. **Focus** follows the frame and `ux-patterns` (dialog focus, error
    summary). **Widths** go desktop first: the desktop width of the frames
