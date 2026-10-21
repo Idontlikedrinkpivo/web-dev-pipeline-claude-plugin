@@ -3,7 +3,7 @@ name: code-review-full
 description: >-
   Reviews a completed plan's whole diff once, after every unit is committed:
   cross-unit drift, invariants spanning units, dead leftovers, declared
-  security and the критерии готовности; a unit-local defect goes back by its
+  security and the plan's «Критерии готовности»; a unit-local defect goes back by its
   U-id. Use when `work` closes a run or the user asks to review a finished
   plan as a whole. Not the per-unit gate (`code-review-unit`) or a
   whole-repo audit; an ad-hoc diff or PR goes to the built-in /code-review.

@@ -441,9 +441,22 @@ from — `documentation/requirements/srs/srs.md@0.1.0`), then H1, then the
 `## Журнал изменений` table from `doc-versioning` (newest row first;
 a new document has the one row `| <версия> | <дата> | первый выпуск | — | — |`), then
 **`## Закрытые наборы значений`** when any table has a status (or other
-closed-set) column, then the DBML and the ER. It always shows the whole
+closed-set) column, then `## Решения по базе`, then the DBML and the ER —
+and no other section. It always shows the whole
 current schema — after an increment, the DBML reads as if every migration
-so far had run. Do not put the changelog at the end. The status table is the canonical list of codes; architecture
+so far had run.
+
+**`## Решения по базе`** — what holds for the whole schema, a short list, one
+line each with its reason: the namespace (`ai_portal`, not `public`) and who
+creates it; how migrations run (the tool, the order, what sets
+`search_path`); what makes keys (`gen_random_uuid()` — the DBMS version has
+no `uuidv7()`); collation or extensions the schema relies on. The DBMS and
+its version are the foundation's (§1 «Стек», «Хранилища»): name them once
+here with that pointer, never a second decision. Not here: which SRS
+requirements the tables serve (the column notes and the table documents
+carry them), what each migration changed (its changelog row and the header
+of its file), and how a release cuts over or rolls back (the deploy
+document, `deploy-topology`). Do not put the changelog at the end. The status table is the canonical list of codes; architecture
 §1 does not repeat it. Its «Подпись» column is the canonical human name
 of each code. Headings and columns are Russian; `DBML` and `ER` stay — terms
 of the trade.
