@@ -1,5 +1,5 @@
 ---
-name: site
+name: open-docs
 description: >-
   Opens the project's documentation site in the built-in browser and gives its link in the chat — the fresh
   site, waiting for a rebuild still running, building it first when the project has none; stops its local server

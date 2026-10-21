@@ -8,7 +8,7 @@ description: >-
   built-in browser through a local server, or from disk in any browser. Use when the user asks for a
   documentation site, «собери сайт документации», «выгрузи документы в HTML», «опубликуй документацию», or
   wants the documents as pages instead of Markdown. Not for opening a site already built («открой сайт» —
-  `site`), writing or fixing documents, or the progress page (that one rebuilds itself — pipeline →
+  `open-docs`), writing or fixing documents, or the progress page (that one rebuilds itself — pipeline →
   progress-files).
 ---
 
@@ -57,7 +57,7 @@ every commit holds the site of its own documents. The commit that first carries 
 (step 3), so the user knows it exists. Another repository with a `documentation/` folder gets no site, nor does
 a project whose user declined it (`upgrade` → `docs-site` skipped).
 
-**«Открой сайт», «открой документацию»** is the `site` skill (`/dev-pipeline:site`): it waits for a rebuild in
+**«Открой сайт», «открой документацию»** is the `open-docs` skill (`/dev-pipeline:open-docs`): it waits for a rebuild in
 flight, builds a missing site, serves it and opens it — step 3 alone. It also stops the server on «закрой
 сайт»; the iteration's close stops it too.
 
