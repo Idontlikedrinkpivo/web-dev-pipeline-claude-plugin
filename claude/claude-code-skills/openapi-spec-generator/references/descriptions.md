@@ -1,95 +1,125 @@
-# Writing a description people can read
+# Writing descriptions people can read
 
-An operation's `description` is read by people — in the documentation site's Swagger page, by a frontend
-developer, an analyst, a tester — not only by the agent that implements it. One dense paragraph with the rules in
-a row and ids in the middle of sentences is correct and unreadable: the reader has to parse it like code. Write
-it so the eye finds what it needs.
+The contract's descriptions are read in the documentation site's Swagger page by the people who call the API — a
+frontend developer, a tester, an analyst, an integrator. Write for them: what the operation does, who may call it,
+what to send, what comes back and when. A description that walks through the server's checks step by step, names
+tables and hashes and repeats one rule in four places is correct and unreadable.
 
-## The shape
+## Where each thing goes
 
-1. **One plain sentence first**: what the operation does and for whom. No codes in it; only the use case's id
-   may close it, in brackets.
-2. **Short blocks with a bold lead-in** for each distinct concern, a blank line between blocks — «**Проверки по
-   порядку.**», «**Режим external.**», «**Ответы.**», «**Ограничения.**». A description of three sentences needs
-   no blocks.
-3. **Steps and rules as a list**, one per line: an order of checks is a numbered list, independent rules a
-   bulleted one. Never «(1) …; (2) …; (3) …» inside a sentence.
-4. **Ids at the end of the line, in brackets** — «Пустой `login` не тратит попытку (NFR-10, UC-26 Exc-4).» — not in
-   the middle of the sentence. The site links them and shows their text on hover; the sentence must read without
-   them.
-5. **Codes and literals in backticks only when they are literal** — a field, a value, a header, an error body.
-   Not every noun.
-6. **A table** (Markdown) for a mapping: an external system's answer → this API's response, a status → its
-   meaning.
+Swagger shows every part of the contract in its own place; put a fact where the reader looks for it, and only
+there.
 
-Schema and parameter descriptions follow the same idea in small: one sentence of meaning, then the limits, ids
-last.
+| Part | What it says |
+|---|---|
+| operation `description` | what the operation does and for whom; who may call it and when; what the body must be; side effects the caller sees; its rate limit |
+| a response's `description` | when this answer comes — every case, in plain words; what was and was not written |
+| schema and property `description` | what the value means, its format and limits |
+| `info.description` | what every operation shares: roles, signing in, the error bodies, rate limits, caching, service addresses |
+
+An operation's description does not list its error statuses: each response says when it comes. It may name a
+status where the sentence needs it — «остальным — `403`».
+
+## What stays out
+
+How the server does it is the architecture's: the order of internal checks, normalization algorithms, table and
+column names, hashes, transactions, what goes to the log, retries, timing defences, decision dates, internal class
+names. The implementer reads the architecture anyway. Keep what changes what a caller sends or gets back: limits,
+error codes and bodies, who may do what, visible side effects, exact numbers.
+
+A rare edge case is generalized, not enumerated: «`login` не похож на email», not five Unicode cases. When an
+existing contract is rewritten, check that every detail taken out already lives in the architecture
+(`architecture.md`, `domain.md`, the scenarios) or the SRS; one that lives nowhere else stays, in a sentence.
+
+## How to write
+
+1. **Plain sentences in short paragraphs**, two to four sentences each. The first sentence says what the
+   operation does, with the use case's id at its end.
+2. **Each fact once.** A rule that holds for the whole operation is said once, not again under every case.
+3. **A list only for parallel items** — modes, roles, columns, cases of one answer, three or more conditions. Not
+   a paragraph chopped into one-sentence bullets, and no bold heading over every two lines. A long description
+   (a file format, several concerns) may open a paragraph with a short bold word — «**Файл.**» — and no more.
+4. **A table for a mapping**: who → in which statuses, a cause → the response body, an external answer → this
+   API's answer.
+5. **Ids at the end of the sentence, in brackets** — the site links them and shows their text on hover; the
+   sentence must read without them. Not every id: the one or two that define the rule.
+6. **Backticks only for literals** — a field, a value, a header, a status, an error body.
+7. **Plain Russian**, active verbs, third person: «Возвращает…», «Портал заводит…». No «осуществляет»,
+   «данный», «в рамках».
 
 ## Example — `bookRoom` (room booking)
 
-Not this:
+Not this — the server's algorithm, every rule with its error inline:
 
 ```yaml
 description: Создаёт бронь (UC-1). Начало и конец кратны 30 минутам, не короче 30 минут и в рабочих часах (BR-2), сумма активных броней резидента за дату не больше 4 часов (BR-3) — иначе 422 BOOKING_RULE_VIOLATED; не пересекается с активными бронями и блокировками переговорной (BR-1) — иначе 409 BOOKING_OVERLAP; не больше 30 запросов в минуту на резидента (NFR-10), 31-й — 429; владелец — вошедший резидент из токена.
 ```
 
-This:
+This — the operation says what it does and what the interval must be; each response says when it comes:
 
 ```yaml
-description: |
-  Резидент бронирует свободный интервал переговорной на себя (UC-1).
+post:
+  operationId: bookRoom
+  description: |
+    Резидент бронирует свободный интервал переговорной на себя (UC-1). Владелец брони — всегда тот, кто вошёл;
+    в теле его нет.
 
-  **Правила интервала.**
-  - Начало и конец кратны 30 минутам, бронь не короче 30 минут и целиком в рабочих часах (BR-2).
-  - Все активные брони резидента на эту дату вместе — не больше 4 часов (BR-3).
-  - Нарушено одно из этих правил — `422 BOOKING_RULE_VIOLATED`.
-  - Интервал пересекается с активной бронью или закрытием переговорной — `409 BOOKING_OVERLAP` (BR-1).
+    Интервал начинается и заканчивается на границе получаса, длится не меньше 30 минут и целиком лежит в рабочих
+    часах (BR-2). Все активные брони резидента на одну дату вместе — не больше 4 часов (BR-3).
 
-  **Владелец.** Бронь всегда на вошедшего резидента: он берётся из токена, в теле его нет.
-
-  **Ограничение частоты.** Не больше 30 запросов на бронь в минуту на резидента, 31-й получает `429` (NFR-10).
+    Не больше 30 запросов в минуту на резидента (NFR-10).
+  responses:
+    '409':
+      description: |
+        Интервал пересекается с активной бронью или закрытием переговорной (BR-1). Бронь не создана.
+    '422':
+      description: |
+        Интервал нарушает правило брони: не на границе получаса, короче 30 минут, выходит за рабочие часы или
+        превышает 4 часа броней резидента за дату (BR-2, BR-3). Бронь не создана.
 ```
 
 ## The API's own description (`info.description`)
 
-What every operation shares — roles, signing in, access errors, rate limits, the error body, service addresses —
-is written once, here, and Swagger shows it above the operations. It is the first thing a reader meets, so it is
-a page, not a paragraph:
+It is the first thing a reader meets, above the operations — a short page:
 
-1. **Two or three plain sentences**: what the API is for and who calls it. The source documents by name, not as
-   a run of paths.
-2. **A `###` heading per shared concern**, only those this API has, in this order: «Роли», «Вход и сессии»,
-   «Доступ без входа», «Ошибки доступа», «Ограничения частоты», «Ошибки», «Служебные адреса».
-3. **Under each heading** — a list or a small table, one rule per line, ids at the end in brackets; the same
-   rules as an operation's description.
-4. **Nothing an operation owns.** A rule of one operation lives in that operation's description; this one names
-   only what repeats.
+1. **Two or three sentences**: what the product is, who calls this API, what can be read without signing in.
+2. **A `###` heading per shared concern**, only those this API has: «Роли», «Вход и сессия», «Ошибки»,
+   «Пределы частоты», «Кеширование», «Служебные адреса», «Имена полей».
+3. **Under each heading** — a paragraph, or a table where the content is a mapping (role → what it may do,
+   status → when, operations → limit). The same rules as above: each fact once, nothing of the implementation,
+   nothing a single operation owns.
 
 Example — the room-booking contract:
 
 ```yaml
 description: |
   API бронирования переговорных коворкинга «Точка сбора». Им пользуется веб-приложение резидентов и
-  администратора. Основание — SRS бронирования и схема данных.
+  администратора. Все операции — только после входа (NFR-3).
 
   ### Роли
-  - **Резидент** — смотрит расписание, бронирует и отменяет свои брони.
-  - **Администратор** — отменяет любые брони и закрывает переговорные на обслуживание (NFR-4).
 
-  ### Вход и сессии
-  - Вход только через SSO коворкинга; каждый запрос несёт `Authorization: Bearer <JWT>` (NFR-3).
-  - Роль берётся из токена: claim `role=admin` — администратор, иначе резидент (NFR-3).
-
-  ### Ошибки доступа
-  | Ситуация | Ответ |
+  | Роль | Что может |
   |---|---|
-  | нет токена или он недействителен | `401` |
-  | резидент отменяет чужую бронь | `403 BOOKING_NOT_OWNED` (NFR-4) |
-  | резидент закрывает переговорную | `403 ADMIN_ONLY` (NFR-4) |
+  | резидент | смотреть расписание, бронировать переговорные на себя, отменять свои брони |
+  | администратор | то же, а ещё отменять любые брони и закрывать переговорные на обслуживание (NFR-4) |
 
-  ### Ограничения частоты
-  - Создание брони — не больше 30 запросов в минуту на резидента, 31-й получает `429` (NFR-10).
+  ### Вход и сессия
+
+  Вход — только через SSO коворкинга. Каждый запрос несёт полученный там токен в заголовке
+  `Authorization: Bearer <JWT>`; роль берётся из него: `role=admin` — администратор, иначе резидент (NFR-3).
 
   ### Ошибки
-  - Тело любой ошибки — `application/problem+json` со стабильным `code`.
+
+  Тело ошибки — `application/problem+json` с постоянным `code`; когда приходит каждый ответ, сказано в операции.
+
+  | Ответ | Когда |
+  |---|---|
+  | `401` | токена нет или он недействителен |
+  | `403 BOOKING_NOT_OWNED` | резидент отменяет чужую бронь (NFR-4) |
+  | `403 ADMIN_ONLY` | резидент закрывает переговорную (NFR-4) |
+  | `429` | превышен предел частоты |
+
+  ### Пределы частоты
+
+  Создание брони — не больше 30 запросов в минуту на резидента (NFR-10). У остальных операций предела нет.
 ```

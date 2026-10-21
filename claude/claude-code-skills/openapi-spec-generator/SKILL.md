@@ -67,8 +67,9 @@ lives in the SRS use case. This skill only names the route, the
 request/response schemas, and the status codes. `info.description`, operation `summary` /
 `description`, and schema `description` / `example` are Russian. Do not
 translate `operationId`, paths, or schema names. A description is written
-for people to read — a plain first sentence, blocks, lists, ids at line
-ends; `info.description` is a page of headed sections: `references/descriptions.md`. They say what a field or
+for the one who calls the API — what the operation does, who may call it, what to send, what comes back, each
+fact once, in plain sentences; why an error comes lives in that response; how the server does it lives in the
+architecture: `references/descriptions.md`. They say what a field or
 an operation means, never how a client shows it: no «для выпадающего
 списка», «показывается в модалке», colour or icon fields the SRS does not
 require as data (`doc-versioning` → What, not how it looks).
