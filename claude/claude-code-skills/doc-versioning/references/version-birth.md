@@ -72,7 +72,8 @@ under the same version: rows of this version are amended, not doubled.
    architecture, and — when the project has `documentation/_site/` — the
    site, after waiting for its rebuild (`python3 <docs-site skill
    folder>/scripts/rebuild.py . --wait`). Do not stage a plan folder's
-   file.
+   file. When this commit is the first to carry the site, give the user
+   its link after the commit (`docs-site` → step 3).
 7. Report each file with its `version` and the rows it got, by type, or
    «версия не менялась».
 
