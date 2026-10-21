@@ -58,7 +58,7 @@ if [ -n "$stage" ]; then
   echo "Last stage by its files: $stage — progress in documentation/plans/$v/$last."
 fi
 echo "$why Before continuing pipeline work, read the dev-pipeline:pipeline skill and the current stage's skill again; take the state from the files on disk, not from memory."
-echo "Most often lost: name a progress file only as a clickable link; commit a finished document before asking about the next stage or stopping; end a turn only with the next step already running, unless the turn ends on a question to the user; stop every Monitor or background wait you started when its work ends."
+echo "Most often lost: give the progress only as a clickable link to documentation/plans/$v/progress.html (the page, not the .md); commit a finished document before asking about the next stage or stopping; end a turn only with the next step already running, unless the turn ends on a question to the user; stop every Monitor or background wait you started when its work ends."
 [ -f "$plans/$v/resume.md" ] && echo "A run left documentation/plans/$v/resume.md: read it first and check each claim against git, the tree and docker before continuing (pipeline → references/pause-and-resume.md)."
 [ -f "$dir/.claude/skills/verify/SKILL.md" ] && echo "This project has .claude/skills/verify: run its doctor before driving the app."
 exit 0

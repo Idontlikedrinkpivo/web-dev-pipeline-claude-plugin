@@ -199,13 +199,14 @@ SemVer and its major in the path — `openapi-spec-generator` → Contract versi
 ## End of the pipeline
 
 The pipeline ends after stage 17, or after the last stage that ran when 14–17 were skipped. Say in
-the chat, in Russian, that the work is done and committed on `iteration/<version>`; give the
-command that pushes the branch and its tag (`git push origin iteration/<version> v<version>`), and
-say that the merge into `main` is the user's, on GitHub; offer no other stage. Before that line,
-write the iteration's summary (on disk only, like the rest of `plans/`) and tag the current commit
-`v<version>` — the baseline the next iteration's pins and diffs read against. Do both also when
-the user asks «итог», «как отработал пайплайн», or «сводка» after `work`. They close the version:
-a `plans/<version>/` folder with `summary.md` is done. Then, before the last line, run `reflect`
+the chat, in Russian, that the work is done and committed on `iteration/<version>`; give the command
+that pushes the branch and its tag (`git push origin iteration/<version> v<version>`), and say that
+the merge into `main` is the user's, on GitHub; offer no other stage — only name, in one line, that
+`docs-site` builds the documents into a site to read or hand over. Before that line, write the
+iteration's summary (on disk only, like the rest of `plans/`) and tag the current commit
+`v<version>` — the baseline the next iteration's pins and diffs read against. Do both also when the
+user asks «итог», «как отработал пайплайн», or «сводка» after `work`. They close the version: a
+`plans/<version>/` folder with `summary.md` is done. Then, before the last line, run `reflect`
 unasked, then clear the working files (`references/closing-cleanup.md`).
 
 ### The summary

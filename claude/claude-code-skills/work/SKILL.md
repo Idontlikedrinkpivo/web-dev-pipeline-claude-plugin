@@ -121,7 +121,7 @@ the map. `<сделано>` is how many of those have a `Plan-Unit:` trailer in
 number. After the committed set is known, and again after every Step 5
 commit, every stop and every fix of the final review, write one line with
 the progress file's link: `План: <сделано> из <всего> ·
-[progress.md](documentation/plans/<version>/progress.md)`, so the user who
+[progress.html](documentation/plans/<version>/progress.html)`, so the user who
 closed the file or stepped away reopens it from the last message. Take both
 numbers from the map and from git, not from the previous message. A resumed
 or compacted session writes the line before the next dispatch.
@@ -156,8 +156,8 @@ chat as a clickable Markdown link with its repo-relative path, so the user
 opens it with one click and watches the run live:
 
 ```text
-Прогресс выполнения: [progress.md](documentation/plans/1.1.0/progress.md) — откройте, он обновляется по ходу работы.
-План: 0 из 6 · [progress.md](documentation/plans/1.1.0/progress.md)
+Прогресс выполнения: [progress.html](documentation/plans/1.1.0/progress.html) — откройте, страница обновляется сама.
+План: 0 из 6 · [progress.html](documentation/plans/1.1.0/progress.html)
 ```
 
 A resumed or compacted session posts the link again before its next dispatch.
@@ -429,7 +429,7 @@ Anything but `PASS`: before the first fix, add «Исправления по ф�
 ревью» to the progress file — every finding a row with who fixes it and
 `⏳ ждёт` (`references/progress-file.md` → Fixes after the final review),
 and post the link again before the first fix, pointing at the section:
-`Исправления по финальному ревью: [progress.md](documentation/plans/<version>/progress.md) — раздел внизу файла, обновляется по ходу работы.` Each fix then lands like a unit, updating its rows. After
+`Исправления по финальному ревью: [progress.html](documentation/plans/<version>/progress.html) — раздел внизу файла, обновляется по ходу работы.` Each fix then lands like a unit, updating its rows. After
 each round of fixes, run `code-review-full` again over that round's fix
 commits, until `PASS` (`pipeline` → `references/convergence.md`); when the rounds stop making
 progress, stop and take the open findings to the user.
