@@ -4,7 +4,7 @@ description: >-
   Builds the project's documentation/ into one static site to read and share: navigation by
   section (requirements, data, API, architecture, interface, deploy, operations), search, and cross-links — every
   FR, NFR, BR, UC, TC and screen number links to where it is defined, an operationId to the API page; diagrams
-  shown in place; the API contract as a Swagger UI page. Committed in documentation/_site; opened in the
+  shown in place; the API contract as a Swagger UI page. Committed in documentation/_web-docs; opened in the
   built-in browser through a local server, or from disk in any browser. Use when the user asks for a
   documentation site, «собери сайт документации», «выгрузи документы в HTML», «опубликуй документацию», or
   wants the documents as pages instead of Markdown. Not for opening a site already built («открой сайт» —
@@ -27,7 +27,7 @@ only has numbers.
    python3 "${CLAUDE_SKILL_DIR}/scripts/build_site.py"
    ```
 
-   The site goes to `documentation/_site/` and is **committed** (`docs: сайт документации`), so whoever
+   The site goes to `documentation/_web-docs/` and is **committed** (`docs: сайт документации`), so whoever
    clones the repository opens it without building. A rebuild over unchanged documents changes no file, and an
    edited document changes its own page, the navigation and the search index — commit only when `git status`
    shows a change.
@@ -39,7 +39,7 @@ only has numbers.
    `python3 "${CLAUDE_SKILL_DIR}/scripts/site_server.py"` prints `http://127.0.0.1:<port>/index.html` (it reuses
    a server already running for this site). Open that address in the built-in browser yourself and give it as
    a link in the chat — that link is the user's one click back to the site. Without a built-in browser (a
-   terminal), give `open documentation/_site/index.html`: the user's own browser shows the file whole. Never
+   terminal), give `open documentation/_web-docs/index.html`: the user's own browser shows the file whole. Never
    point at the file in the file tree — it shows the HTML source. Then check it: follow one requirement link,
    one test-case link and the API page, try the search with one number. A page that renders wrong — a table that broke, a diagram missing — is a fix in
    `scripts/mdhtml.py`, reported, not hidden.
@@ -52,7 +52,7 @@ as a pipeline project writes its first document (the brainstorm or the SRS), and
 of a document under `documentation/` (`plans/` and the site itself left out), a subagent's included —
 `scripts/rebuild.py`: one build at a time, a burst of edits costs two builds, the API page rebuilt only when
 `documentation/api/` changed. **A commit that includes documents first waits for that rebuild**
-(`python3 "${CLAUDE_SKILL_DIR}/scripts/rebuild.py" . --wait`) **and stages `documentation/_site` with them**, so
+(`python3 "${CLAUDE_SKILL_DIR}/scripts/rebuild.py" . --wait`) **and stages `documentation/_web-docs` with them**, so
 every commit holds the site of its own documents. The commit that first carries the site ends with its link
 (step 3), so the user knows it exists. Another repository with a `documentation/` folder gets no site, nor does
 a project whose user declined it (`upgrade` → `docs-site` skipped).
@@ -61,7 +61,7 @@ a project whose user declined it (`upgrade` → `docs-site` skipped).
 flight, builds a missing site, serves it and opens it — step 3 alone. It also stops the server on «закрой
 сайт»; the iteration's close stops it too.
 
-`documentation/_site/` is generated: never edit it, and never read it as a source — documents, checks and
+`documentation/_web-docs/` is generated: never edit it, and never read it as a source — documents, checks and
 searches work on the Markdown (`doc-versioning` → Registry).
 
 ## What the site does

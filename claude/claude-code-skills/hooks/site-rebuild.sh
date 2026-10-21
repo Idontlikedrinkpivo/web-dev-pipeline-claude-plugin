@@ -10,7 +10,7 @@ case "$input" in
   *) exit 0 ;;
 esac
 dir="${CLAUDE_PROJECT_DIR:-$PWD}"
-paths=$(printf '%s' "$input" | grep -o 'documentation/[^"[:space:]\\]*' | grep -v -e '^documentation/plans/' -e '^documentation/_site/' -e '^documentation/\.' | sort -u)
+paths=$(printf '%s' "$input" | grep -o 'documentation/[^"[:space:]\\]*' | grep -v -e '^documentation/plans/' -e '^documentation/_web-docs/' -e '^documentation/_site/' -e '^documentation/\.' | sort -u)
 [ -n "$paths" ] || exit 0
 root="$(cd "$(dirname "$0")/.." && pwd)"
 # The schema changed: regenerate its table documents first (db-schema-design), so the site gets them too.

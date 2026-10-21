@@ -1,6 +1,6 @@
 """Build a static documentation site from documentation/ (standard library only; Node only for the API page).
 
-    python3 build_site.py [--docs documentation] [--out documentation/_site] [--title "…"] [--no-api | --keep-api]
+    python3 build_site.py [--docs documentation] [--out documentation/_web-docs] [--title "…"] [--no-api | --keep-api]
 
 Every Markdown document becomes a page with the site's navigation, search and cross-links: an id like FR-12,
 UC-4, BR-3, NFR-6, TC-27, S-3, З-2 links to the row, heading or screen-spec file that defines it, and an
@@ -8,7 +8,7 @@ operationId in backticks links to the API page. Diagrams (.svg) are copied besid
 Swagger UI (inside the site, works offline) over the contract bundled by Redocly (npx) from
 documentation/api/openapi.yaml, or, without Node or network, a table of operations.
 documentation/plans/ (working files) is never included. Prints a short report: pages, ids, ids mentioned but never defined,
-broken links. The site opens from disk (index.html) — no server needed. It lives in documentation/_site/ and is
+broken links. The site opens from disk (index.html) — no server needed. It lives in documentation/_web-docs/ and is
 committed, so a clone has it without a build: the pages carry the commit and date of the documents' last change,
 not the build time, and the navigation sits in assets/nav.js, so a rebuild over unchanged documents changes
 nothing and an edited document changes its own page, not every page.
@@ -38,6 +38,8 @@ ID_RE = re.compile(rf"(?<![\w\-/#.])({ID})(?![\w\-])")
 KINDS = ["FR", "NFR", "BR", "UC", "TC", "S", "З"]
 KIND_LABEL = {"FR": "функциональных требований", "NFR": "нефункциональных требований", "BR": "бизнес-правил",
               "UC": "сценариев", "TC": "тест-кейсов", "S": "экранов", "З": "запросов эксплуатации"}
+
+OLD_SITES = ("site", "_site")  # the site's folder before 1.2.129 and before 1.2.147: never read as documents
 
 ASSET_EXT = {".svg", ".png", ".jpg", ".jpeg", ".gif", ".webp"}
 
@@ -162,7 +164,7 @@ class Site:
         for p in sorted(self.docs.rglob("*.md")):
             r = p.relative_to(self.docs)
             top = r.parts[0] if len(r.parts) > 1 else ""
-            if top in ("plans", self.out_name) or top.startswith(".") or p.name.startswith("progress"):
+            if top in ("plans", self.out_name, *OLD_SITES) or top.startswith(".") or p.name.startswith("progress"):
                 continue
             natural = [int(x) if x.isdigit() else x for x in re.split(r"(\d+)", str(r))]  # S-2 before S-11
             files.append((order.get(top, len(SECTIONS)), natural, str(r), p, top))
@@ -394,7 +396,7 @@ class Site:
         if hasattr(self, "_commit"):
             return self._commit
         # the site's own commits do not count — nor those of «site», its folder's name before 1.2.129
-        spec = ["--", "."] + [f":(exclude){n}" for n in {self.out_name, "site"} if n]
+        spec = ["--", "."] + [f":(exclude){n}" for n in {self.out_name, *OLD_SITES} if n]
         try:
             r = subprocess.run(["git", "-C", str(self.docs), "log", "-1", "--format=%cs · коммит %h"] + spec,
                                capture_output=True, text=True, timeout=10).stdout.strip()
@@ -567,7 +569,7 @@ class Site:
                            "x": html.unescape(plain)[:6000]})
         for p in self.docs.rglob("*"):
             r = p.relative_to(self.docs)
-            if p.suffix.lower() in ASSET_EXT and r.parts[0] not in ("plans", self.out_name) \
+            if p.suffix.lower() in ASSET_EXT and r.parts[0] not in ("plans", self.out_name, *OLD_SITES) \
                     and not r.parts[0].startswith("."):
                 (self.out / r).parent.mkdir(parents=True, exist_ok=True)
                 shutil.copy(p, self.out / r)
@@ -622,7 +624,7 @@ def main() -> None:
     docs = Path(o["docs"])
     if not docs.is_dir():
         sys.exit(f"no {docs}/ here")
-    Site(docs, Path(o["out"] or docs / "_site"), o["title"], o["api"]).build()
+    Site(docs, Path(o["out"] or docs / "_web-docs"), o["title"], o["api"]).build()
 
 
 if __name__ == "__main__":

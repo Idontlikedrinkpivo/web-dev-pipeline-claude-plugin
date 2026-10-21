@@ -84,7 +84,7 @@
     "id": "docs-site",
     "version": "1.2.124",
     "title": "Сайт документации",
-    "what": "Все документы проекта собираются в один сайт documentation/_site: меню, поиск, номера требований со ссылками и подсказкой, страница API. Сайт лежит в git, пересобирается сам после правки документов.",
+    "what": "Все документы проекта собираются в один сайт documentation/_web-docs: меню, поиск, номера требований со ссылками и подсказкой, страница API. Сайт лежит в git, пересобирается сам после правки документов.",
     "applies": {
       "any": [
         {
@@ -98,6 +98,9 @@
     "behind": {
       "all": [
         {
+          "missing": "documentation/_web-docs/index.html"
+        },
+        {
           "missing": "documentation/_site/index.html"
         },
         {
@@ -105,20 +108,7 @@
         }
       ]
     },
-    "fix": "docs-site: собрать сайт в documentation/_site и закоммитить папку."
-  },
-  {
-    "id": "docs-site-folder",
-    "version": "1.2.129",
-    "title": "Папка сайта документации — documentation/_site",
-    "what": "Сайт переехал из documentation/site в documentation/_site: подчёркивание показывает, что папка собирается, и ставит её первой в дереве.",
-    "applies": {
-      "exists": "documentation/site/index.html"
-    },
-    "behind": {
-      "exists": "documentation/site/index.html"
-    },
-    "fix": "docs-site: собрать сайт в documentation/_site, удалить documentation/site из git (git rm -r), закоммитить."
+    "fix": "docs-site: собрать сайт в documentation/_web-docs и закоммитить папку."
   },
   {
     "id": "docs-site-api-page",
@@ -128,7 +118,7 @@
     "applies": {
       "all": [
         {
-          "exists": "documentation/_site/index.html"
+          "exists": "documentation/_web-docs/index.html"
         },
         {
           "exists": "documentation/api/openapi.yaml"
@@ -136,7 +126,7 @@
       ]
     },
     "behind": {
-      "missing": "documentation/_site/api/openapi.json"
+      "missing": "documentation/_web-docs/api/openapi.json"
     },
     "fix": "docs-site: пересобрать сайт вместе с контрактом (build_site.py без --keep-api) и закоммитить documentation/_site."
   },
@@ -203,5 +193,32 @@
       "missing": "documentation/db/tables"
     },
     "fix": "db-schema-design → Output, пункт 3: запустить scripts/table_docs.py в корне проекта и закоммитить documentation/db/tables вместе с пересобранным сайтом. Описание поля в документе — первая фраза его note в DBML; если первые фразы длинные или технические, предложить пользователю отдельным шагом переписать их для читателя (только первые фразы и Note таблиц, смысл не менять)."
+  },
+  {
+    "id": "docs-site-folder",
+    "version": "1.2.147",
+    "title": "Папка сайта документации — documentation/_web-docs",
+    "what": "Сайт документации лежит в documentation/_web-docs (раньше — documentation/site, потом documentation/_site): подчёркивание показывает, что папка собирается, и ставит её первой в дереве.",
+    "applies": {
+      "any": [
+        {
+          "exists": "documentation/site/index.html"
+        },
+        {
+          "exists": "documentation/_site/index.html"
+        }
+      ]
+    },
+    "behind": {
+      "any": [
+        {
+          "exists": "documentation/site/index.html"
+        },
+        {
+          "exists": "documentation/_site/index.html"
+        }
+      ]
+    },
+    "fix": "docs-site: собрать сайт в documentation/_web-docs (build_site.py), удалить старую папку из git (git rm -r documentation/_site или documentation/site), закоммитить одним коммитом."
   }
 ]

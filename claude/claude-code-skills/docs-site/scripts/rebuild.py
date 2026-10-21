@@ -72,7 +72,7 @@ def worker(root: Path, d: Path) -> None:
             api = pending.read_text().strip() == "api"
             pending.unlink()
             subprocess.run([sys.executable, str(HERE / "build_site.py"), "--docs", str(root / "documentation"),
-                            "--out", str(root / "documentation" / "_site")] + ([] if api else ["--keep-api"]),
+                            "--out", str(root / "documentation" / "_web-docs")] + ([] if api else ["--keep-api"]),
                            cwd=root, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL, timeout=600)
     finally:
         lock.unlink(missing_ok=True) if sys.version_info >= (3, 8) else None
@@ -81,7 +81,7 @@ def worker(root: Path, d: Path) -> None:
 def main() -> None:
     args = sys.argv[1:]
     root = Path(next((a for a in args if not a.startswith("--")), os.getcwd())).resolve()
-    first = not (root / "documentation" / "_site" / "index.html").exists()
+    first = not (root / "documentation" / "_web-docs" / "index.html").exists()
     if first and not wanted(root):
         return  # no site, and this project is not the pipeline's or declined one
     d = work_dir(root)

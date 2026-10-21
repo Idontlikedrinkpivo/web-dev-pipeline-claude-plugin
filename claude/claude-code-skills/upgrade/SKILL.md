@@ -42,7 +42,7 @@ checks and names what is pending, so the user hears about it in any project afte
      the change is not finished — finish it or tell the user what stopped it.
    - Commit it alone: `docs: <title of the change> (плагин <version>)`, with the documents it touched; when the
      project has a documentation site, wait for its rebuild first (`docs-site` → `rebuild.py . --wait`) and stage
-     `documentation/_site` too.
+     `documentation/_web-docs` too.
    - «Не нужно этому проекту»: `python3 <…>/project_format.py skip . <id>`.
 
 6. **Stamp.** `python3 <…>/project_format.py stamp .` writes the installed version into
