@@ -7,7 +7,8 @@ rows of `## Закрытые наборы значений` (`## Status attribut
 Поле · Тип данных · Свойства (PRIMARY KEY, FOREIGN KEY, UNIQUE, NOT NULL / NULL) · Значение по умолчанию ·
 Связь (a link to the referenced table's column) · Допустимые значения (closed-set codes, single-column CHECKs) ·
 Описание (the first sentence of the column's note) — then the incoming references with what deleting a row does,
-and the rules over several columns. The documents are a view of the schema: edit schema.md, never them; a file
+and the rules over several columns as «Правило · Имя в базе». A CHECK reads as the plain sentence its migration
+gives it (COMMENT ON CONSTRAINT); without one, as its expression, shortened. The documents are a view of the schema: edit schema.md, never them; a file
 that carries the marker and names a table no longer in the schema is removed. Deterministic: an unchanged schema
 rewrites no file. Standard library only.
 """
@@ -194,7 +195,23 @@ def cell(s: str) -> str:
     return s.replace("|", "\\|").replace("\n", " ")
 
 
-def table_doc(name: str, t: dict, refs: list, codes: dict, src: str) -> str:
+def constraint_comments(db: Path) -> dict:
+    """constraint name → its COMMENT ON CONSTRAINT text from the migrations; a later file wins."""
+    out: dict = {}
+    rx = re.compile(r"COMMENT\s+ON\s+CONSTRAINT\s+\"?(\w+)\"?\s+ON\s+[\w.\"]+\s+IS\s+'((?:[^']|'')*)'", re.I)
+    for f in sorted(db.rglob("*.sql")):
+        for m in rx.finditer(f.read_text(encoding="utf-8", errors="replace")):
+            out[m.group(1)] = " ".join(m.group(2).replace("''", "'").split())
+    return out
+
+
+def short_sql(expr: str, limit: int = 90) -> str:
+    expr = " ".join(expr.split())
+    return f"`{expr}`" if len(expr) <= limit else f"`{expr[:limit].rstrip()}…` (полностью — в схеме)"
+
+
+def table_doc(name: str, t: dict, refs: list, codes: dict, src: str, comments: dict | None = None) -> str:
+    comments = comments or {}
     cols = {c["name"] for c in t["cols"]}
     unique_extra: dict = {}
     multi: list = []
@@ -210,7 +227,8 @@ def table_doc(name: str, t: dict, refs: list, codes: dict, src: str) -> str:
         elif len(set(names)) == 1 and "," not in inner:
             unique_extra.setdefault(names[0], []).append(f"UNIQUE (`{inner}`)")
         else:
-            multi.append(f"уникальны вместе: `{inner}`")
+            nm = unquote(str(st.get("name", "")))
+            multi.append((comments.get(nm) or "уникальны вместе: " + ", ".join(f"`{c}`" for c in dict.fromkeys(names)), nm))
     allowed: dict = {}
     for head, sets in t["checks"]:
         expr = head.strip().strip("`")
@@ -219,9 +237,10 @@ def table_doc(name: str, t: dict, refs: list, codes: dict, src: str) -> str:
         if len(names) == 1:
             if (name, names[0]) in codes and re.search(r"\bIN\s*\(", expr, re.I):
                 continue  # the closed set is already listed by its codes
-            allowed.setdefault(names[0], []).append(f"`{expr}`" if len(expr) <= 60 or not nm else f"проверка `{nm}`")
+            text = comments.get(nm) or (f"`{expr}`" if len(expr) <= 60 or not nm else f"проверка `{nm}`")
+            allowed.setdefault(names[0], []).append(text)
         else:
-            multi.append(f"проверка `{expr}`" + (f" ({nm})" if nm else ""))
+            multi.append((comments.get(nm) or short_sql(expr), nm))
     out_refs = {r["from"][1]: r for r in refs if r["from"][0] == name}
     rows = []
     for c in t["cols"]:
@@ -265,7 +284,8 @@ def table_doc(name: str, t: dict, refs: list, codes: dict, src: str) -> str:
                          f"`{r['to'][1]}` | {act} |")
         parts.append("")
     if multi:
-        parts += ["## Правила на несколько полей", ""] + [f"- {m};" for m in multi[:-1]] + [f"- {multi[-1]}."] + [""]
+        parts += ["## Правила на несколько полей", "", "| Правило | Имя в базе |", "|---|---|"]
+        parts += [f"| {cell(rule)} | {f'`{nm}`' if nm else '—'} |" for rule, nm in multi] + [""]
     return "\n".join(parts)
 
 
@@ -291,10 +311,11 @@ def main() -> None:
         print("no DBML under documentation/db — nothing to write")
         return
     out_dir.mkdir(parents=True, exist_ok=True)
+    comments = constraint_comments(db)
     changed = []
     for name, t in tables.items():
         p = out_dir / f"{name}.md"
-        text = table_doc(name, t, refs, codes, src)
+        text = table_doc(name, t, refs, codes, src, comments)
         if not p.exists() or p.read_text(encoding="utf-8") != text:
             p.write_text(text, encoding="utf-8")
             changed.append(p.name)

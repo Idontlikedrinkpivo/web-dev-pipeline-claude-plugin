@@ -421,7 +421,12 @@ the table — pick one, not both.
    slice. Increment: the next number, opening with `SET search_path TO
    <project_name>;`, holding only this slice's DDL (`references/migration-safety.md`
    on a populated table). Carry the same note text as `COMMENT ON TABLE` /
-   `COMMENT ON COLUMN` so the files and the DBML agree. No version and no
+   `COMMENT ON COLUMN` so the files and the DBML agree, and give every named
+   `CHECK` a `COMMENT ON CONSTRAINT <name> ON <table> IS '<one plain sentence>'`
+   — what the rule guarantees, in a reader's words, not the expression
+   («Тип файла совпадает с его расширением: pdf, png, jpg, docx, xlsx, pptx»).
+   DBML has no place for it; the table documents show that sentence instead
+   of the SQL. No version and no
    changelog in a migration file; `schema.md`'s changelog row names it.
 
 3. **Table documents** — one `documentation/db/tables/<table>.md` per table, generated from the DBML and
@@ -475,6 +480,7 @@ and outputs — the API-contract step reads directly off these names.
 - [ ] `## Закрытые наборы значений` for every closed-set column — §5
 - [ ] No raw secret column — §6
 - [ ] Every table and column has a note that says more than its name; DBML, migration SQL, and ER agree; names match the SRS — Output
+- [ ] Every named `CHECK` has a `COMMENT ON CONSTRAINT` sentence in its migration — Output
 - [ ] Each column note opens with a plain sentence a reader understands alone; `documentation/db/tables/` regenerated (`table_docs.py`) and matches the DBML — Output
 
 ## Closing
