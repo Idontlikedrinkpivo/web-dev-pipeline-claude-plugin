@@ -5,7 +5,8 @@
 Every Markdown document becomes a page with the site's navigation, search and cross-links: an id like FR-12,
 UC-4, BR-3, NFR-6, TC-27, S-3, З-2 links to the row, heading or screen-spec file that defines it, and an
 operationId in backticks links to the API page. Diagrams (.svg) are copied beside their pages. The API page is
-built by Redocly (npx) from documentation/api/openapi.yaml, or, without Node, as a table of operations.
+Swagger UI (inside the site, works offline) over the contract bundled by Redocly (npx) from
+documentation/api/openapi.yaml, or, without Node or network, a table of operations.
 documentation/plans/ (working files) is never included. Prints a short report: pages, ids, ids mentioned but never defined,
 broken links. The site opens from disk (index.html) — no server needed. It lives in documentation/_site/ and is
 committed, so a clone has it without a build: the pages carry the commit and date of the documents' last change,
@@ -22,6 +23,7 @@ import re
 import shutil
 import subprocess
 import sys
+import urllib.parse
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
@@ -39,6 +41,32 @@ KIND_LABEL = {"FR": "функциональных требований", "NFR": 
 
 ASSET_EXT = {".svg", ".png", ".jpg", ".jpeg", ".gif", ".webp"}
 
+SWAGGER_PAGE = """<!doctype html><html lang="ru"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1"><title>Контракт API — {title}</title>
+<link rel="stylesheet" href="../assets/swagger/swagger-ui.css">
+<style>
+body{margin:0;background:#fafafa}
+.bar{position:sticky;top:0;z-index:20;display:flex;align-items:center;gap:16px;height:52px;padding:0 20px;
+background:#1f2328;color:#e6e6e6;font:14px -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif}
+.bar a{color:#fff;text-decoration:none;font-weight:600}.bar span{color:#9aa1a9}
+.swagger-ui .topbar{display:none}.swagger-ui .information-container .info{margin:24px 0 12px}
+.swagger-ui .wrapper{max-width:1180px;padding:0 20px}
+.swagger-ui .opblock .opblock-summary-operation-id{font-size:12.5px;white-space:nowrap;word-break:normal;flex-shrink:0;
+color:#6b7280;margin-left:12px}
+.swagger-ui .opblock .opblock-summary-description{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+</style></head><body>
+<div class="bar"><a href="../index.html">← К документации</a><span>{title} · контракт API</span></div>
+<div id="swagger-ui"></div>
+<script src="../assets/swagger/swagger-ui-bundle.js"></script><script src="spec.js"></script>
+<script>
+window.ui = SwaggerUIBundle({
+  spec: window.SPEC, dom_id: "#swagger-ui", deepLinking: true, docExpansion: "list",
+  defaultModelsExpandDepth: 0, defaultModelExpandDepth: 3, displayOperationId: true, filter: true,
+  supportedSubmitMethods: [], tryItOutEnabled: false, syntaxHighlight: {activated: true, theme: "agate"}
+});
+</script></body></html>
+"""
+
 
 def args() -> dict:
     a = sys.argv[1:]
@@ -47,7 +75,7 @@ def args() -> dict:
     while i < len(a):
         k = a[i]
         if k in ("--no-api", "--keep-api"):
-            opt["api"] = False if k == "--no-api" else "keep"  # keep: reuse the built API page (Redoc is slow)
+            opt["api"] = False if k == "--no-api" else "keep"  # keep: reuse the bundled contract (bundling is slow)
             i += 1
             continue
         opt[k.lstrip("-")] = a[i + 1]
@@ -69,6 +97,7 @@ class Site:
         self.pages: list[dict] = []          # {src, url, section, title, text}
         self.defs: dict[str, str] = {}       # id -> url#anchor (or url)
         self.ops: dict[str, str] = {}        # operationId -> "METHOD /path · summary"
+        self.op_tags: dict[str, str] = {}    # operationId -> its first tag (Swagger UI links by tag)
         self.mentioned: dict[str, int] = {}
         self.broken: list[str] = []
         self.api_mode = "нет"
@@ -218,8 +247,8 @@ class Site:
             return None
 
         def code_link(code: str) -> str | None:
-            if code in self.ops and self.api_mode != "нет":
-                return rel("api/index.html", url) + f"#operation/{code}"
+            if (code in self.ops or code in self.op_tags) and self.api_mode != "нет":
+                return rel("api/", url).rstrip("/") + "/" + self.op_href(code)[len("api/"):]
             if code.endswith(".md") and " " not in code:
                 r = code[len("documentation/"):] if code.startswith("documentation/") else \
                     os.path.normpath(os.path.join(os.path.dirname(pg["rel"]), code)).replace(os.sep, "/")
@@ -293,37 +322,87 @@ class Site:
         self._commit = r or "незакоммиченные изменения"
         return self._commit
 
+    SWAGGER = "5.17.14"  # swagger-ui-dist, pinned; fetched once into the user's cache, then copied into the site
+
+    def swagger_assets(self) -> Path | None:
+        cache = Path.home() / ".cache" / "dev-pipeline" / f"swagger-ui-dist-{self.SWAGGER}"
+        if (cache / "swagger-ui-bundle.js").exists() and (cache / "swagger-ui.css").exists():
+            return cache
+        tmp = cache.parent / f".fetch-{os.getpid()}"
+        try:
+            tmp.mkdir(parents=True, exist_ok=True)
+            subprocess.run(["npm", "pack", f"swagger-ui-dist@{self.SWAGGER}", "--pack-destination", str(tmp)],
+                           capture_output=True, text=True, timeout=180, check=True)
+            subprocess.run(["tar", "-xzf", str(tmp / f"swagger-ui-dist-{self.SWAGGER}.tgz"), "-C", str(tmp)],
+                           capture_output=True, timeout=60, check=True)
+            cache.mkdir(parents=True, exist_ok=True)
+            for f in ("swagger-ui-bundle.js", "swagger-ui.css"):
+                shutil.copy(tmp / "package" / f, cache / f)
+            return cache
+        except Exception:
+            return None
+        finally:
+            shutil.rmtree(tmp, ignore_errors=True)
+
+    def op_href(self, op: str) -> str:
+        """Where an operationId points on the API page (relative to the site root)."""
+        if self.api_mode == "Swagger UI":
+            tag = self.op_tags.get(op, "default")
+            return "api/index.html#/" + urllib.parse.quote(tag, safe="") + "/" + urllib.parse.quote(op, safe="")
+        return f"api/index.html#operation/{op}"
+
     def build_api(self) -> None:
+        """The contract as a Swagger UI page: the spec bundled into one JSON (Redocly), shown read-only («Try it
+        out» off — the site has no API behind it), Swagger UI's files inside the site so it works offline. Without
+        Node or network: a table of operations."""
         spec = self.docs / "api" / "openapi.yaml"
+        self.op_tags: dict = {}
         if not spec.exists() or not self.api_on:
             return
-        target = self.out / "api" / "index.html"
-        target.parent.mkdir(parents=True, exist_ok=True)
-        built = self.final / "api" / "index.html"
-        if self.api_on == "keep" and built.exists():
-            shutil.copy(built, target)
-            self.api_mode = "Redoc"
+        api, assets = self.out / "api", self.out / "assets" / "swagger"
+        api.mkdir(parents=True, exist_ok=True)
+        built_api, built_assets = self.final / "api", self.final / "assets" / "swagger"
+        if self.api_on == "keep" and (built_api / "spec.js").exists() and (built_assets / "swagger-ui-bundle.js").exists():
+            for f in ("spec.js", "operations.json"):  # the slow part; the page itself is the template, written anew
+                if (built_api / f).exists():
+                    shutil.copy(built_api / f, api / f)
+            shutil.copytree(built_assets, assets, dirs_exist_ok=True)
+            (api / "index.html").write_text(SWAGGER_PAGE.replace("{title}", html.escape(self.title)), encoding="utf-8")
+            self.op_tags = json.loads((api / "operations.json").read_text()) if (api / "operations.json").exists() else {}
+            self.api_mode = "Swagger UI"
             return
+        swagger = self.swagger_assets()
+        bundled = api / ".openapi.json"
         try:
-            r = subprocess.run(["npx", "--yes", "@redocly/cli@latest", "build-docs", str(spec), "--output", str(target)],
-                               capture_output=True, text=True, timeout=300)
-            if r.returncode == 0 and target.exists():
-                back = ('<a href="../index.html" style="position:fixed;right:16px;bottom:16px;z-index:100;'
-                        'background:#2f5fd0;color:#fff;padding:8px 14px;border-radius:8px;text-decoration:none;'
-                        'font:14px sans-serif">← К документации</a>')
-                page = target.read_text(encoding="utf-8")
-                target.write_text(page.replace("<body>", "<body>" + back, 1), encoding="utf-8")
-                self.api_mode = "Redoc"
-                return
+            r = subprocess.run(["npx", "--yes", "@redocly/cli@latest", "bundle", str(spec), "--ext", "json",
+                                "-o", str(bundled)], capture_output=True, text=True, timeout=300)
+            doc = json.loads(bundled.read_text()) if r.returncode == 0 and bundled.exists() else None
         except Exception:
-            pass
+            doc = None
+        finally:
+            bundled.unlink(missing_ok=True) if bundled.exists() else None
+        if doc and swagger:
+            for path_item in (doc.get("paths") or {}).values():
+                for method, op in path_item.items():
+                    if isinstance(op, dict) and op.get("operationId"):
+                        self.op_tags[op["operationId"]] = (op.get("tags") or ["default"])[0]
+            assets.mkdir(parents=True, exist_ok=True)
+            for f in ("swagger-ui-bundle.js", "swagger-ui.css"):
+                shutil.copy(swagger / f, assets / f)
+            (api / "spec.js").write_text("window.SPEC=" + json.dumps(doc, ensure_ascii=False, sort_keys=True) + ";",
+                                         encoding="utf-8")
+            (api / "operations.json").write_text(json.dumps(self.op_tags, ensure_ascii=False, sort_keys=True, indent=0),
+                                                 encoding="utf-8")
+            (api / "index.html").write_text(SWAGGER_PAGE.replace("{title}", html.escape(self.title)), encoding="utf-8")
+            self.api_mode = "Swagger UI"
+            return
         rows = "".join(f'<tr id="operation/{html.escape(o)}"><td><code>{html.escape(o)}</code></td>'
                        f"<td>{html.escape(d)}</td></tr>" for o, d in sorted(self.ops.items(), key=lambda x: x[1]))
         body = (f"<h1>Контракт API</h1><p>Полный контракт — <code>documentation/api/openapi.yaml</code>. "
-                f"Здесь — список операций (Node.js не найден, интерактивная страница не собрана).</p>"
+                f"Здесь — список операций: интерактивная страница не собрана (нет Node.js или сети).</p>"
                 f'<div class="table"><table><thead><tr><th>operationId</th><th>Операция</th></tr></thead>'
                 f"<tbody>{rows}</tbody></table></div>")
-        target.write_text(self.page("api/index.html", "Контракт API", body, [], {}), encoding="utf-8")
+        (api / "index.html").write_text(self.page("api/index.html", "Контракт API", body, [], {}), encoding="utf-8")
         self.api_mode = "таблица операций"
 
     def build(self) -> None:

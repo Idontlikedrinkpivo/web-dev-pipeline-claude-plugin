@@ -6,7 +6,7 @@
 Called by the plugin's PostToolUse hook (hooks/site-rebuild.sh) on every edit under documentation/ — plans/ and the
 site itself left out — and only in a project that already has a site (documentation/_site/index.html). One build
 runs at a time: an edit during a build queues exactly one more, so a burst of edits costs two builds, not twenty.
-Without --api the API page is reused (Redoc takes minutes); with it, rebuilt. State in <git dir>/pipeline-work/:
+Without --api the bundled contract is reused (bundling it takes seconds to minutes); with it, rebundled. State in <git dir>/pipeline-work/:
 site-build.lock (the running worker's pid) and site-build.pending (a queued rebuild, «api» when the contract
 changed). The site is swapped in whole at the end of a build, so a reader never sees half of it.
 """
@@ -70,7 +70,7 @@ def main() -> None:
     d = work_dir(root)
     lock, pending = d / "site-build.lock", d / "site-build.pending"
     if "--wait" in args:
-        for _ in range(1200):  # up to 10 minutes: a contract rebuild runs Redoc
+        for _ in range(1200):  # up to 10 minutes: a contract rebuild bundles the spec
             if not running(lock) and not pending.exists():
                 return
             if not running(lock) and pending.exists():

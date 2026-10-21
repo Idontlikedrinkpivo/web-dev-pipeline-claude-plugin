@@ -4,7 +4,7 @@ description: >-
   Builds the project's documentation/ into one static site to read and share: navigation by
   section (requirements, data, API, architecture, interface, deploy, operations), search, and cross-links — every
   FR, NFR, BR, UC, TC and screen number links to where it is defined, an operationId to the API page; diagrams
-  shown in place; the API contract as an interactive page. Committed in documentation/_site; opened in the
+  shown in place; the API contract as a Swagger UI page. Committed in documentation/_site; opened in the
   built-in browser through a local server, or from disk in any browser. Use when the user asks for a
   documentation site, «собери сайт документации», «открой документацию», «выгрузи документы в HTML», «опубликуй
   документацию», or wants the documents as pages instead of Markdown. Not for writing or fixing documents, and
@@ -66,6 +66,9 @@ searches work on the Markdown (`doc-versioning` → Registry).
   («### UC-4. …»), a bold paragraph start («**З-2. …**») or a screen-spec file name (`S-3-card.md`); every
   other mention links there. Query and procedure ids (`З-`, `П-`) link only inside the operations document.
   `` `bookRoom` `` links to its operation on the API page; `` `../db/schema.md` `` to that page.
+- **The API page** is Swagger UI over the contract bundled into one JSON (`api/spec.js`): operations by tag,
+  request and response schemas and examples, read-only — «Try it out» is off, the site has no API behind it.
+  Swagger UI's own files (pinned version) sit in `assets/swagger/`, so the page works offline.
 - **Search** over titles and text, and straight to a definition when the query is a number.
 - **Light and dark** follow the system; narrow screens get a menu button; print drops the chrome.
 
