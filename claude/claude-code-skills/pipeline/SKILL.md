@@ -202,7 +202,7 @@ The pipeline ends after stage 17, or after the last stage that ran when 14–17 
 the chat, in Russian, that the work is done and committed on `iteration/<version>`; give the command
 that pushes the branch and its tag (`git push origin iteration/<version> v<version>`), and say that
 the merge into `main` is the user's, on GitHub; offer no other stage. Before that line, rebuild the
-documentation site (`docs-site`, team audience) and commit it when it changed, then write the
+documentation site (`docs-site`) and commit it when it changed, then write the
 iteration's summary (on disk only, like the rest of `plans/`) and tag the current commit
 `v<version>` — the baseline the next iteration's pins and diffs read against. Do both also when the
 user asks «итог», «как отработал пайплайн», or «сводка» after `work`. They close the version: a

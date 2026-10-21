@@ -1,13 +1,12 @@
 """Build a static documentation site from documentation/ (standard library only; Node only for the API page).
 
-    python3 build_site.py [--docs documentation] [--out documentation/site] [--audience team|customer] [--title "…"] [--no-api]
+    python3 build_site.py [--docs documentation] [--out documentation/site] [--title "…"] [--no-api]
 
 Every Markdown document becomes a page with the site's navigation, search and cross-links: an id like FR-12,
 UC-4, BR-3, NFR-6, TC-27, S-3, З-2 links to the row, heading or screen-spec file that defines it, and an
 operationId in backticks links to the API page. Diagrams (.svg) are copied beside their pages. The API page is
 built by Redocly (npx) from documentation/api/openapi.yaml, or, without Node, as a table of operations.
-documentation/plans/ (working files) is never included; --audience customer also leaves out open questions,
-interface wishes and the project map. Prints a short report: pages, ids, ids mentioned but never defined,
+documentation/plans/ (working files) is never included. Prints a short report: pages, ids, ids mentioned but never defined,
 broken links. The site opens from disk (index.html) — no server needed. It lives in documentation/site/ and is
 committed, so a clone has it without a build: the pages carry the commit and date of the documents' last change,
 not the build time, and the navigation sits in assets/nav.js, so a rebuild over unchanged documents changes
@@ -32,8 +31,6 @@ SECTIONS = [
     ("requirements", "Требования"), ("db", "Данные"), ("api", "API"), ("architecture", "Архитектура"),
     ("ui", "Интерфейс"), ("deploy", "Развёртывание"), ("operations", "Эксплуатация"), ("project-map", "Карта проекта"),
 ]
-CUSTOMER_SKIP = {"open-questions.md", "ui-wishes.md"}
-CUSTOMER_SKIP_DIRS = {"project-map"}
 ID = r"(?:FR|NFR|BR|UC|AC|TC|R|S|M)-\d+(?:\.\d+)*|[ЗП]-\d+"
 ID_RE = re.compile(rf"(?<![\w\-/#.])({ID})(?![\w\-])")
 KINDS = ["FR", "NFR", "BR", "UC", "TC", "S", "З"]
@@ -45,7 +42,7 @@ ASSET_EXT = {".svg", ".png", ".jpg", ".jpeg", ".gif", ".webp"}
 
 def args() -> dict:
     a = sys.argv[1:]
-    opt = {"docs": "documentation", "out": None, "audience": "team", "title": None, "api": True}
+    opt = {"docs": "documentation", "out": None, "title": None, "api": True}
     i = 0
     while i < len(a):
         k = a[i]
@@ -64,8 +61,8 @@ def rel(target: str, frm: str) -> str:
 
 
 class Site:
-    def __init__(self, docs: Path, out: Path, audience: str, title: str | None, api: bool):
-        self.docs, self.out, self.audience, self.api_on = docs, out, audience, api
+    def __init__(self, docs: Path, out: Path, title: str | None, api: bool):
+        self.docs, self.out, self.api_on = docs, out, api
         self.title = title or self.project_name()
         self.pages: list[dict] = []          # {src, url, section, title, text}
         self.defs: dict[str, str] = {}       # id -> url#anchor (or url)
@@ -92,8 +89,6 @@ class Site:
             r = p.relative_to(self.docs)
             top = r.parts[0] if len(r.parts) > 1 else ""
             if top in ("plans", self.out_name) or p.name.startswith("progress"):
-                continue
-            if self.audience == "customer" and (p.name in CUSTOMER_SKIP or top in CUSTOMER_SKIP_DIRS):
                 continue
             natural = [int(x) if x.isdigit() else x for x in re.split(r"(\d+)", str(r))]  # S-2 before S-11
             files.append((order.get(top, len(SECTIONS)), natural, str(r), p, top))
@@ -396,7 +391,7 @@ def main() -> None:
     docs = Path(o["docs"])
     if not docs.is_dir():
         sys.exit(f"no {docs}/ here")
-    Site(docs, Path(o["out"] or docs / "site"), o["audience"], o["title"], o["api"]).build()
+    Site(docs, Path(o["out"] or docs / "site"), o["title"], o["api"]).build()
 
 
 if __name__ == "__main__":

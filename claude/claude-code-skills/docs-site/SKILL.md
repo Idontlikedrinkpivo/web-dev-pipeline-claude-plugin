@@ -1,43 +1,39 @@
 ---
 name: docs-site
 description: >-
-  Builds the project's documentation/ into one static site to read, hand to a customer or publish: navigation by
+  Builds the project's documentation/ into one static site to read and share: navigation by
   section (requirements, data, API, architecture, interface, deploy, operations), search, and cross-links — every
   FR, NFR, BR, UC, TC and screen number links to where it is defined, an operationId to the API page; diagrams
-  shown in place; the API contract as an interactive page. Opens from disk, no server. Use when the user asks for
-  a documentation site, «собери сайт документации», «открой документацию», «покажи документацию заказчику»,
-  «выгрузи документы в HTML», «опубликуй документацию», or wants the documents as pages instead of Markdown. Not for writing or fixing
-  documents, and not the progress page (that one rebuilds itself — pipeline → progress-files).
+  shown in place; the API contract as an interactive page. Committed in documentation/site; opened in the
+  built-in browser through a local server, or from disk in any browser. Use when the user asks for a
+  documentation site, «собери сайт документации», «открой документацию», «выгрузи документы в HTML», «опубликуй
+  документацию», or wants the documents as pages instead of Markdown. Not for writing or fixing documents, and
+  not the progress page (that one rebuilds itself — pipeline → progress-files).
 ---
 
 # Documentation site
 
 The documents stay Markdown — agents write them, git reviews them, the checks parse them. The site is a view
-built from them: what a customer, a manager or an operator opens in a browser, with links where the Markdown
+built from them: what a manager, an analyst or an operator opens in a browser, with links where the Markdown
 only has numbers.
 
 ## Steps
 
-1. **Who reads it.** Ask once, unless the request says:
-   - A. Команда — everything in `documentation/` except `plans/`.
-   - B. Заказчик — the same without open questions, interface wishes and the project map
-     (`--audience customer`).
-2. **Build** from the project root (Node is needed only for the API page; without it the API section is a
-   table of operations):
+1. **Build** from the project root — everything in `documentation/` except `plans/` (Node is needed only for the
+   API page; without it the API section is a table of operations):
 
    ```bash
    python3 "${CLAUDE_SKILL_DIR}/scripts/build_site.py"
    ```
 
-   The team's site goes to `documentation/site/` and is **committed** (`docs: сайт документации`), so whoever
+   The site goes to `documentation/site/` and is **committed** (`docs: сайт документации`), so whoever
    clones the repository opens it without building. A rebuild over unchanged documents changes no file, and an
    edited document changes its own page, the navigation and the search index — commit only when `git status`
-   shows a change. A customer's copy is built outside git, into the release folder:
-   `--audience customer --out release/<version>/docs` (beside `DEPLOY.md`).
-3. **Read the report** the script prints: pages, ids per kind, ids mentioned but never defined, broken links.
+   shows a change.
+2. **Read the report** the script prints: pages, ids per kind, ids mentioned but never defined, broken links.
    An id that is mentioned and defined nowhere, or a broken link between documents, is a defect of the
    documents, not of the site: name each in the close. Do not edit a document to make the site prettier.
-4. **Open it and look at it.** In the desktop app the built-in browser shows a page given as a file without its
+3. **Open it and look at it.** In the desktop app the built-in browser shows a page given as a file without its
    stylesheet and scripts — no menu, no search — so serve the site:
    `python3 "${CLAUDE_SKILL_DIR}/scripts/site_server.py"` prints `http://127.0.0.1:<port>/index.html` (it reuses
    a server already running for this site). Open that address in the built-in browser yourself and give it as
@@ -46,11 +42,11 @@ only has numbers.
    point at the file in the file tree — it shows the HTML source. Then check it: follow one requirement link,
    one test-case link and the API page, try the search with one number. A page that renders wrong — a table that broke, a diagram missing — is a fix in
    `scripts/mdhtml.py`, reported, not hidden.
-5. **Close** with one line: the site's link from step 4, pages and ids, the audience, and what the report
-   found. Publishing (GitHub Pages, a server, a zip for the customer) is the user's step — the site holds
+4. **Close** with one line: the site's link from step 3, pages and ids, and what the report
+   found. Publishing (GitHub Pages, a server, a zip) is the user's step — the site holds
    the project's whole documentation, so it leaves the machine only on their word.
 
-**«Открой документацию»** with a site already built: step 4 alone. Stop the server when the user is done with
+**«Открой документацию»** with a site already built: step 3 alone. Stop the server when the user is done with
 the site (`site_server.py --stop`); the iteration's close stops it too.
 
 `documentation/site/` is generated: never edit it, and never read it as a source — documents, checks and
