@@ -40,9 +40,8 @@ REVERSALS       <grill-reversal only: each decision the user reversed —
 
 LANGUAGE        Russian prose, including section headings and table
                 columns from the skill template. Do not translate ids
-                (A-, FR-, NFR-, BR-, UC-, AC-, Alt-, Exc-) or the
-                priority tokens must / should / could. Frontmatter keys
-                stay English.
+                (A-, FR-, NFR-, BR-, UC-, AC-, Alt-, Exc-). Frontmatter
+                keys stay English.
 
 RULES
 - `doc-typist` writes OUTPUT PATH and any `open-questions.md` row or

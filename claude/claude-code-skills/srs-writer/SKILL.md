@@ -210,8 +210,8 @@ Define every domain noun used in FR, BR, and UC once, in Russian, and use it ver
 The rows live in their group's area file; `srs.md` §3 holds the groups
 table (Layout).
 
-| Идентификатор | Требование | Приоритет |
-|---|---|---|
+| Идентификатор | Требование |
+|---|---|
 
 Group by capability (bold inline sub-headers), not by discussion order. Number the rows afterward, top to bottom, `FR-1` then `FR-2`, including across groups. Each requirement is **one sentence of intent plus at most one qualifier** — if a requirement needs two outcomes ("either A or B"), split it or send the fork to `open-questions.md`.
 
@@ -224,7 +224,7 @@ Write each FR in one EARS shape, clauses in this order, so a vague wish like «�
 
 Zero or one trigger and one response. A «Пока» clause joined to a «Когда» is the one qualifier. An event or unwanted FR names the trigger its UC starts from, or the condition of its Exception Flow.
 
-**Приоритет** is `must`, `should`, or `could`, taken from the source or from the user in this run — never guessed. The `must` rows form the first release: every `must` FR, with its use cases, is deliverable and testable without any `should` or `could` row. If the source gives no priorities, write `—` in the cell and add one row to `open-questions.md`, classed «Можно решить при архитектуре» and worded as a question to the user: priority is a product decision, so a later stage asks it and never decides it.
+No priority column: every requirement in the SRS is built; what is not built now goes to «Границы» (§7), not into a should / could tier on a row.
 
 **Completeness check (adapted from INVEST):** before closing this section, check each requirement is *Independent* (doesn't silently depend on another unstated requirement), *Estimable* (concrete enough that `clean-architecture-design` could size it), and *Testable* (a Use Case or Acceptance Criterion downstream can prove it's met). A requirement that fails Testable gets an AC gap flagged, not a pass.
 
@@ -320,7 +320,7 @@ The SRS has no open-questions section. Gaps this SRS could not settle, and a fin
 
 ## Writing Discipline
 
-- **Russian.** Write the SRS in Russian, including every section heading and every table column in Document Structure. Do not translate ids (`A-`, `FR-`, `NFR-`, `BR-`, `UC-`, `AC-`, `Alt-`, `Exc-`) or the priority tokens `must` / `should` / `could`. Frontmatter keys stay English.
+- **Russian.** Write the SRS in Russian, including every section heading and every table column in Document Structure. Do not translate ids (`A-`, `FR-`, `NFR-`, `BR-`, `UC-`, `AC-`, `Alt-`, `Exc-`). Frontmatter keys stay English.
 - **Plain language.** Write requirements and acceptance criteria so a new team member understands them without a glossary lookup — jargon that isn't already a defined domain term (per section 1.1, or `CONCEPTS.md` if it exists) gets spelled out once.
 - **Cite, don't restate.** A rule that lives in a Business Rule or a Non-Functional Requirement is referenced by ID from a Use Case step (`per BR-3`), never copy-pasted into the flow text — one owner per rule, same discipline as the business-requirements document.
 - **No process exhaust.** No "captured at step X" notes, no italic provenance lines. Metadata lives in the frontmatter only.
