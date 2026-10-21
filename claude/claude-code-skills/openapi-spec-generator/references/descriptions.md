@@ -49,3 +49,47 @@ description: |
 
   **Ограничение частоты.** Не больше 30 запросов на бронь в минуту на резидента, 31-й получает `429` (NFR-10).
 ```
+
+## The API's own description (`info.description`)
+
+What every operation shares — roles, signing in, access errors, rate limits, the error body, service addresses —
+is written once, here, and Swagger shows it above the operations. It is the first thing a reader meets, so it is
+a page, not a paragraph:
+
+1. **Two or three plain sentences**: what the API is for and who calls it. The source documents by name, not as
+   a run of paths.
+2. **A `###` heading per shared concern**, only those this API has, in this order: «Роли», «Вход и сессии»,
+   «Доступ без входа», «Ошибки доступа», «Ограничения частоты», «Ошибки», «Служебные адреса».
+3. **Under each heading** — a list or a small table, one rule per line, ids at the end in brackets; the same
+   rules as an operation's description.
+4. **Nothing an operation owns.** A rule of one operation lives in that operation's description; this one names
+   only what repeats.
+
+Example — the room-booking contract:
+
+```yaml
+description: |
+  API бронирования переговорных коворкинга «Точка сбора». Им пользуется веб-приложение резидентов и
+  администратора. Основание — SRS бронирования и схема данных.
+
+  ### Роли
+  - **Резидент** — смотрит расписание, бронирует и отменяет свои брони.
+  - **Администратор** — отменяет любые брони и закрывает переговорные на обслуживание (NFR-4).
+
+  ### Вход и сессии
+  - Вход только через SSO коворкинга; каждый запрос несёт `Authorization: Bearer <JWT>` (NFR-3).
+  - Роль берётся из токена: claim `role=admin` — администратор, иначе резидент (NFR-3).
+
+  ### Ошибки доступа
+  | Ситуация | Ответ |
+  |---|---|
+  | нет токена или он недействителен | `401` |
+  | резидент отменяет чужую бронь | `403 BOOKING_NOT_OWNED` (NFR-4) |
+  | резидент закрывает переговорную | `403 ADMIN_ONLY` (NFR-4) |
+
+  ### Ограничения частоты
+  - Создание брони — не больше 30 запросов в минуту на резидента, 31-й получает `429` (NFR-10).
+
+  ### Ошибки
+  - Тело любой ошибки — `application/problem+json` со стабильным `code`.
+```

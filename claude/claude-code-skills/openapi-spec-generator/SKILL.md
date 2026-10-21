@@ -68,7 +68,7 @@ request/response schemas, and the status codes. `info.description`, operation `s
 `description`, and schema `description` / `example` are Russian. Do not
 translate `operationId`, paths, or schema names. A description is written
 for people to read — a plain first sentence, blocks, lists, ids at line
-ends: `references/descriptions.md`. They say what a field or
+ends; `info.description` is a page of headed sections: `references/descriptions.md`. They say what a field or
 an operation means, never how a client shows it: no «для выпадающего
 списка», «показывается в модалке», colour or icon fields the SRS does not
 require as data (`doc-versioning` → What, not how it looks).
