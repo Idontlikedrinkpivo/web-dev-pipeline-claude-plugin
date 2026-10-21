@@ -251,7 +251,9 @@ finding.
 - **UX-34 Dialog behaviour** (WAI-ARIA APG): `role="dialog"`,
   `aria-modal`, a visible title as its name; Tab cycles inside, Esc
   closes, focus returns to the trigger; first focus is the first control,
-  or the least destructive one when the action is irreversible.
+  or the least destructive one when the action is irreversible. While the
+  dialog's own request is running, Esc and the cancel button do not close
+  it: the answer — a refusal included — must land where the user is looking.
 - **UX-35 Unsaved changes** are guarded: leaving inside the app asks
   «Уйти без сохранения?»; closing the tab uses `beforeunload`.
 - **UX-36 Reversible → undo, irreversible → confirm.** A confirmation names

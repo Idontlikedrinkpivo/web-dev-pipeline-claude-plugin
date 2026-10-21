@@ -91,20 +91,12 @@ the project is used as is, whether or not it meets the criterion.
    repeat presses [UX-15]; a
    success without navigation is announced as a status message (`aria-live`).
 5. **Fields** follow «Поля ввода»: the rule, when it is checked, the exact
-   error text next to the field. Derive the form schema from the generated
-   request type so a contract change breaks the build, not the user.
-   A format rule the server also checks (an email, a link) comes from the one
-   frontend module the domain model's «Кто ещё применяет» names — never a
-   regex typed into the form; what the user may do (a button shown or not)
-   comes from the response when the contract carries it, never re-derived.
-6. **Shape the code to stay changeable**: network calls only through the
-   shared data layer (one hook or query library, one way to load a
-   dictionary), shared Loading / Error / Empty components, and a page split
-   into a data hook and its view — the quality gates refuse a function over
-   80 lines and a file over 500, and `no-restricted-imports` / `no-restricted-globals` keep `fetch` and the API
-   client inside the data layer (`repo-scaffold/references/quality-gates.md`). How the React code itself
-   stays changeable — state, effects, data, forms, tests: the `react` skill.
-   A second copy of a component or helper is a reuse, not a paste.
+   error text next to the field. The form's schema, a format rule the server also checks, and which
+   actions the user may take come from the contract and the response, never retyped (`react` → «A form is
+   one library (React Hook Form) and one schema», «What the user may do comes from the response»).
+6. **Shape the code to stay changeable** by the `react` skill: server data through the one data layer, a
+   page as a data hook plus its view, shared Loading / Error / Empty, no second copy of a component. The
+   quality gates hold it (`repo-scaffold/references/quality-gates.md`).
 7. **Focus** follows the frame and `ux-patterns` (dialog focus, error
    summary). **Widths** go desktop first: the desktop width of the frames
    register is built first, then each narrower width follows the frame
@@ -223,16 +215,6 @@ Check per stack before relying on it:
   the schema library's installed major is the one its resolver supports.
 - **OpenAPI client generator** — config file name and keys, output path,
   client flavour, how errors and non-2xx statuses are typed.
-
-## How it plugs into the pipeline
-
-`work` forwards this skill and the one matching profile in the packet's
-`STACK SKILLS` to every `impl-ui` unit (the plan cites a screen spec and a
-Figma `nodeId`) and to any other unit whose files are browser UI code; the
-executor follows it from there. Redesign and new screens are `ui-design`,
-then `screen-spec`; e2e test mechanics are
-`playwright-cli`; component-test conventions are `vitest` when the project
-uses Vitest.
 
 ## Report
 

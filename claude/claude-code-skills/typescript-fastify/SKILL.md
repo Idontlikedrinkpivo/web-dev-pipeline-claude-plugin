@@ -56,8 +56,9 @@ description: >-
 
 - **One global error handler renders the spec's Problem shape** as `application/problem+json`;
   statuses come from the spec. Handlers and hooks throw named errors; they never build error bodies.
-- Three cases in the handler: framework validation errors (the status, `code`, and per-field list the
-  contract defines), named errors (status from the mapping table, or the existing `AppError`
+- Three cases in the handler: validation errors — the framework's schema and a schema parse inside a
+  handler alike — with the status, `code`, and per-field list the contract defines (a brownfield repo
+  without a contract: its own 400 or 422; a client's bad input is never a 500), named errors (status from the mapping table, or the existing `AppError`
   hierarchy in a brownfield repo), everything else (log it; 500 with a generic `detail`, never the
   internal message, stack, or SQL).
 - A driver error nobody classified (a future route without its own handling) is still mapped in the
