@@ -478,7 +478,7 @@ Read each file at the step named; skip the rest.
 - `references/increment.md` — which modes run and what changes when the documents exist (orchestrator step 2, Step 1b).
 - `references/nfr-decisions.md` — the eleven security sub-items; «Решения по NFR» (foundation §1).
 - `references/writing.md` — how every architecture document reads: short cells, lists, one home per fact;
-  `scripts/facts_check.py` proves a rewrite kept its facts.
+  `doc-versioning/scripts/facts_check.py` proves a rewrite kept its facts.
 - `references/stack-proposal.md` — constraints, cards, chat prompt, after the pick (Step 2b).
 - `references/rich-entities.md` — entity vs ORM model, invariants, value objects, when anemic is fine (mode `domain`).
 - `references/use-cases-and-boundaries.md` — why use cases orchestrate, queries, side effects, typed boundaries, layer roster (mode `scenarios`; foundation §3).

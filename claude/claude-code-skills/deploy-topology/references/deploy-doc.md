@@ -30,6 +30,8 @@ does not apply says so in one line («Томов нет: всё состояни
 rather than disappearing — an operator reading a missing section cannot tell
 "none" from "forgotten".
 
+Write it to be scanned (`doc-versioning` → `references/readable.md`): a cell is one fact, a run of cases is a table, a procedure is a numbered list, a paragraph at most four sentences.
+
 ```markdown
 # Развёртывание room-booking <версия>
 

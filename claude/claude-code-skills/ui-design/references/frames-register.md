@@ -34,7 +34,7 @@ sources:
 
 | S-n | Экран | Сценарии | Акторы | Кадр | Состояния | Вложенные шаги | Статус |
 |---|---|---|---|---|---|---|---|
-| S-1 | <объект или задача> | UC-…, UC-… | A-… | <nodeId> | <состояние> → <nodeId>; … | M1 <назначение> → <nodeId>; … | черновик \| готово к разработке |
+| S-1 | <объект или задача> | UC-…, UC-… | A-… | <nodeId> | <состояние> → <nodeId><br><состояние> → <nodeId> | M1 <назначение> → <nodeId><br>… | черновик \| готово к разработке |
 
 ## Общие состояния
 
@@ -66,6 +66,8 @@ Cell rules:
   in `🗄 Архив`.
 - No `operationId`, column, HTTP status, or description of looks in any
   cell.
+
+States and nested steps sit one per line in their cell (`<br>` between them), never a run joined by «;» — a screen with fifteen states is otherwise unreadable (`doc-versioning` → `references/readable.md`).
 
 ## Example
 

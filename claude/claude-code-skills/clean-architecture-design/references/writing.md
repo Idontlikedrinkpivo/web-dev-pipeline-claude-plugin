@@ -1,7 +1,8 @@
 # Writing the architecture so people can read it
 
-The foundation, the domain model and the scenarios are read by developers, reviewers and the agents that build from
-them — and every one of them scans before reading. A table cell that holds a whole mechanism, a paragraph of
+The general rules for every document are `doc-versioning` → `references/readable.md`; this file is how they apply
+to the architecture. The foundation, the domain model and the scenarios are read by developers, reviewers and the
+agents that build from them — and every one of them scans before reading. A table cell that holds a whole mechanism, a paragraph of
 twelve clauses joined by semicolons, a decision date in the middle of a rule: each is correct and unreadable. The
 rules below keep every fact and change only where it sits.
 
@@ -45,7 +46,7 @@ This — the decision in the cell, the mechanism below, every fact kept:
 ## Checking a rewrite
 
 When an existing document is rewritten for readability, prove that nothing was lost:
-`python3 <this skill's folder>/scripts/facts_check.py snapshot <file> <snapshot.json>` before,
+`python3 <doc-versioning skill folder>/scripts/facts_check.py snapshot <file> <snapshot.json>` before,
 `python3 <…>/facts_check.py verify <file> <snapshot.json>` after. It compares the requirement ids, the backticked
 names and the numbers of the body (the changelog left out) as multisets and lists every difference; a lost fact
 goes back, a duplicate that rule 4 removed is named in the report.

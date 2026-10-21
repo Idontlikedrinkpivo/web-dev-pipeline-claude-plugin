@@ -48,6 +48,9 @@ RULES
   at its end, the coverage table: AC → TC ids, or «Без интерфейса» +
   reason. A section file holds only its cases. TC ids run across the set.
 - Russian prose; ids, operationIds, paths untranslated.
+- Readable (doc-versioning → references/readable.md): a precondition or an
+  expected result is one fact per line; README's shared parts are short
+  paragraphs and tables, not one paragraph per topic.
 - Write only under OUTPUT PATH (and delete the old single file after the
   move). Do not commit.
 ```

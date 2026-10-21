@@ -351,6 +351,7 @@ The SRS has no open-questions section. Gaps this SRS could not settle, and a fin
 ## Writing Discipline
 
 - **Russian.** Write the SRS in Russian, including every section heading and every table column in Document Structure. Do not translate ids (`A-`, `FR-`, `NFR-`, `BR-`, `UC-`, `AC-`, `Alt-`, `Exc-`). Frontmatter keys stay English.
+- **Readable** (`doc-versioning` → `references/readable.md`). An FR row is one requirement: a row that needs more than two sentences is two requirements, the second a dotted id under the first. An NFR's «Как проверяется» is one sentence — the measure and how it is taken. Section 1 «Кратко» is a few short paragraphs, not one.
 - **Plain language.** Write requirements and acceptance criteria so a new team member understands them without a glossary lookup — jargon that isn't already a defined domain term (per section 1.1, or `CONCEPTS.md` if it exists) gets spelled out once.
 - **Cite, don't restate.** A rule that lives in a Business Rule or a Non-Functional Requirement is referenced by ID in a Use Case step's «Требования» cell (`BR-3`), never copy-pasted into the flow text — one owner per rule, same discipline as the business-requirements document.
 - **No process exhaust.** No "captured at step X" notes, no italic provenance lines. Metadata lives in the frontmatter only.

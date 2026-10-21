@@ -7,7 +7,7 @@ The facts of the body — the `## Журнал изменений` section and t
 multisets: requirement and rule ids (FR, NFR, BR, UC, AC, TC, A, S and dotted forms), `backticked` names and
 values, and numbers outside both. Line breaks, list markers and table pipes do not count; what moved between
 sections is the same fact. A fact that appears fewer times after the rewrite is listed as lost — fine when rule 4
-of references/writing.md removed a duplicate, a defect otherwise. Standard library only.
+of references/readable.md removed a duplicate, a defect otherwise. Standard library only.
 """
 from __future__ import annotations
 

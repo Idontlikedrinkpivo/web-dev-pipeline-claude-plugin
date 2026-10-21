@@ -145,6 +145,8 @@ WHERE id = $1 AND status = 'pending';
 | Бронь пропала из расписания | З-1 | отменена администратором или блокировкой — видно, кем |
 ````
 
+Write it to be scanned (`doc-versioning` → `references/readable.md`): a cell is one fact, a run of cases is a table, a procedure is a numbered list, a paragraph at most four sentences.
+
 ## Rules
 
 - **Ids.** Queries are `З-<n>`, procedures `П-<n>`, numbered in document

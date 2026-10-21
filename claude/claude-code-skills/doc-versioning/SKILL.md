@@ -42,6 +42,10 @@ Do not translate **cited tokens**: ids (`UC-1`, `FR-2`, `A-n`), table and
 column names, `operationId`, paths, type names, file paths, stack
 identifiers. They stay as the design named them.
 
+**Every document reads at a glance** — a table cell is one fact, a run of cases is a table, a sequence is a
+numbered list, no history in the body: `references/readable.md`, with `scripts/facts_check.py` to prove a rewrite
+kept its facts.
+
 **Frozen headings stay as the stage skill names them.** Frontmatter keys
 (`version`, `migration`, `sources`, `grilled`) stay English. Every versioned
 document, the DB schema included, has `## Журнал изменений` with the same
