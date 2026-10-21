@@ -34,9 +34,6 @@ img{max-width:100%;height:auto;background:#fff;border-radius:8px;border:1px soli
 .lead{font-size:17px;color:var(--muted);max-width:760px}.counts{display:flex;flex-wrap:wrap;gap:12px;margin:20px 0}
 .counts div{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:10px 16px;min-width:88px}
 .counts b{display:block;font-size:24px}.counts span{color:var(--muted);font-size:13px}
-.cards{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:16px}
-.card{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:14px 16px}.card h2{border:0;margin:0 0 8px;padding:0;font-size:17px}
-.card a{display:block;padding:2px 0;text-decoration:none}.more{color:var(--muted);font-size:13px}
 @media (max-width:1180px){.wrap{grid-template-columns:250px minmax(0,1fr)}aside{display:none}}
 @media (max-width:820px){.wrap{grid-template-columns:1fr}.menu{display:block}nav{display:none;position:fixed;top:56px;left:0;right:0;bottom:0;z-index:9;background:var(--bg);padding:16px}
 body.nav-open nav{display:block}.brand{max-width:50%}}

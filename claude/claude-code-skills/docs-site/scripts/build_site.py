@@ -559,25 +559,10 @@ class Site:
             n = sum(1 for i in self.defs if i.split("-")[0] == k)
             if n:
                 counts.append(f"<div><b>{n}</b><span>{KIND_LABEL[k]}</span></div>")
-        cards = []
-        labels = dict(SECTIONS)
-        for name, label in SECTIONS:
-            pages = [p for p in self.pages if p["section"] == name]
-            if name == "api" and self.api_mode != "нет":
-                pages = [{"url": "api/index.html", "title": "Контракт API"}] + pages
-            if pages:
-                links = "".join(f'<a href="{html.escape(p["url"])}">{html.escape(p.get("short", p["title"]))}</a>'
-                                for p in pages[:12])
-                more = f'<span class="more">и ещё {len(pages) - 12}</span>' if len(pages) > 12 else ""
-                cards.append(f'<section class="card"><h2>{label}</h2>{links}{more}</section>')
-        other = [p for p in self.pages if p["section"] not in labels]
-        if other:
-            cards.append('<section class="card"><h2>Прочее</h2>' + "".join(
-                f'<a href="{html.escape(p["url"])}">{html.escape(p["title"])}</a>' for p in other) + "</section>")
         body = (f'<h1>{html.escape(self.title)}</h1><p class="lead">Документация проекта: требования, данные, API, '
                 f'архитектура, интерфейс и эксплуатация. Номера требований, сценариев, тест-кейсов и экранов — '
-                f'ссылки на их определение; поиск — вверху страницы.</p>'
-                f'<div class="counts">{"".join(counts)}</div><div class="cards">{"".join(cards)}</div>')
+                f'ссылки на их определение; разделы — в меню слева, поиск — вверху страницы.</p>'
+                f'<div class="counts">{"".join(counts)}</div>')
         (self.out / "index.html").write_text(self.page("index.html", "Обзор", body, [], {}), encoding="utf-8")
 
     def report(self) -> None:
