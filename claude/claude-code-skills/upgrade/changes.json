@@ -1,0 +1,83 @@
+[
+  {
+    "id": "verify-skill",
+    "version": "1.2.111",
+    "title": "Скил проверки проекта (verify)",
+    "what": "Этап сборки образов пишет в проект скил verify: как поднять тестовый стенд, что значит «готов», как пройти по ролям и вернуть стенд в исходное состояние. Им пользуются следующие этапы.",
+    "applies": {"exists": "docker-compose.test.yml"},
+    "behind": {"missing": "*/skills/verify/SKILL.md"},
+    "fix": "deploy-topology, только Step 7a: написать скил verify по references/verify-skill.md и один раз прогнать его от начала до конца. Остальные шаги этапа не повторять."
+  },
+  {
+    "id": "operations-doc",
+    "version": "1.2.118",
+    "title": "Эксплуатационная документация",
+    "what": "Новый этап после сборки образов: documentation/operations/operations.md — что система записывает и где, как это посмотреть (экран, операция API, готовый запрос, фильтр логов), фоновые процессы, тревоги, типовые операции, разбор проблем. Каждый запрос проверен на стенде.",
+    "applies": {"exists": "docker-compose.prod.yml"},
+    "behind": {"missing": "documentation/operations/operations.md"},
+    "fix": "operations-doc целиком — этап пишет документ, проверяет запросы на тестовом стенде и добавляет тест на них."
+  },
+  {
+    "id": "operations-no-ids",
+    "version": "1.2.119",
+    "title": "Эксплуатационный документ без номеров требований",
+    "what": "Документ читают те, кто сопровождает систему: вместо номеров требований в нём сам факт, экраны — по названию.",
+    "applies": {"exists": "documentation/operations/operations.md"},
+    "behind": {"grep": {"path": "documentation/operations/operations.md", "pattern": "\\b(FR|NFR|BR|UC)-\\d"}},
+    "fix": "operations-doc → references/template.md: заменить каждый номер требования самим фактом, экраны назвать по заголовку; номера остаются в отчёте этапа."
+  },
+  {
+    "id": "operations-required-records",
+    "version": "1.2.120",
+    "title": "Раздел «Обязательные журналы» в эксплуатационном документе",
+    "what": "Каждая запись, которую требует закон, регламент или SRS (обработка персональных данных, согласия, обращения субъектов, доступ к персональным данным, аудит безопасности), описана с основанием, сроком хранения по требованию и в системе и с тем, кто её может читать.",
+    "applies": {"exists": "documentation/operations/operations.md"},
+    "behind": {"not": {"grep": {"path": "documentation/operations/operations.md", "pattern": "^## Обязательные журналы"}}},
+    "fix": "operations-doc → references/required-records.md: составить перечень обязательных записей и добавить раздел; расхождения со сроками хранения — вопросом пользователю."
+  },
+  {
+    "id": "operations-log-filters",
+    "version": "1.2.121",
+    "title": "Фильтры логов в эксплуатационном документе читают сырые строки",
+    "what": "Фильтр jq в документе должен пропускать строки, которые не JSON (предупреждения среды выполнения), иначе он падает на первой такой строке: jq -R 'fromjson? | …'.",
+    "applies": {"grep": {"path": "documentation/operations/operations.md", "pattern": "\\bjq\\b"}},
+    "behind": {"not": {"grep": {"path": "documentation/operations/operations.md", "pattern": "fromjson\\?"}}},
+    "fix": "operations-doc → references/template.md (раздел «Логи»): переписать каждый фильтр как jq -cR 'fromjson? | …', имена полей взять из настоящей строки лога стенда и проверить фильтр на нём."
+  },
+  {
+    "id": "docs-site",
+    "version": "1.2.124",
+    "title": "Сайт документации",
+    "what": "Все документы проекта собираются в один сайт documentation/_site: меню, поиск, номера требований со ссылками и подсказкой, страница API. Сайт лежит в git, пересобирается сам после правки документов.",
+    "applies": {"any": [{"exists": "documentation/requirements"}, {"exists": "documentation/api/openapi.yaml"}]},
+    "behind": {"all": [{"missing": "documentation/_site/index.html"}, {"missing": "documentation/site/index.html"}]},
+    "fix": "docs-site: собрать сайт в documentation/_site и закоммитить папку."
+  },
+  {
+    "id": "docs-site-folder",
+    "version": "1.2.129",
+    "title": "Папка сайта документации — documentation/_site",
+    "what": "Сайт переехал из documentation/site в documentation/_site: подчёркивание показывает, что папка собирается, и ставит её первой в дереве.",
+    "applies": {"exists": "documentation/site/index.html"},
+    "behind": {"exists": "documentation/site/index.html"},
+    "fix": "docs-site: собрать сайт в documentation/_site, удалить documentation/site из git (git rm -r), закоммитить."
+  },
+  {
+    "id": "docs-site-api-page",
+    "version": "1.2.131",
+    "title": "Страница API на сайте — Swagger UI с подсказками у номеров",
+    "what": "Страница API собрана в Swagger UI (Redoc разваливался в узком окне), номера требований в описаниях стали ссылками с текстом требования при наведении.",
+    "applies": {"all": [{"exists": "documentation/_site/index.html"}, {"exists": "documentation/api/openapi.yaml"}]},
+    "behind": {"missing": "documentation/_site/api/openapi.json"},
+    "fix": "docs-site: пересобрать сайт вместе с контрактом (build_site.py без --keep-api) и закоммитить documentation/_site."
+  },
+  {
+    "id": "api-descriptions",
+    "version": "1.2.134",
+    "title": "Описания в контракте API — для того, кто вызывает API",
+    "what": "Описание операции говорит, что она делает, кто может её вызвать, что передать и что вернётся; каждый факт один раз, обычными абзацами. Почему пришла ошибка — в описании этого ответа. Порядок внутренних проверок, нормализация, таблицы, хеши, журнал — в архитектуре, не в контракте.",
+    "applies": {"exists": "documentation/api/openapi.yaml"},
+    "behind": {"grep": {"path": "documentation/api", "pattern": "Порядок проверок|NFKC|U\\+0000|\\*\\*[^*\\n]{2,40}\\.\\*\\*[ \\t]*\\n[ \\t]*(-|\\d+\\.)[ \\t]"}},
+    "fix": "openapi-spec-generator → references/descriptions.md: переписать описания операций, ответов, параметров и схем; каждую убранную деталь сначала найти в архитектуре или SRS, а не найденную оставить одной фразой; менять только значения description, структуру сверить с прежней, прогнать Redocly lint, пересобрать сайт."
+  }
+]

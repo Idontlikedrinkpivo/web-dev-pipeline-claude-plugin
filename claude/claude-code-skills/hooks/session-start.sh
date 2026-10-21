@@ -1,13 +1,23 @@
 #!/bin/sh
 # dev-pipeline: re-anchor a session on the pipeline's rules after a start, a resume, /clear or a context
 # compaction. Prints a few lines into the session's context when the project has an open iteration
-# (documentation/plans/<version>/ without summary.md); prints nothing otherwise. Read-only.
+# (documentation/plans/<version>/ without summary.md), and a line when the project lacks format changes of the
+# installed plugin (upgrade skill); prints nothing otherwise. Read-only.
 set -u
 dir="${CLAUDE_PROJECT_DIR:-$PWD}"
+src=$(cat 2>/dev/null | sed -n 's/.*"source"[[:space:]]*:[[:space:]]*"\([a-z]*\)".*/\1/p' | head -n 1)
+
+# Format changes of the plugin the project's files do not have yet (upgrade skill): on a new session or /clear,
+# not after a compaction or a resume; silent when in line.
+root="$(cd "$(dirname "$0")/.." && pwd)"
+fmt="$root/upgrade/scripts/project_format.py"
+[ -f "$fmt" ] || fmt="$root/skills/upgrade/scripts/project_format.py"   # the Codex layout
+if [ "$src" != compact ] && [ "$src" != resume ] && [ -f "$fmt" ] && command -v python3 >/dev/null 2>&1; then
+  python3 "$fmt" hook "$dir" </dev/null 2>/dev/null
+fi
+
 plans="$dir/documentation/plans"
 [ -d "$plans" ] || exit 0
-
-src=$(cat 2>/dev/null | sed -n 's/.*"source"[[:space:]]*:[[:space:]]*"\([a-z]*\)".*/\1/p' | head -n 1)
 
 open=""
 for v in "$plans"/*/; do
