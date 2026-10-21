@@ -46,6 +46,13 @@ only has numbers.
    found. Publishing (GitHub Pages, a server, a zip) is the user's step — the site holds
    the project's whole documentation, so it leaves the machine only on their word.
 
+**Kept fresh.** Once a project has a site, the plugin's hook rebuilds it in the background after every edit
+of a document under `documentation/` (`plans/` and the site itself left out), a subagent's included —
+`scripts/rebuild.py`: one build at a time, a burst of edits costs two builds, the API page rebuilt only when
+`documentation/api/` changed. **A commit that includes documents first waits for that rebuild**
+(`python3 "${CLAUDE_SKILL_DIR}/scripts/rebuild.py" . --wait`) **and stages `documentation/site` with them**, so
+every commit holds the site of its own documents. A project without a site gets none until someone asks.
+
 **«Открой документацию»** with a site already built: step 3 alone. Stop the server when the user is done with
 the site (`site_server.py --stop`); the iteration's close stops it too.
 

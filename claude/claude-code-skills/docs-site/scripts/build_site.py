@@ -1,6 +1,6 @@
 """Build a static documentation site from documentation/ (standard library only; Node only for the API page).
 
-    python3 build_site.py [--docs documentation] [--out documentation/site] [--title "…"] [--no-api]
+    python3 build_site.py [--docs documentation] [--out documentation/site] [--title "…"] [--no-api | --keep-api]
 
 Every Markdown document becomes a page with the site's navigation, search and cross-links: an id like FR-12,
 UC-4, BR-3, NFR-6, TC-27, S-3, З-2 links to the row, heading or screen-spec file that defines it, and an
@@ -46,8 +46,8 @@ def args() -> dict:
     i = 0
     while i < len(a):
         k = a[i]
-        if k == "--no-api":
-            opt["api"] = False
+        if k in ("--no-api", "--keep-api"):
+            opt["api"] = False if k == "--no-api" else "keep"  # keep: reuse the built API page (Redoc is slow)
             i += 1
             continue
         opt[k.lstrip("-")] = a[i + 1]
@@ -62,7 +62,9 @@ def rel(target: str, frm: str) -> str:
 
 class Site:
     def __init__(self, docs: Path, out: Path, title: str | None, api: bool):
-        self.docs, self.out, self.api_on = docs, out, api
+        self.docs, self.api_on = docs, api
+        self.final = out                                         # where the site lives
+        self.out = out.parent / f".{out.name}.building"          # built here, then swapped in whole
         self.title = title or self.project_name()
         self.pages: list[dict] = []          # {src, url, section, title, text}
         self.defs: dict[str, str] = {}       # id -> url#anchor (or url)
@@ -70,8 +72,8 @@ class Site:
         self.mentioned: dict[str, int] = {}
         self.broken: list[str] = []
         self.api_mode = "нет"
-        self.out_name = out.resolve().relative_to(docs.resolve()).parts[0] \
-            if str(out.resolve()).startswith(str(docs.resolve()) + os.sep) else None
+        self.out_name = self.final.resolve().relative_to(docs.resolve()).parts[0] \
+            if str(self.final.resolve()).startswith(str(docs.resolve()) + os.sep) else None
 
     def project_name(self) -> str:
         readme = self.docs.parent / "README.md"
@@ -79,6 +81,13 @@ class Site:
             m = re.search(r"^#\s+(.+)$", readme.read_text(encoding="utf-8", errors="replace"), re.M)
             if m:
                 return re.sub(r"[`*]", "", m.group(1)).split(" — ")[0].strip()
+        try:  # the repository's name, not its folder's: clones in other folders build the same pages
+            url = subprocess.run(["git", "-C", str(self.docs), "remote", "get-url", "origin"], capture_output=True,
+                                 text=True, timeout=10).stdout.strip()
+        except Exception:
+            url = ""
+        if url:
+            return re.sub(r"\.git$", "", url.rstrip("/").split("/")[-1].split(":")[-1])
         return self.docs.resolve().parent.name
 
     # ---------- collect ----------
@@ -88,7 +97,7 @@ class Site:
         for p in sorted(self.docs.rglob("*.md")):
             r = p.relative_to(self.docs)
             top = r.parts[0] if len(r.parts) > 1 else ""
-            if top in ("plans", self.out_name) or p.name.startswith("progress"):
+            if top in ("plans", self.out_name) or top.startswith(".") or p.name.startswith("progress"):
                 continue
             natural = [int(x) if x.isdigit() else x for x in re.split(r"(\d+)", str(r))]  # S-2 before S-11
             files.append((order.get(top, len(SECTIONS)), natural, str(r), p, top))
@@ -289,6 +298,11 @@ class Site:
             return
         target = self.out / "api" / "index.html"
         target.parent.mkdir(parents=True, exist_ok=True)
+        built = self.final / "api" / "index.html"
+        if self.api_on == "keep" and built.exists():
+            shutil.copy(built, target)
+            self.api_mode = "Redoc"
+            return
         try:
             r = subprocess.run(["npx", "--yes", "@redocly/cli@latest", "build-docs", str(spec), "--output", str(target)],
                                capture_output=True, text=True, timeout=300)
@@ -331,7 +345,8 @@ class Site:
                            "x": html.unescape(plain)[:6000]})
         for p in self.docs.rglob("*"):
             r = p.relative_to(self.docs)
-            if p.suffix.lower() in ASSET_EXT and r.parts[0] not in ("plans", self.out_name):
+            if p.suffix.lower() in ASSET_EXT and r.parts[0] not in ("plans", self.out_name) \
+                    and not r.parts[0].startswith("."):
                 (self.out / r).parent.mkdir(parents=True, exist_ok=True)
                 shutil.copy(p, self.out / r)
         here = Path(__file__).resolve().parent.parent / "assets"
@@ -345,6 +360,15 @@ class Site:
             "window.DOCS=" + json.dumps(search, ensure_ascii=False) + ";window.IDS=" + json.dumps(ids, ensure_ascii=False) + ";",
             encoding="utf-8")
         self.home()
+        old = self.final.parent / f".{self.final.name}.old"
+        if old.exists():
+            shutil.rmtree(old)
+        if self.final.exists():
+            self.final.rename(old)
+        self.out.rename(self.final)  # a reader never sees a half-built site
+        if old.exists():
+            shutil.rmtree(old)
+        self.out = self.final
         self.report()
 
     def home(self) -> None:
