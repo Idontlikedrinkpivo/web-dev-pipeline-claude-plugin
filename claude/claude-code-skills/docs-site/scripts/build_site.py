@@ -1,6 +1,6 @@
 """Build a static documentation site from documentation/ (standard library only; Node only for the API page).
 
-    python3 build_site.py [--docs documentation] [--out site] [--audience team|customer] [--title "…"] [--no-api]
+    python3 build_site.py [--docs documentation] [--out documentation/site] [--audience team|customer] [--title "…"] [--no-api]
 
 Every Markdown document becomes a page with the site's navigation, search and cross-links: an id like FR-12,
 UC-4, BR-3, NFR-6, TC-27, S-3, З-2 links to the row, heading or screen-spec file that defines it, and an
@@ -8,7 +8,10 @@ operationId in backticks links to the API page. Diagrams (.svg) are copied besid
 built by Redocly (npx) from documentation/api/openapi.yaml, or, without Node, as a table of operations.
 documentation/plans/ (working files) is never included; --audience customer also leaves out open questions,
 interface wishes and the project map. Prints a short report: pages, ids, ids mentioned but never defined,
-broken links. The site opens from disk (index.html) — no server needed.
+broken links. The site opens from disk (index.html) — no server needed. It lives in documentation/site/ and is
+committed, so a clone has it without a build: the pages carry the commit and date of the documents' last change,
+not the build time, and the navigation sits in assets/nav.js, so a rebuild over unchanged documents changes
+nothing and an edited document changes its own page, not every page.
 """
 from __future__ import annotations
 
@@ -42,7 +45,7 @@ ASSET_EXT = {".svg", ".png", ".jpg", ".jpeg", ".gif", ".webp"}
 
 def args() -> dict:
     a = sys.argv[1:]
-    opt = {"docs": "documentation", "out": "site", "audience": "team", "title": None, "api": True}
+    opt = {"docs": "documentation", "out": None, "audience": "team", "title": None, "api": True}
     i = 0
     while i < len(a):
         k = a[i]
@@ -70,6 +73,8 @@ class Site:
         self.mentioned: dict[str, int] = {}
         self.broken: list[str] = []
         self.api_mode = "нет"
+        self.out_name = out.resolve().relative_to(docs.resolve()).parts[0] \
+            if str(out.resolve()).startswith(str(docs.resolve()) + os.sep) else None
 
     def project_name(self) -> str:
         readme = self.docs.parent / "README.md"
@@ -86,7 +91,7 @@ class Site:
         for p in sorted(self.docs.rglob("*.md")):
             r = p.relative_to(self.docs)
             top = r.parts[0] if len(r.parts) > 1 else ""
-            if top == "plans" or p.name.startswith("progress"):
+            if top in ("plans", self.out_name) or p.name.startswith("progress"):
                 continue
             if self.audience == "customer" and (p.name in CUSTOMER_SKIP or top in CUSTOMER_SKIP_DIRS):
                 continue
@@ -202,6 +207,18 @@ class Site:
 
         return mdhtml.Hooks(link=link, autolink=autolink, anchor=anchor, code_link=code_link)
 
+    def nav_data(self) -> list:
+        """[{label, items: [[url, title], …]}] for assets/nav.js; site.js draws it and marks the current page."""
+        out = []
+        labels = dict(SECTIONS)
+        for name, label in SECTIONS + [("", "Прочее")]:
+            pages = [p for p in self.pages if (p["section"] or "") == name or (name == "" and p["section"] not in labels)]
+            items = [["api/index.html", "Контракт API"]] if name == "api" and self.api_mode != "нет" else []
+            items += [[p["url"], p.get("short", p["title"])] for p in pages]
+            if items:
+                out.append({"label": label, "items": items})
+        return out
+
     def nav(self, current: str) -> str:
         out = []
         labels = dict(SECTIONS)
@@ -231,20 +248,27 @@ class Site:
 <a class="brand" href="{root}/index.html">{html.escape(self.title)}</a>
 <div class="search"><input id="q" type="search" placeholder="Поиск: текст или номер, например FR-12" autocomplete="off">
 <div id="results"></div></div></header>
-<div class="wrap"><nav>{self.nav(url)}</nav><main>
+<div class="wrap"><nav id="nav"></nav><main>
 {f'<div class="meta">{info}</div>' if info else ''}{body}</main>
 <aside>{f'<div class="toc"><b>На странице</b>{toc_html}</div>' if toc_html else ''}</aside></div>
-<footer>Собрано {dt.date.today().isoformat()} из documentation/{self.commit()}</footer>
-<script>window.SITE_ROOT="{root}";</script><script src="{root}/assets/search-index.js"></script>
+<footer id="foot"></footer>
+<script>window.SITE_ROOT="{root}";window.PAGE="{url}";</script><script src="{root}/assets/nav.js"></script>
+<script src="{root}/assets/search-index.js"></script>
 <script src="{root}/assets/site.js"></script></body></html>"""
 
     def commit(self) -> str:
+        """The commit and date of the documents' last change (the site folder left out), so the pages stay
+        byte-identical while the documents do not change."""
+        if hasattr(self, "_commit"):
+            return self._commit
+        spec = ["--", "."] + ([f":(exclude){self.out_name}"] if self.out_name else [])
         try:
-            sha = subprocess.run(["git", "-C", str(self.docs), "rev-parse", "--short", "HEAD"], capture_output=True,
-                                 text=True, timeout=10).stdout.strip()
-            return f" · коммит {sha}" if sha else ""
+            r = subprocess.run(["git", "-C", str(self.docs), "log", "-1", "--format=%cs · коммит %h"] + spec,
+                               capture_output=True, text=True, timeout=10).stdout.strip()
         except Exception:
-            return ""
+            r = ""
+        self._commit = r or "незакоммиченные изменения"
+        return self._commit
 
     def build_api(self) -> None:
         spec = self.docs / "api" / "openapi.yaml"
@@ -293,13 +317,16 @@ class Site:
                            "x": html.unescape(plain)[:6000]})
         for p in self.docs.rglob("*"):
             r = p.relative_to(self.docs)
-            if p.suffix.lower() in ASSET_EXT and r.parts[0] != "plans":
+            if p.suffix.lower() in ASSET_EXT and r.parts[0] not in ("plans", self.out_name):
                 (self.out / r).parent.mkdir(parents=True, exist_ok=True)
                 shutil.copy(p, self.out / r)
         here = Path(__file__).resolve().parent.parent / "assets"
         shutil.copy(here / "site.css", self.out / "assets" / "site.css")
         shutil.copy(here / "site.js", self.out / "assets" / "site.js")
         ids = {i: d for i, d in self.defs.items()}
+        (self.out / "assets" / "nav.js").write_text(
+            "window.NAV=" + json.dumps(self.nav_data(), ensure_ascii=False) + ";window.FOOT="
+            + json.dumps("Документация на " + self.commit(), ensure_ascii=False) + ";", encoding="utf-8")
         (self.out / "assets" / "search-index.js").write_text(
             "window.DOCS=" + json.dumps(search, ensure_ascii=False) + ";window.IDS=" + json.dumps(ids, ensure_ascii=False) + ";",
             encoding="utf-8")
@@ -350,7 +377,7 @@ def main() -> None:
     docs = Path(o["docs"])
     if not docs.is_dir():
         sys.exit(f"no {docs}/ here")
-    Site(docs, Path(o["out"]), o["audience"], o["title"], o["api"]).build()
+    Site(docs, Path(o["out"] or docs / "site"), o["audience"], o["title"], o["api"]).build()
 
 
 if __name__ == "__main__":

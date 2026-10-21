@@ -1,4 +1,16 @@
 (function () {
+  var nav = document.getElementById("nav"), page = window.PAGE || "";
+  if (nav && window.NAV) {
+    nav.innerHTML = window.NAV.map(function (sec) {
+      var open = sec.items.some(function (it) { return it[0] === page; });
+      return "<details" + (open ? " open" : "") + "><summary>" + sec.label + "</summary>" + sec.items.map(function (it) {
+        return '<a href="' + (window.SITE_ROOT || ".") + "/" + it[0] + '"' + (it[0] === page ? ' class="cur"' : "") + ">" +
+          it[1].replace(/[&<>]/g, function (c) { return {"&": "&amp;", "<": "&lt;", ">": "&gt;"}[c]; }) + "</a>";
+      }).join("") + "</details>";
+    }).join("");
+  }
+  var foot = document.getElementById("foot");
+  if (foot && window.FOOT) foot.textContent = window.FOOT;
   var q = document.getElementById("q"), box = document.getElementById("results");
   var root = window.SITE_ROOT || ".", docs = window.DOCS || [], ids = window.IDS || {};
   var sel = -1;

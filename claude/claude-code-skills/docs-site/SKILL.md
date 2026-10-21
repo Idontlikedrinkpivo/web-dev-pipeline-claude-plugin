@@ -26,22 +26,27 @@ only has numbers.
    table of operations):
 
    ```bash
-   python3 "${CLAUDE_SKILL_DIR}/scripts/build_site.py" --out site [--audience customer]
+   python3 "${CLAUDE_SKILL_DIR}/scripts/build_site.py"
    ```
 
-   The output goes to `site/`; add `site/` to `.gitignore` when it is not there — the site is rebuilt, never
-   committed. For a hand-over, build into the release folder instead:
-   `--out release/<version>/docs` (beside `DEPLOY.md`).
+   The team's site goes to `documentation/site/` and is **committed** (`docs: сайт документации`), so whoever
+   clones the repository opens it without building. A rebuild over unchanged documents changes no file, and an
+   edited document changes its own page, the navigation and the search index — commit only when `git status`
+   shows a change. A customer's copy is built outside git, into the release folder:
+   `--audience customer --out release/<version>/docs` (beside `DEPLOY.md`).
 3. **Read the report** the script prints: pages, ids per kind, ids mentioned but never defined, broken links.
    An id that is mentioned and defined nowhere, or a broken link between documents, is a defect of the
    documents, not of the site: name each in the close. Do not edit a document to make the site prettier.
-4. **Look at it** before handing it over: open `site/index.html` (in the browser pane, or tell the user to
+4. **Look at it** before handing it over: open `documentation/site/index.html` (in the browser pane, or tell the user to
    open it from disk), follow one requirement link, one test-case link and the API page, try the search with
    one number. A page that renders wrong — a table that broke, a diagram missing — is a fix in
    `scripts/mdhtml.py`, reported, not hidden.
-5. **Close** with one line: the link to `site/index.html`, pages and ids, the audience, and what the report
+5. **Close** with one line: the link to `documentation/site/index.html`, pages and ids, the audience, and what the report
    found. Publishing (GitHub Pages, a server, a zip for the customer) is the user's step — the site holds
    the project's whole documentation, so it leaves the machine only on their word.
+
+`documentation/site/` is generated: never edit it, and never read it as a source — documents, checks and
+searches work on the Markdown (`doc-versioning` → Registry).
 
 ## What the site does
 
