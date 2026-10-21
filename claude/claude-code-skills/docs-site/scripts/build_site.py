@@ -403,9 +403,50 @@ class Site:
             tip = self.def_text.get(i, "").replace('"', "”")
             return f'[{i}](../{d} "{tip}")' if tip else f"[{i}](../{d})"
 
+        def split_cases(item: str) -> list:
+            """An item made of several cases joined by «;» (outside brackets and backticks): its lead and cases."""
+            parts, depth, tick, cur = [], 0, False, ""
+            for ch in item:
+                if ch == "`":
+                    tick = not tick
+                elif not tick and ch in "([{":
+                    depth += 1
+                elif not tick and ch in ")]}":
+                    depth = max(0, depth - 1)
+                if ch == ";" and depth == 0 and not tick:
+                    parts.append(cur.strip())
+                    cur = ""
+                else:
+                    cur += ch
+            parts.append(cur.strip())
+            parts = [x for x in parts if x]
+            if len(parts) < 3:
+                return [item]
+            head = parts[0]
+            if ":" in head and not head.rstrip().endswith(":"):  # «предел по login разобранного тела: case one»
+                lead, first = head.split(":", 1)
+                return [lead.strip() + ":", first.strip()] + parts[1:]
+            return parts
+
+        def listify(text: str) -> str:
+            """«(1) …; (2) …; (3) …» inside a paragraph becomes a numbered list — written that way, a sequence
+            of checks reads as one breathless sentence."""
+            out = []
+            for para in text.split("\n\n"):
+                if re.search(r"\(1\)\s", para) and re.search(r"\(2\)\s", para):
+                    parts = re.split(r"\s*\((\d+)\)\s+", para)
+                    lead, items = parts[0].rstrip(" :—-"), parts[2::2]
+                    rows = []
+                    for n, it in enumerate(items, 1):
+                        cases = split_cases(re.sub(r"[;,]\s*$", "", " ".join(it.split())))
+                        rows.append(f"{n}. {cases[0]}" + "".join(f"\n    - {c}" for c in cases[1:]))
+                    para = ((lead + ":") if lead else "") + "\n\n" + "\n".join(rows)
+                out.append(para)
+            return "\n\n".join(out)
+
         def walk(node):
             if isinstance(node, dict):
-                return {k: (ID_RE.sub(link, v) if k == "description" and isinstance(v, str) else walk(v))
+                return {k: (ID_RE.sub(link, listify(v)) if k == "description" and isinstance(v, str) else walk(v))
                         for k, v in node.items()}
             if isinstance(node, list):
                 return [walk(x) for x in node]
