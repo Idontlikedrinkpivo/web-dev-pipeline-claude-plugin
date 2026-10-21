@@ -31,7 +31,7 @@ operationIds, event names, paths or ids.
 | Source | What it gives |
 |---|---|
 | SRS | NFRs on audit, retention, reliability, observability, personal data; roles that should see records |
-| DB schema (`documentation/db/schema.md`, Status attributes) | the tables that record what happened, their status values |
+| DB schema (`documentation/db/schema.md`, «Закрытые наборы значений») | the tables that record what happened, their status values |
 | Architecture foundation and scenarios | jobs and their schedule, external systems and their failure handling, log events, alarms, config |
 | OpenAPI | operations that show records, and who may call them |
 | Frames register and screen specs | screens that show records, per role |

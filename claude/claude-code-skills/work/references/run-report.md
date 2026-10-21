@@ -3,12 +3,12 @@
 Read at Step 7, before writing the run report: its shape, filled for one run.
 
 ```markdown
-## Run report — <plan path>
+## Отчёт о прогоне — <plan path>
 
 **Base** — `BASE` recorded at Step 1; the start of every `BASE..HEAD` range.
 **Прогресс** — `<сделано> из <всего>`, the same numbers as the chat line.
 
-| U | Status | Executor used | Escalated | Commit |
+| U | Статус | Исполнитель | Эскалация | Коммит |
 |---|---|---|---|---|
 
 **Decisions** — per unit, the worker's `DECISIONS` lines; the source for
@@ -16,7 +16,7 @@ Read at Step 7, before writing the run report: its shape, filled for one run.
 **Изменённые решения** — each decision that changed during the run
 (`pipeline` → `references/decision-changes.md`): было → стало, who decided,
 the documents fixed, the docs commit, the units re-done after it; or «нет».
-**Verification** — what was run plan-wide and what it returned.
+**Проверка** — what was run plan-wide and what it returned.
 **Evidence** — per unit: the strategy used, and whether the red was witnessed
 by the orchestrator (two-phase) or taken from the worker's report. A unit
 committed on a reported red is a weaker claim than one committed on a witnessed
@@ -30,7 +30,7 @@ grade, with the signal the cascade missed. This is the feedback that keeps
 **Open** — units not attempted, and why.
 **Lib docs** — which libraries Step 2b fetched (id + pinned version), or why
 it wrote `none`.
-**Full-plan review** — `code-review-full`'s verdict and findings from Step 7.
+**Ревью всего прогона** — `code-review-full`'s verdict and findings from Step 7.
 ```
 
 A filled excerpt, for calibration — match its density, not its domain:
@@ -39,7 +39,7 @@ A filled excerpt, for calibration — match its density, not its domain:
 **Base** — `a41c9e2`
 **Прогресс** — `3 из 12`
 
-| U | Status | Executor used | Escalated | Commit |
+| U | Статус | Исполнитель | Эскалация | Коммит |
 |---|---|---|---|---|
 | U3 | committed | mechanical-worker | — | `5b0d7f1` |
 | U4 | committed | impl-lite | — | `c81e3a9` |

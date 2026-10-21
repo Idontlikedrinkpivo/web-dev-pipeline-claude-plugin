@@ -60,7 +60,7 @@ folder, not in a section of the document.
 
 **The document is unversioned** — a working draft, not a contract; versioning
 starts at `srs-writer`. On every write, greenfield or increment: no `version`
-in the frontmatter and no `## Changelog` table; if a leftover `version` or
+in the frontmatter and no `## Журнал изменений` table; if a leftover `version` or
 changelog is already in the file, delete them on this write.
 
 **A feature added to a product that already has a business requirements document

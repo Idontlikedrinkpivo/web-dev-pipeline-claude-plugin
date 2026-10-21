@@ -49,7 +49,7 @@ with the primer's `Evidence:` snippet.
   `previously rejected, re-raised`. Exception: the quoted evidence no
   longer appears in the document — the section changed; keep it as new.
 - Matches an Applied finding with overlapping evidence → the fix did not
-  land. Report it under `Fix did not land`, not as a new finding.
+  land. Report it under «Правка не применилась», not as a new finding.
 - Matches an Applied finding and only says it landed → drop, Coverage
   `Verified: <title>`.
 

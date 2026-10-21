@@ -64,9 +64,9 @@ writer. Read the `Fix kind` column of `plan-review.md` over the blocking
 
 | Blocking rows | Revise grade | Executor |
 |---|---|---|
-| every one `mechanical` — the Fix is the finished edit to the plan text: a citation, a `Parallel-safe` value, an executor name, a grade a floor dictates, a missing scenario line spelled out | **Low** | `plan-lite` |
-| any `local`, none `reslice` — a local decision: change a grade and its implementer, move units between waves, add `Files` after checking the code, write scenarios for a changed document | **Mid** | `plan-medium` |
-| any `reslice` — split or merge units, add a unit, change `Depends on` across several units, change a security, money, or migration decision | the plan's own grade (the cascade above) | that grade's row |
+| every one `mechanical` — the Fix is the finished edit to the plan text: a citation, a `Параллельно` value, an executor name, a grade a floor dictates, a missing scenario line spelled out | **Low** | `plan-lite` |
+| any `local`, none `reslice` — a local decision: change a grade and its implementer, move units between waves, add `Файлы` after checking the code, write scenarios for a changed document | **Mid** | `plan-medium` |
+| any `reslice` — split or merge units, add a unit, change `Зависит от` across several units, change a security, money, or migration decision | the plan's own grade (the cascade above) | that grade's row |
 
 A report without the column (an older review) grades the revise as the
 plan. `BLOCKED` or `HARDER_THAN_EXPECTED` escalates one tier per failure,

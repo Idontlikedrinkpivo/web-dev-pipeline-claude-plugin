@@ -73,7 +73,7 @@ the project is used as is, whether or not it meets the criterion.
    `documentation/api/openapi.yaml` with the project's generator and adds a
    `package.json` script so the next person regenerates the same way; a
    later screen reuses them and regenerates only when the spec changed since
-   — then the generated files are in its `Files`. Generated files are never
+   — then the generated files are in its `Файлы`. Generated files are never
    hand-edited. One data function or hook per `operationId`, named after it,
    in `features/<feature>/`.
 2. **Map every row.** Walk the screen spec's «Элементы» table row by row:

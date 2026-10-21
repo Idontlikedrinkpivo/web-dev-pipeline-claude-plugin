@@ -6,7 +6,7 @@ calls a public library API.
 The worker has no chat history and may have no MCP. It cannot "go look up
 FastAPI". You fetch once, here, and paste slices into each packet.
 
-1. From the plan digest, the units' `Files` / `Approach`, and the repo
+1. From the plan digest, the units' `Файлы` / `Подход`, and the repo
    manifests (`package.json`, `pyproject.toml`, lockfiles if present), name at
    most four **public** libraries this run will actually call. Skip the rest.
    Internal services and private packages are not Context7's job.

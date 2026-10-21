@@ -109,7 +109,7 @@ Map from the SRS and the schema:
 | What the use case returns on success | Success response schema. Do not invent a body the use case did not name |
 | An exception whose status the SRS names | That status. Do not re-pick 409 vs 422 |
 | An exception with no status | The status in INPUTS; if none, return BLOCKED with the question. Do not pick a status in silence |
-| Schema column | Property name and type. Do not rename. A closed-set column's `enum` is the code list from the schema's `## Status attributes`, verbatim |
+| Schema column | Property name and type. Do not rename. A closed-set column's `enum` is the code list from the schema's `## Закрытые наборы значений` (`## Status attributes` before plugin 1.2.152), verbatim |
 | SRS security NFR | `securitySchemes` and root `security` (Step 4) |
 
 If a DBML schema (`documentation/db/schema.md`) exists, every stored property in a request or

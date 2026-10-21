@@ -214,7 +214,7 @@ skipped: none
 
 ## Согласованность документации — 2026-05-09 — RETURN_TO_STAGE
 
-| # | Sev | Ось | Где | Находка | Владелец | Правка |
+| # | Важность | Ось | Где | Находка | Владелец | Правка |
 |---|---|---|---|---|---|---|
 | 1 | P0 | Schema ↔ OpenAPI | `invoices.amount_cents` · `Invoice.amount` | в схеме `CHECK (amount_cents > 0)`, в OpenAPI `minimum: 0` | OpenAPI | `minimum: 1`; SRS BR-4 говорит «больше нуля» |
 | 2 | P1 | SRS → downstream | FR-7 | «отмена счёта» есть в SRS и в архитектуре (`CancelInvoice`), операции в OpenAPI нет | OpenAPI | добавить `cancelInvoice` |

@@ -42,12 +42,12 @@ author's own framing hid.
 
 | Input | Required | Read for |
 |---|---|---|
-| Plan document `documentation/plans/<version>/plan.md` | **yes** | §1 digest and its version line, the unit table, every unit's fields, §5 definition of done, `open-questions.md` beside the plan, version pins |
-| Cited design documents | **yes** | resolving every `Docs` citation to a real section or id — a citation nobody checked is the plan's most common silent defect |
-| `executor-catalog/references/assignable-implementers.md` | **yes** | the only legal `Implementer` / `Nested` names |
+| Plan document `documentation/plans/<version>/plan.md` | **yes** | §1 digest and its version line, the unit table, every unit's fields, §5 критерии готовности, `open-questions.md` beside the plan, version pins |
+| Cited design documents | **yes** | resolving every `Документы` citation to a real section or id — a citation nobody checked is the plan's most common silent defect |
+| `executor-catalog/references/assignable-implementers.md` | **yes** | the only legal `Исполнитель` / `Вложенный` names |
 | `plan/references/complexity.md` | **yes** | the cascade, the six signals, both floors, the anti-inflation and anti-deflation gates — the standard grades are checked against |
 | The iteration's changes | **yes** | the manifest's current `version`; the iteration's typed changes — changelog rows whose `Версия` is the folder's version (OpenAPI: `info.x-changelog`), plus changes not stamped yet, from the diff of the versioned documents since the last tag `v<version>`; whether the API has external consumers (the foundation's Full trigger "versioned partner API", a `/vN` path) — what the level is checked against |
-| Repo file tree | **yes** | whether a unit's `Files` paths are plausible and whether a unit recreates something the scaffold already produced |
+| Repo file tree | **yes** | whether a unit's `Файлы` paths are plausible and whether a unit recreates something the scaffold already produced |
 | Prior plan-review findings | when re-reviewing after a fix | so a closed finding is not re-opened |
 
 Without the cited documents this degrades into proofreading: every coverage and
@@ -68,7 +68,7 @@ a plan" does not change the type.
 | This is | Then |
 |---|---|
 | Architecture, domain model, scenarios, SRS, screen spec, OpenAPI, or DB schema | **Stop.** Name `doc-review` as the skill that reviews it **now**. Do not apply the lenses below. Do not issue `PASS` / `RETURN_TO_PLAN` / `FIX_THEN_PROCEED` on it. |
-| A finished plan (unit map, `Depends on`, grades, `Docs`) | Continue with Step 1 |
+| A finished plan (unit map, `Зависит от`, grades, `Документы`) | Continue with Step 1 |
 | Missing, or neither a plan nor a design document | Say so and stop |
 
 "Not `doc-review`" means those personas do not review a **work order**.
@@ -94,15 +94,15 @@ says it covered everything — that claim is what is being checked.
 | Lens | Asks |
 |---|---|
 | **Commit atomicity** | does each unit land green **alone**? A unit that imports from a sibling that ships later, a unit whose test cannot pass until a second unit arrives, a unit that leaves a route registered against a missing handler — each is a split, not a preference. |
-| **Dependency graph** | does `Depends on` form a DAG with no cycle, and does every unit's declared dependency actually exist? Is every unit reachable from the wave ordering? |
-| **Parallel safety** | for each `Parallel-safe: yes` pair: disjoint `Files` **and** no shared type, migration, registry, config, generated client, lockfile, or runtime resource (test database, port, dev server). Declared file disjointness is necessary, never sufficient — the unmarked shared contract is what a merge fight is made of. |
-| **Grade calibration** | run the cascade on the unit's own filled fields and compare to the stated grade. Check both floors — auth, authorization, money, migrations on existing data, secrets, external contracts never below Mid; a unit whose `Docs` do not determine the outcome never below Mid. Check the anti-deflation gate: a `— first of its kind` unit graded 0 or Low is miscalibrated. Check the compound gate was reachable: a plan whose only High units are risky ones usually skipped it. |
-| **Files completeness** | for each unit that removes or changes a field, a constant, an environment variable, a response shape or a public symbol: search the repository for the symbol and check that every hit is in the unit's `Files` or named under «Не затрагивается». A missing caller or test is P1: the executor finds it mid-run and the unit goes round again. |
-| **Citation integrity** | does every `Docs` entry resolve to a real section, id, `operationId`, table, or screen in the named document? A dangling citation is P0: the executor cannot see this session and will fill the gap by inventing. |
-| **Coverage** | does every invariant row and every AC appear in some unit's `Test scenarios`, and does every use case, operation, screen, NFR decision and configuration variable belong to some unit (its `Docs` or `Files`)? An operation or screen needs a unit, not its own test line. Nothing silently dropped, nothing covered twice by two units that will both claim ownership. |
+| **Dependency graph** | does `Зависит от` form a DAG with no cycle, and does every unit's declared dependency actually exist? Is every unit reachable from the wave ordering? |
+| **Parallel safety** | for each `Parallel-safe: yes` pair: disjoint `Файлы` **and** no shared type, migration, registry, config, generated client, lockfile, or runtime resource (test database, port, dev server). Declared file disjointness is necessary, never sufficient — the unmarked shared contract is what a merge fight is made of. |
+| **Grade calibration** | run the cascade on the unit's own filled fields and compare to the stated grade. Check both floors — auth, authorization, money, migrations on existing data, secrets, external contracts never below Mid; a unit whose `Документы` do not determine the outcome never below Mid. Check the anti-deflation gate: a `— first of its kind` unit graded 0 or Low is miscalibrated. Check the compound gate was reachable: a plan whose only High units are risky ones usually skipped it. |
+| **Files completeness** | for each unit that removes or changes a field, a constant, an environment variable, a response shape or a public symbol: search the repository for the symbol and check that every hit is in the unit's `Файлы` or named under «Не затрагивается». A missing caller or test is P1: the executor finds it mid-run and the unit goes round again. |
+| **Citation integrity** | does every `Документы` entry resolve to a real section, id, `operationId`, table, or screen in the named document? A dangling citation is P0: the executor cannot see this session and will fill the gap by inventing. |
+| **Coverage** | does every invariant row and every AC appear in some unit's `Тестовые сценарии`, and does every use case, operation, screen, NFR decision and configuration variable belong to some unit (its `Документы` or `Файлы`)? An operation or screen needs a unit, not its own test line. Nothing silently dropped, nothing covered twice by two units that will both claim ownership. |
 | **Test-first writability** | can each scenario's expected outcome be written before the implementation exists? A scenario whose expected value can only be filled in after reading the code has not been specified — the design already fixed the invariant, the status mapping, the constraint. |
-| **Executor validity** | does every `Implementer` sit on the assignable list (`mechanical-worker`, `impl-lite`, `impl-medium`, `impl-hard`, `impl-ui`), is `Nested` either `—` or `mechanical-worker`, and is no review / plan-review / doc-review / `code-explorer` / `impl-critical` name or model slug written into the plan? A unit whose `Docs` cite a screen spec and a Figma `nodeId` is `impl-ui` with `Nested: —`. Any other unit on `impl-ui` is a finding. |
-| **Existing work** | does a unit recreate what the scaffold or an earlier increment already produced? Does every `Pattern` path exist in the tree, or is it written `path (U<n>)` and created by that earlier unit reachable via `Depends on`, or does it name an architecture section whose file tree / snippet fixes the shape? Whether a `— first of its kind` grade is too low is Grade calibration's call, not this lens's — it needs the cascade. |
+| **Executor validity** | does every `Исполнитель` sit on the assignable list (`mechanical-worker`, `impl-lite`, `impl-medium`, `impl-hard`, `impl-ui`), is `Вложенный` either `—` or `mechanical-worker`, and is no review / plan-review / doc-review / `code-explorer` / `impl-critical` name or model slug written into the plan? A unit whose `Документы` cite a screen spec and a Figma `nodeId` is `impl-ui` with `Nested: —`. Any other unit on `impl-ui` is a finding. |
+| **Existing work** | does a unit recreate what the scaffold or an earlier increment already produced? Does every `Образец` path exist in the tree, or is it written `path (U<n>)` and created by that earlier unit reachable via `Зависит от`, or does it name an architecture section whose file tree / snippet fixes the shape? Whether a `— first of its kind` grade is too low is Grade calibration's call, not this lens's — it needs the cascade. |
 | **Service version** | does §1 state a version, its level and reason, matching the folder name, and does the level match the iteration's typed changes (`pipeline` → Service version)? Any «добавляет» or «ломает» needs MINOR or above; PATCH only with none. MAJOR is the owner's call: check only that §1 states it, never whether the change is big enough. With a partner-versioned API, a «ломает» in OpenAPI inside the same API major (no new path prefix) is P1. Is the last unit the grade-0 `mechanical-worker` bump of the manifest's `version` to that number, depending on every other unit? |
 | **Plan hygiene** | U-ids unique and unrenumbered, no progress state (`status:`, checkboxes, "done"), repo-relative paths, version pins present, rows in `open-questions.md` blocking named units instead of absorbed as guesses. The plan body has no open-questions section. |
 
@@ -131,9 +131,9 @@ would be the "do the row's work on the session" the catalog forbids.
 
 | Level | Meaning | Effect |
 |---|---|---|
-| **P0** | the plan cannot execute as written: a dependency cycle, a unit that cannot land green alone, a floor violation, a `Docs` citation that does not resolve, an invariant or AC covered by no unit, an `Implementer` or `Nested` name absent from the assignable list | blocks the handoff to `work` |
+| **P0** | the plan cannot execute as written: a dependency cycle, a unit that cannot land green alone, a floor violation, a `Документы` citation that does not resolve, an invariant or AC covered by no unit, an `Исполнитель` or `Вложенный` name absent from the assignable list | blocks the handoff to `work` |
 | **P1** | the plan will execute but buy avoidable rework: a false `Parallel-safe: yes`, a grade off by one tier without a floor breach, a scenario whose expected outcome is not yet decided, a unit duplicating scaffold output, a PATCH over «добавляет» / «ломает» changes, a partner API broken inside its major, or no bump unit | blocks the handoff |
-| **P2** | ordering or naming that a maintainer would improve — a wave that could be wider, a `Why` that names a weak signal | recorded, does not block |
+| **P2** | ordering or naming that a maintainer would improve — a wave that could be wider, a `Почему` that names a weak signal | recorded, does not block |
 | **P3** | nit | recorded, does not block |
 
 Three dismissal rules:
@@ -144,7 +144,7 @@ Three dismissal rules:
 2. **The plan already flagged it.** A row in `open-questions.md` that blocks a
    named unit is the plan working correctly, not a defect.
 3. **A grade the cascade genuinely permits.** When two signals point at
-   different tiers and the plan's `Why` names the one it followed, that is a
+   different tiers and the plan's `Почему` names the one it followed, that is a
    judgment inside the cascade, not a miscalibration. A grade is only wrong when
    a floor, a gate, or the unit's own filled fields contradict it.
 
@@ -155,7 +155,7 @@ Exactly one:
 | Verdict | When | Next move |
 |---|---|---|
 | `PASS` | no P0/P1 | the plan may proceed to the next stage per `pipeline`; P2/P3 recorded in the review report |
-| `FIX_THEN_PROCEED` | P0/P1 fully specified and mechanical in the plan text — a wrong `Parallel-safe`, a mistyped executor name, a missing citation whose target is obvious, a grade the floor decides | `plan` applies them in place, then this review re-runs over the changed units only |
+| `FIX_THEN_PROCEED` | P0/P1 fully specified and mechanical in the plan text — a wrong `Параллельно`, a mistyped executor name, a missing citation whose target is obvious, a grade the floor decides | `plan` applies them in place, then this review re-runs over the changed units only |
 | `RETURN_TO_PLAN` | P0/P1 needing the planner's judgment — a dependency cycle, a unit that has to be split, a re-grade with knock-on executor changes, coverage that has no obvious home | `plan` re-opens with the findings attached; re-review after |
 | `STOP` | the finding is upstream: the design has a gap, a document contradicts another, or the plan cannot be fixed without a product decision | do not proceed to `work`; take it to the user, and the fix lands in the document, not the plan. A finding whose fix would reverse a decision a document made on purpose is `STOP` too, with the decision quoted, whatever its severity (`pipeline` → `references/decision-changes.md` → A finding against a settled decision) |
 
@@ -165,9 +165,9 @@ revise):
 
 | Fix kind | When |
 |---|---|
-| `mechanical` | the Fix cell is the finished edit — a citation, a `Parallel-safe` value, an executor name, a grade a floor dictates, a scenario line spelled out |
-| `local` | a local decision is left: change a grade and its implementer, move units between waves, add `Files` after checking the code, write scenarios for a changed document, a service version the session re-asks the user |
-| `reslice` | split or merge units, add a unit, change `Depends on` across several units, change a security, money, or migration decision |
+| `mechanical` | the Fix cell is the finished edit — a citation, a `Параллельно` value, an executor name, a grade a floor dictates, a scenario line spelled out |
+| `local` | a local decision is left: change a grade and its implementer, move units between waves, add `Файлы` after checking the code, write scenarios for a changed document, a service version the session re-asks the user |
+| `reslice` | split or merge units, add a unit, change `Зависит от` across several units, change a security, money, or migration decision |
 
 `FIX_THEN_PROCEED` means every blocking row is `mechanical`. P2/P3 rows
 leave the cell `—`.
@@ -187,9 +187,9 @@ never edited.
 ```markdown
 Verdict: <verdict>
 
-## Plan review — <plan path> — <verdict>
+## Ревью плана — <plan path> — <verdict>
 
-| # | Sev | Unit(s) | Lens | Finding | Fix | Fix kind |
+| # | Важность | Юниты | Аспект | Находка | Исправление | Вид правки |
 |---|---|---|---|---|---|---|
 
 **Coverage ledger** — invariant rows and ACs with no unit, or the explicit clean
@@ -206,16 +206,16 @@ A filled report, for calibration — match its density, not its domain:
 ```markdown
 Verdict: FIX_THEN_PROCEED
 
-## Plan review — documentation/plans/1.3.0/plan.md — FIX_THEN_PROCEED
+## Ревью плана — documentation/plans/1.3.0/plan.md — FIX_THEN_PROCEED
 
-| # | Sev | Unit(s) | Lens | Finding | Fix | Fix kind |
+| # | Важность | Юниты | Аспект | Находка | Исправление | Вид правки |
 |---|---|---|---|---|---|---|
-| 1 | P0 | U6 | Citation integrity | `Docs` ссылается на `api POST /orders/{order_id}/refund`, в OpenAPI такой операции нет; возврат описан как `operationId refundPayment` | заменить цитату на `api refundPayment` | mechanical |
+| 1 | P0 | U6 | Citation integrity | `Документы` ссылается на `api POST /orders/{order_id}/refund`, в OpenAPI такой операции нет; возврат описан как `operationId refundPayment` | заменить цитату на `api refundPayment` | mechanical |
 | 2 | P1 | U4, U5 | Parallel safety | обе правят `src/domain/order/order.ts`, но U5 помечен `Parallel-safe: yes` и стоит в волне 2 вместе с U4 | U5: `Parallel-safe: no — U4`, перенести в волну 3 | mechanical |
-| 3 | P2 | U9 | Plan hygiene | `Why` пересказывает цель, а не сигнал | «rule 5 — прецедент `src/adapters/invoice-repo.ts`» | — |
+| 3 | P2 | U9 | Plan hygiene | `Почему` пересказывает цель, а не сигнал | «rule 5 — прецедент `src/adapters/invoice-repo.ts`» | — |
 
 **Coverage ledger** — все инварианты и AC покрыты.
-**Grade table** — U8: заявлено Mid; если считать signal 6 дешёвым, каскад даёт Low (rule 5), но `Why` называет rule 6 — сценарий ретрая требует управления временем. Каскад это допускает, не находка. Распределение: 0:1 Low:4 Mid:3 High:1.
+**Grade table** — U8: заявлено Mid; если считать signal 6 дешёвым, каскад даёт Low (rule 5), но `Почему` называет rule 6 — сценарий ретрая требует управления временем. Каскад это допускает, не находка. Распределение: 0:1 Low:4 Mid:3 High:1.
 **Dismissed** — U3 правит 6 файлов, но foundation §5 кладёт репозиторий и маппер в один модуль (правило 1: решил дизайн).
 **Not blocking** — #3.
 **Open** — нет.
@@ -229,8 +229,8 @@ a wrong grade shows up only as cost.
 - Every lens produced a finding, an explicit clean line, or a stated reason it
   has no surface in this plan — Step 2.
 - Every invariant row and AC from the ledger has a named unit or a P0 — Step 1.
-- Every `Docs` citation was resolved against the actual document — Step 2.
-- `Implementer` / `Nested` names were checked against the assignable list, not
+- Every `Документы` citation was resolved against the actual document — Step 2.
+- `Исполнитель` / `Вложенный` names were checked against the assignable list, not
   the full catalog Name column — Step 2.
 - The version's level was checked against the iteration's typed changes,
   and the bump unit is last — Step 2.

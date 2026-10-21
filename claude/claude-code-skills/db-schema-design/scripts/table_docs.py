@@ -3,7 +3,7 @@
     python3 table_docs.py [<project root>]     # writes documentation/db/tables/<table>.md, prints what changed
 
 Reads every ```dbml block of the Markdown files under documentation/db/ (the tables/ folder left out) and the
-`## Status attributes` rows (`table.column` → code → label). For each table: its Note, one row per column —
+rows of `## Закрытые наборы значений` (`## Status attributes` before 1.2.152): `table.column` → code → label. For each table: its Note, one row per column —
 Поле · Тип данных · Свойства (PRIMARY KEY, FOREIGN KEY, UNIQUE, NOT NULL / NULL) · Значение по умолчанию ·
 Связь (a link to the referenced table's column) · Допустимые значения (closed-set codes, single-column CHECKs) ·
 Описание (the first sentence of the column's note) — then the incoming references with what deleting a row does,
@@ -175,7 +175,7 @@ def parse(dbml: str, tables: dict, refs: list) -> None:
 
 
 def statuses(text: str) -> dict:
-    """`table.column` → ['`code` — label', …] from the «Status attributes» table."""
+    """`table.column` → ['`code` — label', …] from the closed-set table, whatever its heading."""
     out: dict = {}
     for m in re.finditer(r"^\|\s*`(\w+)\.(\w+)`\s*\|\s*(.+?)\s*\|\s*(.+?)\s*\|\s*$", text, re.M):
         code, label = m.group(3), m.group(4)

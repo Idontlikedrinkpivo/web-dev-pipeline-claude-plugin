@@ -361,9 +361,9 @@ Use a native `ENUM` type only if the set of values is genuinely frozen —
 
 The closed list of codes is owned **here**, not in the architecture
 composition table. For every status (or other enum-like) column, emit a
-reader table `## Status attributes`: Table.column → allowed values.
-When a read shows a human label for that code, add a `label` column —
-one label per code. Architecture and OpenAPI copy this column; they do
+reader table `## Закрытые наборы значений` with the columns
+«Таблица.поле · Код · Подпись»: one row per allowed code. «Подпись» is the
+human name of the code when a read shows one. Architecture and OpenAPI copy this column; they do
 not keep a second list. Do not add a «нет» row for entities without a
 status. Who may set which code is a later entity rule, not a CHECK,
 unless the SRS states a predicate SQL can enforce.
@@ -425,7 +425,7 @@ the table — pick one, not both.
    changelog in a migration file; `schema.md`'s changelog row names it.
 
 3. **Table documents** — one `documentation/db/tables/<table>.md` per table, generated from the DBML and
-   `## Status attributes` by `python3 "${CLAUDE_SKILL_DIR}/scripts/table_docs.py"` (columns: Поле, Тип данных,
+   `## Закрытые наборы значений` by `python3 "${CLAUDE_SKILL_DIR}/scripts/table_docs.py"` (columns: Поле, Тип данных,
    Свойства, Значение по умолчанию, Связь, Допустимые значения, Описание; then the incoming references with
    what deleting a row does). Run it after the DBML is written; the plugin's hook reruns it after any later edit
    under `documentation/db/`. Never edit those files — edit the DBML; they go into the same commit.
@@ -440,12 +440,13 @@ iteration's service version on a new document — `0.1.0` on greenfield;
 from — `documentation/requirements/srs/srs.md@0.1.0`), then H1, then the
 `## Журнал изменений` table from `doc-versioning` (newest row first;
 a new document has the one row `| <версия> | <дата> | первый выпуск | — | — |`), then
-**`## Status attributes`** when any table has a status (or other
+**`## Закрытые наборы значений`** when any table has a status (or other
 closed-set) column, then the DBML and the ER. It always shows the whole
 current schema — after an increment, the DBML reads as if every migration
 so far had run. Do not put the changelog at the end. The status table is the canonical list of codes; architecture
-§1 does not repeat it. A `label` column on that table is the canonical
-human name of each code.
+§1 does not repeat it. Its «Подпись» column is the canonical human name
+of each code. Headings and columns are Russian; `DBML` and `ER` stay — terms
+of the trade.
 
 Field names in the DBML and the migration SQL must match the SRS use-case inputs
 and outputs — the API-contract step reads directly off these names.
@@ -458,7 +459,7 @@ and outputs — the API-contract step reads directly off these names.
 - [ ] 3NF; any denormalization names its SRS id — §2
 - [ ] An index for every filter, join, and sort this slice declares, and nothing more — §3
 - [ ] Every SQL-expressible rule is a constraint; every other rule has none — §4
-- [ ] `## Status attributes` for every closed-set column — §5
+- [ ] `## Закрытые наборы значений` for every closed-set column — §5
 - [ ] No raw secret column — §6
 - [ ] Every table and column has a note that says more than its name; DBML, migration SQL, and ER agree; names match the SRS — Output
 - [ ] Each column note opens with a plain sentence a reader understands alone; `documentation/db/tables/` regenerated (`table_docs.py`) and matches the DBML — Output

@@ -24,7 +24,7 @@ orchestrator that types the fix itself skips that loop.
 **Tests come from the documentation, before the code.** The design already
 fixed the signatures, the states, the error mapping, and the acceptance
 criteria, so a test here is not exploration — it is the transcription of a
-settled contract. Every behavior-bearing unit turns its `Test scenarios` into
+settled contract. Every behavior-bearing unit turns its `Тестовые сценарии` into
 tests, observes them fail for the right reason, and only then gets an
 implementation.
 
@@ -69,13 +69,13 @@ Step 6, **A decision changed during the run**.
 | The design documents the plan cites | on demand | read the cited section when building a worker packet, not up front |
 | Context7 MCP (`resolve-library-id`, `query-docs`) | no | live library docs for the packet's `CURRENT LIB DOCS` (Step 2b). Missing MCP is a skip, not a stop |
 | Language skill files the user attached | no | forwarded as `STACK SKILLS`. Do not invent a stack pack |
-| `frontend` and `web-design-guidelines` skills | for frontend units | every `impl-ui` unit, and any unit whose `Files` are browser UI code, gets them in `STACK SKILLS` without being attached: the `frontend` `SKILL.md` in full plus the one `references/<profile>.md` that matches architecture §1 «Стек» (or the line `no profile — <stack>`), and the `web-design-guidelines` `SKILL.md` in full. Backend units never get them |
+| `frontend` and `web-design-guidelines` skills | for frontend units | every `impl-ui` unit, and any unit whose `Файлы` are browser UI code, gets them in `STACK SKILLS` without being attached: the `frontend` `SKILL.md` in full plus the one `references/<profile>.md` that matches architecture §1 «Стек» (or the line `no profile — <stack>`), and the `web-design-guidelines` `SKILL.md` in full. Backend units never get them |
 
 ### Readiness gate
 
-Before any dispatch, check the plan carries, on **every** unit: `Complexity`,
-`Implementer`, `Files`, `Pattern`, `Depends on`, `Test scenarios`, `Verification`. Also
-check every `Implementer` and `Nested` name exists in
+Before any dispatch, check the plan carries, on **every** unit: `Сложность`,
+`Исполнитель`, `Файлы`, `Образец`, `Зависит от`, `Тестовые сценарии`, `Проверка`. Also
+check every `Исполнитель` and `Вложенный` name exists in
 `executor-catalog/references/assignable-implementers.md` — not merely
 somewhere in the catalog.
 
@@ -83,7 +83,7 @@ A plan missing these is not executable here. Do **not** infer a grade, and do
 not pick a model yourself — name the units that are incomplete and hand back
 to the `plan` skill. Inferring the routing at execution time is how a plan's
 economics quietly become the session model's economics. For the same reason,
-never override a named `Implementer` because the work "looks easy": the plan
+never override a named `Исполнитель` because the work "looks easy": the plan
 graded it with the fields in front of it; you have less context, not more.
 
 **Also confirm the plan passed `plan-review`** by reading
@@ -101,9 +101,9 @@ chat and the run report.
 
 ### Step 1. Set up once
 
-Read the plan's §1 digest, §2 unit map, §4 waves, and §5 definition of done.
+Read the plan's §1 digest, §2 unit map, §4 waves, and §5 критерии готовности.
 Read individual `### U<n>.` blocks lazily — one when you dispatch it, not all
-at the start.
+at the start. A plan from before plugin 1.2.152 names the same fields in English (`Files`, `Depends on`, `Implementer`…).
 
 Branch: the iteration's `iteration/<version>` (`pipeline` → Service
 version), never `main`. On another branch, switch to it first; on an
@@ -136,7 +136,7 @@ memory: a unit listed there is done and is never re-dispatched. Re-dispatching
 finished units after losing your place is the single most expensive way a run
 fails. Keep the run report as a file at
 `$(git rev-parse --git-dir)/pipeline-work/<version>-run.md` — outside the
-tree, so the plan stays byte-identical and no unit's `Files` grows — append to
+tree, so the plan stays byte-identical and no unit's `Файлы` grows — append to
 it after every commit, and read it back after a compaction.
 
 **Keep the progress file.** The user follows the run in
@@ -165,7 +165,7 @@ A resumed or compacted session posts the link again before its next dispatch.
 ### Step 2. Resolve the routing table
 
 Read `executor-catalog` and build a small in-run table: for each distinct
-`Implementer` and `Nested` name in the plan, `Name | subagent_type` — the
+`Исполнитель` and `Вложенный` name in the plan, `Name | subagent_type` — the
 `subagent_type` is the name itself, since every row is its own agent; you
 may append the model and effort read from that agent's file. Resolve once,
 reuse for the run. Print that table in this turn before the first `Agent`
@@ -188,13 +188,13 @@ stop.
 
 ### Step 3. Pick the next unit or wave
 
-A unit is ready when every id in `Depends on` is committed — that is, has a
+A unit is ready when every id in `Зависит от` is committed — that is, has a
 `Plan-Unit:` trailer in `BASE..HEAD` (Step 1). Among ready units:
 
 - **Serial** by default — one unit, one dispatch, one commit.
 - **Parallel** only when all four hold (cap a wave at three or four):
   - the plan marks the peers `Parallel-safe: yes`;
-  - their `Files` are genuinely disjoint in the current tree;
+  - their `Файлы` are genuinely disjoint in the current tree;
   - the harness gives each worker an isolated workspace — in Claude Code,
     pass `isolation: "worktree"` on each parallel `Agent` call;
   - their focused tests share no runtime resource (one compose database, a
@@ -224,16 +224,16 @@ by splitting the run.
 
 Build the packet from `executor-catalog/references/worker-prompt.md`. Fill
 every slot: paste the cited design excerpts rather than telling the worker to
-go read the architecture, list the exact files, carry the unit's `Approach`,
-`Test scenarios` and `Verification` verbatim, paste `STACK SKILLS` from
+go read the architecture, list the exact files, carry the unit's `Подход`,
+`Тестовые сценарии` and `Проверка` verbatim, paste `STACK SKILLS` from
 language skills the user attached, plus the `frontend` skill, its one
 profile and `web-design-guidelines` for a frontend unit (see Inputs), or `none — no language skills attached`,
 paste `CURRENT LIB DOCS` from Step 2b, fill `FROM DEPENDENCIES` from the run
-report's `Decisions` of every `Depends on` unit, and include the `DELEGATION`
-block only when the unit has a `Nested` row — nesting hands typing to
+report's `Decisions` of every `Зависит от` unit, and include the `DELEGATION`
+block only when the unit has a `Вложенный` row — nesting hands typing to
 `mechanical-worker` under the decision-maker, never extra horsepower; more
 reasoning is a recorded escalation (Step 6). `PATTERN TO MIRROR` is the unit's
-`Pattern` field verbatim; do not pick a pattern yourself — a pattern chosen at
+`Образец` field verbatim; do not pick a pattern yourself — a pattern chosen at
 execution time is a design decision nobody reviewed.
 
 Dispatch with the Step 2 row: `subagent_type` is the row's name, and the
@@ -254,7 +254,7 @@ Grade-specific expectations to state in the packet:
 ### Step 4b. Name the unit's evidence strategy in the packet
 
 Pick one per unit and write it into the packet's `EVIDENCE STRATEGY` slot. The
-unit's `Test scenarios` and the state of the code it touches decide this — not
+unit's `Тестовые сценарии` and the state of the code it touches decide this — not
 the grade alone:
 
 | Strategy | When | What the worker owes back |
@@ -282,9 +282,9 @@ Per unit, in this order, and never skip to the next unit on a broken tree:
 
 1. **Inspect the real tree.** `git status` and the diff. The report's file list
    is a hint; what the worker actually changed is the truth. A file outside the
-   unit's `Files` is a scope breach: revert it. If the unit truly needed it,
+   unit's `Файлы` is a scope breach: revert it. If the unit truly needed it,
    the plan mis-listed the footprint — record why in the run report and
-   re-dispatch with the corrected `Files` (Step 6), so the review sees the file
+   re-dispatch with the corrected `Файлы` (Step 6), so the review sees the file
    inside the unit's scope instead of flagging it as a breach.
 2. **Check the diff against the unit spec.** Does it implement the cited
    design, or something adjacent? Does it re-decide something the design
@@ -311,7 +311,7 @@ Per unit, in this order, and never skip to the next unit on a broken tree:
       Low batches at the wave boundary) and returns findings plus one verdict.
    3. Before acting on `RETURN_TO_EXECUTOR`, confirm each blocking finding's
       quoted line exists in the diff (for a missing scenario test, in the
-      unit's `Test scenarios`). Drop one that does not to the run report
+      unit's `Тестовые сценарии`). Drop one that does not to the run report
       instead of sending it back: a false P1 costs a re-dispatch and a round that
       closes nothing real.
    4. Honor the verdict. `COMMIT` continues to 5. `FIX_THEN_COMMIT` goes to
@@ -321,9 +321,9 @@ Per unit, in this order, and never skip to the next unit on a broken tree:
       P2/P3 never hold up the commit; they land in the run report.
    5. Copy every `OPEN` cross-unit suspicion into the run report's
       **Cross-unit watch** for Step 7.
-5. **Commit** one commit per unit (plus, for a Low unit, a possible fix commit
+5. **Коммит** one commit per unit (plus, for a Low unit, a possible fix commit
    after its batch review — see **A fix after a commit** below), with the
-   unit's `Commit` message plus the
+   unit's `Коммит` message plus the
    trailer `Plan-Unit: <version>/U<n>`, staging only that unit's files —
    never `git add .`, which drags a sibling unit's half-work into this commit —
    then set the unit's row in the progress file to `✅ готово` with its
@@ -350,13 +350,13 @@ is purely mechanical.
 | Return | Move |
 |---|---|
 | `DONE_WITH_CONCERNS` | route the concern to a reviewer before committing — the grade's reviewer, or a single `review-medium` pass on that unit for grade 0 and Low; commit only after the concern is closed or explicitly accepted |
-| `BLOCKED` on a missing file or contract | if the plan simply mis-listed `Files`, re-dispatch with the corrected list; if a design decision is missing, **stop and ask the user** — the answer is a changed decision (below) before the re-dispatch |
+| `BLOCKED` on a missing file or contract | if the plan simply mis-listed `Файлы`, re-dispatch with the corrected list; if a design decision is missing, **stop and ask the user** — the answer is a changed decision (below) before the re-dispatch |
 | `BLOCKED` / `HARDER_THAN_EXPECTED` on difficulty | escalate exactly one tier per `executor-catalog`, carrying the previous report. An `impl-ui` unit is not on that ladder: re-dispatch `impl-ui` with the report, round after round while it makes progress |
 | Scope breach | revert the out-of-scope part, re-dispatch the unit narrowed |
 | A red test made green by editing its assertion | treat as `BLOCKED`, not a pass — it hides a real conflict between the scenario and the design |
 
 **Repeat until it passes.** A unit is re-dispatched — `RETURN_TO_EXECUTOR`, an escalation,
-a corrected `Files` — round after round until its review says `COMMIT`, as long as each
+a corrected `Файлы` — round after round until its review says `COMMIT`, as long as each
 round makes progress (`pipeline` → `references/convergence.md`): the re-review reads only
 what the round changed, every re-dispatch carries the open findings and the previous
 reports, and a finding that survives a fix moves the unit one tier up. A `FIX_THEN_COMMIT`
@@ -395,7 +395,7 @@ unit, and a plan carrying scars stops being a decision artifact.
 When every unit in scope is committed, first run two checks yourself and save
 each output under `$(git rev-parse --git-dir)/pipeline-work/`:
 
-- **Definition of done** — every command in the plan's §5, with its exit
+- **Критерии готовности** — every command in the plan's §5, with its exit
   code; a browser suite opens its e2e section in `progress.md` and posts the
   link before it starts, runs after the verify skill's doctor says READY, on
   parallel stands, and cleans up per `ui-test-cases` →
@@ -413,10 +413,10 @@ Step 1, handed over as a file path, as in Step 5.4), the design documents
 it cites, the declared security requirements (the SRS's Security NFR rows and
 the architecture's security decisions table), this run's report so far
 (including grade corrections and the cross-unit watch list from Step 5.4), the
-definition of done with its saved output, and the dead-code report. It is the
+критерии готовности with its saved output, and the dead-code report. It is the
 only place that checks what no single unit's review could — drift between
 units, aggregate coverage of invariants and ACs that needed more than one unit,
-and the definition of done itself, with its own lenses and verdict rather than
+and the критерии готовности itself, with its own lenses and verdict rather than
 an inline checklist here.
 
 Honor its verdict the same way: `PASS` closes the run, `FIX_THEN_CLOSE` routes
@@ -471,7 +471,7 @@ at Step 7, before writing the report.
   its last commit carries the final review verdict or the stop reason —
   Step 1, Step 5.5.
 - `code-review-full` ran once after every unit in scope was committed, and
-  at most once more over the fix commits; it checked the definition of done,
+  at most once more over the fix commits; it checked the критерии готовности,
   and every verdict is recorded — Step 7.
 - When the final review found problems, the progress file listed every fix
   as a task before the first fix, and each row ends `✅ готово`,

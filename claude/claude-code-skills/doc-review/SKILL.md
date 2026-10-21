@@ -16,7 +16,7 @@ description: >-
 Takes a finished document and reviews it. Does not write the first draft.
 Write findings and the review report in Russian. Do not translate cited
 tokens, persona ids, or the report shape's headings and fixed lines
-(`## Document Review Results`, `### Coverage`, `Review complete.`). See
+(`## Результаты ревью документа`, `### Охват`, `Review complete.`). See
 `doc-versioning` → Document language.
 Dispatches specialist reviewers through `executor-catalog` (Phase 2),
 silently applies one-right-answer fixes, and asks what to do with
@@ -253,54 +253,54 @@ sending a message. Do not open a question card. Writing it only into
 ### Report shape
 
 ```markdown
-## Document Review Results
+## Результаты ревью документа
 
-**Document:** <path>
-**Type:** <document_type>
-**Reviewers:** <activated list, each with its catalog executor; conditional ones also with the one-line reason>
+**Документ:** <path>
+**Тип:** <document_type>
+**Ревьюеры:** <activated list, each with its catalog executor; conditional ones also with the one-line reason>
 
-Applied N fixes. K items need attention (X errors, Y omissions). Z FYI observations.
+Внесено правок: N. Требуют внимания: K (ошибок X, пропусков Y). Наблюдений: Z.
 
-### Applied fixes
+### Внесённые правки
 - ...
 
-### Fix did not land
-| # | Section | Earlier applied finding | Evidence still present |
+### Правка не применилась
+| # | Раздел | Прежняя находка | Что осталось |
 
-### P0 — Must Fix
-#### Errors | Omissions
-| # | Section | Issue | Reviewer | Confidence | Tier |
+### P0 — исправить обязательно
+#### Ошибки | Пропуски
+| # | Раздел | Проблема | Ревьюер | Уверенность | Уровень |
 
-### P1 — Should Fix
-…same table…
+### P1 — стоит исправить
+…та же таблица…
 
-### P2 — Consider Fixing
-…same table…
+### P2 — можно исправить
+…та же таблица…
 
-### P3 — Low Signal
-…same table…
+### P3 — слабый сигнал
+…та же таблица…
 
-### FYI Observations
-| # | Section | Observation | Reviewer | Confidence |
+### Наблюдения
+| # | Раздел | Наблюдение | Ревьюер | Уверенность |
 
-### Residual Concerns
-| # | Concern | Source |
+### Остающиеся сомнения
+| # | Сомнение | Источник |
 
-### Deferred Questions
-| # | Question | Source |
+### Отложенные вопросы
+| # | Вопрос | Источник |
 
-### Coverage
-| Persona | Executor | Status | Findings | Auto | Proposed | Decisions | FYI | Residual |
+### Охват
+| Персона | Исполнитель | Статус | Находки | Авто | Предложено | Решения | Наблюдения | Сомнения |
 ```
 
 Rules:
 - Escape `|` inside table cells as `\|`.
-- Omit empty severity blocks. FYI / Residual / Deferred omit if empty.
-  `Fix did not land` appears only on round 2+ and only when non-empty.
-- `Issue` leads with the consequence, not a quote sandwich.
+- Omit empty severity blocks. «Наблюдения», «Остающиеся сомнения», «Отложенные вопросы» omit if empty.
+  «Правка не применилась» appears only on round 2+ and only when non-empty.
+- «Проблема» leads with the consequence, not a quote sandwich.
 - User-facing labels: fixes (`safe_auto`), proposed fixes (`gated_auto`),
   decisions (`manual`), FYI observations (anchor `50`).
-- `Tier` is the only place that still names the enum.
+- «Уровень» is the only place that still names the enum.
 - Coverage counts are post-synthesis. Findings = Auto + Proposed +
   Decisions + FYI. Attribute a merged finding to the highest-anchor persona.
 

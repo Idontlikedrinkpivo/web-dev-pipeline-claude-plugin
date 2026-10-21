@@ -368,7 +368,7 @@ fields, as YAML frontmatter at the top of the file.
   `@<version>` pin (this document has no version). Never a singular `source:` key.
 - **`grilled`** — ISO date the grill gate closed; omit until it has.
 
-Do **not** emit `version`. Do **not** emit a `## Changelog` table. The
+Do **not** emit `version`. Do **not** emit a `## Журнал изменений` table. The
 business-requirements document is a working draft; the SRS is the first
 versioned contract (`doc-versioning`).
 

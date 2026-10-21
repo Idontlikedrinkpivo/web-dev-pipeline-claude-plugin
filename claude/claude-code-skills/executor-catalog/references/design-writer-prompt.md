@@ -101,7 +101,7 @@ INCREMENT       <when MODE is increment: type each change first —
                  is: `## Журнал изменений` after `## Описание системы`
                  (architecture foundation), or immediately after the H1
                  (domain model and scenarios: `## Журнал изменений`;
-                 db schema: `## Changelog`), newest row first — not a
+                 db schema: `## Журнал изменений` too), newest row first — not a
                  block at the end. OpenAPI's rows are `info.x-changelog`.
                  The body is still the complete document: carry unchanged
                  sections over verbatim from the pasted previous version.
@@ -127,7 +127,7 @@ RULES
   Architecture foundation: `## Описание системы` after the H1, then
   `## Журнал изменений`; domain model and scenarios:
   `## Журнал изменений` right after the H1. No `## Сокращения`. DB schema:
-  `## Changelog` immediately after the H1. OpenAPI: no frontmatter and no
+  `## Журнал изменений` immediately after the H1. OpenAPI: no frontmatter and no
   markdown table — `info.version`, its «первый выпуск» row in
   `info.x-changelog`, and its source pins in `info.x-sources` (SRS, and the
   schema when it exists); a partner-versioned API's `info.version` is its

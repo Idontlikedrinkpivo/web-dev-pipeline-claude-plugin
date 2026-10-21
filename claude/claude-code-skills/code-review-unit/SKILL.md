@@ -32,7 +32,7 @@ judgment made from inside one unit's packet.
 
 | Not here | Owner |
 |---|---|
-| Whole-plan review after the run — cross-unit drift, aggregate coverage, definition of done | `code-review-full` |
+| Whole-plan review after the run — cross-unit drift, aggregate coverage, критерии готовности | `code-review-full` |
 | Whole-branch or PR review outside this pipeline | Claude Code's built-in `/code-review` |
 | Security beyond this unit's diff — enforcement that spans units, or a hole in code this unit never touched | `code-review-full`'s security lens, which holds the whole run's diff at once |
 | Whether the design decision was right | the design documents — and the user |
@@ -45,7 +45,7 @@ judgment made from inside one unit's packet.
 |---|---|---|
 | Unit spec | **yes** | the `### U<n>.` block: Goal, Docs, Files, Approach, Test scenarios, Verification, Complexity |
 | The diff | **yes** | `git diff HEAD` after `git add -N <unit Files>` (intent-to-add, so untracked files in scope show up) — the orchestrator commits per unit, so uncommitted work *is* this unit's work. A Low batch is built from commits instead (Low batch, Step 3). Handed to the reviewer as a file path under `$(git rev-parse --git-dir)/pipeline-work/`, not pasted: pasted text stays in the orchestrator's context for the whole run |
-| Cited design excerpts | **yes** | the sections named in `Docs`, pasted, not linked — resolved under `documentation/` (`scenarios/orders` is `architecture/scenarios/orders/orders.md`, `api` is `api/openapi.yaml`) |
+| Cited design excerpts | **yes** | the sections named in `Документы`, pasted, not linked — resolved under `documentation/` (`scenarios/orders` is `architecture/scenarios/orders/orders.md`, `api` is `api/openapi.yaml`) |
 | Worker report | when there was one | `TESTS`, `RED OBSERVED`, `CONCERNS`, `OUT OF SCOPE` |
 | Prior findings this run | when any | so a known issue is not raised twice |
 
@@ -58,17 +58,17 @@ and it will invent expectations the plan never set. Say so and stop.
 
 `git add -N <unit Files>` first — `git diff HEAD` omits untracked files
 otherwise. Then `git diff HEAD --stat` and the diff itself with context. Compare the changed
-paths against the unit's `Files`:
+paths against the unit's `Файлы`:
 
-- **inside `Files`** — reviewed normally.
-- **outside `Files`** — a scope breach. Report it as its own finding, at P1
+- **inside `Файлы`** — reviewed normally.
+- **outside `Файлы`** — a scope breach. Report it as its own finding, at P1
   minimum, and review the change on its merits too: it may be necessary work
   the plan mis-scoped, or a sibling unit's work leaking in.
-- **in `Files` but untouched** — the unit may be incomplete. Check against the
+- **in `Файлы` but untouched** — the unit may be incomplete. Check against the
   goal before assuming it.
 
 Untracked files count as this unit's work when the unit was supposed to create
-files. List them; `git status --porcelain` catches any outside `Files` that
+files. List them; `git status --porcelain` catches any outside `Файлы` that
 `add -N` did not mark.
 
 ### Step 2. Select lenses
@@ -82,7 +82,7 @@ Always: **spec fidelity**. Then add only what the diff actually touched:
 | **Invariant placement** | the unit enforces a quoted invariant row | is the rule in the owner the design named, refusing the illegal case — not re-derived in a use case, controller, or validator? |
 | **Boundary** | the diff adds an import across a ring, or touches a port | do dependencies still point inward; does the adapter's shape stay out of the domain? |
 | **Contract** | the diff touches HTTP, schema, or a published type | status and error mapping, nullability, migration reversibility, backward compatibility for existing callers; a migration file already committed in `documentation/db/migrations/` is never edited — a schema change is the next numbered file |
-| **UI** | an `impl-ui` unit: its `Docs` cite a screen spec, or the `🎨 Tokens` page (a theme unit) | do elements, states and response outcomes match the screen spec rows, and texts the frame's «Тексты» table; does the screen follow the frame; does it keep the `ux-patterns` rules for the spec's **Тип продукта**, Section 8 for code and Section 9 for texts; does the diff pass `web-design-guidelines`, whose anti-patterns are findings on sight; does the worker report's SCREEN CHECK go through «Проверка экрана перед сдачей»; for a theme unit — every Figma variable has its theme variable, contrast holds in each theme (UX-7, UX-62), fonts load with the `cyrillic` subset (UX-59), no screen keeps a hardcoded colour, radius or shadow (UX-1). Each finding starts with the `UX-<n>` it breaks (`UX-61 — transition: all`). The orchestrator pastes the product type, the `ux-patterns` rules the screen touches and the `web-design-guidelines` rules into the design block |
+| **UI** | an `impl-ui` unit: its `Документы` cite a screen spec, or the `🎨 Tokens` page (a theme unit) | do elements, states and response outcomes match the screen spec rows, and texts the frame's «Тексты» table; does the screen follow the frame; does it keep the `ux-patterns` rules for the spec's **Тип продукта**, Section 8 for code and Section 9 for texts; does the diff pass `web-design-guidelines`, whose anti-patterns are findings on sight; does the worker report's SCREEN CHECK go through «Проверка экрана перед сдачей»; for a theme unit — every Figma variable has its theme variable, contrast holds in each theme (UX-7, UX-62), fonts load with the `cyrillic` subset (UX-59), no screen keeps a hardcoded colour, radius or shadow (UX-1). Each finding starts with the `UX-<n>` it breaks (`UX-61 — transition: all`). The orchestrator pastes the product type, the `ux-patterns` rules the screen touches and the `web-design-guidelines` rules into the design block |
 | **Risk** | grade High, or the unit hit the risk floor (auth, money, migration over live rows, secrets) | what does a hostile or unlucky caller get: missing authorization, non-idempotent retry, partial write, leaked field, race |
 
 A lens that does not fire is not mentioned in the report. Silence is the
@@ -99,7 +99,7 @@ Low unit at High cost, or skip a Mid unit because the diff "looks fine":
 
 | Grade | Review |
 |---|---|
-| **0** | no dispatch — the orchestrator's own diff-vs-`Files` check is the review. A mechanical diff has no judgment to second-guess. |
+| **0** | no dispatch — the orchestrator's own diff-vs-`Файлы` check is the review. A mechanical diff has no judgment to second-guess. |
 | **Low** | no per-unit dispatch. Accumulate the units and run one `review-medium` pass over the batch at the next wave boundary (see Low batch below). |
 | **Mid** | one `review-medium` carrying the fired lenses. |
 | **High** | one `review-hard` carrying the fired lenses, plus a second `review-hard` dispatch with LENSES TO APPLY = Risk only — a single reviewer that just designed an opinion about the diff is a poor adversary to it. |
@@ -173,11 +173,11 @@ Three dismissal rules, because they are where per-unit review generates its
 false positives:
 
 1. **The design already decided it.** A finding arguing against a decision the
-   `Docs` cite is out of order here. Dismiss it, and if it is genuinely
+   `Документы` cite is out of order here. Dismiss it, and if it is genuinely
    worrying, route it to the run report as an open question for the user — not
    as a fix for the executor.
 2. **A later unit owns it.** Missing wiring, a missing adapter, an absent
-   endpoint that another U-id creates is not a defect. Check `Depends on` and
+   endpoint that another U-id creates is not a defect. Check `Зависит от` and
    the unit map before reporting an absence.
 3. **Already known.** A finding matching one recorded earlier in this run is
    not raised again.
@@ -208,9 +208,9 @@ Write findings in Russian. Keep the heading, column names, and verdict tokens
 exactly as below (`doc-versioning` → Document language).
 
 ```markdown
-### Review U<n> — <verdict>
+### Ревью U<n> — <verdict>
 
-| # | Sev | File:line | Lens | Finding | Fix | Quoted line |
+| # | Важность | Файл:строка | Аспект | Находка | Исправление | Цитата строки |
 |---|---|---|---|---|---|---|
 
 **Dismissed** — findings ruled out by design citation, later-unit ownership,
@@ -222,15 +222,15 @@ line when there are none.
 **Lenses** — which fired, and the one-line reason for each conditional one.
 ```
 
-When nothing fired: `### Review U<n> — COMMIT. No findings.` and nothing else.
+When nothing fired: `### Ревью U<n> — COMMIT. No findings.` and nothing else.
 An empty review needs no ceremony.
 
 A filled review, for calibration — match its density, not its domain:
 
 ```markdown
-### Review U6 — RETURN_TO_EXECUTOR
+### Ревью U6 — RETURN_TO_EXECUTOR
 
-| # | Sev | File:line | Lens | Finding | Fix | Quoted line |
+| # | Важность | Файл:строка | Аспект | Находка | Исправление | Цитата строки |
 |---|---|---|---|---|---|---|
 | 1 | P1 | `src/app/pay-order.ts:31` | Invariant placement | запрет повторной оплаты проверяется в use case, а domain §4 отдаёт его `Order.pay()` | убрать проверку статуса, пробрасывать `IllegalTransition` из `Order.pay()` | `if (order.status === 'Paid') throw new ConflictError()` |
 | 2 | P1 | `src/app/pay-order.test.ts` | Test adequacy | сценарий повторной оплаты без теста | написать тест по сценарию | `заказ Paid → PayOrder → IllegalTransition, 409 ORDER_ALREADY_PAID (covers BR-3)` |
@@ -247,7 +247,7 @@ the missing test means choosing what it asserts — the implementer's judgment.
 
 ## Before you finish
 
-- Every changed path was classified inside or outside `Files` — Step 1.
+- Every changed path was classified inside or outside `Файлы` — Step 1.
 - Every fired lens produced a finding or an explicit clean line — Step 2.
 - Every named scenario was checked for existence *and* for asserting its
   outcome, judged against the design excerpt, not the implementation — Step 4.

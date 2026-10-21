@@ -55,8 +55,8 @@ LANGUAGE        Russian prose. Do not translate U-ids, paths, or
 RULES
 - `doc-typist` writes OUTPUT PATH and any `open-questions.md` row the
   settlement named. You write neither.
-- `Implementer` is only a name from
-  `executor-catalog/references/assignable-implementers.md`. `Nested` is
+- `Исполнитель` is only a name from
+  `executor-catalog/references/assignable-implementers.md`. `Вложенный` is
   `—` or `mechanical-worker`. Never write a model slug, a `plan-*`
   name, a `design-*` name, or a review name into the plan.
 - Do not dispatch `code-explorer`. The inventory is already in the

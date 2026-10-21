@@ -3,7 +3,7 @@ name: code-review-full
 description: >-
   Reviews a completed plan's whole diff once, after every unit is committed:
   cross-unit drift, invariants spanning units, dead leftovers, declared
-  security and the definition of done; a unit-local defect goes back by its
+  security and the критерии готовности; a unit-local defect goes back by its
   U-id. Use when `work` closes a run or the user asks to review a finished
   plan as a whole. Not the per-unit gate (`code-review-unit`) or a
   whole-repo audit; an ad-hoc diff or PR goes to the built-in /code-review.
@@ -41,7 +41,7 @@ shrink to zero with the plan.
 
 | Input | Required | Notes |
 |---|---|---|
-| Plan document `documentation/plans/<version>/plan.md` | **yes** | all units, §1 digest, §2 unit map, §5 definition of done |
+| Plan document `documentation/plans/<version>/plan.md` | **yes** | all units, §1 digest, §2 unit map, §5 критерии готовности |
 | Full diff | **yes** | `git diff BASE...HEAD` for the whole run, with `BASE` taken from the run report — every unit's diff together, not unit by unit. Handed to the reviewer as a file path under `$(git rev-parse --git-dir)/pipeline-work/`, not pasted |
 | Cited design documents | **yes** | every section any unit cited, once each, de-duplicated — under `documentation/`: `requirements/srs/srs.md`, `db/schema.md` and `db/migrations/`, `api/openapi.yaml`, `architecture/` (`architecture.md`, `domain.md`, `scenarios/<area>/<group>.md`), `ui/screen-specs/` |
 | Declared NFR and configuration decisions | **yes** when they exist | foundation §1 «Решения по NFR» rows and the §4 configuration table — the baseline the NFR lens checks against |
@@ -90,7 +90,7 @@ and again when you judge the findings (Step 4).
   wrong; a changed decision from the run report's «Изменённые решения» that
   did not land in its documents; code that departs from a contract document
   with no such line behind it.
-- **Definition of done** — the plan's §5 checked against the tree, not assumed
+- **Критерии готовности** — the plan's §5 checked against the tree, not assumed
   from the per-unit sums.
 - **Declared NFR and configuration** — each «Решения по NFR» row and each
   configuration variable the plan's units cite or this diff touches: where
@@ -179,9 +179,9 @@ Write findings in Russian. Keep the heading, column names, bold labels, and
 verdict tokens exactly as below (`doc-versioning` → Document language).
 
 ```markdown
-## Full-plan review — <plan path> — <verdict>
+## Ревью всего прогона — <plan path> — <verdict>
 
-| # | Sev | Units involved | Lens | Finding | Fix |
+| # | Важность | Юниты | Аспект | Находка | Исправление |
 |---|---|---|---|---|---|
 
 **Cross-unit watch resolved** — each carried-up suspicion, confirmed or
@@ -191,7 +191,7 @@ or the one line saying no security requirements were declared upstream.
 **Undeclared surface** — holes this diff introduced that no document named:
 each with its traced path and severity, plus the SRS or architecture row that
 should have forbidden it. `none` when there are none.
-**Definition of done** — each §5 item, met or not, with what was actually run
+**Критерии готовности** — each §5 item, met or not, with what was actually run
 to check it.
 **Dismissed** — findings ruled out, and which rule applied.
 **Not blocking** — P2/P3, for the record.
@@ -200,9 +200,9 @@ to check it.
 A filled report, for calibration — match its density, not its domain:
 
 ```markdown
-## Full-plan review — documentation/plans/1.3.0/plan.md — RETURN_TO_UNIT
+## Ревью всего прогона — documentation/plans/1.3.0/plan.md — RETURN_TO_UNIT
 
-| # | Sev | Units involved | Lens | Finding | Fix |
+| # | Важность | Юниты | Аспект | Находка | Исправление |
 |---|---|---|---|---|---|
 | 1 | P0 | U5, U8 | Security | `GET /invoices/{invoice_id}` (U8) передаёт `invoice_id` из пути в `GetInvoice` (U5), который не сверяет владельца; arch «Безопасность» D-4 требует проверку владельца | U5: принимать `requesterId`, отказывать `NotAuthorized`, тест на чужой счёт |
 | 2 | P1 | U6 (+ scaffold) | Superseded code | scaffold-заглушка `src/app/health-stub.ts` осталась смонтированной рядом с `GET /health` из U6 | удалить заглушку и её регистрацию в `src/http/routes.ts` |
@@ -210,7 +210,7 @@ A filled report, for calibration — match its density, not its domain:
 **Cross-unit watch resolved** — U4 «`OrderStatus` union vs enum»: dismissed, U4 выводит union из enum U2 (`keyof typeof OrderStatus`), модель одна.
 **Security baseline** — D-4 владелец ресурса: не enforced (#1). NFR-Sec-2 хэш токенов: enforced в `src/adapters/token-repo.ts:hashToken`.
 **Undeclared surface** — none.
-**Definition of done** — по выводу команд из `work` Step 7: lint-контракты met (`npm run lint:deps`, код 0). E2E UC-2 met (`npm run test:e2e -- pay-order`, код 0). Покрытие BR-1…BR-5: met.
+**Критерии готовности** — по выводу команд из `work` Step 7: lint-контракты met (`npm run lint:deps`, код 0). E2E UC-2 met (`npm run test:e2e -- pay-order`, код 0). Покрытие BR-1…BR-5: met.
 **Dead code** — отчёт knip: `src/app/health-stub.ts` не используется (#2); остальное — до этого прогона.
 **Dismissed** — «даты в двух форматах в U4 и U7»: foundation §1 задаёт ISO для API и epoch для событий (правило 2).
 **Not blocking** — none.

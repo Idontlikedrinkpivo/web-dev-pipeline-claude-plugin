@@ -60,7 +60,7 @@ table, holds the model and effort.
 | **UI** | code | `impl-ui` | `work` | frontend that implements a screen spec citing a Figma `nodeId`: the screen and its states, or a component whose shape comes from that frame; or the theme unit that carries the `🎨 Tokens` variables into the theme file after a `ui-design` restyle. Any grade. A retry stays on this row. UI units never run in parallel (`work`). Not a Figma drawing (`figma-sonnet`, `figma-opus`) |
 | **Mid** | review | `review-medium` | `code-review-unit` | a Mid unit's diff against its unit spec; also the batched pass over accumulated Low units |
 | **High** | review | `review-hard` | `code-review-unit` | adversarial review of a High unit — deliberately not the implementer's alias |
-| **Run** | review | `review-full-plan` | `code-review-full` | once per run: cross-unit drift, aggregate invariant/AC coverage, definition of done, over the whole branch diff |
+| **Run** | review | `review-full-plan` | `code-review-full` | once per run: cross-unit drift, aggregate invariant/AC coverage, критерии готовности, over the whole branch diff |
 | **Feedback** | plugin | `session-reviewer` | `reflect` | at the iteration's close: one dispatch per session digest, finding where the plugin itself worked badly, with the user's quotes. Read-only, Sonnet |
 | **Audit** | security | `security-auditor` | `security-audit` | once per iteration, over the whole application: one dispatch per area tracing each operation from route to data, one for the application-wide settings and the scanner findings, one `MODE verify` that tries to disprove the P0/P1. Read-only |
 | **Mid** | plan-review | `plan-review-medium` | `plan-review` | the structural half of a plan review: dependency graph, parallel safety, citation integrity, coverage ledger, executor names, plan hygiene |
@@ -162,7 +162,7 @@ nothing further (session → row → nested target). A nested call follows the
 Dispatch contract like any other, with no `model`.
 
 - **`mechanical-worker`** — a code unit's implementer may hand out the typing
-  named in the plan's `Nested does` and keep the decision. `plan` may name only
+  named in the plan's `Что делает вложенный` and keep the decision. `plan` may name only
   this nested target. It pays off when the mechanical part is settled and
   repetitive; two files is not worth the dispatch.
 - **`doc-typist`** — `srs-author`, the three `design-*` rows, and the three
@@ -176,7 +176,7 @@ Dispatch contract like any other, with no `model`.
 | Rule | Why |
 |---|---|
 | Only those two are nested targets | anything else has judgment that does not delegate cleanly |
-| Nesting never raises capability | a harder document gets a higher writer, not a smarter typist; a harder unit gets a higher `Implementer` |
+| Nesting never raises capability | a harder document gets a higher writer, not a smarter typist; a harder unit gets a higher `Исполнитель` |
 | The parent owns the output | it reads the file and may re-dispatch the typist once. It does not type the correction |
 | The parent does not paste the finished document | that spends the output tokens the nest exists to save. The prompt carries a settlement — one line per decision — plus paths to read |
 | Deciding what a test asserts never nests | `mechanical-worker` may only replicate an assertion the implementer already wrote across N settled cases |

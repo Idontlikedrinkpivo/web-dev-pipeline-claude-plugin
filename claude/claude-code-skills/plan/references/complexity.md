@@ -14,9 +14,9 @@ Score each signal, then run the cascade below. Never average them.
 | # | Signal | Cheap end | Expensive end |
 |---|---|---|---|
 | 1 | **Decision left open** | the design fully determines the outcome; the unit transcribes it | the unit must choose a shape, an algorithm, a boundary, or an error model |
-| 2 | **Spec completeness** | every artifact is named with its signature, states, and errors | `Docs` cite a section that describes intent, not shape |
+| 2 | **Spec completeness** | every artifact is named with its signature, states, and errors | `Документы` cite a section that describes intent, not shape |
 | 3 | **Blast radius** | one file, or many files with one mechanical shape | multiple rings, or a contract other units import |
-| 4 | **Pattern precedent** | an equivalent already exists in the repo to mirror, lands in an earlier unit reachable via `Depends on`, or is fixed by the architecture's file tree / snippet — the unit's `Pattern` names it | first of its kind here — `Pattern` reads `— first of its kind` |
+| 4 | **Pattern precedent** | an equivalent already exists in the repo to mirror, lands in an earlier unit reachable via `Зависит от`, or is fixed by the architecture's file tree / snippet — the unit's `Образец` names it | first of its kind here — `Образец` reads `— first of its kind` |
 | 5 | **Failure cost** | wrong code fails loudly in tests | wrong code leaks data, loses money, corrupts stored state, or breaks a published contract |
 | 6 | **Testability** | outcome asserted directly | needs fakes, time control, concurrency, or an end-to-end path to prove |
 
@@ -90,9 +90,9 @@ latitude and a second review pass, and hides which units actually need care.
 - **A migration is never Low** once rows exist, even a one-column one.
 - **First of its kind** is at least Mid even when the docs are precise, because
   there is no local pattern to check against. A unit has precedent when an
-  earlier unit in this plan, reachable via `Depends on`, establishes the
+  earlier unit in this plan, reachable via `Зависит от`, establishes the
   pattern, or when the architecture's file tree / snippet fixes the shape —
-  `Pattern` then cites that unit's path or that section.
+  `Образец` then cites that unit's path or that section.
 
 ## When the grade splits the unit
 
@@ -102,8 +102,8 @@ the *slicing*, not the grading. Two responses, in order of preference:
 1. **Split** into two units when both halves land green alone — the decision
    unit and the mechanical unit, ordered.
 2. **Nest** when they cannot land separately: grade the unit by its expensive
-   half, keep that tier as `Implementer`, and put the mechanics in
-   `Nested does`. The implementer keeps the decision and hands out the typing.
+   half, keep that tier as `Исполнитель`, and put the mechanics in
+   `Что делает вложенный`. The implementer keeps the decision and hands out the typing.
 
 Nesting is never a way to reach a stronger model. That is what the tier is for.
 
@@ -129,8 +129,8 @@ Schematic on purpose — match the shape, not the domain.
 | Screen with all its states where the screen spec names each state and response outcome and a sibling screen exists | **Low** | rule 5 — states enumerated |
 | Screen whose screen spec lists open «Разрывы» or leaves a state undecided | **Mid** | rule 4 |
 
-Those two rows set the grade only. When the unit's `Docs` cite a screen
-spec and a Figma `nodeId`, `Implementer` is `impl-ui` and `Nested` is `—`.
+Those two rows set the grade only. When the unit's `Документы` cite a screen
+spec and a Figma `nodeId`, `Исполнитель` is `impl-ui` and `Вложенный` is `—`.
 The grade does not assign `impl-lite`, `impl-medium`, or `impl-hard`. The
 assignment rule is in `executor-catalog/references/assignable-implementers.md`.
 
@@ -141,7 +141,7 @@ The cascade is per-unit, but its output has a shape worth checking as a whole:
 - **No High anywhere in a plan that has a hard part.** Almost always means
   rule 2 was skipped, or rule 1 was read as a ceiling — money under
   concurrency graded Mid because «rule 1 fired». Re-run
-  the cascade on the units whose `Approach` still contains a decision.
+  the cascade on the units whose `Подход` still contains a decision.
 - **Everything Mid.** The cascade was not run — Mid is what a grade looks like
   when nobody counted signals. Real plans have 0 and Low units.
 - **High on more than a third of the units.** Either the design is genuinely
@@ -150,7 +150,7 @@ The cascade is per-unit, but its output has a shape worth checking as a whole:
 
 ## Recording the grade
 
-`Why` names the one deciding signal, in the cascade's vocabulary, under twelve
+`Почему` names the one deciding signal, in the cascade's vocabulary, under twelve
 words:
 
 - `rule 3 — one repeatable rename shape, nothing open`
@@ -158,5 +158,5 @@ words:
 - `rule 1 — authorization decision across two aggregates`
 - `rule 2 — mechanism open, needs time control and a peer worker`
 
-A `Why` that restates the goal ("implements the order entity") is not a grade;
+A `Почему` that restates the goal ("implements the order entity") is not a grade;
 it is a label. Re-run the cascade.

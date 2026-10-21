@@ -150,7 +150,7 @@ LENSES TO APPLY
     and the path from entry point to the unguarded operation, and also names the
     SRS or architecture row that should have forbidden it. A weakness in code no
     unit in this run touched is OPEN, whatever its severity would be.
-  Definition of done — read the DEFINITION-OF-DONE OUTPUT (do not re-run the
+  Критерии готовности — read the DEFINITION-OF-DONE OUTPUT (do not re-run the
     commands): lint/dependency contracts, the end-to-end path, and from the
     diff the invariant and AC coverage. A non-zero exit is P1.
   Cross-unit watch resolution — confirm or dismiss every item listed above;
@@ -168,7 +168,7 @@ DO NOT REPORT
   model or a codebase audit.
 
 SEVERITY
-  P0  the definition of done fails, an invariant or AC has no real coverage
+  P0  the критерии готовности fails, an invariant or AC has no real coverage
       anywhere, a declared security requirement is unenforced on the shipped
       path, an undeclared vulnerability with a traceable exploit path in this
       diff, or two units contradict each other in shipped behavior

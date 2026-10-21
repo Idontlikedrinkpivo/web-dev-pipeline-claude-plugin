@@ -39,7 +39,7 @@ changed after the last check ("Where am I" step 3); for a one-field change
 recommend the skip.
 
 **`plan-review`, not `doc-review`, is the gate on stage 11 — and it is not asked.** By the plan every product decision is settled in the documents, so `plan` runs the review itself and fixes what it finds round by round until it passes; only a `STOP` (the documents have a gap) or a cycle that stops making progress comes back to the user. A plan is a work order, not a contract: the questions that matter are
-whether a unit lands as one green commit, whether `Depends on` forms a DAG,
+whether a unit lands as one green commit, whether `Зависит от` forms a DAG,
 whether a grade is calibrated, whether every invariant and acceptance
 criterion is covered by some unit. `doc-review` has no persona for any of
 that, and its classifier has no type for a plan.

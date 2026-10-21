@@ -43,19 +43,24 @@ column names, `operationId`, paths, type names, file paths, stack
 identifiers. They stay as the design named them.
 
 **Frozen headings stay as the stage skill names them.** Frontmatter keys
-(`version`, `migration`, `sources`, `grilled`) stay English. The DB schema
-freezes `## Changelog`; every other versioned document `## Журнал
-изменений`, all with the same five Russian columns; a plan has none. SRS
+(`version`, `migration`, `sources`, `grilled`) stay English. Every versioned
+document, the DB schema included, has `## Журнал изменений` with the same
+five Russian columns; a plan has none. Headings and table columns are
+Russian unless the word is a term of the trade (`DBML`, `ER`, `API`, `SRS`,
+ids). SRS
 and architecture freeze their Russian headings in `srs-writer` and
 `clean-architecture-design` (`## 1. Кратко`, `## 1. Состав системы`, …).
 Translating a frozen heading breaks parsers and citations.
 
 **Report shapes are frozen the same way.** Review and run reports print a
 template. Its headings, verdict tokens, and fixed lines stay exactly as the
-template writes them: `Verdict: PASS`, `## Plan review — <path> — <verdict>`,
-`### Review U<n> — <verdict>`, `## Full-plan review — <path> — <verdict>`,
-`## Document Review Results`, `### Coverage`, `Review complete.` Only the
-prose inside is Russian. This matters for two reasons. `work` and `pipeline`
+template writes them: `Verdict: PASS`, `## Ревью плана — <path> — <verdict>`,
+`### Ревью U<n> — <verdict>`, `## Ревью всего прогона — <path> — <verdict>`,
+`## Результаты ревью документа`, `### Охват`, `Review complete.` The
+verdict tokens and the `Verdict:` and `Review complete.` lines are machine
+markers and stay English. A report written before plugin 1.2.152 carries
+the English heading of its time (`## Plan review — …`, `### Review U<n>`,
+`## Full-plan review — …`, `## Document Review Results`) — the same report. This matters for two reasons. `work` and `pipeline`
 read `Verdict:` as a gate, and a missing line means the gate did not pass. Later
 stages and the user find a report by its heading, so a translated heading
 reads as a missing report.
@@ -355,7 +360,7 @@ working copy being published. Setting it is not a version change.
 ## Changelog
 
 The change history is **one markdown table** directly after the H1
-(`## Журнал изменений`; `## Changelog` on the DB schema; on architecture
+(`## Журнал изменений`, the DB schema included; on architecture
 `## Журнал изменений` after `## Описание системы`), with the same five
 columns on every document: `Версия · Дата · Изменение · Тип · Кого
 затрагивает`. It is never at the end and never a stack of `### v…`

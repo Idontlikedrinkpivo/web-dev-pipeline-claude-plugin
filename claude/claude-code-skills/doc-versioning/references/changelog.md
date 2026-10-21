@@ -8,8 +8,8 @@ columns, the example, and what each cell must carry.
 ## Where the table lives
 
 On the SRS the table is `## Журнал изменений`, immediately after the H1.
-On the DB schema it is `## Changelog`, immediately after the H1 (after a
-stale banner, if any). On the architecture foundation it is
+On the DB schema it is `## Журнал изменений` too, immediately after the H1 (after a
+stale banner, if any); a schema written before plugin 1.2.152 may still say `## Changelog`. On the architecture foundation it is
 `## Журнал изменений`, after `## Описание системы` the architecture skill
 requires — not the first body block. The domain model, the scenarios of an
 area and each screen spec put `## Журнал изменений` right after the H1. A

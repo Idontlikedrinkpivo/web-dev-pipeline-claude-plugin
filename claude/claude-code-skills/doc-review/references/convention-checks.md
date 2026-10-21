@@ -10,7 +10,7 @@ cited as evidence.
 
 | Check | Owner | When | Broken when | Why |
 |---|---|---|---|---|
-| Changelog table | `doc-versioning` → Changelog | markdown (`srs`, `db`, `domain`, `scenarios`, `screen`) | no `## Changelog` table immediately after the H1 (on `srs`, `domain`, `scenarios`, `screen`: `## Журнал изменений`), or a leftover `### v…` / table at the end | readers and tools look for the history right after the H1 |
+| Changelog table | `doc-versioning` → Changelog | markdown (`srs`, `db`, `domain`, `scenarios`, `screen`) | no `## Журнал изменений` table immediately after the H1 (on `srs`, `domain`, `scenarios`, `screen`: `## Журнал изменений`), or a leftover `### v…` / table at the end | readers and tools look for the history right after the H1 |
 | Architecture changelog | `clean-architecture-design` | `architecture` | no `## Журнал изменений` after `## Описание системы`, or the table sits first after the H1 with no intro, or a leftover `### v…` / table at the end | the architecture skill puts the reader entrance first; the table is still mandatory |
 | Version row | `doc-versioning` → Changelog | that table exists | first data row's version cell ≠ frontmatter `version` | the table and the frontmatter must name the same version |
 | Row type | `doc-versioning` → What a version is | changelog rows | a `Тип` cell other than `ломает` / `добавляет` / `уточняет` (`—` only on the «первый выпуск» row), or a row that only names comments, `Note`, `description` / `summary` / `example` — that change gets no row | explaining an existing token does not change the contract, and the service level is read from the types |
@@ -19,7 +19,7 @@ cited as evidence.
 | ER diagram | `db-schema-design` | `db` | no `## ER`, or no `diagrams/er.d2` beside `schema.md`, or the section has neither an `.svg` link nor a line that `d2` was missing | projection of the DBML; do not invent tables in-session |
 | OpenAPI text | `doc-versioning` → Document language | `api` | `description` / `summary` / `example` not in Russian. `operationId`, paths, and schema names stay English. YAML has no changelog table — do not demand one | same language rule as prose; identifiers are cited tokens |
 | Open questions in the body | `doc-versioning` → Открытые вопросы | markdown types | the body has an open-questions heading: `## Открытые вопросы`, `## Open Questions`, `## 9. Открытые вопросы`, `## 4. Open Questions`, `## 6. Open questions`, `## Deferred / Open Questions`, or `### From <date> review` | questions live in `open-questions.md` in that document's folder, not in the contract |
-| BRD unversioned | `doc-versioning` → Registry | `business-requirements` | frontmatter has `version:` or the body has `## Changelog` | the draft is not a contract; strip both. Version the SRS |
+| BRD unversioned | `doc-versioning` → Registry | `business-requirements` | frontmatter has `version:` or the body has `## Журнал изменений` | the draft is not a contract; strip both. Version the SRS |
 | Architecture diagram | `clean-architecture-design` | `architecture` | the foundation does not embed the context view in §1, the stores view in §1 «Хранилища», and the layers view in §3 (containers and modules may be a skip line), or an embedded view has no `.d2` in `architecture/diagrams/`, or the document contains a Mermaid fence | the writer emits the D2 projection; do not invent one in-session. A missing `.svg` is a gap only when the section does not already say `d2` was missing |
 | Rules scratchpad | `clean-architecture-design` | `architecture` | body has `## Правила по виду` or `### Rules by kind` | writer sort, not a reader section; drop it |
 | Deferred body | `doc-versioning` → Changelog | markdown types | a section says "как в 1.1.0" / "без изменений" / "см. историю git" instead of stating its content, or a live heading has an empty body | the changelog carries the diff; the body carries the whole document |
@@ -35,7 +35,7 @@ cited as evidence.
 
 `safe_auto` only for a
 mechanical move of an existing changelog to the table-after-H1 shape, or
-for stripping `version` / `## Changelog` from a business-requirements
+for stripping `version` / `## Журнал изменений` from a business-requirements
 document. Review-parking leftovers are `gated_auto`: suggested fix is
 move the bullets to `open-questions.md` in that document's folder and delete the
 leftover heading. A `Cited upstream tokens` miss is `gated_auto` when

@@ -16,7 +16,7 @@ edit the plan, the design documents, or the repo. Findings and one verdict only.
 
 PLAN                documentation/plans/<version>/plan.md — pasted in full: §1
                     digest with its version line, the unit table, every unit's
-                    fields, §5 definition of done, open-questions.md, pins
+                    fields, §5 критерии готовности, open-questions.md, pins
 
 SERVICE VERSION     (structural packet only) the folder's version, the
                     manifest's current `version`, the iteration's typed
@@ -60,7 +60,7 @@ DO NOT REPORT
 - A better slicing you would have chosen. Report a unit that cannot land green
   alone; do not redesign the plan.
 - A design decision you disagree with — that is OPEN, not a finding.
-- A grade the cascade genuinely permits, where the unit's `Why` names the signal
+- A grade the cascade genuinely permits, where the unit's `Почему` names the signal
   it followed and no floor or gate contradicts it.
 - A row in `open-questions.md` the plan already raised against a named unit.
 - Anything about code or files no unit in this plan touches.
@@ -165,7 +165,7 @@ Verdict rules:
 
 - Any P0 or P1 forbids `PASS`.
 - `FIX_THEN_PROCEED` only when every blocking finding is a fully specified edit
-  to the plan text — a wrong `Parallel-safe`, a mistyped executor name, a
+  to the plan text — a wrong `Параллельно`, a mistyped executor name, a
   citation whose target is unambiguous, a grade a floor decides. Otherwise
   `RETURN_TO_PLAN`.
 - `RETURN_TO_PLAN` names which units the planner must re-open.

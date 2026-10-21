@@ -68,7 +68,7 @@ guessed architecture routes work confidently in the wrong direction, which is
 worse than no plan. The one exception is a repo whose code *is* the design
 (brownfield, no docs): then the code stands in for the docs — inventoried by
 `code-explorer` in the orchestrator, not read into this session — and mark
-every unit's `Docs` cell `code:<path>` so execution knows the citation is
+every unit's `Документы` cell `code:<path>` so execution knows the citation is
 inferred, not specified.
 
 ## Orchestrator (session)
@@ -106,7 +106,7 @@ written in each source file.
    agent is a stop per the Dispatch contract, a rejected alias per Slug
    hygiene. Do not write the plan on the session model. Do not dispatch
    `doc-typist`.
-5. Inspect the file. A model slug in the body, an `Implementer` outside
+5. Inspect the file. A model slug in the body, an `Исполнитель` outside
    `assignable-implementers.md`, or a report whose `DELEGATED` is not
    `doc-typist` comes back, until it is right. `BLOCKED` /
    `HARDER_THAN_EXPECTED` escalates one tier per failure (lite → medium →
@@ -164,7 +164,7 @@ not re-paste the architecture.
 Do not dispatch `code-explorer` and do not read the repo unit by unit. A
 brownfield packet with no inventory is `STATUS BLOCKED`. A greenfield
 packet says `none`: the design documents already say everything the
-digest needs. `Docs` cells in a brownfield plan read `code:<path>`.
+digest needs. `Документы` cells in a brownfield plan read `code:<path>`.
 
 ### Step 2. Slice into atomic units
 
@@ -183,9 +183,9 @@ Slice along the architecture's own seams:
 | HTTP surface | one unit per operation group sharing a controller |
 | Migration | one unit per new file in `documentation/db/migrations/`, ordered before its adapter |
 | Screen | one unit per screen with all its states, citing its screen spec and the `nodeId` |
-| Theme (after a `ui-design` restyle) | one unit: the project's theme file — colours light and dark, radius, shadows, density, fonts with their Cyrillic subset — from the Figma variables, and the values screens hardcode moved into it; `Docs` cite the register's «Визуальное направление» line and the `🎨 Tokens` `nodeId`; `impl-ui`; screen units that fix the look depend on it |
+| Theme (after a `ui-design` restyle) | one unit: the project's theme file — colours light and dark, radius, shadows, density, fonts with their Cyrillic subset — from the Figma variables, and the values screens hardcode moved into it; `Документы` cite the register's «Визуальное направление» line and the `🎨 Tokens` `nodeId`; `impl-ui`; screen units that fix the look depend on it |
 | Mechanical batch | one unit for a repo-wide rename, codemod, or config sweep |
-| Version bump | the last unit: sets the manifest's `version` to VERSION; grade 0, `mechanical-worker`, `Depends on` every other unit |
+| Version bump | the last unit: sets the manifest's `version` to VERSION; grade 0, `mechanical-worker`, `Зависит от` every other unit |
 
 Split a unit when it crosses a ring (domain **and** adapter), when it mixes a
 decision with mechanics, or when two halves would land in separate commits
@@ -199,7 +199,7 @@ re-derive the design.
 **A path this version retired.** List every id this iteration marked
 `[deprecated in <version>]` or removed (a «ломает» row of this version,
 `удалён:`). Marks from older versions are not this plan's job. For each id whose code is still in the
-repo, add one unit. `Docs` cites the retired id and what replaced it. `Files`
+repo, add one unit. `Документы` cites the retired id and what replaced it. `Файлы`
 names the old path. The goal says that path is gone and the replacement covers
 it. A test says the old call is absent and the replacement scenario passes.
 The unit does not delete the specification row.
@@ -217,7 +217,7 @@ A repo with no such code skips this.
 ### Step 3. Order and mark parallelism
 
 Order by dependency, not by layer aesthetics: a unit ships only after every
-unit it imports from. Two units are **parallel-safe** only when their `Files`
+unit it imports from. Two units are **parallel-safe** only when their `Файлы`
 sets are disjoint *and* they share no type, migration, registry, config,
 generated client, lockfile, or runtime resource their tests need (a local
 database, a port, a dev server, a package install). Declared file
@@ -227,7 +227,7 @@ integration tests against one local database corrupt each other even in
 isolated worktrees. Default to `no` under any doubt. **UI units are always
 `Parallel-safe: no`** and run one after another: the first one (in plan
 order) carries the API client generation and the app-wide error handler in
-its `Files`; later screens depend on it and only use them.
+its `Файлы`; later screens depend on it and only use them.
 
 Among units that are equally ready, order first the one that completes the
 earliest use case's path end-to-end. A run stopped mid-way then leaves a
@@ -240,49 +240,49 @@ keeps the original id on the original concept and gives the new part the next
 unused number. Deletion leaves a gap; gaps are fine.
 
 ```markdown
-### U<n>. <Verb phrase>
+### U<n>. <что делает юнит, глаголом>
 
 | | |
 |---|---|
-| **Docs** | scenarios/orders `<UseCase>` · domain §4 <rule row> · SRS UC-2 / AC-Exc-1 · BR-3 · api `POST /orders` |
-| **Files** | repo-relative paths, including the test file. A unit that removes or changes a field, a constant, an environment variable, a response shape or a public symbol searches the repository for every use first (code, tests, e2e, CI, documents) and lists each in `Files` or under «Не затрагивается» with the reason |
-| **Pattern** | repo-relative path(s) whose conventions this unit mirrors (`path (U<n>)` when a unit in `Depends on` creates it, or the arch section that fixes the shape), or `— first of its kind` |
-| **Depends on** | U-ids, or `—` |
-| **Parallel-safe** | yes / no — and with what it contends when no |
-| **Complexity** | 0 / Low / Mid / High |
-| **Why** | the one signal that set the grade (see `references/complexity.md`) |
-| **Implementer** | executor name from `executor-catalog` |
-| **Nested** | executor name, or `—` |
-| **Nested does** | the mechanics to delegate, or `—` |
+| **Документы** | scenarios/orders `<UseCase>` · domain §4 <rule row> · SRS UC-2 / AC-Exc-1 · BR-3 · api `POST /orders` |
+| **Файлы** | repo-relative paths, including the test file. A unit that removes or changes a field, a constant, an environment variable, a response shape or a public symbol searches the repository for every use first (code, tests, e2e, CI, documents) and lists each in `Файлы` or under «Не затрагивается» with the reason |
+| **Образец** | repo-relative path(s) whose conventions this unit mirrors (`path (U<n>)` when a unit in `Зависит от` creates it, or the arch section that fixes the shape), or `— first of its kind` |
+| **Зависит от** | U-ids, or `—` |
+| **Параллельно** | yes / no — and with what it contends when no |
+| **Сложность** | 0 / Low / Mid / High |
+| **Почему** | the one signal that set the grade (see `references/complexity.md`) |
+| **Исполнитель** | executor name from `executor-catalog` |
+| **Вложенный** | executor name, or `—` |
+| **Что делает вложенный** | the mechanics to delegate, or `—` |
 
-**Goal** — one sentence: what is true after this commit. A new path says
+**Цель** — one sentence: what is true after this commit. A new path says
 what exists that did not before. A retired path says the old path is gone
 and what covers it.
 
-**Approach** — the decisions already made, cited not restated: which entity
+**Подход** — the decisions already made, cited not restated: which entity
 method the use case calls, which port signature the adapter implements, which
 error maps to which status. No code, no imports, no signatures invented here.
 
-**Test scenarios** — one per line, each naming input, action, expected
+**Тестовые сценарии** — one per line, each naming input, action, expected
 outcome. Cover every invariant row this unit enforces (`covers BR-3`), the
 AC of each flow it serves, its error paths, and its boundary crossings.
 A unit with no behavior writes `none — <reason>` instead.
 
-**Verification** — the observable outcome that proves the unit done, as an
+**Проверка** — the observable outcome that proves the unit done, as an
 outcome, not a shell recipe.
 
-**Commit** — the conventional message this unit lands under.
+**Коммит** — the conventional message this unit lands under.
 ```
 
 A filled unit, for calibration — match its density, not its domain:
 `references/unit-example.md`.
 
-Every behavior-bearing unit names its test file in `Files`. A unit with a
-blank `Test scenarios` and real behavior is an unfinished unit, not a fast one.
+Every behavior-bearing unit names its test file in `Файлы`. A unit with a
+blank `Тестовые сценарии` and real behavior is an unfinished unit, not a fast one.
 
-`Pattern` is the evidence for complexity signal 4: a path means precedent
+`Образец` is the evidence for complexity signal 4: a path means precedent
 exists, and it has to exist in the tree or be created by an earlier unit
-reachable via `Depends on` (write `path (U<n>)`); an architecture section
+reachable via `Зависит от` (write `path (U<n>)`); an architecture section
 whose file tree / snippet fixes the shape counts too. `— first of its kind`
 puts signal 4 at the expensive end, and the anti-deflation gate keeps the unit
 at Mid or above. `work` pastes this field into the worker's `PATTERN TO
@@ -304,9 +304,9 @@ IllegalTransition, per BR-3" is.
 
 Read `references/complexity.md` and run its cascade for each unit. Grade from
 the filled fields, because the grade is a property of the work, not of a
-vibe: `Files` count and ring spread, whether `Approach` still contains a
-decision, whether `Pattern` names a precedent, whether `Test scenarios` has
-error and integration rows, whether `Docs` fully specifies the outcome.
+vibe: `Файлы` count and ring spread, whether `Подход` still contains a
+decision, whether `Образец` names a precedent, whether `Тестовые сценарии` has
+error and integration rows, whether `Документы` fully specifies the outcome.
 
 **The risk floor is not the only route to High.** The cascade's compound gate
 (rule 2) exists for work that is hard without being dangerous: an open
@@ -322,11 +322,11 @@ Two rules override everything else in that file:
   a floor, not a verdict: it is **High** when the decision is open or the
   money or access is decided under concurrency (a row lock, a racing
   idempotency key), and the compound gate still runs after it.
-- **Spec floor.** A unit whose `Docs` do not fully determine the outcome is
+- **Spec floor.** A unit whose `Документы` do not fully determine the outcome is
   never below **Mid**, regardless of how few files it touches — undecided
   work is expensive work.
 
-Put the deciding signal in `Why` in under twelve words. If `Why` reads
+Put the deciding signal in `Почему` in under twelve words. If `Почему` reads
 "seems complex" or restates the goal, the cascade was not run. The same holds
 for the plan as a whole: every unit Mid, or every unit High, means Step 5 was
 skipped — grades that do not spread defeat the routing.
@@ -334,20 +334,20 @@ skipped — grades that do not spread defeat the routing.
 ### Step 6. Assign executors from the assignable list
 
 Read `executor-catalog/references/assignable-implementers.md` only — not the
-rest of the catalog. `Implementer` is one of `mechanical-worker`, `impl-lite`,
-`impl-medium`, `impl-hard`, `impl-ui`. `Nested` is `—` or `mechanical-worker`.
+rest of the catalog. `Исполнитель` is one of `mechanical-worker`, `impl-lite`,
+`impl-medium`, `impl-hard`, `impl-ui`. `Вложенный` is `—` or `mechanical-worker`.
 Review, plan-review, doc-review, `code-explorer`, and `impl-critical` names
-are illegal here. A frontend unit whose `Docs` cite a screen spec and a Figma
+are illegal here. A frontend unit whose `Документы` cite a screen spec and a Figma
 `nodeId` is `impl-ui` at every grade, and it does not nest. Never write a
 model slug into the plan: the catalog and its agent files own the mapping, so
 a model rename touches one agent file instead of every plan ever written.
 
-Fill `Nested` only when the unit genuinely contains mechanics separable from
+Fill `Вложенный` only when the unit genuinely contains mechanics separable from
 its decision — apply a settled shape across many files, generate fixtures,
-port a pattern to N call sites. Then `Nested does` states exactly that
+port a pattern to N call sites. Then `Что делает вложенный` states exactly that
 delegation and, implicitly, that the implementer keeps the decision. A unit
 whose whole content is mechanical does not nest; it *is* the mechanical tier.
-Nesting is never escalation: more horsepower is a higher `Implementer`.
+Nesting is never escalation: more horsepower is a higher `Исполнитель`.
 
 ### Step 7. Hand the plan to `doc-typist`
 
@@ -360,7 +360,7 @@ The settlement is one line per unit field, not the template below filled in.
 When the file already exists **for this same version** — a plan you are
 revising, or an open version a new change joins — edit it in place: keep the
 existing U-ids, append new units with unused numbers, keep the bump unit last,
-and update grades only with a reason in `Why`. The plan carries no progress
+and update grades only with a reason in `Почему`. The plan carries no progress
 state — no checkboxes, no `status:` field. Progress lives in git, and the
 `work` skill reads it there.
 
@@ -402,30 +402,30 @@ sources:
 routing: executor-catalog
 ---
 
-# Implementation plan: <version>
+# План реализации: <version>
 
-## 1. Digest
+## 1. Кратко
 Version · level · reason (Step 1) · the changes, when several · architecture
 level and budget · stack · the unit spine this produced · what the scaffold
 already provides.
 
-## 2. Unit map
-| U | Unit | Complexity | Implementer | Nested | Depends on | Parallel-safe |
+## 2. Карта юнитов
+| U | Юнит | Сложность | Исполнитель | Вложенный | Зависит от | Параллельно |
 |---|---|---|---|---|---|---|
 
 Then, when useful, a D2 dependency graph of the same table
 (`diagrams/deps.d2` plus the rendered `.svg`).
 
-## 3. Units
+## 3. Юниты
 One `### U<n>.` block per unit, per Step 4.
 
-## 4. Waves
-Which units may run together, derived from Depends on + Parallel-safe. A wave
+## 4. Волны
+Which units may run together, derived from «Зависит от» + «Параллельно». A wave
 is a claim about contention, so name the contention that keeps units apart.
 For each wave, also name which use case (UC id) first runs end-to-end after
 it, or `—`.
 
-## 5. Definition of done
+## 5. Критерии готовности
 The plan-wide gate: lint contracts from the foundation §6 pass, the end-to-end path
 runs, every quoted invariant row has a test, every AC is covered.
 ```
@@ -434,21 +434,21 @@ runs, every quoted invariant row has a test, every AC is covered.
 
 1. Every unit lands as one green commit; none crosses a ring without a stated
    reason, none recreates what the scaffold already has — Step 2, Inputs.
-2. Every `Docs` citation resolves to a real section or id; no unit invents a
+2. Every `Документы` citation resolves to a real section or id; no unit invents a
    method, signature, status, or column the design never named — Step 4.
 3. Every quoted invariant row and every AC appears in some unit's
-   `Test scenarios` — Step 4. Every foundation «Решения по NFR» row and
+   `Тестовые сценарии` — Step 4. Every foundation «Решения по NFR» row and
    every §4 configuration variable belongs to a unit that applies it (a
    body limit set, a pool sized from its variable, workers started from
    theirs) — a decision that only lives in the document is not built.
-4. Every unit has `Complexity`, a one-signal `Why`, and an assignable
-   `Implementer` — Steps 5–6.
+4. Every unit has `Сложность`, a one-signal `Почему`, and an assignable
+   `Исполнитель` — Steps 5–6.
 5. Risk floor and spec floor hold — Step 5.
 6. Grades spread across at least two tiers, unless the plan is honestly one
    kind of work and says so — Step 5.
-7. `Depends on` is a DAG; every `Parallel-safe: yes` pair is disjoint in
+7. `Зависит от` is a DAG; every `Parallel-safe: yes` pair is disjoint in
    files, contracts, *and* runtime resources — Step 3.
-8. Every `Pattern` path exists or is created by a unit in its `Depends on`
+8. Every `Образец` path exists or is created by a unit in its `Зависит от`
    chain; every `— first of its kind` unit is Mid or above — Step 4.
 9. U-ids unique and never renumbered; no model slug and no progress state in
    the body — Steps 4, 6, 7.
@@ -481,7 +481,7 @@ questions. The writer does not ask the next stage.
   picks `plan-lite` / `plan-medium` / `plan-hard`. The session runs this
   before the dispatch.
 - `executor-catalog/references/assignable-implementers.md` — the only
-  legal `Implementer` and `Nested` names.
+  legal `Исполнитель` and `Вложенный` names.
 - `executor-catalog` (skill) — the `plan-writer` rows, the `code-explorer`
   row for the brownfield inventory, and the Dispatch contract.
 - `plan-review` (skill) — the independent gate over this plan. The
