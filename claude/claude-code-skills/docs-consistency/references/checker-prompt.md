@@ -44,7 +44,11 @@ AXES (run each one whose documents both exist; a skipped one gets one line)
                          every cross-area call: the caller's step (arguments,
                          result type) against the callee's Вход / Выход field
                          by field; screen specs exist → the foundation places
-                         the client (stack, module, folder, lint, tests)
+                         the client (stack, module, folder, lint, tests);
+                         a shared policy (cleanup after a failure, a failed
+                         journal write, a retry, the log line) is described the
+                         same in every scenarios document and matches the
+                         foundation's «Откат и уборка»
   7 One meaning per word one name per concept, one value per number (limits,
                          timeouts, page sizes, retention) across the set
   8 No visual binding    no SRS, schema, API or architecture document names a

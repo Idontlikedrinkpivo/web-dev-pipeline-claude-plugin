@@ -16,6 +16,7 @@ can check are gates, not prose in a prompt.
 | Dead code | an unused file, export or dependency | leftovers of a rewrite hide the live path |
 | Duplicates | duplication above the threshold | an agent copies sooner than it reuses; copies drift |
 | Test hygiene | a committed `.only` / `.skip` / `todo`; a test reading a `.css` or source file | a skipped test is a silent hole; a test of the stylesheet breaks on harmless edits |
+| Dependency audit | a high or critical vulnerability in a production dependency (development tools — a warning) | a known hole shipped with the release |
 
 ### Linter rules and thresholds
 
@@ -45,6 +46,15 @@ The numbers are the defaults; foundation §6 may tighten them, never loosen them
   reason.
 - **Other stacks:** the linter the stack file names, configured to the same table.
 
+## Tests that prove something
+
+- **Property tests** — `fast-check` (TypeScript) or `hypothesis` (Python) installed from the start; the plan gives an
+  invariant over many values a property scenario.
+- **Mutation testing** — Stryker (TypeScript, incremental mode) or `mutmut` (Python) installed; `work` runs it only
+  on the files of units that enforce an invariant row or are graded High, and once at the run's close over the
+  run's diff. A surviving mutant is a review finding, not a hard threshold — mutation runs are slow, so they stay
+  narrow.
+
 ## A project that already has code — the ratchet
 
 Turning every threshold into an error on an old codebase stops all work at once. Instead:
@@ -60,4 +70,7 @@ Turning every threshold into an error on an old codebase stops all work at once.
 - `lint` runs the linter, boundaries, dead code and duplicates; `typecheck` covers tests; `test` runs the suite —
   the same three commands in every part (`repo-scaffold`).
 - `work` runs `lint` and `typecheck` after every unit, before the review; an error in the unit's files is a return.
-- `ci-pipeline` runs the three commands for every part; a part without one of them is a stop, not a pass.
+- `ci-pipeline` runs the three commands for every part, plus the dependency audit (production dependencies at
+  high and critical fail the job, the rest warn); a part without one of them is a stop, not a pass.
+- At a run's close `work` measures duplicates, the longest and most complex functions and files against the run's
+  base, and a simplifier pass removes what grew without changing behaviour (`work/references/health.md`).

@@ -263,7 +263,8 @@ and what covers it.
 method the use case calls, which port signature the adapter implements, which
 error maps to which status. No code, no imports, no signatures invented here.
 
-**Тестовые сценарии** — one per line, each naming input, action, expected
+**Тестовые сценарии** — an invariant row over many values (a format, a range, a round trip, a rule two layers
+must agree on) gets a property scenario («для любых … верно …») beside its examples. One per line, each naming input, action, expected
 outcome. Cover every invariant row this unit enforces (`covers BR-3`), the
 AC of each flow it serves, its error paths, and its boundary crossings.
 A unit with no behavior writes `none — <reason>` instead.

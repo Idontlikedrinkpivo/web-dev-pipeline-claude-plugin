@@ -106,3 +106,11 @@ This skill does not pin library facts that change between releases (signatures, 
 - `references/factory-template.py` — read when adding factory_boy factories (traits, `SubFactory` parents, batches, session wiring).
 - `references/coverage-config.md` — read when the project has no coverage configuration yet.
 - `scripts/check-test-coverage.sh` — run for a coverage check with saved report and distinct exit codes.
+
+## Properties and mutants
+
+- An invariant over many values (a format, a range, a round trip, «whoever edits can see») gets a property test
+  with `hypothesis` beside its examples.
+- Group tests by behaviour, never by plan unit; shared fixtures live in `conftest.py`, never copied.
+- When `work` asks for it, mutation-test the unit's modules with `mutmut` limited to those paths; a surviving mutant
+  names the missing assertion.

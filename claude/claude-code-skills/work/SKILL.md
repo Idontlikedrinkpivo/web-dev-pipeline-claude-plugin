@@ -392,7 +392,7 @@ unit, and a plan carrying scars stops being a decision artifact.
 
 ### Step 7. Close the run
 
-When every unit in scope is committed, first run two checks yourself and save
+When every unit in scope is committed, first run these checks yourself and save
 each output under `$(git rev-parse --git-dir)/pipeline-work/`:
 
 - **Критерии готовности** — every command in the plan's §5, with its exit
@@ -401,9 +401,9 @@ each output under `$(git rev-parse --git-dir)/pipeline-work/`:
   parallel stands, and cleans up per `ui-test-cases` →
   `references/parallel-stands.md` (a stand not yet copyable is a question
   there, not a silent single stand).
-- **Dead-code report** — the stack's detector over the whole repo: `knip` for
-  TypeScript, `vulture` for Python (another stack: its usual unused-code
-  tool). Use the repo's config when it has one; otherwise run it with defaults
+- **Health and mutants** — `references/health.md`: duplicates, complexity and sizes against BASE, mutants over the
+  run's diff; a simplifier pass lands what grew before the review. **Dead-code report** — `knip` for
+  TypeScript, `vulture` for Python (another stack: its usual unused-code tool). Use the repo's config when it has one; otherwise run it with defaults
   and say so in the run report. Check the tool's current flags against the
   installed version; a detector that cannot run is noted, not skipped
   silently.

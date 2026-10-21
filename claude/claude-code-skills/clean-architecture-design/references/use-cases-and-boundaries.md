@@ -143,6 +143,27 @@ integration-event contracts, which are separate types and version independently
 of the domain. A projection materialized during that same save needs no
 use-case port — name the type in adapters and the test that proves its shape.
 
+## Undoing what was done
+
+A use case that wrote a file, sent a message or created a row before a later step failed has to undo it, and an
+agent writes that cleanup inline in every use case — seven copies that drift (one logs the failed delete, the next
+swallows it). So the foundation names **one compensation policy and one helper** (§4 «Откат и уборка»): what is
+undone, in which order, what happens when the undo itself fails (one log line and, if the system keeps a journal,
+one journal row — the user's answer does not change). A use case calls the helper; its Ошибки table names the
+policy, never retells it.
+
+## Shared steps between use cases
+
+Two use cases that share a step (load the target and check the actor's right, take a journal snapshot) take it from
+one module of shared steps (§5 names it, e.g. `application/shared/`), never from each other's files: a use case
+that imports another use case's file breaks when that use case changes. The boundary linter refuses it (§6).
+
+## Concurrent writes
+
+A write path with an insert-or-update or a conflict branch applies **every** rule of the main path or refuses the
+write — never a subset. The scenario says which, in its Ошибки table («запись уже есть → отказ `AlreadyExists`» or
+«повтор с теми же правилами»), and its key scenario test covers the branch.
+
 ## Can a use case return an entity?
 
 Martin's 2012 article says plainly: pass simple data structures across

@@ -68,6 +68,9 @@ whichever skill owns that tooling. This holds per part: a repository with
 a backend and a frontend needs `lint`, `typecheck` and `test` in each, and
 a part missing one is a stop that names it, never a job that quietly
 skips it — the quality gates are `repo-scaffold/references/quality-gates.md`.
+Every part also gets a dependency audit step (`npm audit --omit=dev
+--audit-level=high`, `pip-audit`): a high or critical hole in a production
+dependency fails the job; one in a development tool is printed as a warning.
 Without `docker-compose.test.yml`,
 stop the same way: do not invent infra services or emit a workflow —
 hand back to `deploy-topology`, since CI can only mirror a test topology

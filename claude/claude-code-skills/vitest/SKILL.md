@@ -16,13 +16,15 @@ description: >-
 ## House rules
 
 1. Read neighbouring tests and the config first; one style per suite.
-2. Fake only what crosses the process boundary (network, clock, randomness, file system). Pass a fake where the code accepts one instead of `vi.mock` of a module; a test of a mocked internal proves the mock.
-3. One behaviour per test, named after behaviour and condition; edge cases and the error path beside the happy path, including exact boundary values.
+2. Fake only what crosses the process boundary (network, clock, randomness, file system). Pass a fake where the code accepts one instead of `vi.mock` of a module; a test of a mocked internal proves the mock. A fake port is an in-memory store that behaves like the real adapter, and the test asserts what was stored and returned — not which method was called how often, unless the call order is itself a stated rule.
+3. One behaviour per test, named after behaviour and condition; edge cases and the error path beside the happy path, including exact boundary values. Group `describe` blocks by behaviour, never by plan unit (`U17:`); setup a second file needs goes to the shared test helpers, never copied.
 4. `await` (or `return`) every `.resolves` / `.rejects`. `vi.mock` / `vi.hoisted` only at module top level.
 5. Undo what a test changed in `afterEach`: real timers back, spies restored, mock state reset. Fake time instead of sleeping. No mutable state shared between tests; the file must pass in shuffled order.
 6. Run the file, then break the code under test once and watch the test fail.
 7. Never commit `.only`; a `.skip` carries why and when it returns. Read every snapshot diff before accepting it.
-8. Review findings: `file:line` — what is wrong — rule number — fix. Report only; do not edit in a review.
+8. An invariant over many values (a format, a range, a round trip, «whoever edits can see») gets a property test with `fast-check` beside its examples.
+9. When `work` asks for it, mutation-test the unit's files with Stryker in incremental mode; a surviving mutant names the missing assertion.
+10. Review findings: `file:line` — what is wrong — rule number — fix. Report only; do not edit in a review.
 
 A browser flow (open a page, type, click, see text) is Playwright, not Vitest: route it to `playwright-cli` and add no DOM environment for it.
 
