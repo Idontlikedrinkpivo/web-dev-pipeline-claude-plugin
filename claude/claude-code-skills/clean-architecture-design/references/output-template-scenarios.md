@@ -8,7 +8,16 @@ line saying why.
 
 `<area>` is the area's kebab-case English name from foundation §2 — the
 same word as the module folder in foundation §5 and the SRS group it
-covers.
+covers. It names paths and folders only.
+
+`<область>` in the heading is the area's **Russian** name, never `<area>`:
+the heading is what readers see — the documentation site's menu lists
+the scenarios documents by it. An area that covers one SRS group takes
+that group's bold sub-heading word for word (`# Сценарии: Расписание`);
+an area that covers several takes a short Russian name of what they
+share, two to four words (`bookings` covers «Бронирование» and «Отмена»
+→ `# Сценарии: Бронирование и отмена`); the groups themselves are listed
+in the «Группа SRS» row below.
 
 What this document does **not** hold: a business rule (it cites the
 domain model's invariant row by rule id), a named error's definition
