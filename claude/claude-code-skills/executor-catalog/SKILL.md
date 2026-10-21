@@ -43,7 +43,7 @@ be sure this set's version runs.
 ## The catalog
 
 Every row names its dispatcher; a row nobody dispatches is deleted. Every Name
-is also an agent, dispatched as `subagent_type: "<name>"`; its file, not this
+is also an agent, dispatched as `subagent_type: "dev-pipeline:<name>"`; its file, not this
 table, holds the model and effort.
 
 | Tier | Branch | Name | Dispatched by | Runs |
@@ -57,9 +57,9 @@ table, holds the model and effort.
 | **Mid** | review | `review-medium` | `code-review-unit` | a Mid unit's diff against its unit spec; also the batched pass over accumulated Low units |
 | **High** | review | `review-hard` | `code-review-unit` | adversarial review of a High unit — deliberately not the implementer's alias |
 | **Run** | review | `review-full-plan` | `code-review-full` | once per run: cross-unit drift, aggregate invariant/AC coverage, критерии готовности, over the whole branch diff |
-| **Feedback** | plugin | `session-reviewer` | `reflect` | at the iteration's close: one dispatch per session digest, finding where the plugin itself worked badly, with the user's quotes. Read-only, Sonnet |
+| **Feedback** | plugin | `session-reviewer` | `reflect` | at the iteration's close: one dispatch per session digest, finding where the plugin itself worked badly, with the user's quotes. Read-only |
 | **Audit** | security | `security-auditor` | `security-audit` | once per iteration, over the whole application: one dispatch per area tracing each operation from route to data, one for the application-wide settings and the scanner findings, one `MODE verify` that tries to disprove the P0/P1. Read-only |
-| **Mid** | plan-review | `plan-review-medium` | `plan-review` | the structural half of a plan review: dependency graph, parallel safety, citation integrity, coverage ledger, executor names, plan hygiene |
+| **Mid** | plan-review | `plan-review-medium` | `plan-review` | the structural half of a plan review: dependency graph, parallel safety, files completeness, citation integrity, coverage ledger, executor validity, existing work, service version, plan hygiene |
 | **High** | plan-review | `plan-review-hard` | `plan-review` | the judgment half: whether a unit can land green alone, whether its grade survives the cascade, whether a scenario is writable before the code |
 | **Low** | docs-review | `doc-review-low` | `doc-review` | coherence and feasibility: the document agrees with itself. Always on |
 | **Mid** | docs-review | `doc-review-medium` | `doc-review` | design language and scope, when those signals are present — not whether the premise is right |
@@ -111,8 +111,8 @@ tool like this. Consumers point here instead of restating it.
   for this dispatch — a Claude alias (`haiku`, `sonnet`, `opus`, `fable`) or a
   full Claude model id — dispatch the same row and pass that value as `model`
   on this call only; the file's effort, tools, and prompt still apply. The line
-  says so: `design-medium | design-medium | model override: sonnet (user; file:
-  opus)`. Never a `gpt-*` model, `inherit`, or the session model, and never the
+  says so: `design-medium | dev-pipeline:design-medium | model override:
+  sonnet (user; file: opus)`. Never a `gpt-*` model, `inherit`, or the session model, and never the
   implementer's alias on a review row — refuse those with the reason. The
   override is this dispatch only; an escalation goes back to the file.
 - **A rejected `subagent_type`:** retry once with the bare name. If both are
@@ -195,9 +195,11 @@ failure: grade 0 → Low → Mid → High → `impl-critical`.
 - `impl-critical` is terminal. On the code branch the higher tier stays on the
   same alias (its agent file may raise the effort); the retry's value is the
   previous report in a fresh dispatch. The one change of alias is grade 0 →
-  Low: `mechanical-worker` is `haiku`, `impl-lite` is `sonnet`.
+  Low: `mechanical-worker` and `impl-lite` run on different models, each
+  named in its agent file.
 - `impl-ui` is not on that ladder: a difficulty return re-dispatches `impl-ui`
-  once with the report.
+  with the report, round after round while it makes progress (`pipeline` →
+  `references/convergence.md`).
 - At `impl-critical`, when the premise check finds the unit's approach
   itself false, the next round dispatches two `impl-critical` with two named
   approaches from one base commit; the tests pick the winner
@@ -221,14 +223,17 @@ dispatch", and do not replace a failed dispatch with the session.
 | Mid | `review-medium` on the unit diff |
 | High | `review-hard` on the unit diff, plus a second risk pass |
 
-The whole-run review is one `review-full-plan` dispatch per run
-(`code-review-full`), never doubled and never re-dispatched with a `model`.
+The whole-run review is one `review-full-plan` pass over the whole diff per
+run (`code-review-full`), never doubled and never re-dispatched with a
+`model`. Its re-reviews read only the fix commits and repeat while each
+round makes progress (`pipeline` → `references/convergence.md`); a second
+pass over the whole diff is not done.
 
 ### Plan-review routing
 
 | Half | Executor | Lenses |
 |---|---|---|
-| Structural | `plan-review-medium` | dependency graph, parallel safety, citation integrity, coverage ledger, executor validity, existing work, plan hygiene |
+| Structural | `plan-review-medium` | dependency graph, parallel safety, files completeness, citation integrity, coverage ledger, executor validity, existing work, service version, plan hygiene |
 | Judgment | `plan-review-hard` | commit atomicity, grade calibration, test-first writability |
 
 Never point the judgment half at `plan-review-medium`: arguing with a grade is
@@ -292,12 +297,12 @@ fixes is revised by `plan-lite`.
 | The existing frames take a chosen visual direction; structure, texts and ids stay (`MODE restyle`) | `figma-sonnet` |
 | Renaming a designer's layers by action and adding annotation frames (`MODE rename`, nothing visible changes) | `figma-sonnet` |
 
+Packet: `references/figma-packet.md`.
+
 ### Screen-spec routing
 
 Every screen spec goes to `screen-writer`; no grade. Packet:
 `screen-spec/references/writer-prompt.md`.
-
-Packet: `references/figma-packet.md`.
 
 ## References
 

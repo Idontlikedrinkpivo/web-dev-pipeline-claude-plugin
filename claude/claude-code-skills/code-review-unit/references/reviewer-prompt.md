@@ -14,26 +14,26 @@ UNIT            U<n> — <goal sentence>
 COMPLEXITY      <grade>  (<why>)
 
 THE DIFF
-  <path to a file the orchestrator wrote: after `git add -N <unit Files>`
+  <path to a file the orchestrator wrote: after `git add -N <unit «Файлы»>`
    (so untracked files in scope appear), `git diff HEAD --stat` then
    `git diff HEAD -U10`, saved under $(git rev-parse --git-dir)/pipeline-work/.
    Read it once; do not re-run git or crawl the repo beyond it.>
 
 FILES THE UNIT WAS ALLOWED TO TOUCH
-  <paths from the unit's Files>
+  <paths from the unit's «Файлы»>
 
 THE DESIGN THIS MUST MATCH (authoritative — do not argue with it)
   <the cited excerpts: invariant rows, entity method signatures, port
    signatures, endpoint contract, column definitions, screen states>
 
 APPROACH THE UNIT WAS GIVEN
-  <the unit's Approach verbatim>
+  <the unit's «Подход» verbatim>
 
 TEST SCENARIOS THE UNIT WAS GIVEN
-  <one per line>
+  <the unit's «Тестовые сценарии», one per line>
 
 VERIFICATION
-  <the unit's Verification field>
+  <the unit's «Проверка» field>
 
 EVIDENCE STRATEGY THE UNIT WAS GIVEN
   <test-first | characterization-first | smoke | none>
@@ -97,7 +97,7 @@ TEST SCENARIOS THE UNIT WAS GIVEN
   <one per line>
 ```
 
-plus that unit's design excerpts, Approach, Verification, and evidence
+plus that unit's design excerpts, «Подход», «Проверка», and evidence
 strategy. THE DIFF is the single `git show` file, sectioned by U-id. The
 rest of the packet is shared. The report carries one `VERDICT U<n> …` line
 per U-id; every FINDINGS line names its U-id.

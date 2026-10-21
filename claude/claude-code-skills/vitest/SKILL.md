@@ -21,12 +21,11 @@ description: >-
 7. Never commit `.only`; a `.skip` carries why and when it returns. Read every snapshot diff before accepting it.
 8. An invariant over many values (a format, a range, a round trip, «whoever edits can see») gets a property test with `fast-check` beside its examples.
 9. When `work` asks for it, mutation-test the unit's files with Stryker in incremental mode; a surviving mutant names the missing assertion.
-10. Review findings: `file:line` — what is wrong — rule number — fix. Report only; do not edit in a review.
 
 A whole-application browser flow (log in, open a page, type, click, see the result) is Playwright, not Vitest:
 route it to `playwright-cli`. A component test is Vitest with Testing Library (jsdom, or Browser Mode where the
 project uses it): render through the shared `renderWithProviders`, mock the network with MSW, query by role and
-label, act with `userEvent`, wait with `findBy*` — the rules are `react` rule 14.
+label, act with `userEvent`, wait with `findBy*` — the rules are `react` → «Tests».
 
 ## Version-sensitive behaviour — verify
 

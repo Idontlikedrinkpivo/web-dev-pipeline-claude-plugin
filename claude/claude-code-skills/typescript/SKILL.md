@@ -18,10 +18,10 @@ audit of a real project found. A rule a machine checks is one line here with its
 |---|---|
 | strict mode plus `noUncheckedIndexedAccess`, `noImplicitOverride`, `noImplicitReturns`, `noFallthroughCasesInSwitch`, `verbatimModuleSyntax`; the tests are type-checked too | `tsconfig`, `typecheck` |
 | no `any`; outside data is `unknown` and parsed by a schema at the boundary | `no-explicit-any`, `no-unsafe-*` |
-| no `as` on outside data, no `as unknown as`, no `!` | `consistent-type-assertions`, `no-non-null-assertion` |
+| no `as` on outside data, no `as unknown as`, no `!` | `no-unsafe-type-assertion`, `no-non-null-assertion` |
 | an error class is never empty — it carries a `readonly kind` | `no-restricted-syntax` (empty subclass) |
 | a union of errors or statuses is handled in an exhaustive `switch` with `assertNever` | `switch-exhaustiveness-check` |
-| an error made in a `catch` passes the caught one: `{ cause: e }` | `preserve-caught-error` |
+| an error made in a `catch` passes the caught one: `{ cause: e }`; a `catch` always names its variable | `preserve-caught-error` (`requireCatchParameter`, the project's error classes in `errorClassNames`) |
 | no empty `catch`, not even with a comment inside | `no-empty`, `no-restricted-syntax` (empty catch block) |
 | throw and reject only `Error` and its subclasses; a `catch` variable is `unknown` and narrowed first | `only-throw-error`, `prefer-promise-reject-errors`, `use-unknown-in-catch-callback-variable` |
 | every promise is awaited or explicitly `void`ed with a reason | `no-floating-promises` |
@@ -35,7 +35,8 @@ audit of a real project found. A rule a machine checks is one line here with its
 
 1. **Every named error is its own type with a literal `kind`; an operation's expected failures are a union of
    them.** Empty classes are identical to the compiler, so a missed branch passes as success — the audit's new
-   error answered 204. A failure of an outside call keeps its cause and its operation.
+   error answered 204. A failure of an outside call keeps its cause and its operation. The lint checks the cause
+   only for the classes listed in `errorClassNames`: a new error class made in a `catch` joins that list.
 2. **One translation of failures to answers**, in one module, as a `switch (e.kind)` with `assertNever` — never
    a mapper per route. A table of codes is `satisfies Record<ErrorKind, number>`, so a new kind breaks the build.
 3. **A failure the user only sees as a generic answer writes one log line** with the cause's name, never secrets,

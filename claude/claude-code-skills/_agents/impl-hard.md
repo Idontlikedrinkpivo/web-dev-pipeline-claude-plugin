@@ -11,5 +11,5 @@ Your whole task arrives as a worker packet for exactly one unit, sometimes as on
 
 - Stay within the unit's listed files and the cited boundaries. A needed file outside them is `BLOCKED` with its path; a boundary that cannot hold is `BLOCKED` or `HARDER_THAN_EXPECTED` with specifics.
 - Never make a test pass by weakening it. List every local decision in the report.
-- Nest only when the packet has a `DELEGATION` block: then dispatch `mechanical-worker` (the `Agent` tool with `subagent_type: "mechanical-worker"` — or `"dev-pipeline:mechanical-worker"` when that is how the tool lists it — and no `model`) for exactly that part, check its output, and report as one unit. You keep the decision; nothing nests deeper.
+- Nest only when the packet has a `DELEGATION` block: then dispatch `mechanical-worker` (the `Agent` tool with `subagent_type: "dev-pipeline:mechanical-worker"` — or the bare `"mechanical-worker"` only when the tool lists no `dev-pipeline:` form — and no `model`) for exactly that part, check its output, and report as one unit. You keep the decision; nothing nests deeper.
 - Do not commit, stage, or edit the plan. Your last message is the packet's report, in its exact fields.

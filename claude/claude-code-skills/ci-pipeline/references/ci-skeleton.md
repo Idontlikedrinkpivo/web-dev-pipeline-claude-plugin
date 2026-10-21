@@ -221,7 +221,7 @@ shape are in `references/providers-and-stacks.md`.
           node-version-file: <.nvmrc or package.json>
       - name: Audit JS dependencies     # fails on high/critical, prints the rest
         if: ${{ !cancelled() }}
-        run: <npm run audit, or: npm audit --audit-level=high>
+        run: <npm run audit, or: npm audit --omit=dev --audit-level=high; then npm audit || true to print the development tools as a warning>
       - uses: actions/setup-python@<sha> # v7
         if: ${{ !cancelled() }}
         with:

@@ -10,8 +10,10 @@ try { await storage.put(key, bytes) } catch { return }
 // так
 export class StorageWriteFailed extends Error {
   readonly kind = "StorageWriteFailed" as const
-  constructor(readonly op: "put" | "delete", options: { cause: unknown }) {
+  readonly op: "put" | "delete"
+  constructor(op: "put" | "delete", options: { cause: unknown }) {
     super(`storage ${op} failed`, options)
+    this.op = op
   }
 }
 try { await storage.put(key, bytes) } catch (e) { throw new StorageWriteFailed("put", { cause: e }) }

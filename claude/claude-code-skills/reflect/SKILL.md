@@ -38,8 +38,9 @@ rules (check them — the session may have run an older version).
 
 ## Steps
 
-1. **Scope.** The open iteration's folder (`documentation/plans/<version>/`)
-   gives the window: from the iteration's first commit (or the folder's
+1. **Scope.** The folder of the iteration being closed
+   (`documentation/plans/<version>/`; the open one when run by hand) gives
+   the window: from the iteration's first commit (or the folder's
    date) to now. List this project's sessions in it:
    `python3 ${CLAUDE_SKILL_DIR}/scripts/sessions.py list "$PWD" --since <YYYY-MM-DD>`.
    Only this project's sessions — never another project's. When the

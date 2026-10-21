@@ -24,12 +24,14 @@ checks and names what is pending, so the user hears about it in any project afte
    check on the test stand, or a rewrite of existing text), and what will not change. The `what` and `fix` fields
    are the source; look at the project's files before estimating the size, never guess.
 
-3. **Ask.** One question per change, or one multi-select question when there are several: «сделать сейчас»,
-   «не нужно этому проекту» (skipped for good), «позже» (asked again next time). Nothing is changed before the
-   answer.
+3. **Ask.** One question per change, one at a time, per `grill-me` → "How a question is shown": the change
+   explained in the chat, then the options «сделать сейчас», «не нужно этому проекту» (skipped for good), «позже»
+   (asked again next time), then stop until the user answers. Nothing is changed before the answer.
 
-4. **Branch.** The working tree must be clean — if not, ask how to handle it, do not stash on your own. Make a
-   branch `docs/plugin-<installed version>` from the current one, unless the user wants the current branch.
+4. **Branch.** The working tree must be clean — if not, ask how to handle it, do not stash on your own. During an
+   open iteration (an open `documentation/plans/<version>/` with no `summary.md`) the commits go on that
+   iteration's branch `iteration/<version>` (`pipeline` → Service version, «One branch per iteration»). Otherwise make a branch
+   `docs/plugin-<installed version>` from the current one, unless the user wants the current branch.
 
 5. **Make each chosen change**, one at a time:
    - Read the skill the `fix` names and do what the `fix` says — only that. A row that names one step of a stage
@@ -45,8 +47,9 @@ checks and names what is pending, so the user hears about it in any project afte
    `documentation/.dev-pipeline.json` — only when nothing is pending (skipped changes do not count), otherwise it
    lists what is left and writes nothing. Commit the file: `docs: проект приведён к плагину <version>`.
 
-7. **Report**: what was made (with commits), what was skipped for good, what was left for later, the branch. The
-   user merges and pushes.
+7. **Report**: what was made (with commits), what was skipped for good, what was left for later, the branch. On a
+   `docs/plugin-<version>` branch the user merges and pushes it; on an iteration's branch the changes reach `main`
+   with the iteration.
 
 ## Rules
 

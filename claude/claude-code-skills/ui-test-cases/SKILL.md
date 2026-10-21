@@ -58,7 +58,8 @@ states). Not `ui-wishes.md`: it is never a source of expected behaviour.
 
 **Dispatch:** resolve `ui-test-writer` through `executor-catalog` and dispatch
 it under the Dispatch contract with `references/writer-prompt.md`, without
-asking which model. The session writes no case file.
+asking which model. The session writes no case; it only moves an old
+single file first (Artifact below).
 
 **Progress file.** Before the dispatch, create
 `documentation/plans/<version>/progress-test-cases.md` per
@@ -85,6 +86,7 @@ chat.
   checked, the exact error text.
 - Roles: a case for every forbidden action per role the SRS names (the
   resident who tries to cancel someone else's booking).
+
 **Two readers, two layers.** A case is read by a person — a tester, an
 analyst, the owner checking what will be tested — and turned into a test
 by the runner. The body is written for the person; everything only the
@@ -117,7 +119,10 @@ runner needs goes into one «Трассировка» line under it.
   «…», ниже текст «…»», «под полем «Дата»: «…»», «уведомление: «…»». No
   field names, derived values, response bodies, status codes or ARIA
   attributes in the body; accessibility in words: «сообщение зачитывает
-  экранный диктор», «следующий Tab — «Повторить загрузку»».
+  экранный диктор», «следующий Tab — «Повторить загрузку»». A text the
+  spec marks `текст — нет в «Тексты»` is neither composed nor marked «по
+  кадру»: the case names the state without a quote, and the missing text
+  goes to the set's spec gaps for `screen-spec`.
 - **A server failure is a precondition in words** («сервер не может отдать
   расписание»), its mock goes into the trace line.
 - **Preconditions name the data** («у резидента бронь «Байкал» завтра
@@ -170,13 +175,13 @@ documentation/ui/test-cases/
   new case takes the next free number, in the section where it belongs.
 - Unversioned: an increment edits the files in place.
 - **An existing single `test-cases.md`** (written before this layout) is
-  moved into the folder on the next write run, before anything else: its
-  `## N.` sections become section files, the shared parts and the closing
-  tables go to `README.md`, every case is copied unchanged with its id,
-  and the old file is deleted — one commit made before the run's own
-  changes («docs: тест-кейсы разложены по разделам»; a move needs no request
-  from the user, git keeps the old file's history). The move rewrites no
-  case.
+  moved into the folder by the session before the writer is dispatched (the
+  writer does not commit): its `## N.` sections become section files, the
+  shared parts and the closing tables go to `README.md`, every case is
+  copied unchanged with its id, and the old file is deleted — one commit
+  of its own («docs: тест-кейсы разложены по разделам»; a move needs no
+  request from the user, git keeps the old file's history). The move
+  rewrites no case; the writer then gets the folder.
 
 ```markdown
 ## TC-7. Резидент не может отменить бронь, которая уже началась
@@ -219,7 +224,7 @@ uses the test stub the architecture names; when there is none, that is a
 comes from more stands, each with its own database and storage and its
 share of the test files. Before the dispatch, read
 `references/parallel-stands.md`: measure how many stands this machine
-holds, start them with `scripts/e2e-stands.sh`, and pass them to the runner
+holds, start them with the project's `scripts/e2e-stands.sh`, and pass them to the runner
 as `STANDS`. A stand that cannot be copied yet (a fixed port, a
 `container_name`, no `scripts/e2e-stands.sh`) is not a reason to run long
 on one: when the machine holds more than one stand and the run has more
@@ -471,7 +476,8 @@ fix plan must turn green.
 
 - write: every AC has a `TC-` or a «Без интерфейса» line; every state row,
   user-causable response outcome and «Поля ввода» rule has a case; steps name actions, not widgets; expected texts come
-  from the frame's «Тексты» table or are marked `текст — по кадру`.
+  from the frame's «Тексты» table, and each text missing there is a spec
+  gap for `screen-spec`, not a case marker.
 - run: the suite is committed-ready under the E2E folder with `test:e2e`;
   pass 1 reached 100% and every failed case went through pass 2; no
   application file changed; the `Verdict:` line under the last table is the

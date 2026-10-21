@@ -65,7 +65,11 @@ description: >-
     files are not, so the default is a plain SQL runner; point `migrationsFolder` there only after
     checking the installed version reads such files. Never edit a committed file — a change is the
     next file.
-11. **Options, not a checklist.** Relations, optimistic locking (a version column in every
+11. **A query applies a business rule only by its owner's constant.** A filter by status or role
+    imports the list from the domain module (the domain model's «Кто ещё применяет»), never a
+    literal in SQL; an adapter writes what the domain decided and never re-derives the rule, an
+    upsert's conflict branch included.
+12. **Options, not a checklist.** Relations, optimistic locking (a version column in every
     update's `WHERE`), and pool tuning only for a present need. The driver owns its pool: close it
     in the existing shutdown path, no second tracker.
 
@@ -81,7 +85,7 @@ export const toRecord = (u: User): NewUserRecord =>
 // adapters/persistence/user.repository.ts — implements application's UserRepository port
 async save(user: User): Promise<void> {
   try { await this.db.insert(users).values(toRecord(user)) }
-  catch (e) { if (sqlState(e) === '23505') throw new EmailAlreadyTaken(user.email); throw e }
+  catch (e) { if (sqlState(e) === '23505') throw new EmailAlreadyTaken(user.email, { cause: e }); throw e }
 }
 ```
 
@@ -97,9 +101,6 @@ This skill does not pin library facts that change between releases (signatures, 
 - **Docs ahead of the installed line.** Drizzle's documentation and context7 may show the 1.0 line
   (relational queries v2, `defineRelations`, a new migrations folder) while the installed package is 0.x — check the
   version in the lockfile before copying an API.
-- **A query applies a business rule only by its owner's constant.** A filter by status or role imports the list from
-  the domain module (the domain model's «Кто ещё применяет»), never a literal in SQL; an adapter writes what the
-  domain decided and never re-derives the rule, an upsert's conflict branch included.
 - **Relations API.** Major lines ship different relation and relational-query APIs (declaration
   helper, `where` as operator vs object filter). Use the one the installed version supports and
   the repo already uses; code for the other line does not compile.

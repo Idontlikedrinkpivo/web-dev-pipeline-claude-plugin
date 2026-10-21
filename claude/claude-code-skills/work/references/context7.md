@@ -24,7 +24,7 @@ FastAPI". You fetch once, here, and paste slices into each packet.
    and continue. Do not stop the run. Do not tell the worker to fetch docs —
    it has no session and may have no MCP.
 6. These excerpts lose to `DESIGN YOU MUST FOLLOW`, to `PATTERN TO MIRROR`,
-   to the unit's Approach / Test scenarios, and to `STACK SKILLS`. They win
+   to the unit's «Подход» / «Тестовые сценарии», and to `STACK SKILLS`. They win
    only over the worker's memory of the library.
 
 Record which libraries you fetched (id + pinned version), or why you wrote

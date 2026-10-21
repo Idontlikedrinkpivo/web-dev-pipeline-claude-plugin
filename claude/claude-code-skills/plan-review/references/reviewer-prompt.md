@@ -3,9 +3,10 @@
 Two packets from one template. The **structural** packet goes to
 `plan-review-medium`, the **judgment** packet to `plan-review-hard`. Both are
 bounded: everything a reviewer may look at is pasted in, and neither explores
-the repo beyond the file tree it is given.
+the repo beyond the file tree it is given — except the structural reviewer's
+search for the symbols a unit removes or changes (Files completeness).
 
-Fill `LENSES` with only that packet's lenses. A reviewer given all eleven skims
+Fill `LENSES` with only that packet's lenses. A reviewer given all twelve skims
 the three that matter.
 
 ## The packet
@@ -26,7 +27,7 @@ SERVICE VERSION     (structural packet only) the folder's version, the
                     API has external consumers (partner-versioned, `/vN` path)
 
 DESIGN DOCUMENTS CITED BY THE PLAN (de-duplicated)
-  <every section, id, operationId, table, and screen any unit's Docs names,
+  <every section, id, operationId, table, and screen any unit's «Документы» names,
    pasted once each — this is what citations are resolved against>
 
 COVERAGE LEDGER
@@ -38,9 +39,9 @@ COVERAGE LEDGER
 
 LEGAL EXECUTOR NAMES
   <executor-catalog/references/assignable-implementers.md, verbatim —
-   Implementer: mechanical-worker | impl-lite | impl-medium | impl-hard | impl-ui;
-   Nested: — | mechanical-worker. A unit whose Docs cite a screen spec and a
-   Figma nodeId is impl-ui with Nested —. Any other unit on impl-ui is a finding.
+   «Исполнитель»: mechanical-worker | impl-lite | impl-medium | impl-hard | impl-ui;
+   «Вложенный»: — | mechanical-worker. A unit whose «Документы» cite a screen
+   spec and a Figma nodeId is impl-ui with «Вложенный» —. Any other unit on impl-ui is a finding.
    Not the catalog's full Name column: a
    review, plan-review, plan-writer, design, or impl-critical name in a plan is a finding.>
 
@@ -48,7 +49,7 @@ GRADING STANDARD
   <plan/references/complexity.md, pasted in full>
 
 REPO FILE TREE
-  <the tree, so Files paths and scaffold overlap can be checked>
+  <the tree, so «Файлы» paths and scaffold overlap can be checked>
 
 PRIOR FINDINGS  (if this is a re-review after a fix)
   <one line per already-closed finding, or "none">
@@ -67,10 +68,10 @@ DO NOT REPORT
 
 SEVERITY
   P0  the plan cannot execute as written: dependency cycle, a unit that cannot
-      land green alone, a floor violation, a Docs citation that does not resolve
-      in the pasted documents, an invariant or AC covered by no unit, an
-      Implementer name absent from LEGAL EXECUTOR NAMES
-  P1  executable but buys avoidable rework: a false Parallel-safe, a grade off by
+      land green alone, a floor violation, a «Документы» citation that does
+      not resolve in the pasted documents, an invariant or AC covered by no
+      unit, an «Исполнитель» name absent from LEGAL EXECUTOR NAMES
+  P1  executable but buys avoidable rework: a false «Параллельно: yes», a grade off by
       one tier without a floor breach, a scenario whose expected outcome is not
       decided yet, a unit recreating scaffold output, a PATCH over
       «добавляет» / «ломает» changes, a partner API broken inside its
@@ -85,28 +86,34 @@ Every citation finding names the document and the id that did not resolve.
 ## Structural lenses — `plan-review-medium`
 
 ```
-  Dependency graph — Depends on forms a DAG, every named dependency exists,
+  Dependency graph — «Зависит от» forms a DAG, every named dependency exists,
     every unit is reachable in the wave ordering.
-  Parallel safety — for each Parallel-safe: yes pair: disjoint Files AND no
+  Parallel safety — for each Параллельно: yes pair: disjoint «Файлы» AND no
     shared type, migration, registry, config, generated client, lockfile, or
     runtime resource (test database, port, dev server).
     File disjointness alone is not sufficient; an unmarked shared contract is
     a finding.
-  Citation integrity — every Docs entry resolves to a real section, id,
+  Files completeness — for each unit that removes or changes a field, a
+    constant, an environment variable, a response shape or a public symbol:
+    search the repository (grep) for the symbol — code, tests, e2e, CI,
+    documents — and check that every hit is in the unit's «Файлы» or named
+    under «Не затрагивается» with a reason. A missing caller or test is P1.
+    This is the one lens that reads the repository, and only the hits.
+  Citation integrity — every «Документы» entry resolves to a real section, id,
     operationId, table, or screen in the pasted documents.
-  Coverage — every "covered by a test" line appears in some unit's Test
-    scenarios; every "covered by a unit" line belongs to some unit's Docs or
-    Files (it needs no test line of its own). Name anything with no unit, and
+  Coverage — every "covered by a test" line appears in some unit's
+    «Тестовые сценарии»; every "covered by a unit" line belongs to some
+    unit's «Документы» or «Файлы» (it needs no test line of its own). Name anything with no unit, and
     anything two units both claim.
-  Executor validity — every Implementer and Nested name appears verbatim in
-    LEGAL EXECUTOR NAMES; no model slug anywhere in the plan; Nested filled
-    only where the unit describes separable mechanics. A unit whose Docs cite
-    a screen spec and a Figma nodeId is impl-ui with Nested —; impl-ui
-    anywhere else is a finding.
+  Executor validity — every «Исполнитель» and «Вложенный» name is one of
+    LEGAL EXECUTOR NAMES; no model slug anywhere in the plan; «Вложенный»
+    filled only where «Что делает вложенный» describes separable mechanics.
+    A unit whose «Документы» cite a screen spec and a Figma nodeId is impl-ui
+    with «Вложенный» —; impl-ui anywhere else is a finding.
   Existing work — a unit that recreates what the REPO FILE TREE shows already
-    exists, and every Pattern path exists in the REPO FILE TREE — or is
+    exists, and every «Образец» path exists in the REPO FILE TREE — or is
     written `path (U<n>)` and created by that earlier unit reachable via
-    Depends on, or names an architecture section whose file tree / snippet
+    «Зависит от», or names an architecture section whose file tree / snippet
     fixes the shape. Do not judge
     whether a grade is too low; the judgment half owns calibration.
   Service version — §1 states a version, its level and reason, matching the
@@ -130,10 +137,10 @@ Every citation finding names the document and the id that did not resolve.
     arrives, a route registered against a handler another unit adds, a
     migration whose adapter is elsewhere. Each is a split, not a preference.
   Grade calibration — run the GRADING STANDARD's cascade on each unit's own
-    filled fields (Files count and ring spread, whether Approach still contains
-    an open decision, whether Test scenarios has error and integration rows,
-    whether Docs fully determine the outcome) and compare to the stated grade.
-    Check both floors. Check the anti-deflation gate: a unit whose Pattern is
+    filled fields («Файлы» count and ring spread, whether «Подход» still
+    contains an open decision, whether «Тестовые сценарии» has error and
+    integration rows, whether «Документы» fully determine the outcome) and compare to the stated grade.
+    Check both floors. Check the anti-deflation gate: a unit whose «Образец» is
     `— first of its kind` is at least Mid, so 0 or Low there is a finding.
     Check the compound gate was reachable: when every High
     unit in the plan is a risky one, that gate was probably skipped and the
@@ -152,7 +159,7 @@ VERDICT           PASS | FIX_THEN_PROCEED | RETURN_TO_PLAN | STOP
 FINDINGS          one per line: <sev> | <unit ids> | <lens> | <what> | <fix> | <fix kind>
                   fix kind on P0/P1: mechanical (the fix is the finished text
                   edit) | local (a local decision left) | reslice (split, merge,
-                  new unit, cross-unit Depends on, security/money/migration
+                  new unit, cross-unit «Зависит от», security/money/migration
                   decision); `—` on P2/P3
 COVERAGE LEDGER   ledger lines with no unit, or "all covered"
 GRADE TABLE       <unit> | stated <grade> | cascade says <grade> | <rule or floor>

@@ -11,7 +11,7 @@ token. This is the same rule on architecture, OpenAPI, and DB schema:
 
 | Document | no row (same token, new explanation) |
 |---|---|
-| Architecture | prose, rationale, or comment on an existing entity, port, invariant row, assumption `A-n`, or file-tree entry |
+| Architecture | prose, rationale, or comment on an existing entity, port, invariant row, assumption `ДП-n`, or file-tree entry |
 | OpenAPI | `description`, `summary`, `title`, or `example` on an existing operation, parameter, or schema property |
 | DB schema | `Note`, `note:`, or `COMMENT ON` on an existing table or column |
 
@@ -29,7 +29,7 @@ in this document or its pinned source.
 | Document | ломает (not exhaustive) | добавляет (not exhaustive) |
 |---|---|---|
 | SRS | an FR, NFR, BR, UC or AC removed or changed in meaning; an actor's rights narrowed; a security decision changed | a new FR, NFR, BR, UC or AC; a new actor |
-| Architecture foundation | a module, port signature, store, external system, stack choice or assumption `A-n` changed or removed | a new module, port, adapter, external system or assumption |
+| Architecture foundation | a module, port signature, store, external system, stack choice or assumption `ДП-n` changed or removed | a new module, port, adapter, external system or assumption |
 | Domain model | an entity's states, an invariant row or a named error changed or removed | a new entity, value object, state, invariant row or named error |
 | Scenarios | a use case removed; a port or operation it calls, its outcome or its errors changed | a new use case |
 | Screen spec | an element removed; an operation or field it cites, a state or a response outcome changed | a new element, state or response outcome |

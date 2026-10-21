@@ -47,15 +47,17 @@ sources:
 пунктов — решение или `Не применимо — <причина>`)* · Решения по NFR
 *(каждая не-security строка SRS §4)* · Ключевые решения *(всегда: Уровень,
 Стек, затем только решения с названной альтернативой)*. Списки в ячейке
-через `;` не склеивать. Акторы — имена (`Anonymous`, `Admin`), не `A-n`:
-это пространство допущений. Хранилища — store + для чего в этом проекте,
+через `;` не склеивать. Акторы — имена (`Anonymous`, `Admin`).
+Хранилища — store + для чего в этом проекте,
 не каталог таблиц. Внешние системы — партнёры, которыми мы не владеем;
 наша БД и объектное хранилище сюда не входят; нет партнёров — одна строка
 «нет». API — только живые входы (REST, CLI, очередь, cron), второй вход —
 ещё одна строка; строк «нет» не писать. Стек — рантайм с мажорными
-версиями, «Почему эта» — 2–4 предложения; локальный запуск — §5, линтер
-границ — §6. Уровень и стек — строки «Ключевых решений», не отдельные
-разделы. Сущностей, сценариев и чтений здесь нет — они в доменной модели
+версиями, «Почему эта» — 2–4 предложения: единственное место, где
+объяснён выбор технологий; локальный запуск — §5, линтер границ — §6.
+Уровень и стек — строки «Ключевых решений», не отдельные разделы; строка
+«Стек» там записывает выбор и отвергнутые варианты, а в «Почему» — кто
+выбрал и `см. §1 «Стек»`, без повтора причин. Сущностей, сценариев и чтений здесь нет — они в доменной модели
 и в документах сценариев.
 
 ## 2. Модули и функциональные области
@@ -133,8 +135,9 @@ scenarios/<area>/<group>.md`. Один артефакт на файл.
 
 The last §1 table: Решение · Выбрано · Вместо · Почему. Row 1 is always
 `Уровень` (name the Full trigger when one fired); row 2 is `Стек`,
-«Вместо» naming the cards not picked. Add a row only for a choice with a
-named alternative — DTO vs entity (its proof stays a «Проверки границ»
+«Вместо» naming the cards not picked, «Почему» saying who picked it and
+citing §1 «Стек» — the reasons live in its «Почему эта» column only.
+Add a row only for a choice with a named alternative — DTO vs entity (its proof stays a «Проверки границ»
 row in the domain model), outbox vs in-request (the transaction model),
 each port the level does not include by default (`Clock`, `UnitOfWork`,
 `IdGenerator`) with the test or rule that needs it. One sentence per
@@ -144,10 +147,10 @@ read the level here, so it must be in the file, not only in a report.
 
 ## Open questions
 
-Live `(A-n)` guesses and grill/review questions go to
+Live `(ДП-n)` guesses and grill/review questions go to
 `documentation/architecture/open-questions.md`, not into this file. A
 retired assumption is one sentence there («снято: стало решением
-OQ-…»), not a struck-through list. The body may tag `(A-n)`; the list
+OQ-…»), not a struck-through list. The body may tag `(ДП-n)`; the list
 lives only in that file. The three documents share one
 `open-questions.md`.
 

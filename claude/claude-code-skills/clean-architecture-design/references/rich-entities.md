@@ -130,7 +130,7 @@ by the shape of the rule:
 | a calendar boundary ("day", "quarter", "in N days") | the value object that computes it, given an instant and a zone | its method — never `Clock` | a derived date or instant |
 | a recorded fact never changes; a mistake is fixed by a new fact (ledger entries, receipts, audit rows) | the entity that records it | the type has no mutating method; the correcting entity's factory takes the fact it corrects | the correcting fact, no error; schema `none` unless a trigger exists |
 | an external event or a client request takes effect at most once (a provider event id, an idempotency key) | the entity the first occurrence creates, holding the key and what the first call produced | its factory takes the key; a method compares a repeat with the stored one (same body → replay, different body → named error). The use case looks the key up through a port *before* acting | the stored outcome of the first call on a replay, or a named error; schema `UNIQUE` on the key as the last line |
-| a rule you had to guess | as above | as above | as above, tagged `(A-n)` in the table and listed in `open-questions.md` |
+| a rule you had to guess | as above | as above | as above, tagged `(ДП-n)` in the table and listed in `open-questions.md` |
 
 The document table also has **Ограничение в схеме**: `none` | `CHECK` |
 `UNIQUE` | `FK`. That cell is for `db-schema-design`. It is never a cell
@@ -138,7 +138,9 @@ that says the database enforces the rule — «Где проверяется» s
 entity or value-object method.
 
 Publish the table with headers `Правило | Владелец | Где проверяется |
-Ограничение в схеме | Исход` and nothing above it. Do not copy this
+Ограничение в схеме | Исход | Кто ещё применяет` and nothing above it;
+`output-template-domain.md` → «Column rules of the invariant table» holds
+what each column takes. Do not copy this
 section's explanations, a column gloss, or the words Owner / Enforced in
 / Storage echo / Outcome into the domain model. Entity headings are
 `### <Name> (сущность)`: do not write «агрегат» or define it. Do not
@@ -153,7 +155,7 @@ of both: the caller must catch a "failure" that actually succeeded, and the new
 state is invisible in the signature.
 
 **Assumed rules belong in the table** when the agent must implement them —
-otherwise the table is incomplete for implementation. Tag them `(A-n)` and
+otherwise the table is incomplete for implementation. Tag them `(ДП-n)` and
 cross-reference `open-questions.md` so the customer can
 strike a row without hunting for it.
 

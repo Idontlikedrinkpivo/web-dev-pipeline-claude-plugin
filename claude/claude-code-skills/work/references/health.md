@@ -22,7 +22,9 @@ each figure at BASE and at HEAD.
 When the run added duplicates or grew a function or file past a threshold, dispatch one `impl-medium` unit
 «Упрощение»: remove the copies (take them from the one home the architecture names), split what grew, keep
 behaviour — no test assertion changes, the full suite green before and after, `lint` and `typecheck` green. It
-lands as its own commit before `code-review-full`. Surviving mutants are not fixed here: they go to the review as
+passes `code-review-unit` like a Mid unit and lands as its own commit before `code-review-full`, with the trailer
+`Plan-Unit: <version>/health-<n>` (`n` counts the run's simplifier commits from 1). The run report lists it under
+«Здоровье кода», so `code-review-full` counts it as mapped. Surviving mutants are not fixed here: they go to the review as
 findings on the tests.
 
 ## Hand over

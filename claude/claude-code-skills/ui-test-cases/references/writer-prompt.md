@@ -8,8 +8,8 @@ open — such a case goes to GAPS.
 SKILL           <path to ui-test-cases/SKILL.md> — follow Mode write
 OUTPUT PATH     documentation/ui/test-cases/ — README.md and one file per
                 section (documentation/ui/<product>/test-cases/ with several
-                UI products); an old single test-cases.md beside it is moved
-                in first (ui-test-cases → Mode write → Artifact)
+                UI products); an old single test-cases.md was already moved
+                in and committed by the session
 MODE            greenfield | increment (keep every TC- id; new cases take the next number)
 PROGRESS FILE   documentation/plans/<version>/progress-test-cases.md
 
@@ -19,7 +19,7 @@ INPUTS (read in full)
   Screens:    documentation/ui/frames-register.md + one
               documentation/ui/screen-specs/S-<n>-<slug>.md per screen
   OpenAPI:    documentation/api/openapi.yaml | none
-  Existing cases: <the test-cases/ folder | an old test-cases.md> | none
+  Existing cases: <the test-cases/ folder> | none
 
 RULES
 - Progress comes first in every section: before the section's first edit,
@@ -42,7 +42,9 @@ RULES
   ARIA expectations. A «Проверяет» line with the requirement ids opens each
   case. Steps go through controls the spec names when another path exists;
   expected texts carry real values computed from the preconditions, never
-  `{дата}` or «по кадру».
+  `{дата}` or «по кадру». A text the spec marks `текст — нет в «Тексты»`:
+  the case names the state without a quote, and the text goes to the set's
+  spec gaps.
 - Preconditions name the data, so a runner can seed it.
 - README.md holds what every section shares, the «Разделы» table and,
   at its end, the coverage table: AC → TC ids, or «Без интерфейса» +
@@ -51,8 +53,7 @@ RULES
 - Readable (doc-versioning → references/readable.md): a precondition or an
   expected result is one fact per line; README's shared parts are short
   paragraphs and tables, not one paragraph per topic.
-- Write only under OUTPUT PATH (and delete the old single file after the
-  move). Do not commit.
+- Write only under OUTPUT PATH. Do not commit.
 ```
 
 Report — last message, exactly:

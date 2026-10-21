@@ -65,8 +65,8 @@ version's `--help` or current docs (context7) before writing it.
 
 | Toolchain | Audit command (example) | Threshold note |
 |---|---|---|
-| Node (npm) | `npm audit --audit-level=high` | reads `package-lock.json`; no install needed |
-| Node (pnpm) | `pnpm audit --audit-level high` | needs pnpm set up, not an install |
+| Node (npm) | `npm audit --omit=dev --audit-level=high`, then `npm audit \|\| true` for the warning | reads `package-lock.json`; no install needed; without `--omit=dev` a development tool fails the step |
+| Node (pnpm) | `pnpm audit --prod --audit-level high`, then `pnpm audit \|\| true` for the warning | needs pnpm set up, not an install |
 | Node (yarn) | classic and Berry differ (`yarn audit` vs `yarn npm audit`), and so does the severity flag | check which yarn the repo pins |
 | Python (pip / Poetry / uv) | `pip-audit -r <requirements exported from the lockfile by the project's own tool>` | check `pip-audit --help` for a severity filter; without one it fails on any known advisory, and accepted ones go through `--ignore-vuln <ID>`, each with a reason |
 | Other toolchains | the ecosystem's own advisory tool | same rule: severity flag if it has one, otherwise any advisory fails and exceptions go by ID |

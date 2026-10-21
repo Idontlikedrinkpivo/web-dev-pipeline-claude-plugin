@@ -30,8 +30,13 @@ DEFINITION-OF-DONE OUTPUT
 DEAD-CODE REPORT
   <path to the detector output (knip / vulture), or "could not run: <reason>">
 
+CODE HEALTH  (BASE vs HEAD)
+  <the «Здоровье кода» table pasted from the run report: duplicates, functions
+   and files over the thresholds, surviving mutants — each at BASE and at
+   HEAD — plus the simplifier's commit, or "no simplifier commit">
+
 DESIGN DOCUMENTS CITED BY ANY UNIT (de-duplicated)
-  <every section any unit's Docs field named, pasted once each>
+  <every section any unit's «Документы» field named, pasted once each>
 
 DECLARED NFR AND CONFIGURATION DECISIONS
   <foundation §1 «Решения по NFR» rows and the §4 configuration table,
@@ -150,6 +155,11 @@ LENSES TO APPLY
     and the path from entry point to the unguarded operation, and also names the
     SRS or architecture row that should have forbidden it. A weakness in code no
     unit in this run touched is OPEN, whatever its severity would be.
+  Code health — compare every row of CODE HEALTH at HEAD with BASE. A row
+    worse at HEAD with no reason in the RUN REPORT is a finding: P1 for
+    duplicates or a function or file past a threshold this run added or
+    grew, P1 for a surviving mutant in a file that enforces an invariant row
+    (a finding on the test that should have killed it), P2 otherwise.
   Критерии готовности — read the DEFINITION-OF-DONE OUTPUT (do not re-run the
     commands): lint/dependency contracts, the end-to-end path, and from the
     diff the invariant and AC coverage. A non-zero exit is P1.
@@ -200,6 +210,10 @@ UNDECLARED SURFACE  each hole this diff introduced: <sev> | <traced path> |
                   <the SRS or architecture row that should have forbidden it>;
                   or "none"
 DEFINITION OF DONE   each §5 item: met, with what was checked — or not met
+CODE HEALTH       each row: BASE → HEAD, not worse — or worse (finding id, or
+                  the run report's reason)
+DEAD CODE         each detector entry this diff added or left unreferenced
+                  (finding id); entries older than this run, as one line
 OPEN              doubts about the design itself, for the user
 ```
 

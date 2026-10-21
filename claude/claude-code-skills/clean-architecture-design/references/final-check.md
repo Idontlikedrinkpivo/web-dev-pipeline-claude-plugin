@@ -23,7 +23,7 @@ states the rule; fix the document there, not here.
   section states its design, and nothing under a live heading is empty —
   `increment.md`.
 - Russian prose and the Russian headings of the mode's template; English
-  identifiers. `A-n` entries live only in
+  identifiers. `ДП-n` entries live only in
   `documentation/architecture/open-questions.md`.
 - Every state the documents name is named by the requirements or tagged
   as an assumption — Guardrails → Invented model.
@@ -95,6 +95,11 @@ states the rule; fix the document there, not here.
   entity or value-object sketch, with the same signature. Every row has
   «Ограничение в схеме» `none` / `CHECK` / `UNIQUE` / `FK`, copied from
   the schema.
+- Every rule that a query, a screen or another module also applies has
+  «Кто ещё применяет» naming that place and how it gets the rule from
+  its owner (an imported constant or value object, a response field, or
+  the one mirroring frontend module and its comparing test); `—` when no
+  other place applies it.
 - Every entity heading carries its file path, and every sketch is
   followed by `Поля также в:` naming each storage model, mapper, read
   model, and wire schema that repeats its fields.

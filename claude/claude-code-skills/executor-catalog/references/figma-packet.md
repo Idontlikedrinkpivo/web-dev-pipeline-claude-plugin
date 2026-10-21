@@ -16,13 +16,14 @@ repository.
 
 Contents:
 
-- **The packet** — the fields (FILE, MODE, PAGE, VISUAL DIRECTION, OPTIONS,
-  SCREENS, …); RULES: scope, completeness, layer names, annotation, copy,
-  real content, two passes, the file standard, tokens, usability and
-  accessibility, the screenshot check; then the modes `direction`,
-  `restyle` and `rename`.
-- **The report** — the fields the builder returns and how the session
-  checks them.
+- [The packet](#the-packet) — the fields (FILE, MODE, PAGE, VISUAL
+  DIRECTION, OPTIONS, SCREENS, …); RULES: scope, completeness, layer names,
+  annotation, copy, real content, two passes, the file standard, tokens,
+  usability and accessibility, the screenshot check; then the modes
+  `direction`, `restyle` and `rename` (search `MODE direction`, `MODE
+  restyle`, `MODE rename` inside the block).
+- [The report](#the-report) — the fields the builder returns and how the
+  session checks them.
 
 ## The packet
 

@@ -50,8 +50,10 @@ RULES
   missing one (`test.fixme` on a split-off part, or a skipped step with the
   reason), so the rest still checks.
 - Keep or add the `test:e2e` script.
-- Expected wording comes from the «Тексты» table on each screen's Аннотация
-  frame; a case marked `текст — по кадру` takes it from there too.
+- Expected wording is the case's quoted text, copied from the «Тексты»
+  table on each screen's Аннотация frame. A case that names a state without
+  a quote checks the state only and never fills the wording in from the
+  frame: the missing text is a spec gap the writer listed, not a defect.
 - Screenshot every case's screen and compare with the frame of its nodeId
   for layout, texts and states — not pixels. No Figma access: skip the
   comparison and say so.

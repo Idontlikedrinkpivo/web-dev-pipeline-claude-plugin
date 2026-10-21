@@ -52,11 +52,8 @@ Build each query around one intent, in 2–5 meaningful English terms (the
 data is in English, so Russian words match nothing) with one useful
 constraint (product, audience, interaction): `"meeting room
 booking corporate"`, not a whole brief. Check that the domain, the top
-result and its fit for this product are right before using it. Retry once
-with a narrower query or an explicit domain when the result is empty or off
-topic; if that fails too, say that no match was found and label any general
-advice as a fallback, not as data. Never present an empty search as a
-result.
+result and its fit for this product are right before using it. An empty
+or off-topic result: «If a search returns nothing» below.
 
 | Need | Domain | Example |
 |---|---|---|
@@ -100,7 +97,7 @@ How the output maps onto the pipeline:
 | Colors | tokens, by the table below; check every text pair for 4.5:1 and control boundaries for 3:1 (UX-7) before offering it |
 | Typography | the pairing is already checked for Cyrillic (every family has the `cyrillic` subset); a font outside the pairings comes from `--domain google-fonts` with `cyrillic` in the query, and is kept only when its Subsets list `cyrillic` — `cyrillic-ext` alone has no Russian alphabet |
 | Landing Pattern | only when the SRS has a public page: offered to the user as the section order and the place of the main action |
-| Suggested Effects | proposals for the user, not rules. First drop what `ux-patterns` rules out — UX-61 (decorative entrances, staggers, springs, scale on press, animated screen transitions, parallax outside a B2C first screen), UX-63 (hover slower than 150 ms), UX-47 (gauges, pies); an accepted one becomes a line in `ui-wishes.md` |
+| Suggested Effects | proposals for the user, not rules; which ones to drop first (UX-61, UX-63, UX-47) and where an accepted one is written: `ui-design/references/visual-direction.md`, the step after the user picks a direction |
 | Avoid | added to the direction's «не делаем» line |
 | Pre-Delivery Checklist | short form; the full one is `ux-patterns` → «Проверка экрана перед сдачей» |
 
@@ -124,7 +121,8 @@ inverted ones — and its contrast is checked separately (UX-62).
 
 ## If a search returns nothing
 
-1. Retry once with a narrower query or an explicit domain or stack.
+1. Retry once with a narrower query or an explicit domain or stack; an
+   off-topic result counts as empty.
 2. Still empty: use `ux-patterns` and say plainly that the suggestion comes
    from general defaults, not from this data («палитры под этот продукт в
    базе нет, предлагаю нейтральную»).

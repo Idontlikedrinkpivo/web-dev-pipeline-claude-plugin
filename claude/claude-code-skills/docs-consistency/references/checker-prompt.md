@@ -79,7 +79,7 @@ OWNER  the document that should change. Default: the downstream one. Upstream
 DO NOT REPORT
 - Anything inside one document only (that was its doc-review).
 - A departure the downstream document records itself with its reason: an
-  assumption A-n, a changelog line. List it under dismissed. An open-questions
+  assumption ДП-n, a changelog line. List it under dismissed. An open-questions
   row that names an upstream gap (another document is wrong or silent) IS a
   finding, owned by that other document. A row that says two documents
   «должны совпасть» or names docs-consistency as owner is a check to run,

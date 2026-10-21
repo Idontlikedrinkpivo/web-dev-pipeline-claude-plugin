@@ -174,7 +174,8 @@ The register is an unversioned row of the `doc-versioning` Registry: no
 every write; `screen-spec` cites it by path with no `@<version>`. Its
 frontmatter `sources:` pins the SRS version the frames were drawn from
 (`srs.md@<version>`), so a stale sweep sees frames that lag the SRS. The
-visual-binding rule does not apply to it: it names frames.
+`doc-versioning` → «What, not how it looks» rule does not apply to it: it
+names frames.
 
 What it holds:
 
@@ -322,7 +323,7 @@ information; the dispatch does not wait.
 
 One subagent for the whole set; do not parallelize edits to one file.
 Before the `Agent` call, write `Name | subagent_type` for the row and
-dispatch that agent (`subagent_type: "figma-opus"` or `"figma-sonnet"`)
+dispatch that agent (`subagent_type: "dev-pipeline:figma-opus"` or `"dev-pipeline:figma-sonnet"`)
 without asking which model, with no `model` unless the user named one. A
 dispatch on `general-purpose` or any other agent is a failed dispatch:
 discard its result. A missing agent or a rejected alias is a stop per the

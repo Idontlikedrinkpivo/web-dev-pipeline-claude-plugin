@@ -118,7 +118,7 @@ quotes, focus after a failed submit).
 - Lists over ~50 items are virtualized (`virtua`, `content-visibility: auto`) or paginated → UX-75, UX-43
 - No layout reads in render (`getBoundingClientRect`, `offsetHeight`, `offsetWidth`, `scrollTop`) → UX-75
 - DOM reads and writes are batched, not interleaved → UX-75
-- Prefer uncontrolled inputs; a controlled input is cheap per keystroke → UX-75
+- Prefer uncontrolled inputs; keep a controlled input cheap per keystroke → UX-75
 - `<link rel="preconnect">` for CDN and asset domains → UX-75
 - Critical fonts: `<link rel="preload" as="font">` with `font-display: swap` → UX-75
 - A muted looping `<video autoplay muted loop playsinline>` instead of an animated GIF, with a still alternative; for short loops, an H.264 MP4 source for Safari and a `prefers-reduced-motion` still → UX-75, UX-61
@@ -184,7 +184,7 @@ Only in a Next.js project; the details are in `frontend` →
 
 ### Anti-patterns — flag on sight
 
-- `user-scalable=no` or `maximum-scale=1` → UX-71
+- `user-scalable=no` or `maximum-scale=1` → UX-55
 - `onPaste` with `preventDefault` → UX-19
 - `type="number"` → UX-19
 - `transition: all` → UX-61

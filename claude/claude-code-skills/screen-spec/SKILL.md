@@ -96,9 +96,9 @@ The sections, in order (template in `references/template.md`):
 
 1. **Экран** — actors with their conditions, UC ids, where the actor comes
    from, which `S-n` and `M<n>` it leads to, the narrow-width frame (the
-   register's `375 → nodeId`), and the **Фокус** line from the annotation:
-   where focus lands at entry, after a nested step closes, and after a
-   failed submit, named by element number.
+   register's `375 → nodeId`), and the **Фокус** table built from the
+   annotation's Фокус line: where focus lands at entry, after a nested
+   step closes, and after a failed submit, named by element number.
 2. **Загрузка и вызовы** — an ordered list «условие → `operationId`
    (параметры)»: when the screen calls what, in the order the front makes
    the calls. When a call's input comes from an earlier call's response, its
@@ -317,7 +317,7 @@ decide is a Разрыв, not a guess.
 each state frame, each nested-step frame, and the `S-n · Аннотация` frame —
 layer names (`действие: …`, `ввод: …`, `шаг: M<n>`, `данные: …`), component
 variants, `nodeId`s. The annotation's «Элементы» table gives each layer its
-`№` and flow; its Фокус line goes into Экран. When the register says
+`№` and flow; its Фокус line becomes the «Фокус» table in Экран. When the register says
 **Слои по действиям: нет** (a designer's file left as drawn), read the
 layers as they are, number elements in the user's reading order, and add
 one Разрыв (`design`): «нет аннотации — № назначены ТЗ». One

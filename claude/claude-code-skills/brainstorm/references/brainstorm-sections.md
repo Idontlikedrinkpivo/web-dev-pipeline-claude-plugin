@@ -388,8 +388,6 @@ to `created` breaks both. Adding a new field is fine.
 
 ## ID and content rules
 
-Same shape as plan rules.
-
 - **Stable IDs.** R-IDs (Requirements), A-IDs (if Actors fire), F-IDs (if
   Flows fire), AE-IDs (if Acceptance Examples fire). No other ID namespaces.
 - **Plain prefix.** `R1.`, `A1.`, `F1.`, `AE1.` as bullet prefixes. Do not

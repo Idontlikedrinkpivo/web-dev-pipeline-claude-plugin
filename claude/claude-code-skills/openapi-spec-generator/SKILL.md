@@ -24,13 +24,22 @@ and nests `doc-typist` to print it. A report whose `DELEGATED` is not
    on a new spec, when the SRS does not say — whether anyone outside the
    project calls the API (Step 2, Contract version).
    Ask once in chat and paste the answers into the packet's INPUTS.
+   A single-file spec is split here, before dispatch (writers and the
+   typist do not commit): `npx --yes @redocly/cli split
+   documentation/api/openapi.yaml --outDir <tmp>`, its output moved into
+   `documentation/api/` in the layout of Step 8. The split changes no
+   operation, schema, version or changelog row: bundle the old file and
+   the new root (`npx --yes @redocly/cli bundle … -o …`) and compare —
+   they must match. Commit the move on its own («docs: OpenAPI разложен
+   по файлам»); it is a move, not a version event, and the change that
+   follows is committed by the stamp when the stage closes.
 3. Read `executor-catalog` and
    `executor-catalog/references/design-complexity.md`. Dispatch
    exactly one writer with
    `executor-catalog/references/design-writer-prompt.md`. Before the
    `Agent` call, write `Grade | Executor | subagent_type` for the design
    row the grade picked, then dispatch it without asking which model.
-   Follow the catalog dispatch contract: `subagent_type` is the row's name
+   Follow the catalog dispatch contract: `subagent_type` is `dev-pipeline:<row>`
    and the call passes no `model` (the agent file holds it) unless the
    user named one. A missing agent or a rejected alias is a stop.
 4. Inspect `documentation/api/openapi.yaml` on disk. Run
@@ -114,13 +123,10 @@ second name.
 
 ### Step 1b — Existing spec: extend it under versioning rules
 
-**A single-file spec is split first** (Step 8 → Layout), before any change:
-`npx --yes @redocly/cli split documentation/api/openapi.yaml --outDir
-<tmp>`, its output moved into `documentation/api/`. The split changes no
-operation, schema, version or changelog row: bundle the old file and the new
-root (`npx --yes @redocly/cli bundle … -o …`) and compare — they must match.
-The move is its own commit, made before the change («docs: OpenAPI
-разложен по файлам»), not a version event. It is a move, not a version stamp; the change that follows is committed by the stamp when the stage closes.
+The spec arrives split into files (Step 8 → Layout): the session splits a
+single-file spec and commits the move before dispatch (Orchestrator,
+step 2). A single-file spec in the packet returns BLOCKED naming that
+step.
 
 An existing `documentation/api/openapi.yaml` is the canonical contract, not a draft to
 replace. Read the `doc-versioning` skill and follow it, plus what is specific
@@ -422,8 +428,8 @@ cannot return misleads `screen-spec` and every generated client.
 The status of a **named** use-case error is not chosen from the generic
 4xx table: it is the SRS status or the orchestrator's answer in INPUTS
 (Step 1 mapping). Do not stop to wait for an architecture table. A status label
-shown to the client is the schema `label` column, not an example
-invented here.
+shown to the client is the schema's «Подпись» column in `## Закрытые
+наборы значений`, not an example invented here.
 
 Use `$ref` to `components/responses` for `401`, `403`, `404`, `429`, `500`.
 
@@ -487,8 +493,7 @@ test cases, mock servers, or client SDKs unless the user asks.
 
 ## Reference Files
 
-- `references/security-schemes.md` — OpenAPI 3.0 security schemes
-- `references/common-patterns.md` — Pagination, problem+json, webhooks, file upload, filtering
-
-Read these when the SRS names auth or a listed pattern (pagination, error
-bodies, webhooks, uploads) — not by default.
+- `references/security-schemes.md` — OpenAPI 3.0 security schemes; when the SRS names auth
+- `references/common-patterns.md` — pagination, problem+json, webhooks, file upload, filtering; when the SRS
+  names one of them, not by default
+- `references/descriptions.md` — when writing any description (`info`, operation, schema, property)

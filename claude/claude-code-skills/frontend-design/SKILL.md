@@ -121,9 +121,10 @@ changed and why. Draw only after that, by the revised plan.
 
 Spend boldness in one place; keep everything around it quiet and
 disciplined; cut decoration that does not serve the brief. Build to the
-quality floor without announcing it: `ux-patterns` → «Проверка экрана
-перед сдачей» (every width, desktop first; visible focus; reduced motion;
-contrast in every theme; long values). Critique your own work as you go
+quality floor without announcing it: `ux-patterns` → «Полнота макета»,
+plus the items of «Проверка экрана перед сдачей» a frame can show —
+every width in the register, desktop first; contrast in every theme;
+long values; icons from one set; texts (its items 1, 3, 6, 7, 8). Critique your own work as you go
 with screenshots — a picture is worth a thousand tokens. Before handing
 over, look in the mirror and remove one accessory.
 
@@ -134,17 +135,8 @@ not offer them again; name in your report what you tried and dropped.
 ## Writing
 
 Words are design content, not decoration. Before writing anything, ask what
-the screen needs to say and how it helps the person get through it. The
-interface language is Russian, by `ux-patterns` Section 9.
-
-- Name things in the user's words, not the system's: «уведомления», not
-  «вебхуки». Describe what something is or does; do not sell it (UX-79).
-- Active voice. A button says exactly what happens: «Сохранить изменения»,
-  not «Отправить» (UX-12). One action keeps one name along the whole path:
-  «Опубликовать» → «Опубликовано» (UX-79).
-- Failure and emptiness give direction, not mood: say what went wrong and
-  how to fix it, in the interface's voice; errors do not apologise and are
-  never vague (UX-21, UX-45). An empty screen invites the next action
-  (UX-44).
-- Plain verbs, a capital only on the first word, «вы» in lower case, no
-  filler; each text does one job (UX-12, UX-78, UX-79).
+the screen needs to say and how it helps the person get through it:
+describe what a thing is or does, do not sell it, and give each text one
+job. The rules for the words themselves — names, buttons, errors, empty
+states, typography — are `ux-patterns` Section 9 «Texts in Russian» with
+UX-12, UX-21, UX-44 and UX-45 it cites.

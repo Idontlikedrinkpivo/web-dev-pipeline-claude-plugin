@@ -38,15 +38,19 @@ The numbers are the defaults; foundation §6 may tighten them, never loosen them
 
 - **TypeScript (backend and frontend):** ESLint flat config with `typescript-eslint` `recommended-type-checked`
   as the base (type-aware, `projectService`) plus `no-floating-promises`, `no-misused-promises`,
-  `switch-exhaustiveness-check`, `only-throw-error`, `prefer-promise-reject-errors`, `consistent-type-assertions`,
-  `no-non-null-assertion`, `return-await` (`in-try-catch`), `no-unnecessary-condition`; core `preserve-caught-error`;
+  `switch-exhaustiveness-check`, `only-throw-error`, `prefer-promise-reject-errors`, `no-unsafe-type-assertion`,
+  `use-unknown-in-catch-callback-variable` (both outside `recommended-type-checked`), `no-non-null-assertion`,
+  `return-await` (`in-try-catch`), `no-unnecessary-condition`; core `preserve-caught-error` (ESLint 9.35 or later)
+  with `requireCatchParameter: true` and `errorClassNames` listing the project's own error classes (by default it
+  checks only the built-in `Error` types);
   `no-restricted-syntax` against an empty error subclass and an empty `catch` block; on the frontend
   `no-restricted-syntax` against a regex literal in components and `no-restricted-imports` / `no-restricted-globals`
   keeping `fetch` and the API client inside the data layer; `@eslint-community/eslint-comments`
   (`require-description`, `no-unlimited-disable`) so a rule is never silenced without a reason; the rule set the
   `typescript` and `react` skills name; core `complexity`, `max-lines`, `max-lines-per-function`,
   `max-depth`, `max-params`, `no-empty`; `eslint-plugin-react-hooks` v7 with its `recommended` config on a React
-  frontend (it carries the compiler rules: purity, refs, set-state-in-effect, static components);
+  frontend (it carries the compiler rules: purity, refs, set-state-in-effect, static components), with
+  `@eslint-react/eslint-plugin` for `@eslint-react/no-array-index-key`;
   `eslint-plugin-testing-library` and `@vitest/eslint-plugin` (focused and disabled tests, tests without an
   assertion) for the tests; a `tsconfig` for tests (or
   tests in the main one) so `typecheck` covers them; `dependency-cruiser` per part; `knip` per part; `jscpd` with
@@ -83,7 +87,8 @@ Turning every threshold into an error on an old codebase stops all work at once.
 - `lint` runs the linter, boundaries, dead code and duplicates; `typecheck` covers tests; `test` runs the suite —
   the same three commands in every part (`repo-scaffold`).
 - `work` runs `lint` and `typecheck` after every unit, before the review; an error in the unit's files is a return.
-- `ci-pipeline` runs the three commands for every part, plus the dependency audit (production dependencies at
-  high and critical fail the job, the rest warn); a part without one of them is a stop, not a pass.
+- `ci-pipeline` runs the three commands for every part; a part without one of them is a stop, not a pass. The
+  dependency audit runs in its advisory `security` job (production dependencies at high and critical fail that
+  job, the rest warn) until the team makes it required.
 - At a run's close `work` measures duplicates, the longest and most complex functions and files against the run's
   base, and a simplifier pass removes what grew without changing behaviour (`work/references/health.md`).

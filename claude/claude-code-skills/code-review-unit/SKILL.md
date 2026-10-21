@@ -42,7 +42,7 @@ judgment made from inside one unit's packet.
 |---|---|---|
 | Unit spec | **yes** | the `### U<n>.` block: Цель, Документы, Файлы, Подход, Тестовые сценарии, Проверка, Сложность (a plan before plugin 1.2.152 names them in English) |
 | Stack review rules | **yes** | the «The reviewer checks» sections of the unit's stack skills — `typescript`, `react`, `python` and the library skills `work/references/stack-skills.md` picks for its files |
-| The diff | **yes** | `git diff HEAD` after `git add -N <unit Files>` (intent-to-add, so untracked files in scope show up) — the orchestrator commits per unit, so uncommitted work *is* this unit's work. A Low batch is built from commits instead (Low batch, Step 3). Handed to the reviewer as a file path under `$(git rev-parse --git-dir)/pipeline-work/`, not pasted: pasted text stays in the orchestrator's context for the whole run |
+| The diff | **yes** | `git diff HEAD` after `git add -N <unit «Файлы»>` (intent-to-add, so untracked files in scope show up) — the orchestrator commits per unit, so uncommitted work *is* this unit's work. A Low batch is built from commits instead (Low batch, Step 3). Handed to the reviewer as a file path under `$(git rev-parse --git-dir)/pipeline-work/`, not pasted: pasted text stays in the orchestrator's context for the whole run |
 | Cited design excerpts | **yes** | the sections named in `Документы`, pasted, not linked — resolved under `documentation/` (`scenarios/orders` is the group's document under `architecture/scenarios/orders/`, `api` is `api/openapi.yaml`) |
 | Worker report | when there was one | `TESTS`, `RED OBSERVED`, `CONCERNS`, `OUT OF SCOPE` |
 | Prior findings this run | when any | so a known issue is not raised twice |
@@ -54,7 +54,7 @@ and it will invent expectations the plan never set. Say so and stop.
 
 ### Step 1. Bound the diff
 
-`git add -N <unit Files>` first — `git diff HEAD` omits untracked files
+`git add -N <unit «Файлы»>` first — `git diff HEAD` omits untracked files
 otherwise. Then `git diff HEAD --stat` and the diff itself with context. Compare the changed
 paths against the unit's `Файлы`:
 
@@ -76,7 +76,7 @@ Always: **spec fidelity**. Then add only what the diff actually touched:
 | Lens | Fires when | Asks |
 |---|---|---|
 | **Spec fidelity** | always | does the diff implement the cited design, all of it, and only it? |
-| **Test adequacy** | the unit is behavior-bearing | does each named scenario exist, assert the outcome rather than which method was called, and would it fail if the behavior broke — no earlier test deleted or loosened, no shared helper copied into the file, no test reading a stylesheet or source file; when the run measured mutants for this unit, each surviving mutant is a finding on the test that should have caught it — and did the report's evidence strategy actually happen? |
+| **Test adequacy** | the unit is behavior-bearing | does each named scenario exist, assert the outcome rather than which method was called, and would it fail if the behavior broke — no earlier test deleted or loosened, no shared helper copied into the file, no test reading a stylesheet or source file — and did the report's evidence strategy actually happen? |
 | **Invariant placement** | the unit enforces a quoted invariant row | is the rule in the owner the design named, refusing the illegal case — not re-derived in a use case, controller, or validator? |
 | **Rule repeated** | the diff writes a condition, a status list, a pattern or a message that a domain invariant row, a shared module or another layer already holds — or a mechanism the foundation gives one helper (cleanup after a failure, a journal snapshot, a shared step) | is the rule taken from its one home (a domain constant, a shared value object, what the server sends) — or copied, so the two will drift? A copy across layers (SQL, the frontend) without a stated source is a P1 |
 | **Silent failure** | the diff touches error handling: `catch`, a fallback value, an adapter call to storage, a queue or an external service | is every failure named, its cause kept, and one log line written where the user sees a generic answer? An empty `catch`, a cause dropped, a failure turned into success is a P1 |
@@ -159,8 +159,9 @@ green it is. Judge tests by whether they would catch the scenario failing, not
 by style — naming, structure, and fixtures are P2 at most.
 
 **P2 and P3 never block a unit commit.** The cadence — one unit, one green
-commit — is worth more than a perfect diff, and quality passes have their own
-place at wave boundaries. A reviewer that blocks on naming stops the pipeline.
+commit — is worth more than a perfect diff, and code health has its own
+place at the run's close (`work/references/health.md`, judged by
+`code-review-full`). A reviewer that blocks on naming stops the pipeline.
 
 **Every P0/P1 quotes its line.** A blocking finding carries the line the diff
 adds or changes that it is about (for a missing scenario test, the scenario

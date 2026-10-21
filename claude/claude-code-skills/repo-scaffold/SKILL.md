@@ -87,9 +87,9 @@ would get neither folders nor a lint contract.
 
 Before section 1, create `documentation/plans/<version>/progress-scaffold.md`
 per `pipeline` → `references/progress-files.md` — sections 1–6 below as rows, `⏳ ждёт` — and
-post its link in the chat. Set each row `🔄 в работе` → `✅ готово` as you
+post the link to its page `progress-scaffold.html` in the chat. Set each row `🔄 в работе` → `✅ готово` as you
 go, and after each section write the count with the link in the chat
-(«Каркас: 3 из 6 · [progress-scaffold.md](…)»); the line under the table
+(«Каркас: 3 из 6 · [progress-scaffold.html](…)»); the line under the table
 carries the quality gate. Installing the
 tooling and running the first lint and tests take minutes.
 
@@ -337,7 +337,5 @@ path and stops — it does not ask the next stage again if a plan already
 exists.
 
 Read `pipeline` and ask about the stage its table names after this one,
-per "Asking before a transition". This skill often runs inside an
-isolated subagent that cannot open `pipeline`; only then ask about
-`plan` with the same two options. Do not list the rest of the pipeline,
+per "Asking before a transition". Do not list the rest of the pipeline,
 and do not start the next stage on a no.

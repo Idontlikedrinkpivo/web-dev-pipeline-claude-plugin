@@ -22,7 +22,7 @@ components, a dictionary loaded four ways. Examples «так / не так»: `r
 | no `setState` inside an effect to mirror other state | `set-state-in-effect` |
 | hooks rules and complete effect dependencies; wanting to disable `exhaustive-deps` means the effect is wrong | `rules-of-hooks`, `exhaustive-deps` |
 | no component defined inside a component | `static-components` |
-| a list key is a stable id from the data, not the index | `no-array-index-key` |
+| a list key is a stable id from the data, not the index | `@eslint-react/no-array-index-key` |
 | no `fetch` or API client outside the data layer (`shared/api`, `features/*/api.ts`) | `no-restricted-imports`, `no-restricted-globals` |
 | no regex literal in a component — a format comes from the rules module | `no-restricted-syntax` |
 | a function over 80 lines, a file over 500 — split | `max-lines-per-function`, `max-lines` |
@@ -37,8 +37,9 @@ components, a dictionary loaded four ways. Examples «так / не так»: `r
 3. **Server data only through the data layer**: one hook per read `operationId` (TanStack Query), a mutation per
    write; the component never fetches. A dictionary has one hook, `useDictionary(name)`.
 4. **Server data is not copied into `useState`** — except a form's initial values, reset with `key`.
-5. **State is minimal and grouped**: related values are one union object (`typescript` rule 4) or a `useReducer`.
-   More than four or five `useState` in a component is a sign it does two jobs.
+5. **State is minimal and grouped**: related values are one union object (`typescript` → «Impossible states are
+   unrepresentable») or a `useReducer`. More than four or five `useState` in a component is a sign it does two
+   jobs.
 6. **A page is a data hook `use<Screen>()` plus a view** (props in, JSX out); the view knows nothing of the API.
 7. **Reset state with `key`**, not with an effect watching a prop.
 8. **`useRef` holds a DOM node or a value that does not affect what is shown.**

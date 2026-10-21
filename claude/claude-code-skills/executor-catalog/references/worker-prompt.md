@@ -17,7 +17,7 @@ COMPLEXITY      <grade>  (<why>)
 PHASE           full | tests-only | implementation
 
 FILES YOU MAY TOUCH
-  <paths from the unit, including the test file>
+  <the unit's «Файлы», including the test file>
 Anything outside this list is out of scope. If the unit cannot be done
 without touching another file, stop and report BLOCKED with that path.
 
@@ -33,23 +33,25 @@ CHANGED DECISIONS
   follow the document and say so in the report.
 
 APPROACH
-  <the unit's Approach field verbatim>
+  <the unit's «Подход» field verbatim>
 
 PATTERN TO MIRROR
-  <the unit's Pattern field verbatim: existing file(s) in this repo whose
+  <the unit's «Образец» field verbatim: existing file(s) in this repo whose
    conventions this unit follows, or: — first of its kind>
 
 FROM DEPENDENCIES
-  <for each U-id in Depends on: its committed public names/signatures and its
+  <for each U-id in «Зависит от»: its committed public names/signatures and its
    DECISIONS lines from the run report — or: none — no dependencies>
   Treat these as DESIGN YOU MUST FOLLOW. If one conflicts with the pasted
   design, stop and report BLOCKED with both quoted.
 
 STACK SKILLS
-  <excerpts from language skills the user attached that this unit needs;
-   for a frontend unit, also the `frontend` skill in full, its one stack
-   profile and `web-design-guidelines` in full; or: none — no language
-   skills attached>
+  <the stack skills `work` picked for this unit from architecture §1
+   «Стек» and the unit's «Файлы» (`work/references/stack-skills.md`) —
+   each SKILL.md in full, a references/ file only when the skill sends you
+   there for this unit — plus any skill the user attached; for a frontend
+   unit, also the `frontend` skill in full, its one stack profile and
+   `web-design-guidelines` in full; or: none — no stack skill for <stack>>
 
 CURRENT LIB DOCS
   <Context7 excerpts for the library APIs this unit calls, with library
@@ -60,11 +62,11 @@ CURRENT LIB DOCS
   Do not fetch docs yourself.
 
 TEST SCENARIOS
-  <one per line from the unit; add a missing category if you find a gap,
+  <the unit's «Тестовые сценарии», one per line; add a missing category if you find a gap,
    and say in the report that you added it>
 
 VERIFICATION
-  <the unit's Verification field>
+  <the unit's «Проверка» field>
 
 EVIDENCE STRATEGY   <test-first | characterization-first | smoke | none>
   test-first — turn every scenario above into a test, run it, and observe it
@@ -81,10 +83,10 @@ EVIDENCE STRATEGY   <test-first | characterization-first | smoke | none>
     or install check instead and report what it returned.
   none — no behavior at all; the report says why.
 
-<when the unit has a Nested row:>
+<when the unit's «Вложенный» is not —:>
 DELEGATION
   You may dispatch <nested name> for exactly this mechanical part:
-  <Nested does>. You keep the decision, you review its output before
+  <the unit's «Что делает вложенный»>. You keep the decision, you review its output before
   reporting, and you report as one unit. Do not delegate anything else and
   do not nest deeper.
 

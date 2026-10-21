@@ -64,9 +64,7 @@ whichever skill owns that tooling. This holds per part: a repository with
 a backend and a frontend needs `lint`, `typecheck` and `test` in each, and
 a part missing one is a stop that names it, never a job that quietly
 skips it — the quality gates are `repo-scaffold/references/quality-gates.md`.
-Every part also gets a dependency audit step (`npm audit --omit=dev
---audit-level=high`, `pip-audit`): a high or critical hole in a production
-dependency fails the job; one in a development tool is printed as a warning.
+The dependency audit of every part lives in the `security` job (Step 7).
 Without `docker-compose.test.yml`,
 stop the same way: do not invent infra services or emit a workflow —
 hand back to `deploy-topology`, since CI can only mirror a test topology
@@ -236,11 +234,12 @@ one teaches everyone to ignore red. YAML: `references/ci-skeleton.md`
 command per toolchain).
 
 - **Shape.** One `security` job beside the toolchain jobs, so its result
-  never hides theirs: a secret scan, then one audit step per toolchain the
-  project has. No dependency install, no infra, no cache. Every step after
+  never hides theirs: a secret scan, then one dependency audit step per
+  part of the repository (a backend and a frontend: two steps). No dependency install, no infra, no cache. Every step after
   the first runs `if: ${{ !cancelled() }}` so one run reports all of them.
-- **Threshold.** Dependency audit fails on high and critical and prints the
-  rest. A tool with no severity filter fails on any known advisory;
+- **Threshold.** Dependency audit fails on a high or critical hole in a
+  production dependency and prints the rest — development tools included
+  — as a warning. A tool with no severity filter fails on any known advisory;
   accepted exceptions go through its ignore-by-ID option, each with the
   advisory ID and a one-line reason next to the command. The secret scan
   fails on any finding; false positives — including the fixture values in

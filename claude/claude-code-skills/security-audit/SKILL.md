@@ -67,8 +67,10 @@ running). Its shape: `references/report.md`.
 ### 1. Scanners
 
 Read the Traps of the project's verify skill (`.claude/skills/verify/`)
-first — a proxy or a cache already met there applies to the scanners too —
-and add any network trap the scanners meet. Run each scanner from
+first; with none, write and prove it before the scanners (`deploy-topology`
+→ `references/verify-skill.md`), from `.claude/launch.json`, the README and
+the test compose file. A proxy or a cache already met there applies to the
+scanners too; add any network trap the scanners meet. Run each scanner from
 `references/scanners.md` over the repository root,
 through its Docker image (nothing installed on the machine); without
 Docker, the local tool, then say which way it ran. Save each raw output

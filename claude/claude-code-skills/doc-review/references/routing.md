@@ -17,12 +17,7 @@ defers it. It is not where the question is shown.
 
 Recommend one in a sentence — by default **A**: the user sees every
 finding and decides each; recommend B only when every finding is a small,
-one-right-answer fix. One question, then stop. The user answers by sending a message. Do not open a question card. Options:
-
-- **A. Разобрать по одному.**
-- **B. Применить рекомендованное.**
-- **C. Отложить все.**
-- **D. Только отчёт.**
+one-right-answer fix. One question, then stop. The user answers by sending a message. Do not open a question card.
 
 Never skip the question silently.
 
@@ -119,19 +114,17 @@ not only when they pick A–D. There is no shared
    (`## Deferred / Open Questions`, `## Открытые вопросы`, SRS `## 9`,
    a plan `## 6`), leave it for the convention check;
    new items go only to the sibling file.
-3. Under `## From YYYY-MM-DD review of <reviewed-path>`, append:
-
-```
-- **{title}** — {section} ({severity}, {reviewer}, confidence {confidence})
-
-  {why_it_matters}
-```
+3. Append one row to the file's table (`Вопрос | Класс`). `Вопрос` is
+   the finding's title, its section, and why it matters, with the source
+   in brackets: `{title} — {section}: {why_it_matters} (ревью
+   {reviewed-path}, YYYY-MM-DD, {severity})`. `Класс` is `Блокирует старт`
+   for a P0, `Отложено` otherwise.
 
 Do not append `suggested_fix` or the evidence array. `{why_it_matters}`
 says what goes wrong if the question stays open. It does not say how to
 close it. Parking means nobody has decided yet, and a recommendation written
-into the parking lot reads later as if it had been agreed. If the same
-`normalize(section) + normalize(title)` already exists under today's
-heading for that path, skip the duplicate.
+into the parking lot reads later as if it had been agreed. If a row with
+the same title and section for that path is already in the table, skip the
+duplicate.
 4. Tell the user the parking-lot path and that the reviewed document
    was not changed.

@@ -25,7 +25,10 @@ question after the document is written — the steps below run over that stage's
 only — the SRS, the schema (with its new migration files), the API, the
 three architecture documents, or the screen specs — with no question, and
 the commit message names them: `docs: <документ> <version>` («docs: SRS
-2.1.1», «docs: схема БД и миграция 0007 2.1.1»). A later change in the same
+2.1.1», «docs: схема БД и миграция 0007 2.1.1»). An SRS stamp also names
+its two gates, so a later session reads them from `git log` (`pipeline` →
+Where am I): `docs: SRS <version> · grill: прошёл | пропущен · review:
+прошёл | пропущен`. A later change in the same
 iteration (a decision changed, a gate re-run) stamps again at its own close
 under the same version: rows of this version are amended, not doubled.
 
@@ -65,8 +68,10 @@ under the same version: rows of this version are amended, not doubled.
    schema journal, or the SRS journal.
 5. In the same files, refresh each pin whose source rows after the pin are
    all «уточняет» (Staleness and cascade). Move no other pin.
-6. One commit — at a stage's close `docs: <документ> <version>`, on the
-   user's request `docs: publish document versions`. Stage
+6. One commit — at a stage's close `docs: <документ> <version>` (an SRS
+   with its gates: `docs: SRS <version> · grill: прошёл | пропущен ·
+   review: прошёл | пропущен`), on the user's request `docs: publish
+   document versions`. Stage
    only the files just stamped, plus a new file in `db/migrations/` or a
    rebuilt unversioned diagram that belongs to a dirty schema or
    architecture, and — when the project has `documentation/_web-docs/` — the

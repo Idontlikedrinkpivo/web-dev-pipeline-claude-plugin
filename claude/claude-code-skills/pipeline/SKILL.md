@@ -467,6 +467,9 @@ that gate asks the next transition itself, using this section.
   question says about cost.
 - `references/progress-files.md` — which stages keep a progress file in
   `plans/<version>/`, its shape, and the link posted before the first step.
+- `references/pause-and-resume.md` — the resume note a long run (`work`,
+  `ui-test-cases` mode run, `security-audit`) keeps current, and what a
+  session that picks up a stopped run reads first.
 - `references/decision-changes.md` — a decision changed after its stage
   closed: the owner, the cascade, the commit, where it happens.
 - `references/team.md` — design stages handed to other people.

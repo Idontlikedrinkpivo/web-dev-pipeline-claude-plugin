@@ -32,7 +32,7 @@ explanatory table cells, changelog bodies, grill questions, review
 findings, architecture rationale, OpenAPI `description` / `summary` /
 `example`, DBML `Note` / `COMMENT ON`.
 
-Do not translate **cited tokens**: ids (`UC-1`, `FR-2`, `A-n`), table and
+Do not translate **cited tokens**: ids (`UC-1`, `FR-2`, `ДП-3`), table and
 column names, `operationId`, paths, type names, file paths, stack
 identifiers. They stay as the design named them.
 
@@ -108,7 +108,7 @@ Before writing anything, look for the canonical document for this stage
 | Found | Mode | What the stage does |
 |---|---|---|
 | nothing | **greenfield** | the writer skill creates the file at `version: <iteration version>` — the open `plans/<version>/` folder's name, `0.1.0` on a new product — with one «первый выпуск» row typed «—». The gates that follow leave both alone |
-| a document for this system | **increment** | edit that file in place. Leave `version`, `updated`, and the changelog untouched — writer, grill, and review alike. Grill still sets `grilled:` and review sets `reviewed:` when its gate closes, except on an SRS, which has neither field. `doc-versioning` types the changes once, when the user invokes it. An unversioned row (Registry): edit in place, no rows, no version |
+| a document for this system | **increment** | edit that file in place. Leave `version`, `updated`, and the changelog untouched — writer, grill, and review alike. Grill still sets `grilled:` and review sets `reviewed:` when its gate closes, except on an SRS, which has neither field. `doc-versioning` types the changes once, when the stamp runs: at the stage's close or on the user's request (`references/version-birth.md`). An unversioned row (Registry): edit in place, no rows, no version |
 | a document for a *different* system in the same repo | greenfield for this system | monorepo: canonical path is per system, not per repo — each system has its own `documentation/` tree |
 | several candidates | **stop and ask** | never guess which one is canonical — picking wrong makes the real one stale invisibly. Follow `grill-me` → "How a question is shown": explain each file in the chat, one question, then stop |
 
@@ -142,7 +142,7 @@ next stamp compares each document with its last stamped state, not with
 | DB schema | `documentation/db/schema.md` — DBML and notes, the whole current schema, no SQL; ER `diagrams/er.d2` / `.svg` beside it | table and column names | OpenAPI, domain model, plan. Not the design branch |
 | Migrations | `documentation/db/migrations/NNNN_<snake_slug>.sql` (`0001_init.sql`, …) | none — **unversioned** files, never edited after commit; the schema document carries the version and names the last file it covers in `migration:` | the application's migration tool runs them from this folder |
 | OpenAPI | `documentation/api/openapi.yaml` — the root, one version — and the `paths/` and `components/` files it references | `operationId` · schema names — `info.version` is the service version, or the contract's own SemVer when the API has external consumers (`pipeline` → Service version) | scenarios, screen specs, plan, generated clients |
-| Architecture — foundation | `documentation/architecture/architecture.md`; its D2 views in `diagrams/` beside it, embedded in the sections they illustrate | module and area names · port signatures · assumptions `A-n` | scaffold when the tree or stack moved, scenarios that use a changed port, plan |
+| Architecture — foundation | `documentation/architecture/architecture.md`; its D2 views in `diagrams/` beside it, embedded in the sections they illustrate | module and area names · port signatures · assumptions `ДП-n` | scaffold when the tree or stack moved, scenarios that use a changed port, plan |
 | Domain model | `documentation/architecture/domain.md` | entity and value-object names · invariant rows · named errors | scenarios that cite a changed rule, plan |
 | Scenarios of an SRS group | `documentation/architecture/scenarios/<area>/<group>.md`, one per group in its area's folder; key-scenario diagrams `diagrams/<use-case-kebab>.puml` (PlantUML) / `.svg` beside it | use-case names | plan |
 | Frames register | `documentation/ui/frames-register.md` | screen ids `S-n` · nested-step ids `M-n` — **unversioned**; Figma file, product type, widths, accessibility target, frame `nodeId`s | screen specs of changed screens |
@@ -335,7 +335,7 @@ the date the frontier emptied and the user confirmed the shared understanding.
 
 Two rules make the field worth having:
 
-- **Absent means the gate did not close.** A document at `status: ready-*` with
+- **Absent means the gate did not close.** A document with
   no `grilled:` is an unfinished stage, not a document someone forgot to
   annotate. Read it as a stop and go close the gate.
 - **A grill that reverses a line sets `grilled:` to today and does not stamp.**
@@ -374,7 +374,7 @@ carry.
 | Situation | Rule |
 |---|---|
 | New item | next unused number in that namespace; never fill a gap left by a deletion. In an SRS section a row inserted between two rows takes a dotted id after the row above (`FR-10.1`), so the section still reads in order (`srs-writer`) |
-| Same prefix in two documents | `A-n` is an SRS actor and an architecture assumption. Outside its own document, cite it with the document: `SRS A-2`, `architecture A-2` |
+| A new id prefix | one prefix, one meaning across all documents (`A-n` an SRS actor, `ДП-n` an architecture assumption): the documentation site links every id to its one definition, so a prefix reused for something else links to the wrong place |
 | Item changes meaning | same id, changed text, a «ломает» row that says what it was, what it is, and why. A renumber breaks every citation, so no document renumbers — the SRS included |
 | Item split | original id keeps the original core intent; the split-out part takes the next unused number, and every citation is re-pointed |
 | Item no longer applies | mark `[deprecated in 1.2.0 — superseded by FR-13]` in place, with a «ломает» row; keep it. On an unversioned BRD, whose ids keep the `R` prefix: `[deprecated — superseded by R13]` |
@@ -475,6 +475,7 @@ an old major row reads as «ломает», a minor as «уточняет».
 
 ## When this skill is called
 
-The steps are under "When a version is born". The checklist for each dirty
-file is `references/guardrails.md`. A writer, a gate, and `work` do not run
-it.
+The stamp runs at a stage's close and when the user asks to version or
+publish; the steps are under "When a version is born". The checklist for
+each dirty file is `references/guardrails.md`. A writer, a gate, a review
+mid-stage, and `work` do not run it.

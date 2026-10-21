@@ -46,7 +46,7 @@ decision is a stop for the user, never two approaches. A UI unit
    also from the base commit. The progress row reads `🔄 в работе: два
    подхода (A, B)`.
 4. **Pick by the checks.** An attempt counts only when its focused tests
-   and the unit's `Verification` pass in its own tree. One passes — it
+   and the unit's `Проверка` pass in its own tree. One passes — it
    wins. Both pass — each goes to the unit's reviewer (`code-review-unit`);
    the one with fewer P0 and P1 wins, and on a tie the smaller diff.
    Neither passes — that is the stop in `convergence.md` (a finding

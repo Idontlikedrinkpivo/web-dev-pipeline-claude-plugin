@@ -46,7 +46,7 @@ reviews, fixes and re-reviews go round by round without asking. It stops and
 asks the user only when a unit cannot pass — a decision the documents do not
 make (`BLOCKED` on a missing design decision, a `STOP` from a review) or fix
 rounds that stop making progress (`pipeline` → `references/convergence.md`). That is a
-**stop and report**, not an improvisation: the unit's row `⛔ остановлен:
+**stop and report**, not an improvisation: the unit's row `⛔ остановлено:
 <причина>`, and in the chat what blocks it, what was tried, and what the user
 can decide — that question ends the turn. Every other turn ends with the
 next dispatch running, called before the chat line; never «продолжать?»
@@ -162,7 +162,7 @@ A resumed or compacted session posts the link again before its next dispatch.
 
 Read `executor-catalog` and build a small in-run table: for each distinct
 `Исполнитель` and `Вложенный` name in the plan, `Name | subagent_type` — the
-`subagent_type` is the name itself, since every row is its own agent; you
+`subagent_type` is `dev-pipeline:<name>`, since every row is its own agent; you
 may append the model and effort read from that agent's file. Resolve once,
 reuse for the run. Print that table in this turn before the first `Agent`
 call. Every dispatch in this run — workers, reviewers, follow-ups — goes out
@@ -189,7 +189,7 @@ A unit is ready when every id in `Зависит от` is committed — that is,
 
 - **Serial** by default — one unit, one dispatch, one commit.
 - **Parallel** only when all four hold (cap a wave at three or four):
-  - the plan marks the peers `Parallel-safe: yes`;
+  - the plan marks the peers `Параллельно: yes`;
   - their `Файлы` are genuinely disjoint in the current tree;
   - the harness gives each worker an isolated workspace — in Claude Code,
     pass `isolation: "worktree"` on each parallel `Agent` call;
@@ -232,11 +232,12 @@ reasoning is a recorded escalation (Step 6). `PATTERN TO MIRROR` is the unit's
 `Образец` field verbatim; do not pick a pattern yourself — a pattern chosen at
 execution time is a design decision nobody reviewed.
 
-Dispatch with the Step 2 row: `subagent_type` is the row's name, and the
+Dispatch with the Step 2 row: `subagent_type` is `dev-pipeline:<name>`, and the
 call passes no `model`. Omit any permission-mode override so the user's
-own settings apply. This run does not ask which model to use. Manual model
-pick in `executor-catalog` does not apply to implementers, nesting, or the
-review skills this run calls.
+own settings apply. This run does not ask which model to use. Only when the
+user, on their own, names a model for a dispatch does that one call pass it
+(`executor-catalog` → Dispatch contract → A model the user names); the next
+dispatch goes back to the agent file.
 
 Grade-specific expectations to state in the packet:
 
@@ -391,25 +392,24 @@ unit, and a plan carrying scars stops being a decision artifact.
 When every unit in scope is committed, first run these checks yourself and save
 each output under `$(git rev-parse --git-dir)/pipeline-work/`:
 
-- **Критерии готовности** — every command in the plan's §5, with its exit
-  code; a browser suite opens its e2e section in `progress.md` and posts the
-  link before it starts, runs after the verify skill's doctor says READY, on
-  parallel stands, and cleans up per `ui-test-cases` →
-  `references/parallel-stands.md` (a stand not yet copyable is a question
-  there, not a silent single stand).
+- **Критерии готовности** — every command in the plan's §5, with its exit code; a browser suite opens its e2e
+  section in `progress.md` and posts the link before it starts, runs after the verify skill's doctor
+  (`.claude/skills/verify/`) says READY — with none, write and prove it first (`deploy-topology` →
+  `references/verify-skill.md`) — on parallel stands, and cleans up per `ui-test-cases` →
+  `references/parallel-stands.md` (a stand not yet copyable is a question there, not a silent single stand).
 - **Health and mutants** — `references/health.md`: duplicates, complexity and sizes against BASE, mutants over the
-  run's diff; a simplifier pass lands what grew before the review. **Dead-code report** — `knip` for
-  TypeScript, `vulture` for Python (another stack: its usual unused-code tool). Use the repo's config when it has one; otherwise run it with defaults
-  and say so in the run report. Check the tool's current flags against the
-  installed version; a detector that cannot run is noted, not skipped
-  silently.
+  run's diff; a simplifier pass lands what grew before the review, as its own commit with the trailer
+  `Plan-Unit: <version>/health-<n>`. **Dead-code report** — `knip` for TypeScript, `vulture` for Python (another
+  stack: its usual unused-code tool). Use the repo's config when it has one; otherwise run it with defaults and say
+  so in the run report. Check the tool's current flags against the installed version; a detector that cannot run
+  is noted, not skipped silently.
 
 Then invoke the `code-review-full` skill once over the whole run: the plan, the full diff `BASE...HEAD` (BASE from
 Step 1, handed over as a file path, as in Step 5.4), the design documents
 it cites, the declared security requirements (the SRS's Security NFR rows and
 the architecture's security decisions table), this run's report so far
 (including grade corrections and the cross-unit watch list from Step 5.4), the
-критерии готовности with its saved output, and the dead-code report. It is the
+критерии готовности with its saved output, the «Здоровье кода» table, and the dead-code report. It is the
 only place that checks what no single unit's review could — drift between
 units, aggregate coverage of invariants and ACs that needed more than one unit,
 and the критерии готовности itself, with its own lenses and verdict rather than
@@ -427,8 +427,9 @@ Anything but `PASS`: before the first fix, add «Исправления по ф�
 and post the link again before the first fix, pointing at the section:
 `Исправления по финальному ревью: [progress.html](documentation/plans/<version>/progress.html) — раздел внизу файла, обновляется по ходу работы.` Each fix then lands like a unit, updating its rows. After
 each round of fixes, run `code-review-full` again over that round's fix
-commits, until `PASS` (`pipeline` → `references/convergence.md`); when the rounds stop making
-progress, stop and take the open findings to the user.
+commits only — never a second time over the whole diff — until `PASS`, while
+each round makes progress (`pipeline` → `references/convergence.md`); when
+the rounds stop making progress, stop and take the open findings to the user.
 
 At the close write the verdict path into the `Финальное ревью:` line
 (`RETURN_TO_UNIT → исправлено → PASS`, or plain `PASS`).
@@ -464,11 +465,12 @@ at Step 7, before writing the report.
 - Every changed decision is under «Изменённые решения» and committed in
   its documents before the next dispatch — Step 6.
 - The progress file next to the plan matches the `Plan-Unit:` trailers, and
-  its last commit carries the final review verdict or the stop reason —
-  Step 1, Step 5.5.
-- `code-review-full` ran once after every unit in scope was committed, and
-  at most once more over the fix commits; it checked the критерии готовности,
-  and every verdict is recorded — Step 7.
+  its `Финальное ревью:` line carries the final review verdict or the stop
+  reason — Step 1, Step 5.5, Step 7.
+- `code-review-full` ran once over the whole diff after every unit in scope
+  was committed, then over each round's fix commits while each round made
+  progress, never a second time over the whole diff; it checked the
+  критерии готовности, and every verdict is recorded — Step 7.
 - When the final review found problems, the progress file listed every fix
   as a task before the first fix, and each row ends `✅ готово`,
   `⏭ пропущено: в отчёт` or `⛔ остановлено` — Step 7.

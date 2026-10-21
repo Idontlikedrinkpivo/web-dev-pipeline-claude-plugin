@@ -153,7 +153,7 @@ every later document needs), and then the finding says why.
 Two dismissal rules, each written in the report:
 
 1. **A recorded decision.** A downstream document that departs from
-   upstream and says why (an assumption `A-n`, a changelog line) is not
+   upstream and says why (an assumption `ДП-n`, a changelog line) is not
    a contradiction. A recorded **upstream gap** is different: an
    open-questions row that says another document is wrong or silent
    (`upstream gap: db-schema-design`) is a finding owned by that
@@ -165,9 +165,10 @@ Two dismissal rules, each written in the report:
    P1 owned by the architecture.
 2. **A skipped stage.** No screens on an API-only service is not a gap.
 
-Fixes. This skill edits one kind of thing only: a P2 name in the
+Fixes. This skill edits two kinds of thing only: a P2 name in the
 downstream document aligned to the upstream spelling when there is
-exactly one correct answer. Everything else goes back to the owner
+exactly one correct answer, and the test cases' trace rewritten from the
+current spec (Step 1). Everything else goes back to the owner
 stage, because a contract a checker silently rewrote is no longer a
 decision anyone made.
 
@@ -214,13 +215,13 @@ skipped: none
 |---|---|---|---|---|---|---|
 | 1 | P0 | Schema ↔ OpenAPI | `invoices.amount_cents` · `Invoice.amount` | в схеме `CHECK (amount_cents > 0)`, в OpenAPI `minimum: 0` | OpenAPI | `minimum: 1`; SRS BR-4 говорит «больше нуля» |
 | 2 | P1 | SRS → downstream | FR-7 | «отмена счёта» есть в SRS и в архитектуре (`CancelInvoice`), операции в OpenAPI нет | OpenAPI | добавить `cancelInvoice` |
-| 3 | P1 | OpenAPI ↔ screens | S-3 · «Ошибки ответов» | `payInvoice` отвечает 409 `INVOICE_ALREADY_PAID`, в ТЗ экрана нет исхода для этого кода | ТЗ экрана | строка «409 → …» и состояние на макете |
+| 3 | P1 | OpenAPI ↔ screen specs | S-3 · «Ошибки ответов» | `payInvoice` отвечает 409 `INVOICE_ALREADY_PAID`, в ТЗ экрана нет исхода для этого кода | ТЗ экрана | строка «409 → …» и состояние на макете |
 | 4 | P2 | One meaning per word | SRS «плательщик» · сценарии «клиент» | одно понятие, два слова | Сценарии | исправлено здесь: «плательщик» |
 
 **Первый владелец** — `openapi-spec-generator` (#1, #2), затем `screen-spec` (#3).
 **Исправлено здесь** — #4.
 **Отклонено** — FR-12 без экрана: в SRS это задача по расписанию, UI не нужен.
-**Оси без находок** — Architecture ↔ the rest, Downstream → SRS.
+**Оси без находок** — Domain model ↔ the rest, Downstream → SRS, No visual binding.
 ```
 
 ## Before you finish
@@ -230,7 +231,8 @@ skipped: none
   «добавляет» behind a pin went to the checker as a new token — Step 1.
 - Every axis has findings, a clean line, or a skip line — Step 3.
 - Every finding has an owner, and the earliest owner is named — Steps 4–5.
-- Only P2 names were edited, only in the downstream document — Step 4.
+- Only P2 names were edited, only in the downstream document, and only
+  broken test-case traces were rewritten — Steps 1 and 4.
 - `documentation/plans/<version>/docs-consistency.md` exists with `Verdict:`
   on line 1 and a hash per document path checked — Step 0, Report.
 

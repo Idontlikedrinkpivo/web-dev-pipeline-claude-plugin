@@ -2,9 +2,10 @@
 
 `doc-versioning` runs this once per dirty contract document (SRS, OpenAPI,
 DB schema, architecture foundation, domain model, scenarios, screen specs)
-when the user invokes this skill.
-`plan` does not call it. Writers, gates, and `work` do not run this
-list: they leave `version`, `updated`, and the changelog as they found them.
+at a stage's close and when the user asks to version or publish
+(`references/version-birth.md`). `plan` does not call it. Writers, gates,
+and reviews mid-stage, and `work`, do not run this list: they leave
+`version`, `updated`, and the changelog as they found them.
 
 The diff is the file about to be committed against its last stamped
 state (`references/version-birth.md`, step 1), so decision-change commits

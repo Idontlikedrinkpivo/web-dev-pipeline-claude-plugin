@@ -3,7 +3,7 @@
     python3 build_site.py [--docs documentation] [--out documentation/_web-docs] [--title "…"] [--no-api | --keep-api]
 
 Every Markdown document becomes a page with the site's navigation, search and cross-links: an id like FR-12,
-UC-4, BR-3, NFR-6, TC-27, S-3, З-2 links to the row, heading or screen-spec file that defines it, and an
+UC-4, BR-3, NFR-6, TC-27, S-3, З-2, ДП-5 links to the row, heading or screen-spec file that defines it, and an
 operationId in backticks links to the API page. Diagrams (.svg) are copied beside their pages. The API page is
 Swagger UI (inside the site, works offline) over the contract bundled by Redocly (npx) from
 documentation/api/openapi.yaml, or, without Node or network, a table of operations.
@@ -33,7 +33,7 @@ SECTIONS = [
     ("requirements", "Требования"), ("db", "Данные"), ("api", "API"), ("architecture", "Архитектура"),
     ("ui", "Интерфейс"), ("deploy", "Развёртывание"), ("operations", "Эксплуатация"), ("project-map", "Карта проекта"),
 ]
-ID = r"(?:FR|NFR|BR|UC|AC|TC|R|S|M)-\d+(?:\.\d+)*|[ЗП]-\d+"
+ID = r"(?:FR|NFR|BR|UC|AC|TC|R|S|M)-\d+(?:\.\d+)*|[ЗП]-\d+|ДП-\d+"
 ID_RE = re.compile(rf"(?<![\w\-/#.])({ID})(?![\w\-])")
 KINDS = ["FR", "NFR", "BR", "UC", "TC", "S", "З"]
 KIND_LABEL = {"FR": "функциональных требований", "NFR": "нефункциональных требований", "BR": "бизнес-правил",

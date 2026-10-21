@@ -9,7 +9,7 @@ compatibility: "TypeScript projects using zod"
 metadata:
   author: Anivar Aravind
   author_url: https://anivar.net
-  version: 2.0.0
+  upstream_version: 1.1.0
   tags: zod, validation, schema, typescript, parsing, boundaries, testing
 ---
 
@@ -90,5 +90,5 @@ This skill does not pin library facts that change between releases (signatures, 
 ## On the frontend
 
 A form's format rule comes from the schema generated from the contract (or the one rules module the domain model's
-«Кто ещё применяет» names), never a regex typed into the form — a copy of a server rule drifts from it (`react`
-rule 11).
+«Кто ещё применяет» names), never a regex typed into the form — a copy of a server rule drifts from it (`react` →
+«A form is one library (React Hook Form) and one schema»).

@@ -103,7 +103,7 @@ These stay in the skill; the file never glosses them.
   «Расписание: «Отменить» у резидента — по полю `is_mine` ответа», so the screen never re-derives ownership; the
   row for BR-2 (30-minute steps inside working hours) names the booking form's check module and the test that
   compares it with the domain rule.
-- Assumed rows tag `(A-n)` and point at
+- Assumed rows tag `(ДП-n)` and point at
   `documentation/architecture/open-questions.md`.
 
 ## Where each BR lands

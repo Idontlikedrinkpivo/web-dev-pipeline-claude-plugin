@@ -10,9 +10,9 @@ description: >-
 
 Brainstorming helps answer **WHAT** to build through collaborative dialogue. The durable output is a **business requirements document** — a lightweight PRD / feature brief with clear functional and non-functional requirements, use cases, and acceptance criteria, so later technical work does not need to invent product behavior, scope boundaries, or success criteria.
 
-This skill explores, clarifies, and documents decisions; it does not implement code. Its document is consumed by `srs-writer` — name that skill. Architecture, API/DB design, and implementation come after the SRS, not instead of it: do not skip to architecture, code, or "technical planning" as if the SRS stage did not exist.
+This skill explores, clarifies, and documents decisions; it does not implement code. Its document feeds the stage `pipeline` names after this one. Architecture, API/DB design, and implementation come later in that chain: do not skip to architecture, code, or "technical planning" as if the stages between did not exist.
 
-**Implementation request.** If the user asks to write code, a service, controllers, or tests **now**, refuse. Do not start those skills. The next named writer is still `srs-writer`.
+**Implementation request.** If the user asks to write code, a service, controllers, or tests **now**, refuse. Do not start those skills. The next stage is still the one `pipeline` names after this one.
 
 ## Setup
 
@@ -55,7 +55,7 @@ no `docs_root` lookup. Unresolved items go in `open-questions.md` in that same
 folder, not in a section of the document.
 
 **The document is unversioned** — a working draft, not a contract; versioning
-starts at `srs-writer`. On every write, greenfield or increment: no `version`
+starts at the SRS. On every write, greenfield or increment: no `version`
 in the frontmatter and no `## Журнал изменений` table; if a leftover `version` or
 changelog is already in the file, delete them on this write.
 
@@ -98,9 +98,7 @@ Before proceeding to Phase 0.2, classify whether this is a software task. The ke
 
 **Software** (continue to Phase 0.2) -- the task references code, repositories, APIs, databases, or asks to build/modify/debug/deploy software.
 
-**Not software** -- the idea is about something other than building software. This skill writes software requirements only: say so in one line and help directly in the chat, without phases or a document.
-
-**Neither** (respond directly, skip all brainstorming phases) -- the input is a quick-help request, error message, factual question, or single-step task that doesn't need a brainstorm.
+**Not software, or no brainstorm needed** -- the idea is about something other than building software (this skill writes software requirements only: say so in one line), or the input is a quick-help request, error message, factual question, or single-step task. Help directly in the chat, without phases or a document.
 
 #### 0.2 Assess Whether Brainstorming Is Needed
 
@@ -168,7 +166,7 @@ SCRATCH_DIR="$SCRATCH_ROOT/brainstorm/<run-id>";
 echo "$SCRATCH_DIR";
 ```
 
-3. **Dispatch the grounding scout:** `code-explorer` through `executor-catalog` (`subagent_type: "code-explorer"`, no `model` — the agent file holds it). Not `Explore` or `general-purpose`: an uninstalled agent is named to the user with `install.sh`, per the catalog's Dispatch contract. Without a subagent primitive, do the same work inline or serially. With background dispatch, go on to Phase 1.2/1.3 **without waiting** — the scout runs during the user's think-time on the opening questions. Scout prompt:
+3. **Dispatch the grounding scout:** `code-explorer` through `executor-catalog` (`subagent_type: "dev-pipeline:code-explorer"`, no `model` — the agent file holds it). Not `Explore` or `general-purpose`: an uninstalled agent is named to the user with `install.sh`, per the catalog's Dispatch contract. Without a subagent primitive, do the same work inline or serially. With background dispatch, go on to Phase 1.2/1.3 **without waiting** — the scout runs during the user's think-time on the opening questions. Scout prompt:
 
    > Gather grounding for a requirements brainstorm about **{topic}** in this repo. Search first with the native file-search and content-search tools, then read targeted sections — budget ~20 reads, preferring ranges over whole files. Find: whether something similar already exists, the most relevant existing artifacts (brainstorms, plans, specs, feature docs), adjacent examples of similar behavior, and the current state of anything the topic would touch (tables, routes, config, dependencies). Write a **grounding dossier** to `{scratch-dir}/grounding.md`: at most 150 lines of verbatim quotes and short code snippets, each with a `file:line` pointer. Extraction only — quote what the repo says; do not interpret or propose. If the topic has little footprint, write less rather than padding. Return only a gist: 3-5 lines summarizing what the dossier holds, plus its absolute path.
 
@@ -264,7 +262,7 @@ A fresh-context verifier replaces self-grading: the author confirming its own cl
 
 1. **Skip** when Path A fired, or when the document will make no checkable claims.
 2. **List the checkable claims** the Product Contract will assert, one line each: absence claims ("no retry logic exists"), references to specific files, config, or dependencies, anything planning would build on.
-3. **Dispatch `code-explorer`** through `executor-catalog` at the same moment the Path B confirmation question goes up, so it runs during the user's think-time. Same dispatch as the scout (`subagent_type: "code-explorer"`, no `model`). Pass the claim list, the grounding dossier path if one exists (the path, not its contents), and this instruction: verify each claim directly against the codebase — budget ~15 targeted reads — and return a per-claim verdict: **confirmed** (with `file:line`), **refuted** (with the contradicting evidence), or **unverifiable**.
+3. **Dispatch `code-explorer`** through `executor-catalog` at the same moment the Path B confirmation question goes up, so it runs during the user's think-time. Same dispatch as the scout (`subagent_type: "dev-pipeline:code-explorer"`, no `model`). Pass the claim list, the grounding dossier path if one exists (the path, not its contents), and this instruction: verify each claim directly against the codebase — budget ~15 targeted reads — and return a per-claim verdict: **confirmed** (with `file:line`), **refuted** (with the contradicting evidence), or **unverifiable**.
 4. Do not block the confirmation question on the verifier.
 5. **At Phase 3,** correct refuted claims before writing and label unverifiable ones as explicit assumptions.
 6. If the dispatch fails, verify the claims inline before the Phase 3 write — Phase 1.1's verify-before-claiming rule holds either way.

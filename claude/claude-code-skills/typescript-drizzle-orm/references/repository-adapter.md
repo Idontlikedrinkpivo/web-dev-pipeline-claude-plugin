@@ -10,10 +10,10 @@ Check every Drizzle call below against the installed version (SKILL.md checklist
 ```typescript
 // adapters/persistence/pg-error.ts — the driver error may be wrapped one or more levels deep
 export function sqlState(e: unknown): string | undefined {
-  for (let cur: unknown = e, depth = 0; cur && depth < 5; depth++) {
-    const code = (cur as { code?: unknown }).code
-    if (typeof code === 'string' && /^[0-9A-Z]{5}$/.test(code)) return code
-    cur = (cur as { cause?: unknown }).cause
+  let cur: unknown = e
+  for (let depth = 0; typeof cur === 'object' && cur !== null && depth < 5; depth++) {
+    if ('code' in cur && typeof cur.code === 'string' && /^[0-9A-Z]{5}$/.test(cur.code)) return cur.code
+    cur = 'cause' in cur ? cur.cause : undefined
   }
   return undefined
 }
@@ -63,7 +63,9 @@ async createOnce(user: User, key: IdempotencyKey): Promise<User> {
     .onConflictDoNothing({ target: users.idempotencyKey }).returning()
   if (row) return toEntity(row)
   const [winner] = await this.db.select().from(users).where(eq(users.idempotencyKey, key.value))
-  return toEntity(winner!) // same key → the first call's result
+  // the conflict proves the first call's row exists; a missing one is a bug, not a result
+  if (!winner) throw new Error(`no row for idempotency key ${key.value} after a conflict`)
+  return toEntity(winner) // same key → the first call's result
 }
 ```
 

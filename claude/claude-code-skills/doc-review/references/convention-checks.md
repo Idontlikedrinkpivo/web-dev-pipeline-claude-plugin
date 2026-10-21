@@ -34,11 +34,13 @@ cited as evidence.
 ## Which misses may be fixed silently
 
 `safe_auto` only for a
-mechanical move of an existing changelog to the table-after-H1 shape, or
-for stripping `version` / `## Журнал изменений` from a business-requirements
-document. Review-parking leftovers are `gated_auto`: suggested fix is
-move the bullets to `open-questions.md` in that document's folder and delete the
-leftover heading. A `Cited upstream tokens` miss is `gated_auto` when
+mechanical move of an existing changelog to the table-after-H1 shape, for
+stripping `version` / `## Журнал изменений` from a business-requirements
+document, and for the rows above that say so (Visual binding, Visual detail
+in words, Rule restated), in the cases they name. Review-parking leftovers
+are `gated_auto`: suggested fix is move each item as a `Вопрос | Класс` row
+to `open-questions.md` in that document's folder and delete the leftover
+heading. A `Cited upstream tokens` miss is `gated_auto` when
 exactly one upstream name is a plausible match, otherwise `manual`; never
 `safe_auto`. Do not silently retype a row or rewrite prose. Applying a fix
 edits the body of the current version. Do not change `version`, `updated`,

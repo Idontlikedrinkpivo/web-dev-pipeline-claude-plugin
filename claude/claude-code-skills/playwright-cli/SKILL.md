@@ -4,7 +4,6 @@ description: >-
   Drives a real browser with playwright-cli (snapshots, clicks by ref, mocks, traces) and writes, runs or heals
   Playwright Test E2E specs and config. Use to reproduce UI behaviour, write or fix E2E tests, set up
   playwright.config, attach screenshots to a PR. Not unit or API tests.
-allowed-tools: Bash(playwright-cli:*) Bash(npx playwright:*) Bash(npx @playwright/cli:*)
 ---
 
 # Browser Automation with playwright-cli

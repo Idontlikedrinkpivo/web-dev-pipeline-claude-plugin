@@ -60,9 +60,10 @@ invent its own idea of what the branch was supposed to do. Say so and stop.
 Read the plan's unit map and the run report's status column side by side.
 Confirm every unit marked committed actually has a commit in the diff range
 (its `Plan-Unit:` trailer in `BASE..HEAD`), and that no committed diff is
-missing from the unit map. A fix commit carrying a unit's trailer, or a
-`review-fix-<n>` trailer listed in the run report, counts as mapped (`work` →
-A fix after a commit). A mismatch here means
+missing from the unit map. A fix commit carrying a unit's trailer, a
+`review-fix-<n>` trailer, or the simplifier's `health-<n>` trailer
+(`work/references/health.md`) listed in the run report counts as mapped
+(`work` → A fix after a commit). A mismatch here means
 the run report is stale — fix that before reviewing anything else.
 
 ### Step 2. Cross-unit lenses
@@ -89,6 +90,9 @@ and again when you judge the findings (Step 4).
   wrong; a changed decision from the run report's «Изменённые решения» that
   did not land in its documents; code that departs from a contract document
   with no such line behind it.
+- **Code health** — every row of the «Здоровье кода» table at HEAD against
+  BASE; a row worse at HEAD with no reason in the run report is a finding,
+  a surviving mutant one on the test that should have killed it.
 - **Критерии готовности** — the plan's §5 checked against the tree, not assumed
   from the per-unit sums.
 - **Declared NFR and configuration** — each «Решения по NFR» row and each
@@ -130,7 +134,9 @@ on another model was tried and removed: in the 2026-10-01 benchmark the first
 pass alone found the planted cross-unit defect in 9 of 9 runs across four
 levels of subtlety, and the second pass never found anything the first had
 missed, while costing 1.5–2 times as much. Do not add one back by
-re-dispatching `review-full-plan` or another reviewer.
+re-dispatching `review-full-plan` or another reviewer over the whole diff.
+The re-reviews over the fix commits (Step 5) are not a second pass: they
+repeat while each round makes progress.
 
 ### Step 4. Judge the findings
 
@@ -192,6 +198,10 @@ each with its traced path and severity, plus the SRS or architecture row that
 should have forbidden it. `none` when there are none.
 **Критерии готовности** — each §5 item, met or not, with what was actually run
 to check it.
+**Code health** — each row of the «Здоровье кода» table, BASE → HEAD: not
+worse, or worse with its finding or the run report's reason.
+**Dead code** — each detector entry this diff added or left unreferenced, with
+its finding; older entries as one line.
 **Dismissed** — findings ruled out, and which rule applied.
 **Not blocking** — P2/P3, for the record.
 ```
@@ -210,6 +220,7 @@ A filled report, for calibration — match its density, not its domain:
 **Security baseline** — D-4 владелец ресурса: не enforced (#1). NFR-Sec-2 хэш токенов: enforced в `src/adapters/token-repo.ts:hashToken`.
 **Undeclared surface** — none.
 **Критерии готовности** — по выводу команд из `work` Step 7: lint-контракты met (`npm run lint:deps`, код 0). E2E UC-2 met (`npm run test:e2e -- pay-order`, код 0). Покрытие BR-1…BR-5: met.
+**Code health** — дубликаты 1,2 % → 1,1 %; функций выше порогов 0 → 0; файлов выше порогов 0 → 0; выживших мутантов 0 → 0 (коммит упрощения `4c2d8e1`).
 **Dead code** — отчёт knip: `src/app/health-stub.ts` не используется (#2); остальное — до этого прогона.
 **Dismissed** — «даты в двух форматах в U4 и U7»: foundation §1 задаёт ISO для API и epoch для событий (правило 2).
 **Not blocking** — none.

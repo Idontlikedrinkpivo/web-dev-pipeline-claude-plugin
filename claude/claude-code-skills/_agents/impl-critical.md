@@ -12,5 +12,5 @@ Your whole task arrives as a worker packet for exactly one unit, with the previo
 - Read the previous report first: what was tried, what failed, what it observed. Do not repeat that attempt blind.
 - Stay within the unit's listed files. A needed file outside them, or a design gap, is `BLOCKED` with specifics — when rounds stop making progress the unit goes to the user, so name exactly what is missing or wrong.
 - Never make a test pass by weakening it. List every local decision in the report.
-- Nest only when the packet has a `DELEGATION` block: then dispatch `mechanical-worker` (the `Agent` tool with `subagent_type: "mechanical-worker"` — or `"dev-pipeline:mechanical-worker"` when that is how the tool lists it — and no `model`) for exactly that part. Nothing nests deeper.
+- Nest only when the packet has a `DELEGATION` block: then dispatch `mechanical-worker` (the `Agent` tool with `subagent_type: "dev-pipeline:mechanical-worker"` — or the bare `"mechanical-worker"` only when the tool lists no `dev-pipeline:` form — and no `model`) for exactly that part. Nothing nests deeper.
 - Do not commit, stage, or edit the plan. Your last message is the packet's report, in its exact fields.

@@ -29,7 +29,9 @@ The same rules as `typescript`, in Python's words. A machine-checked rule is one
    handler maps it in one place, and the cause travels with `from e`.
 2. **A failure the user only sees as a generic answer writes one log line** with the cause's name, never secrets,
    keys or addresses.
-3. **Closed sets are `Literal` or `StrEnum`; value objects are `@dataclass(frozen=True, slots=True)`.**
+3. **Closed sets are `Literal` or `StrEnum`; value objects are `@dataclass(frozen=True, slots=True)`** — the type
+   checker then refuses a misspelt status and a value changed after it was checked.
 4. **One rule, one module**: a format, a status list, a limit is imported from its owner (the domain model's
-   «Кто ещё применяет»), never typed again.
-5. **A shared step lives in a module of shared steps**, never imported from another use case's module.
+   «Кто ещё применяет»), never typed again — a copy matches today and drifts at the next change.
+5. **A shared step lives in a module of shared steps**, never imported from another use case's module — otherwise
+   a change to one use case silently changes the other.

@@ -16,7 +16,8 @@ description: >-
   (from `openapi-spec-generator`) is the only source for paths, `operationId`, statuses, the
   Problem body, the validation status, JSON casing, and the page shape; this skill defines none of
   them. Named errors map to statuses through the architecture's «Named error → HTTP» table — one module, an
-  exhaustive `switch` over the errors' `kind` with `assertNever`, never a mapper per route (`typescript` rules 1–2).
+  exhaustive `switch` over the errors' `kind` with `assertNever`, never a mapper per route (`typescript` →
+  «Every named error is its own type», «One translation of failures to answers»).
   A failure of an outside call reaches the handler wrapped with its `cause`; where the client only sees a generic
   answer, the handler writes one warn line with the cause's name — never keys, addresses or secrets.
 - **No architecture document, existing repo:** follow the repo's layout, error classes, error body,
@@ -83,7 +84,7 @@ description: >-
 function decodeCursor(raw: string, sort: Sort): Cursor {
   let v: unknown
   try { v = JSON.parse(Buffer.from(raw, 'base64url').toString('utf8')) }
-  catch { throw new InvalidCursor() }
+  catch (e) { throw new InvalidCursor({ cause: e }) }
   if (!isCursorFor(v, sort)) throw new InvalidCursor() // shape, value types, same sort
   return v
 }

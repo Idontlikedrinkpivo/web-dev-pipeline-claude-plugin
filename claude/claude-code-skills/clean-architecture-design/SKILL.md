@@ -91,7 +91,7 @@ dispatch the typist.
    document. Before the `Agent` call, write one line per document
    `Document | Grade` and then `Dispatch | Executor | subagent_type`,
    then dispatch without asking which model. Follow the catalog dispatch
-   contract: `subagent_type` is the row's name and the call passes no
+   contract: `subagent_type` is `dev-pipeline:<row>` and the call passes no
    `model` (the agent file holds it) unless the user named one. A
    missing agent or a rejected alias is a stop. **Split only for size:**
    a greenfield with more than six areas goes in two dispatches,
@@ -233,7 +233,7 @@ Extract from the inputs, and put each into its home:
 | Security NFRs | foundation §1 Решения по безопасности |
 | Other NFRs: performance, reliability, scalability, observability | foundation §1 Решения по NFR |
 | Constraints: versioned API, sensitive data, several clients, team size, lifespan, hosting limits, existing repo | scope (Step 2), stack proposal (Step 2b), DTO decision (foundation «Ключевые решения») |
-| Anything you had to assume | `documentation/architecture/open-questions.md` (shared by the three documents), and tagged `(A-n)` rows wherever it matters |
+| Anything you had to assume | `documentation/architecture/open-questions.md` (shared by the three documents), and tagged `(ДП-n)` rows wherever it matters (`ДП` — допущение; `A-n` is an SRS actor) |
 
 Sort every extracted rule into one of four kinds **while writing**. The
 kind decides its home. The sort is a writer's scratchpad; the reader
@@ -319,7 +319,10 @@ screens and nowhere to put them.
   `documentation/api/openapi.yaml`, storage records inferred from the ORM's table
   definitions; name the tool and check its current usage against the
   installed version with Context7; the mapper is hand-written and pinned
-  by a round-trip test); external-call failure; file formats; Сборка
+  by a round-trip test); external-call failure; Откат и уборка (one
+  compensation policy and its one helper:
+  `references/use-cases-and-boundaries.md` → Undoing what was done);
+  file formats; Сборка
   (wiring per framework: `references/layers-and-dependency-rule.md`);
   Конфигурация; Служебные каналы; named error → HTTP with the route-guard
   paragraph (`references/configuration-and-http.md`). No route
@@ -377,7 +380,9 @@ errors already mapped to HTTP).
   is where a stale field survives.
 - **Invariant table (§4)** — domain rules only, one row per rule, no
   prose in the cells, no paragraph under the heading: `Правило |
-  Владелец | Где проверяется | Ограничение в схеме | Исход`. «Правило»
+  Владелец | Где проверяется | Ограничение в схеме | Исход | Кто ещё
+  применяет` (column rules in `references/output-template-domain.md`
+  → «Column rules of the invariant table»). «Правило»
   starts with the SRS id. «Где проверяется» is always an entity or
   value-object method with the same signature as in the sketch — never a
   use case, controller, adapter, `Clock`, or the word `database`.
@@ -453,7 +458,7 @@ and the domain model; this document cites both and restates neither.
   each needs a named reason (a test, a rule, a risk) in «Ключевые
   решения».
 - **Invented model.** A noun with no stated rule promoted to an entity,
-  or a status the requirements never named (tag it `(A-n)` and ask).
+  or a status the requirements never named (tag it `(ДП-n)` and ask).
 - **A name written in the wrong home.** A missing port method, error or
   file line goes into the document that owns it (Writer → `ALSO
   CHANGED`), not into the scenario that needed it.

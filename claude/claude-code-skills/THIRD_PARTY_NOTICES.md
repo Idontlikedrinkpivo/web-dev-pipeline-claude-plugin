@@ -1,16 +1,18 @@
 # Third-party notices
 
-The dev-pipeline plugin embeds or adapts skills from other authors. Each folder
-holds the original licence and a `VENDORED.md` with the source, the commit
-and every change made for this plugin.
+The dev-pipeline plugin embeds or adapts skills from other authors. A folder
+that holds the original licence also holds a `VENDORED.md` with the source,
+the upstream version or commit where it was recorded, and the changes made
+for this plugin; where the folder has no licence file, the row links to it.
 
 | Folder | Original | Licence | Copyright |
 |---|---|---|---|
 | `ui-ux-pro-max/` | UI UX Pro Max, https://github.com/nextlevelbuilder/ui-ux-pro-max-skill (v2.13.0, commit `477bcb2`) | MIT — `ui-ux-pro-max/LICENSE` | © 2024 Next Level Builder |
 | `web-design-guidelines/` | Vercel Web Interface Guidelines, https://github.com/vercel-labs/web-interface-guidelines (commit `434b7f9`) | MIT — `web-design-guidelines/LICENSE` | © 2025 Vercel Labs |
-| `zod-skill/` | a Zod skill by Anivar Aravind — adapted, see `zod-skill/VENDORED.md` | MIT — `zod-skill/LICENSE` | © 2026 Anivar Aravind |
-| `fastapi/` | the official FastAPI agent skill, https://github.com/fastapi/fastapi (`fastapi/.agents/skills/fastapi/SKILL.md`) — parts of the text follow it closely | MIT — https://github.com/fastapi/fastapi/blob/master/LICENSE | © 2018 Sebastián Ramírez |
+| `zod-skill/` | a Zod skill by Anivar Aravind, https://github.com/anivar/zod-skill (v1.1.0) — adapted, see `zod-skill/VENDORED.md` | MIT — `zod-skill/LICENSE` | © 2026 Anivar Aravind |
+| `fastapi/` | the official FastAPI agent skill, https://github.com/fastapi/fastapi (`fastapi/.agents/skills/fastapi/SKILL.md`) — parts of the text follow it closely, see `fastapi/VENDORED.md` | MIT — `fastapi/LICENSE` | © 2018 Sebastián Ramírez |
 | `frontend-design/` | Anthropic `frontend-design`, https://github.com/anthropics/skills (commit `683bc88`) | Apache License 2.0 — `frontend-design/LICENSE.txt` | Anthropic (Apache 2.0, no separate copyright line in the licence file) |
+| `playwright-cli/` | the playwright-cli skill, https://github.com/microsoft/playwright-cli (`skills/playwright-cli/`) — adapted, see `playwright-cli/VENDORED.md` | Apache License 2.0 — `playwright-cli/LICENSE` | © Microsoft Corporation |
 
 `ui-ux-pro-max/data/` also carries data its authors collected under their
 own terms, recorded in `ui-ux-pro-max/data/data-provenance.json` and

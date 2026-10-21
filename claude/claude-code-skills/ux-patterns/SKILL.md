@@ -18,8 +18,8 @@ embeds: `web-design-guidelines` (Vercel Web Interface Guidelines — the
 code-level detail behind Section 8), `ui-ux-pro-max` (style, palette and
 font data for the visual direction, and a searchable mirror of these
 rules) and `frontend-design` (taste rules for drawing). Every rule in
-those three carries the `UX-<n>` it maps to, and none of them contradicts
-this file. The source per rule is in `references/sources.md`; read it when
+those three that overlaps a rule here carries the `UX-<n>` it maps to,
+and none of them contradicts this file. The source per rule is in `references/sources.md`; read it when
 a rule is challenged.
 
 Every rule is checkable on a screen-spec row, a frame screenshot, or a diff. A

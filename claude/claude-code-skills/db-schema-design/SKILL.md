@@ -17,7 +17,7 @@ report whose `DELEGATED` is not `doc-typist` comes back until it is. The
 session does not dispatch the typist.
 
 1. Stop if the SRS is missing — no actors, no use cases, no rules. Name
-   `srs-writer`. Do not invent tables to fill the gap. Do not wait for
+   `srs-writer`. Do not wait for
    `clean-architecture-design`: it runs after this stage, so the writer
    reads invariants from the SRS and decides each constraint itself (§4).
 2. When a schema document already exists, read `doc-versioning`.
@@ -32,7 +32,7 @@ session does not dispatch the typist.
    `executor-catalog/references/design-writer-prompt.md`. Before the
    `Agent` call, write `Grade | Executor | subagent_type` for the design
    row the grade picked, then dispatch it without asking which model.
-   Follow the catalog dispatch contract: `subagent_type` is the row's name
+   Follow the catalog dispatch contract: `subagent_type` is `dev-pipeline:<row>`
    and the call passes no `model` (the agent file holds it) unless the
    user named one. A missing agent or a rejected alias is a stop.
 4. Inspect the files on disk. A DBML table without a table-level `Note`,
@@ -62,9 +62,8 @@ BLOCKED returns before that dispatch. Read the files back. One
 correction dispatch, then the report. Do not type the correction, and
 do not paste the finished schema into the typist's prompt.
 
-Translate the SRS into a concrete relational schema for **one scenario
-at a time** — not the whole system in one pass.
-ORM-agnostic, PostgreSQL-flavored SQL (principles apply to
+Translate the SRS into a concrete relational schema, one slice at a
+time (Context Required). ORM-agnostic, PostgreSQL-flavored SQL (principles apply to
 MySQL/MariaDB). Table and column `Note` / `COMMENT ON` text is Russian.
 Do not translate identifiers.
 
@@ -83,8 +82,6 @@ code then have to honour.
 - Turning a domain rule into a `CHECK` constraint (or deciding it can't be)
 
 **NOT for:**
-- Zero-downtime migrations on a database that already has production data
-  and traffic (a different, later concern — greenfield schemas need none of this)
 - Multi-tenant row/schema/database isolation strategy (add `tenant_id` +
   RLS only when the SRS calls for multi-tenancy)
 - Table partitioning (only relevant past ~100M rows — not a day-one decision)
@@ -145,7 +142,7 @@ current. Two asymmetric rules govern here:
   which file the increment adds, what it does, and whether it is
   reversible; the stamp's changelog row carries it.
 
-Once rows exist, the "not for" list above stops applying. Read
+A greenfield schema needs no zero-downtime sequence. Once rows exist, read
 `references/migration-safety.md` and use its safe sequence for every DDL on a
 populated table, because a one-step `ALTER` there can lock or rewrite the table
 under live traffic. Name the sequence and its reversibility in the report (the

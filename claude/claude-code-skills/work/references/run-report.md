@@ -27,7 +27,8 @@ grade, with the signal the cascade missed. This is the feedback that keeps
 **Out of scope** — problems workers reported and nobody fixed.
 **Cross-unit watch** — `OPEN` suspicions carried up from per-unit reviews, for
 `code-review-full` to resolve at Step 7.
-**Здоровье кода** — the table of `references/health.md`: each measure at BASE and HEAD, and the simplifier's commit.
+**Здоровье кода** — the table of `references/health.md`: each measure at BASE and HEAD, and the simplifier's
+commit with its `Plan-Unit: <version>/health-<n>` trailer, or «упрощение не понадобилось».
 **Open** — units not attempted, and why.
 **Lib docs** — which libraries Step 2b fetched (id + pinned version), or why
 it wrote `none`.

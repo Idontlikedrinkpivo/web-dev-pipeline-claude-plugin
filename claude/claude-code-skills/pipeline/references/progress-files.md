@@ -1,5 +1,11 @@
 # Progress files
 
+- [Which stages keep one](#which-stages-keep-one)
+- [Rules for every file](#rules-for-every-file)
+- [Statuses](#statuses)
+- [Keeping the run moving](#keeping-the-run-moving)
+- [The files](#the-files)
+
 Read this before a stage that keeps a progress file creates it. A long stage —
 one that works through many items of one kind (screens, documents, cases,
 units, steps) while the user waits — keeps one, so the user sees where it is

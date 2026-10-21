@@ -23,7 +23,7 @@ it before they are done — SRS, DB schema, API contract, the architecture
 documents, the screen specs. On a yes,
 the stage is done when this review ran and its findings are applied or
 explicitly waived; on a skip, the stage says so in its report, the document
-keeps its status, and the stage goes on to its next transition. The `pipeline` skill owns which stages those are; this file
+stays as written, and the stage goes on to its next transition. The `pipeline` skill owns which stages those are; this file
 owns what happens once it starts. It is also run directly whenever the user asks to
 review, critique, or improve an existing document.
 
@@ -169,8 +169,8 @@ is written after the design. `ui-wishes.md` is never grounds for a finding.
 
 Read `executor-catalog` before the first dispatch. Resolve each activated
 persona to an executor through its **Document-review routing** table, then
-to its agent through its dispatch contract (`subagent_type` is the executor
-name; the model lives in that agent's file) — copy both, do not re-decide
+to its agent through its dispatch contract (`subagent_type` is
+`dev-pipeline:<executor>`; the model lives in that agent's file) — copy both, do not re-decide
 them. That table is the only persona → executor mapping; a copy here would
 drift from it.
 
@@ -240,8 +240,9 @@ dispatch finishes.
 
 A parked finding — option C, or `отложи` / `потом` / `в open questions`
 in chat after the report — always goes to
-`open-questions.md` in the reviewed document's folder, never into the reviewed document;
-the steps are `references/routing.md` → Defer. The finding the user is
+`open-questions.md` in the reviewed document's folder (a scenarios document
+into `architecture/`, a screen spec into `ui/`), never into the reviewed
+document; the steps are `references/routing.md` → Defer. The finding the user is
 being asked about is one question in the chat. The user answers by
 sending a message. Do not open a question card. Writing it only into
 `open-questions.md` is a failed question.
