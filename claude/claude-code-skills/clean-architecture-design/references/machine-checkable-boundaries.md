@@ -381,6 +381,11 @@ through each tenant-owned port for tenant A neither return nor change B's
 rows; the in-memory fakes key their rows by tenant too, so use-case tests
 see the same rule.
 
+**Race tests** — each guard against a double action the scenarios name (a row lock, a conditional update, a
+unique key, an idempotency key) gets one adapter-level test against the real store: two calls at once, each on
+its own connection or session, then the effect counted (exactly one) and the loser's answer asserted. A lock
+removed or taken after the read then fails a test instead of shipping.
+
 **One end-to-end path** — at least one automated test drives the real wiring
 (HTTP → use case → real repository against a test database) for the primary
 action. It proves the composition root, not the rules.

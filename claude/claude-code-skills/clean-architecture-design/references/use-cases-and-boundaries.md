@@ -164,6 +164,12 @@ A write path with an insert-or-update or a conflict branch applies **every** rul
 write — never a subset. The scenario says which, in its Ошибки table («запись уже есть → отказ `AlreadyExists`» or
 «повтор с теми же правилами»), and its key scenario test covers the branch.
 
+A guard against a double action — a row lock, a conditional update, a unique key, an idempotency key — is named
+in the scenario's Ошибки table with what the second caller gets, and the test plan gives it a **race test**: two
+calls at once against the real store, each on its own connection, then the effect counted (one refund, one row,
+one booking) and the second caller's answer checked. Code review cannot see a missing lock or a lock taken too
+late; only two requests that really overlap can.
+
 ## Can a use case return an entity?
 
 Martin's 2012 article says plainly: pass simple data structures across

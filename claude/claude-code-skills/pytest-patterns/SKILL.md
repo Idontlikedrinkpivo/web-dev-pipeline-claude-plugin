@@ -59,6 +59,7 @@ tests/
 - Auth: `auth_headers` / `admin_headers` sign a token with `sub=str(user.id)` for a persisted `sample_user` / `admin_user`; `authenticated_client` / `admin_client` are `client` with that header. A test states its role by the fixture it requests; plain `client` is how a 401 test proves an endpoint is protected.
 - Factories build storage records for adapter and API tests; entity tests construct entities directly. Leave primary keys to the database (a factory-assigned id does not advance the identity sequence, so the app's next insert collides). Use `.build()` in unit tests so they stay DB-free; in integration tests add or create through the session and `await db_session.flush()` yourself.
 - Do not `asyncio.gather` calls that share `db_session`: an `AsyncSession` is one transaction on one connection. A concurrency test needs one session per task, and that data is committed outside the per-test rollback, so clean it up explicitly.
+- A guard against a double action (a row lock, a conditional update, a unique key, an idempotency key) gets such a race test: `asyncio.gather` of two calls, each with its own session, then count the effect — exactly one refund, one row — and assert what the second caller got. Without it nothing shows that the lock is taken, or taken before the read it protects.
 - Use pytest-asyncio as the only async test runner; do not also mark tests for the `anyio` plugin. One runner keeps one set of loop settings to reason about.
 
 ## API tests

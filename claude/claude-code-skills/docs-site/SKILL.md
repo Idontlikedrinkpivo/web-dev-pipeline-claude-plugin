@@ -63,7 +63,8 @@ searches work on the Markdown (`doc-versioning` → Registry).
 - **Navigation** by `documentation/` top folders in the pipeline's order; within a section, by path.
 - **Cross-links.** An id is defined where it first appears as a table row's first cell, a heading
   («### UC-4. …»), a bold paragraph start («**З-2. …**») or a screen-spec file name (`S-3-card.md`); every
-  other mention links there. Query and procedure ids (`З-`, `П-`) link only inside the operations document.
+  other mention links there. Query and procedure ids (`З-`, `П-`) link only inside the operations document; an architecture
+  assumption (`ДП-3`) links to its row in the open questions.
   `` `bookRoom` `` links to its operation on the API page; `` `../db/schema.md` `` to that page.
 - **The API page** is Swagger UI over the contract bundled into one JSON (`api/openapi.json`, linked into
   `api/spec.js` with the ids made links): operations by tag,

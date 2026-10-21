@@ -42,8 +42,9 @@ description: >-
    application error; the HTTP status is mapped later by the error handler. It never throws an
    HTTP error class. Brownfield: reuse the error class the repo already throws for that case, but
    keep the classification in the repository or a db-error helper it calls, not in a route.
-5. **The database enforces what races.** A unique index, FK, or CHECK holds under concurrent writes;
-   an app-side "check, then insert" does not. Keep the pre-check if it gives a nicer error, and
+5. **The database enforces what races, and a race test proves it** (`vitest`, house rule on guards against a
+   double action). A unique index, FK, or CHECK holds under concurrent writes; an app-side "check,
+   then insert" does not. Keep the pre-check if it gives a nicer error, and
    also classify the constraint violation, because two instances can pass the check together.
 6. **Classify driver errors by SQLSTATE read from the wrapped error** (walk the `cause` chain), not
    from the message: unique `23505`, FK `23503`, check `23514`, serialization `40001`, deadlock

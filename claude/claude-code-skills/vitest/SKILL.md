@@ -20,7 +20,10 @@ description: >-
 6. Run the file, then break the code under test once and watch the test fail.
 7. Never commit `.only`; a `.skip` carries why and when it returns. Read every snapshot diff before accepting it.
 8. An invariant over many values (a format, a range, a round trip, «whoever edits can see») gets a property test with `fast-check` beside its examples.
-9. When `work` asks for it, mutation-test the unit's files with Stryker in incremental mode; a surviving mutant names the missing assertion.
+9. A guard against a double action (a row lock, a conditional update, a unique key, an idempotency key) gets a
+   race test against the real database: `Promise.all` of two calls, each with its own connection from the pool
+   (never one transaction shared), then count the effect — exactly one — and assert what the second caller got.
+10. When `work` asks for it, mutation-test the unit's files with Stryker in incremental mode; a surviving mutant names the missing assertion.
 
 A whole-application browser flow (log in, open a page, type, click, see the result) is Playwright, not Vitest:
 route it to `playwright-cli`. A component test is Vitest with Testing Library (jsdom, or Browser Mode where the

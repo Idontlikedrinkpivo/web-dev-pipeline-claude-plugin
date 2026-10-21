@@ -87,8 +87,7 @@ the project is used as is, whether or not it meets the criterion.
    from the generated client, never on a message string. `общий обработчик`
    goes to the one app-wide handler drawn on the register's «Общие
    состояния» frames (the first screen unit builds it in shared code; later screens
-   use it and never copy it per screen). While a call runs, the triggering control shows progress and ignores
-   repeat presses [UX-15]; a
+   use it and never copy it per screen). A
    success without navigation is announced as a status message (`aria-live`).
 5. **Fields** follow «Поля ввода»: the rule, when it is checked, the exact
    error text next to the field. The form's schema, a format rule the server also checks, and which
