@@ -49,7 +49,8 @@ OUTPUT PATH     <repo-relative path the file must land at, by document:
                 architecture (one line per document of MODE):
                   foundation        documentation/architecture/architecture.md
                   domain            documentation/architecture/domain.md
-                  scenarios:<area>  documentation/architecture/scenarios/<area>/<area>.md
+                  scenarios:<area>  documentation/architecture/scenarios/<area>/<group>.md,
+                                    one line per SRS group of the area
                 db-schema-design: documentation/db/schema.md, plus
                   documentation/db/migrations/<NNNN>_<slug>.sql —
                   greenfield 0001_init.sql; an increment adds the next

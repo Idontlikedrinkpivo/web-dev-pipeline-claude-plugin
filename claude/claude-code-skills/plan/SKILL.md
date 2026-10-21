@@ -49,7 +49,7 @@ against the fixed text (`pipeline` → `references/decision-changes.md`).
 |---|---|---|
 | Architecture foundation `architecture/architecture.md` | **yes** | stack (§1), «Решения по NFR» (§1 — each row is applied by some unit), modules and areas (§2), ports and adapters and the configuration table (§4 — each variable is read and used by some unit), file tree (§5), lint and test plan (§6) |
 | Domain model `architecture/domain.md` | **yes** | entities, value objects, named errors, the invariant table (§4) — every rule a unit enforces is cited from here |
-| Scenarios of the areas in scope `architecture/scenarios/<area>/<area>.md` | **yes** | one unit per state-changing scenario; its steps, ports, transaction boundary and errors |
+| Scenarios of the areas in scope `architecture/scenarios/<area>/<group>.md` | **yes** | one unit per state-changing scenario; its steps, ports, transaction boundary and errors |
 | SRS `requirements/srs/srs.md` | **yes** | UC / AC / BR / NFR ids the units must cite |
 | OpenAPI `api/openapi.yaml` | when the surface is HTTP | one unit per operation group; `operationId` names the unit |
 | DB schema `db/schema.md` + `db/migrations/` | when there is storage | migration units and their ordering: a schema change in scope is a unit that adds the next numbered file `db-schema-design` wrote to the app's migration run — never an edit of a committed file |
@@ -396,7 +396,7 @@ date: YYYY-MM-DD
 sources:
   - documentation/architecture/architecture.md@<version>
   - documentation/architecture/domain.md@<version>
-  - documentation/architecture/scenarios/<area>/<area>.md@<version>   # one per area in scope
+  - documentation/architecture/scenarios/<area>/<group>.md@<version>   # one per SRS group in scope
   - documentation/ui/screen-specs/S-1-<screen>.md@<version>           # one per screen in scope
   - documentation/requirements/srs/srs.md@<version>
 routing: executor-catalog

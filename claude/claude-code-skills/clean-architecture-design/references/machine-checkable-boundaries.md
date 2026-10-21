@@ -501,11 +501,11 @@ The agent starts small and unfolds context per task.
 
 In the foundation this is §2 «Модули и функциональные области», always
 present — even one area gets its row, because the row links the area's
-scenarios document:
+scenarios folder:
 
-| Область | Модуль | Группа SRS | Документ сценариев | Владеет состоянием | Потребители контракта |
+| Область | Модуль | Группы SRS | Сценарии | Владеет состоянием | Потребители контракта |
 |---|---|---|---|---|---|
-| one row per area, kebab-case English | the folder in §5 | the SRS capability group, verbatim | `scenarios/<area>/<area>.md` | the entities (domain model) that hold its state | who breaks if its contract changes: API versions, partners, other areas, jobs |
+| one row per area, kebab-case English | the folder in §5 | the SRS capability groups it covers, verbatim | `scenarios/<area>/` — a document per group | the entities (domain model) that hold its state | who breaks if its contract changes: API versions, partners, other areas, jobs |
 
 Key invariants are not listed here: they are rows of the domain model,
 and a copy here would drift.

@@ -23,7 +23,7 @@ documentation/architecture/diagrams/containers.d2 / .svg  more than one process 
 documentation/architecture/diagrams/stores.d2 / .svg
 documentation/architecture/diagrams/modules.d2 / .svg     two or more areas only
 documentation/architecture/diagrams/layers.d2 / .svg
-documentation/architecture/scenarios/<area>/<area>.md
+documentation/architecture/scenarios/<area>/<group>.md                  one per SRS group of the area
 documentation/architecture/scenarios/<area>/diagrams/<use-case-kebab>.puml / .svg   key scenarios only
 ```
 

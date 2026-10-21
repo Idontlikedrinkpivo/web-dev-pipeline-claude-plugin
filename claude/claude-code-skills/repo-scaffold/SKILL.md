@@ -39,7 +39,7 @@ this skill writes is `documentation/project-map/project-map.md` (section 6).
 
 The architecture is three documents in `documentation/architecture/`.
 This skill reads the foundation, `architecture.md`; the domain model
-(`domain.md`) and the scenarios documents (`scenarios/<area>/<area>.md`)
+(`domain.md`) and the scenarios documents (`scenarios/<area>/<group>.md`)
 hold no folders or lint rules it needs.
 
 | Required | Source |
@@ -249,7 +249,7 @@ sources:
 | SRS | `documentation/requirements/srs/srs.md` — оглавление; группы требований — `documentation/requirements/srs/areas/` |
 | Архитектура — основа | `documentation/architecture/architecture.md` — §5 дерево, §2 модули; схемы встроены в разделы |
 | Доменная модель | `documentation/architecture/domain.md` |
-| Сценарии по областям | `documentation/architecture/scenarios/<area>/<area>.md`, по строке на область из §2 |
+| Сценарии по областям | `documentation/architecture/scenarios/<area>/<group>.md`, по строке на группу SRS из §2 |
 | Экраны | `documentation/ui/` — `frames-register.md`, `screen-specs/` (файл на экран), `test-cases/` (`README.md` и файл на раздел), или «нет UI» |
 | Схема БД | `documentation/db/schema.md` или «нет» |
 | Миграции БД | `documentation/db/migrations/` или «нет» |

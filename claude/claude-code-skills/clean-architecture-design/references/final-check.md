@@ -47,8 +47,8 @@ states the rule; fix the document there, not here.
 - With a human-facing interface in the SRS, the client is placed: its
   stack in §1, a §2 row, its folder and generated API client in §5, its
   lint and test rows in §6 — never «вне документа».
-- §2 has one row per SRS capability group, each with its module folder,
-  scenarios document path, and what it takes from other areas by name;
+- §2 has one row per area, each with its module folder, the SRS groups it
+  covers, its scenarios folder, and what it takes from other areas by name;
   area names match §5 folders. Every cross-area type or call the
   scenarios use is named there. A shared module (one several areas take
   from) takes nothing from an area.
@@ -105,8 +105,10 @@ states the rule; fix the document there, not here.
 
 ## Mode `scenarios:<area>`
 
-- The «Область» table names the area, its SRS group, module and
-  entities; the area matches a foundation §2 row.
+- One document per SRS group the area covers, named `<group>` and headed
+  `# Сценарии: <группа>` with the group's sub-heading word for word; its
+  «Область» table names the area, that one group, module and entities;
+  the area matches a foundation §2 row that lists the group.
 - Every state-changing action of the SRS group has a use case with its
   file path in the heading, and the Вход / Доступ / Выход / Операция API,
   Шаги, and Ошибки tables. No read is a use case; no query returns an

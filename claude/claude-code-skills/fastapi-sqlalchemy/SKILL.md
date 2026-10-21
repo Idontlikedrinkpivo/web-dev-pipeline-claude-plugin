@@ -28,7 +28,7 @@ description: >-
 | Port | `application/ports.py` (Modest) or `application/ports/` (Full) | `typing.Protocol` with the foundation §4 signatures |
 | SQLAlchemy model | `<area>/adapters/persistence/` (file name from foundation §5) | A storage record. Never imported by `domain/` or `application/`, never returned as the entity or as the HTTP response |
 | Repository adapter + mapper | `<area>/adapters/persistence/` | Implements the port; `to_entity(record)` / `to_record(entity)` written by hand; returns entities |
-| Read query | `adapters/persistence/` | Returns the read model the area's scenarios document (`documentation/architecture/scenarios/<area>/<area>.md`) names, not the entity |
+| Read query | `adapters/persistence/` | Returns the read model its group's scenarios document (`documentation/architecture/scenarios/<area>/<group>.md`) names, not the entity |
 | Router factory, request / response schemas | `<area>/adapters/http/` | See `fastapi` |
 | Engine, sessionmaker, use-case construction, exception handlers | `bootstrap/` | May import everything; nothing imports it |
 

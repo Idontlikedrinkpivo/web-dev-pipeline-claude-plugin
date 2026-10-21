@@ -17,8 +17,8 @@ foundation → domain → scenarios.
 | What changed | Mode | Why only this |
 |---|---|---|
 | a new or changed business rule, a new entity or value object, a new state | `domain` | rules have one home; a scenario that only cites the rule id does not change |
-| a new or changed use case or query | `scenarios:<area>` of each touched area | one living document per area; other areas are not re-read |
-| a use case in a new SRS group | `foundation` (§2 row, §5 folder, lint) + a new `scenarios:<area>`, which creates `scenarios/<area>/` | an area is a module; the tree and lint must know it |
+| a new or changed use case or query | `scenarios:<area>` of each touched area — the documents of the touched groups | one living document per SRS group; other groups and areas are not re-read |
+| a use case in a new SRS group | the group joins an area: an existing one (`foundation` §2 row gains the group; `scenarios:<area>` adds `scenarios/<area>/<group>.md`) or a new one (`foundation` §2 row, §5 folder, lint + a new `scenarios:<area>`, which creates `scenarios/<area>/`) | an area is a module; the tree and lint must know a new one |
 | a new port, external system, store, transaction model (outbox vs in-request), stack, or level | `foundation` | these are the fundamental decisions it owns |
 | a new method on an existing port, a new named error's HTTP row, a new config variable | `foundation`, graded as a mechanical increment | a signature and a mapping have one home; usually added by the writer of a scenario that needs it (`ALSO CHANGED`) |
 | a field added to an entity | `domain` (sketch, «Поля также в:»); the scenarios whose read models show it | — |

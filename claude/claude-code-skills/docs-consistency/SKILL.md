@@ -49,7 +49,7 @@ Find the set by `doc-versioning` → Registry, in chain order (paths under
 | SRS `requirements/srs/srs.md` | **yes** — without it there is nothing to trace to; say so and stop |
 | DB schema `db/schema.md` (+ the migration files in `db/migrations/`) | when stage 3 ran |
 | OpenAPI `api/openapi.yaml` | when stage 4 ran |
-| `architecture/architecture.md` (its diagrams embedded), `architecture/domain.md`, `architecture/scenarios/<area>/<area>.md` of every area | when stage 5 ran |
+| `architecture/architecture.md` (its diagrams embedded), `architecture/domain.md`, `architecture/scenarios/<area>/<group>.md` of every SRS group | when stage 5 ran |
 | `ui/frames-register.md` and every `ui/screen-specs/S-<n>-*.md` | when stage 8 ran |
 | Business requirements, `ui-wishes.md` | no — the SRS absorbed the first; wishes are never grounds for a finding |
 

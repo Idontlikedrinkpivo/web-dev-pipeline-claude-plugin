@@ -71,7 +71,7 @@ Non-interactive without a path: stop with
    `requirements/srs/srs.md`,
    `requirements/business-requirements/business-requirements.md`,
    `architecture/architecture.md`, `architecture/domain.md`,
-   `architecture/scenarios/<area>/<area>.md`, `ui/screen-specs/S-*.md`,
+   `architecture/scenarios/<area>/<group>.md`, `ui/screen-specs/S-*.md`,
    `db/schema.md`, or `api/openapi.yaml`. If several candidates exist, or
    none do, ask which file to review. Do not invent a path.
 3. **No path, non-interactive** — already handled in Phase 0.
@@ -94,7 +94,7 @@ Do not re-classify later.
 | `screen` | One screen `# S-<n>. …` with `figma:` in the frontmatter, sections Загрузка и вызовы / Элементы (№ · Элемент · Поведение по условиям · Метод и поля · Кадр) / Состояния экрана / Ошибки ответов / Производные значения / Разрывы; `ui/screen-specs/S-<n>-*.md` |
 | `architecture` | Foundation: Состав системы, modules and functional areas, ports and adapters, file tree, lint rules; `architecture/architecture.md` |
 | `domain` | Value objects, entity sketches, named errors, the invariant table; `architecture/domain.md` |
-| `scenarios` | One functional area: use cases as sections with Вход / Шаги / Выход / Ошибки / Операция API; `architecture/scenarios/<area>/<area>.md` |
+| `scenarios` | One SRS group of a functional area: use cases as sections with Вход / Шаги / Выход / Ошибки / Операция API; `architecture/scenarios/<area>/<group>.md` |
 | `api` | `openapi: "3.0.3"` (or 3.0.x), `paths:`, `components:`; `api/openapi.yaml` with the `paths/` and `components/` files it references, reviewed as one document |
 | `db` | DBML table blocks; `db/schema.md`. The files in `db/migrations/` are reviewed with it as one document: read them all (a migration path given alone resolves to `db/schema.md`). A committed migration file is never edited — a fix it needs is a finding for `db-schema-design` (the next file), not an applied fix |
 

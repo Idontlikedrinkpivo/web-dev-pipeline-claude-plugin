@@ -55,7 +55,7 @@ shape equally well.
 ## Use case specification
 
 The published skeleton is in `output-template-scenarios.md`: one
-subsection per use case in its area's scenarios document, headed with the
+subsection per use case in its SRS group's scenarios document, headed with the
 file path, with the Вход / Доступ / Выход / Операция API table, the Шаги
 table (step → port method or entity method, transaction boundary marked)
 and the Ошибки table. Nested `Input` / `Result` types in the same
@@ -113,8 +113,8 @@ exists to prevent. Authorization on reads (each party sees only their own rows)
 is an access policy: apply it in the controller guard or as the first line of
 the query, and let the read model carry only what that audience may see.
 
-Publish queries as a table in the scenarios document of the area that
-reads, not a code fence — columns and the read-model field table:
+Publish queries as a table in the scenarios document of the SRS group
+that reads, not a code fence — columns and the read-model field table:
 `output-template-scenarios.md` → Запросы.
 
 ## Side effects and domain events

@@ -4,7 +4,7 @@ description: >-
   Writes the architecture as three documents from the settled SRS, schema
   and OpenAPI: a foundation (stack, modules, ports, file tree, lint rules,
   D2 diagrams), a domain model (rich entities and the invariant table that
-  homes every rule), and one living scenarios document per functional area
+  homes every rule), and one living scenarios document per SRS capability group, in its area's folder
   (use cases, queries, sequence diagrams for key ones). Use after the
   schema and OpenAPI, or for «спроектируй архитектуру», «доменная модель»,
   «сценарии», Clean / hexagonal / DDD layering. Not for inventing tables,
@@ -25,12 +25,14 @@ settles every document a sitting touches, because the three share names
 |---|---|---|---|
 | `foundation` | `architecture.md` + its D2 views in `diagrams/` (`.d2` / `.svg`), each embedded in the section it illustrates | §1 Состав системы (actors, stores, externals, API, security, NFR, «Ключевые решения» with «Уровень» and «Стек») · §2 Модули и функциональные области · §3 Границы и поток данных · §4 Порты и адаптеры · §5 Дерево файлов · §6 Проверки и тесты | a fundamental decision changes: a new port, external system, store, area, transaction model, or stack |
 | `domain` | `domain.md` | value objects, entities, named errors, **the invariant table** (the only home of every business rule), boundary checks, what is not an entity, glossary → types | a rule or an entity is added or changed |
-| `scenarios:<area>` | `scenarios/<area>/<area>.md` + `scenarios/<area>/diagrams/<use-case-kebab>.puml` / `.svg` (PlantUML) for key scenarios | the area's use cases (input, access, steps → port / entity method, transaction boundary, output, errors, `operationId`) and its queries | a use case of that area is added or changed |
+| `scenarios:<area>` | `scenarios/<area>/<group>.md` — one per SRS group the area covers — + `scenarios/<area>/diagrams/<use-case-kebab>.puml` / `.svg` (PlantUML) for key scenarios | each group's use cases (input, access, steps → port / entity method, transaction boundary, output, errors, `operationId`) and its queries | a use case of that group is added or changed |
 
-`<area>` is a functional area: a capability group of the SRS (its bold FR
-sub-headers), which is also a module of the file tree, in kebab-case
-English (`bookings`, `maintenance`). One living document per area,
-edited in place; a new area gets a new folder `scenarios/<area>/`.
+`<area>` is a functional area: a module of the file tree, in kebab-case
+English (`bookings`, `maintenance`), covering one or more capability
+groups of the SRS (its bold FR sub-headers). Its scenarios are split by
+those groups: one living document per group (`<group>` and its Russian
+heading — `references/output-template-scenarios.md`), edited in place; a
+new area gets a new folder `scenarios/<area>/`, a new group a new file.
 
 ## Orchestrator (session)
 
@@ -168,7 +170,7 @@ action, its data and its outcome.
 | Fact | Home |
 |---|---|
 | actors, stores, externals, API inputs, security and NFR decisions, level, stack | foundation §1 |
-| area → module → SRS group → scenarios document | foundation §2 |
+| area → module → SRS groups → scenarios folder | foundation §2 |
 | layer roster, import direction | foundation §3 |
 | port signatures, adapters, composition root, configuration, service paths, named error → HTTP, route-guard mechanism | foundation §4 |
 | file paths of ports, adapters, mappers, storage models, `bootstrap/` | foundation §5 |
@@ -223,7 +225,7 @@ Extract from the inputs, and put each into its home:
 |---------|---------|
 | Actors and roles | foundation §1 Акторы; access policy per operation in the scenario's «Доступ» row; a domain role rule in the domain model |
 | User actions | one use case per action that changes state, in the scenarios of its area; reads are queries |
-| SRS capability groups | areas: foundation §2 rows, one scenarios document each |
+| SRS capability groups | areas: foundation §2 rows; one scenarios document per group, in its area's folder |
 | Business rules and invariants | entity / value-object behavior and an invariant row (domain model) |
 | States and lifecycle | which method may set which status (domain model §2). The closed list of codes is a schema column's allowed values |
 | External systems | gateway ports + adapters (foundation §4); side-effect policy in the scenario's Ошибки. Partners we do not own — not our Postgres or object store |
@@ -298,7 +300,7 @@ screens and nowhere to put them.
   sentences: what the system is, who writes and who reads, what is out
   of scope), then `## Журнал изменений`.
 - **§2 Модули и функциональные области** — one row per area, always:
-  area, module folder, SRS group, scenarios document path, which
+  area, module folder, SRS groups, scenarios folder, which
   entities own its state, what it takes from other areas (types, ports,
   use cases — by name), who consumes its contract. A cross-area import or
   call is allowed only when this table names it, and §6 turns each named

@@ -1,23 +1,31 @@
-# Output template — scenarios of one area (`documentation/architecture/scenarios/<area>/<area>.md`)
+# Output template — scenarios of one SRS group (`documentation/architecture/scenarios/<area>/<group>.md`)
 
 Read this when writing or editing a scenarios document (mode
-`scenarios:<area>`). One living document per functional area, edited in
-place by every increment that touches the area; a new area gets a new
-folder `scenarios/<area>/`. Use these sections in this order; skip an empty one with a single
-line saying why.
+`scenarios:<area>`). One living document per **SRS capability group**,
+in the folder of the area that implements it, edited in place by every
+increment that touches the group; a new area gets a new folder
+`scenarios/<area>/`, a new group a new file in it. An area that covers
+four groups has four documents — one 700-line document per area is what
+this layout replaces: a reader looks for a use case by its requirement,
+and the requirement lives in one group. Use these sections in this
+order; skip an empty one with a single line saying why.
 
 `<area>` is the area's kebab-case English name from foundation §2 — the
-same word as the module folder in foundation §5 and the SRS group it
-covers. It names paths and folders only.
+same word as the module folder in foundation §5. It names the folder
+only.
 
-`<область>` in the heading is the area's **Russian** name, never `<area>`:
-the heading is what readers see — the documentation site's menu lists
-the scenarios documents by it. An area that covers one SRS group takes
-that group's bold sub-heading word for word (`# Сценарии: Расписание`);
-an area that covers several takes a short Russian name of what they
-share, two to four words (`bookings` covers «Бронирование» and «Отмена»
-→ `# Сценарии: Бронирование и отмена`); the groups themselves are listed
-in the «Группа SRS» row below.
+`<group>` is the file's name: the SRS group's area file name when the SRS
+is split into `requirements/srs/areas/` (`04-zayavka-podacha.md` →
+`scenarios/registry/04-zayavka-podacha.md`), so a requirement's file and
+its scenarios' file read alike; otherwise the group's number in the SRS
+and a short kebab-case English word (`01-schedule.md`).
+
+`<группа>` in the heading is the SRS group's bold sub-heading, **word for
+word** (`# Сценарии: Заявка — подача`): the heading is what readers see,
+and the documentation site's menu lists the scenarios documents by it.
+A use case belongs to the group whose requirement it serves; one that
+serves several groups lives in the group of its main FR and is cited by
+name from the others.
 
 What this document does **not** hold: a business rule (it cites the
 domain model's invariant row by rule id), a named error's definition
@@ -25,7 +33,7 @@ domain model's invariant row by rule id), a named error's definition
 (foundation §4), a route, path or body (OpenAPI). Why use cases, queries
 and side effects take this shape: `use-cases-and-boundaries.md`.
 `<версия>` is the open iteration's service version (`0.1.0` on
-greenfield; a new area born later takes that iteration's); each pin names
+greenfield; a new group born later takes that iteration's); each pin names
 the version of the source it was read at.
 
 ```markdown
@@ -39,7 +47,7 @@ sources:
   - documentation/architecture/domain.md@<версия доменной модели>
 ---
 
-# Сценарии: <область>
+# Сценарии: <группа>
 
 ## Журнал изменений
 
@@ -52,9 +60,9 @@ sources:
 | | |
 |---|---|
 | Область | `<area>` |
-| Группа SRS | <жирный подзаголовок группы FR, дословно>; UC-n, … |
+| Группа SRS | <жирный подзаголовок группы FR, дословно>; FR-n, …; UC-n, … |
 | Модуль | `<root>/<area>/` (фундамент §5) |
-| Сущности | <имена из доменной модели §2, которыми владеет область> |
+| Сущности | <имена из доменной модели §2, которые меняют сценарии группы> |
 
 ## Сценарии
 Указатель, если сценариев больше четырёх: Сценарий · Операция API · одна

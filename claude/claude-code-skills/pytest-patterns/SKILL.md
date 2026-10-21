@@ -22,7 +22,7 @@ allowed-tools: Read Edit Write Bash(pytest:*) Bash(uv run pytest:*) Bash(python:
 
 ## Which layout governs — decide first
 
-- **An architecture document exists**: tests follow its layers and the foundation's §6 test plan (`documentation/architecture/architecture.md`, one row per test file). Import from the foundation §5 package names and the paths the headings of the domain model (`domain.md`) and the scenarios documents (`scenarios/<area>/<area>.md`) give.
+- **An architecture document exists**: tests follow its layers and the foundation's §6 test plan (`documentation/architecture/architecture.md`, one row per test file). Import from the foundation §5 package names and the paths the headings of the domain model (`domain.md`) and the scenarios documents (`scenarios/<area>/<group>.md`) give.
 - **No architecture document, existing repo**: follow the repo's existing `tests/` layout, fixtures and naming for the change at hand; do not reorganise the suite unasked. With no tests yet, use the unit / integration split below with the repo's own module names.
 - **Expected statuses and bodies** come from `documentation/api/openapi.yaml` when it exists, otherwise from what the endpoint returns today.
 

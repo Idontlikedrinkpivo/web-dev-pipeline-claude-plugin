@@ -17,7 +17,7 @@ DOCUMENTS (read every one in full before the first finding)
   OpenAPI:       documentation/api/openapi.yaml and the files it references | skipped: <reason>
   Architecture:  documentation/architecture/architecture.md (diagrams embedded) | skipped: <reason>
   Domain model:  documentation/architecture/domain.md | skipped
-  Scenarios:     documentation/architecture/scenarios/<area>/<area>.md, one per area | skipped
+  Scenarios:     documentation/architecture/scenarios/<area>/<group>.md, one per SRS group | skipped
   Screens:       documentation/ui/frames-register.md, plus every
                  documentation/ui/screen-specs/S-<n>-*.md | skipped: <reason>
 

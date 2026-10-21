@@ -43,7 +43,7 @@ shrink to zero with the plan.
 |---|---|---|
 | Plan document `documentation/plans/<version>/plan.md` | **yes** | all units, §1 digest, §2 unit map, §5 definition of done |
 | Full diff | **yes** | `git diff BASE...HEAD` for the whole run, with `BASE` taken from the run report — every unit's diff together, not unit by unit. Handed to the reviewer as a file path under `$(git rev-parse --git-dir)/pipeline-work/`, not pasted |
-| Cited design documents | **yes** | every section any unit cited, once each, de-duplicated — under `documentation/`: `requirements/srs/srs.md`, `db/schema.md` and `db/migrations/`, `api/openapi.yaml`, `architecture/` (`architecture.md`, `domain.md`, `scenarios/<area>/<area>.md`), `ui/screen-specs/` |
+| Cited design documents | **yes** | every section any unit cited, once each, de-duplicated — under `documentation/`: `requirements/srs/srs.md`, `db/schema.md` and `db/migrations/`, `api/openapi.yaml`, `architecture/` (`architecture.md`, `domain.md`, `scenarios/<area>/<group>.md`), `ui/screen-specs/` |
 | Declared NFR and configuration decisions | **yes** when they exist | foundation §1 «Решения по NFR» rows and the §4 configuration table — the baseline the NFR lens checks against |
 | Declared security requirements | **yes** when either exists | the SRS's Security NFR sub-checklist rows and the architecture's security decisions table — the baseline the security lens checks against |
 | Run report `$(git rev-parse --git-dir)/pipeline-work/<version>-run.md` | **yes** | per-unit statuses, evidence strategies, grade corrections, out-of-scope notes, the **Изменённые решения** of the run, and the **Cross-unit watch** list of `OPEN` suspicions carried up from unit reviews |

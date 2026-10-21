@@ -327,7 +327,8 @@ class Site:
             return 2, ("areas", "Области требований"), title, ""
         if "scenarios" in folders or "scenarios-" in stem:
             name = re.sub(r"^Сценарии\s*[:—-]\s*", "", pg["title"]).strip()
-            return 4, ("scenarios", "Сценарии"), name[:1].upper() + name[1:], ""
+            num = re.match(r"^(\d+)-", stem)  # a document per SRS group: in the groups' order, whatever its area
+            return 4 + (int(num.group(1)) / 1000 if num else 0.999), ("scenarios", "Сценарии"), name[:1].upper() + name[1:], ""
         for names, order, label in (
                 (("business-requirements",), 0, "Бизнес-требования"),
                 (("srs",), 1, "Требования к системе (SRS)"),
