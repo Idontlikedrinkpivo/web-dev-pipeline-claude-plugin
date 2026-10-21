@@ -50,7 +50,8 @@ SWAGGER_PAGE = """<!doctype html><html lang="ru"><head><meta charset="utf-8">
 body{margin:0;background:#fafafa}
 .bar{position:sticky;top:0;z-index:20;display:flex;align-items:center;gap:16px;height:52px;padding:0 20px;
 background:#1f2328;color:#e6e6e6;font:14px -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif}
-.bar a{color:#fff;text-decoration:none;font-weight:600}.bar span{color:#9aa1a9}
+.bar a{display:inline-flex;align-items:center;gap:8px;padding:7px 14px;border-radius:8px;background:#2f5fd0;color:#fff;
+text-decoration:none;font-weight:600;font-size:14px}.bar a:hover{background:#3d6ee0}.bar span{color:#9aa1a9}
 .swagger-ui .topbar{display:none}.swagger-ui .information-container .info{margin:24px 0 12px}
 .swagger-ui .wrapper{max-width:1180px;padding:0 20px}
 .swagger-ui .opblock .opblock-summary-operation-id{font-size:12.5px;white-space:nowrap;word-break:normal;flex-shrink:0;
@@ -78,7 +79,7 @@ white-space:nowrap;position:relative}
 max-width:380px;white-space:normal;background:#1f2328;color:#f3f4f6;font:13px/1.45 -apple-system,BlinkMacSystemFont,sans-serif;
 padding:8px 10px;border-radius:8px;box-shadow:0 6px 20px rgba(0,0,0,.18);pointer-events:none}
 </style></head><body>
-<div class="bar"><a href="../index.html">← К документации</a><span>{title} · контракт API</span></div>
+<div class="bar"><a href="../index.html">← Назад к документации</a><span>{title} · контракт API</span></div>
 <div id="swagger-ui"></div>
 <script src="../assets/swagger/swagger-ui-bundle.js"></script><script src="spec.js"></script>
 <script>
