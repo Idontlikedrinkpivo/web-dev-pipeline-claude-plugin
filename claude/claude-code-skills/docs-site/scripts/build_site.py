@@ -56,8 +56,17 @@ background:#1f2328;color:#e6e6e6;font:14px -apple-system,BlinkMacSystemFont,"Seg
 .swagger-ui .opblock .opblock-summary-operation-id{font-size:12.5px;white-space:nowrap;word-break:normal;flex-shrink:0;
 color:#6b7280;margin-left:12px}
 .swagger-ui .opblock .opblock-summary-description{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-.swagger-ui .markdown p,.swagger-ui .renderedMarkdown p,.swagger-ui .markdown li,.swagger-ui .renderedMarkdown li{
-font:14.5px/1.65 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;color:#2b2f36;max-width:880px}
+.swagger-ui .markdown :is(p,li,td,th,blockquote,h1,h2,h3,h4,h5),.swagger-ui .renderedMarkdown :is(p,li,td,th,blockquote,h1,h2,h3,h4,h5){
+font:14.5px/1.65 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;color:#2b2f36}
+.swagger-ui .markdown :is(p,li),.swagger-ui .renderedMarkdown :is(p,li){max-width:880px}
+.swagger-ui .markdown :is(h1,h2,h3,h4,h5),.swagger-ui .renderedMarkdown :is(h1,h2,h3,h4,h5){font-weight:600;margin:18px 0 6px}
+.swagger-ui .markdown h3,.swagger-ui .renderedMarkdown h3{font-size:16px}
+.swagger-ui .markdown table,.swagger-ui .renderedMarkdown table{border-collapse:collapse;margin:6px 0 14px;max-width:880px;width:auto}
+.swagger-ui .markdown :is(td,th),.swagger-ui .renderedMarkdown :is(td,th){padding:6px 16px 6px 0;vertical-align:top;
+text-align:left;border-bottom:1px solid #e5e7eb}
+.swagger-ui .markdown th,.swagger-ui .renderedMarkdown th{font-size:12.5px;font-weight:600;color:#6b7280;
+border-bottom:1px solid #d0d7de}
+.swagger-ui .markdown strong,.swagger-ui .renderedMarkdown strong{font-weight:600}
 .swagger-ui .markdown p,.swagger-ui .renderedMarkdown p{margin:0 0 12px}
 .swagger-ui .markdown code,.swagger-ui .renderedMarkdown code{background:#eef0f3!important;color:#24292f!important;
 font-weight:500!important;font-size:12.5px!important;padding:1px 5px!important;border-radius:4px;border:0!important;
