@@ -1,5 +1,5 @@
 ---
-name: upgrade
+name: upgrade-docs
 description: >-
   Brings a project in line with a newer dev-pipeline plugin: lists the plugin's format changes the project's files
   do not have yet (a new document, a new section, a new rule for an existing document, the documentation site),

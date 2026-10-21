@@ -39,4 +39,4 @@ text files (`.md .yaml .yml .json .txt .sql .dbml .html`) under a folder; the pa
 multiline mode. Prefer a sign that only the old format has — a heading it used, a word the new rule forbids —
 over a sign of the new one; and keep it away from text where the old word is legitimate (a changelog, a quote).
 
-Check by hand: `python3 upgrade/scripts/project_format.py list <project>` on both projects.
+Check by hand: `python3 upgrade-docs/scripts/project_format.py list <project>` on both projects.

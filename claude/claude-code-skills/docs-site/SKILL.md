@@ -55,7 +55,7 @@ of a document under `documentation/` (`plans/` and the site itself left out), a 
 (`python3 "${CLAUDE_SKILL_DIR}/scripts/rebuild.py" . --wait`) **and stages `documentation/_web-docs` with them**, so
 every commit holds the site of its own documents. The commit that first carries the site ends with its link
 (step 3), so the user knows it exists. Another repository with a `documentation/` folder gets no site, nor does
-a project whose user declined it (`upgrade` → `docs-site` skipped).
+a project whose user declined it (`upgrade-docs` → `docs-site` skipped).
 
 **«Открой сайт», «открой документацию»** is the `open-docs` skill (`/dev-pipeline:open-docs`): it waits for a rebuild in
 flight, builds a missing site, serves it and opens it — step 3 alone. It also stops the server on «закрой

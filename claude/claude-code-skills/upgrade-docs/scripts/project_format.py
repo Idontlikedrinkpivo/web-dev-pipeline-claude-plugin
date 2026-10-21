@@ -105,7 +105,7 @@ def main() -> None:
                 f"The dev-pipeline plugin is {now}; this project has no stamp of the plugin version.")
         print(f"{head} {len(todo)} change(s) of the plugin's formats are not in the project yet: "
               + "; ".join(f"«{c['title']}» ({c['version']})" for c in todo) + ".")
-        print("Tell the user in one or two plain sentences and offer the dev-pipeline:upgrade skill; change nothing "
+        print("Tell the user in one or two plain sentences and offer the dev-pipeline:upgrade-docs skill; change nothing "
               "without their answer.")
         return
     if cmd == "list":

@@ -54,7 +54,7 @@ def running(lock: Path) -> bool:
 def wanted(root: Path) -> bool:
     """A first site only in a pipeline project (requirements, plans or the plugin stamp under documentation/) — the
     plugin is installed per user, and another repository's documentation/ is not its business — and not when the
-    user declined the site for good (upgrade → skip docs-site)."""
+    user declined the site for good (upgrade-docs → skip docs-site)."""
     doc = root / "documentation"
     if not any((doc / p).exists() for p in ("requirements", "plans", ".dev-pipeline.json")):
         return False
