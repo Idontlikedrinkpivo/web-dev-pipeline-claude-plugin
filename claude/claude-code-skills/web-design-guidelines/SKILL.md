@@ -65,6 +65,8 @@ quotes, focus after a failed submit).
 - `:focus-visible` rather than `:focus` (no ring on click) → UX-63
 - `:focus-within` for compound controls → UX-63
 - Sticky headers, footers and overlays do not cover the focused element → UX-65
+- A dialog traps Tab, closes on Esc and returns focus to its trigger; while its own request runs, Esc, the
+  close button and an outside click do not close it, so a refusal is shown where the user is looking → UX-34
 
 ### Forms
 
