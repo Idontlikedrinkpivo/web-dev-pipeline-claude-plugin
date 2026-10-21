@@ -91,9 +91,17 @@ Rewrite the binding into behaviour:
 - «Тогда показывается тост «Бронь создана»» → «Тогда бронь создана со статусом «активна»».
 
 Interface wishes in the source are not lost and not requirements: put
-each in `ui-wishes.md` beside the SRS — one line per wish, quoting the
-source and naming the FR or UC it relates to. `ui-design` reads that file
-as input and may decide otherwise; the SRS does not change when it does.
+each in `ui-wishes.md` beside the SRS. `ui-design` reads that file as
+input and may decide otherwise; the SRS does not change when it does. Its
+reader draws screens, so it is laid out by place, not by SRS section:
+one `##` per SRS capability group, in the groups' order, and under it a
+table «Где · Пожелание · Требования» — «Где» the place in plain words
+(«Реестр, таблица», «Форма подачи заявки», «Кабинет админа»); «Пожелание»
+a whole sentence a designer understands without the SRS, keeping the
+source's meaning and wording, a fragment («видит её в своём кабинете»)
+completed into one; «Требования» the one or two ids it belongs to, bare,
+never the list of every place it is mentioned. One wish per row. The
+file opens with one sentence saying these are not requirements.
 A wish that is really a constraint (a legal text that must be shown
 verbatim, a mandatory confirmation by regulation) stays in the SRS as a
 BR or NFR in behaviour terms, citing the regulation.

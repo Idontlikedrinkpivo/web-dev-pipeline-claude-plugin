@@ -62,7 +62,8 @@ RULES
   (`FR-10.1`), a row at a section's end the next whole number.
 - Behaviour, not interface (srs-writer → Behaviour, not interface): no
   screen, control, gesture, message wording, or visual in the SRS.
-  Interface wishes from the source go to `ui-wishes.md` beside the SRS.
+  Interface wishes from the source go to `ui-wishes.md` beside the SRS,
+  by SRS group, a table «Где · Пожелание · Требования» (srs-writer → Behaviour, not interface).
 - Do not invoke grill-me, doc-review, or pipeline.
 - Do not commit, do not stage.
 ```
