@@ -86,7 +86,7 @@ change then forces an SRS edit and a cascade through the contracts.
 
 Rewrite the binding into behaviour:
 
-- «Пользователь нажимает «Отменить» в расписании» → Триггер: «пользователь отменяет свою бронь».
+- «Пользователь нажимает «Отменить» в расписании» → «Начинается с»: «пользователь отменяет свою бронь».
 - «Свои брони помечаются «Моя бронь»» → «система указывает, какие брони в расписании принадлежат текущему резиденту».
 - «Тогда показывается тост «Бронь создана»» → «Тогда бронь создана со статусом «активна»».
 
@@ -273,31 +273,53 @@ use-case table (Layout). One subsection per use case:
 ```
 ### UC-<n>. <VerbPhrase>
 
-**Актор:** A-<n>   **Предусловие:** ...   **Триггер:** <intent or event, not a gesture: «резидент отменяет бронь», not «нажимает «Отменить»»>
+| | |
+|---|---|
+| **Кто** | <роль словами> (A-<n>) |
+| **Когда** | <предусловие> |
+| **Начинается с** | <intent or event, not a gesture: «резидент отменяет бронь», not «нажимает «Отменить»»> |
+| **Результат** | <постусловие основного потока> |
 
 **Основной поток**
-1. ...
-2. ...
 
-**Альтернативные потоки**
-- **Alt-1** (ответвление на шаге N): ...
+| № | Кто | Действие | Требования |
+|---|---|---|---|
+| 1 | <роль или «Система»> | <одно действие> | FR-<n>, BR-<n> или — |
 
-**Потоки исключений**
-- **Exc-1** (на шаге N, условие): ответ системы ...
+**Другие варианты**
 
-**Постусловие:** ...
+| | Вместо шага | Что происходит | Требования |
+|---|---|---|---|
+| Alt-1 | <N или — > | <условие> → <что делает система> | … |
+
+**Ошибки**
+
+| | На шаге | Условие | Что отвечает система | Требования |
+|---|---|---|---|---|
+| Exc-1 | <N> | <условие> | <ответ системы> | … |
 
 **Критерии приёмки**
-- **AC** (основной поток): Дано ... [и Дано ...] Когда ... Тогда ...
-- **AC-Alt-1**: Дано ... Когда ... Тогда ...
-- **AC-Exc-1**: Дано ... Когда ... Тогда ...
+
+| | Дано | Когда | Тогда |
+|---|---|---|---|
+| AC | … [и …] | … | … |
+| AC-Alt-1 | … | … | … |
+| AC-Exc-1 | … | … | … |
 ```
+
+Why tables: a reader scans who acts (a person or the system), at which step a branch starts, and which
+requirement backs each line; prose with «per FR-…» after every step hides all three. The cells say the
+fact; ids sit in their own column and the documentation site turns each into a link with its text on
+hover — write them bare (`FR-72.15`), never as Markdown links. The actor is named by role, its `A-` id in
+brackets. A flow, a branch or a criterion with nothing to say has no row; an empty table is left out.
+`Alt-` and `Exc-` numbers are kept for good: the API contract, the scenarios and the test cases cite them.
+No process exhaust in a cell — no decision dates, no «(решение …)».
 
 **Finding the Alt/Exception flows systematically** — don't rely on recall; check each Use Case against these categories and only include the ones that actually apply (an empty category is silently skipped, not stated as empty):
 - **Happy path** → the Main Flow.
 - **Edge cases** (boundary/unusual-but-valid input, empty states, concurrent access) → Alternative Flows.
 - **Error scenarios** (invalid input, dependency failure, permission denial) → Exception Flows.
-- **Security-sensitive steps** (auth check, data exposure, permission boundary) → an Exception Flow if a rule is violated, citing the specific Security sub-checklist NFR-ID it maps to (e.g. "per NFR-4, authorization / object-level access control") — not a generic reference to "the Security category."
+- **Security-sensitive steps** (auth check, data exposure, permission boundary) → an Exception Flow if a rule is violated, citing the specific Security sub-checklist NFR-ID it maps to in the row's «Требования» cell (e.g. NFR-4, authorization / object-level access control) — not a generic reference to "the Security category."
 - **Performance-sensitive steps** (a step the user waits on, a bulk operation) → cross-reference to the Performance NFR row; only a new flow if a timeout/degradation path exists.
 
 **A Use Case is warranted only when its Functional Requirement has conditional behavior.** Not every FR needs a Use Case (a static/unconditional FR doesn't), and never invent a Use Case with no FR behind it. The direction is FR → Use Case, never the reverse.
@@ -306,7 +328,7 @@ use-case table (Layout). One subsection per use case:
 - **Multiple `Given`s are fine** — preconditions stack ("Given I'm logged in" + "Given my cart has items").
 - **Exactly one `When` and one `Then` per scenario.** If a scenario needs a second `When` or `Then`, it is actually two scenarios — split it into its own Alt or Exception entry rather than chaining conditions.
 - **`Then` must be observable and measurable** at the system's edge: a state, returned data, a named error, a sent message, a time. "Then the user has a better experience" is a defect, and so is "Then the page shows a banner" — that is the interface (Behaviour, not interface). Write what changes or is returned ("Тогда бронь в статусе «отменена»", "Тогда ответ приходит за 2 с").
-- One AC per flow: the Main Flow's AC, plus one AC per listed Alt and per listed Exception — never a separate freestanding AC section disconnected from a flow.
+- One AC row per flow: the Main Flow's `AC`, plus one row per listed Alt and per listed Exception (`AC-Alt-1`, `AC-Exc-1`) — never a separate freestanding AC section disconnected from a flow. One `Дано` cell may hold several preconditions joined by «и».
 
 ### 7. Границы
 
@@ -322,7 +344,7 @@ The SRS has no open-questions section. Gaps this SRS could not settle, and a fin
 
 - **Russian.** Write the SRS in Russian, including every section heading and every table column in Document Structure. Do not translate ids (`A-`, `FR-`, `NFR-`, `BR-`, `UC-`, `AC-`, `Alt-`, `Exc-`). Frontmatter keys stay English.
 - **Plain language.** Write requirements and acceptance criteria so a new team member understands them without a glossary lookup — jargon that isn't already a defined domain term (per section 1.1, or `CONCEPTS.md` if it exists) gets spelled out once.
-- **Cite, don't restate.** A rule that lives in a Business Rule or a Non-Functional Requirement is referenced by ID from a Use Case step (`per BR-3`), never copy-pasted into the flow text — one owner per rule, same discipline as the business-requirements document.
+- **Cite, don't restate.** A rule that lives in a Business Rule or a Non-Functional Requirement is referenced by ID in a Use Case step's «Требования» cell (`BR-3`), never copy-pasted into the flow text — one owner per rule, same discipline as the business-requirements document.
 - **No process exhaust.** No "captured at step X" notes, no italic provenance lines. Metadata lives in the frontmatter only.
 
 ## Quality Gate (run before declaring the SRS done)
