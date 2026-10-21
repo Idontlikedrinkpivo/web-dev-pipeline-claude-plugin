@@ -82,7 +82,10 @@ def inline(text: str, hooks: Hooks, autolink: bool = True) -> str:
     def link(m: re.Match) -> str:
         label, href = m.group(1), hooks.link(m.group(2).strip().split(" ")[0])
         ext = ' target="_blank" rel="noopener"' if href.startswith(("http://", "https://")) else ""
-        return stash(f'<a href="{html.escape(href)}"{ext}>{inline(label, hooks, autolink=False)}</a>')
+        # a label whose code was already stashed («[`users.id`](users.md#id)») keeps its placeholders: the loop
+        # at the end resolves them; rendering it again would look them up in a list of its own
+        inner = html.escape(label, quote=False) if "\x00" in label else inline(label, hooks, autolink=False)
+        return stash(f'<a href="{html.escape(href)}"{ext}>{inner}</a>')
 
     text = re.sub(r"\[([^\]]+)\]\(([^)]+)\)", link, text)
     text = re.sub(r"<(https?://[^>\s]+)>", lambda m: stash(

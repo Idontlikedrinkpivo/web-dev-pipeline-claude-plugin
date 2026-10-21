@@ -11,6 +11,7 @@ header{position:sticky;top:0;z-index:10;display:flex;align-items:center;gap:16px
 #results a{display:block;padding:8px 12px;border-bottom:1px solid var(--line);color:var(--fg);text-decoration:none}
 #results a:hover,#results a.on{background:var(--accbg)}#results small{display:block;color:var(--muted);font-size:12.5px}
 .wrap{display:grid;grid-template-columns:270px minmax(0,1fr) 220px;gap:32px;max-width:1440px;margin:0 auto;padding:0 16px}
+.wrap:has(> aside:empty){grid-template-columns:270px minmax(0,1fr)}.wrap > aside:empty{display:none}  /* no «На странице»: the page takes the room */
 nav{position:sticky;top:56px;height:calc(100vh - 56px);overflow:auto;padding:16px 4px 40px 0;font-size:14px}
 nav .sec{margin:0 0 20px}
 nav .sec-h{padding:0 10px 6px;font-size:11.5px;font-weight:700;letter-spacing:.07em;text-transform:uppercase;color:var(--muted)}

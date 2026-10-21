@@ -392,11 +392,11 @@ on encryption and audit tables.
 
 ## Output
 
-Emit all three, and make sure they agree. The DBML and the ER live in
+Emit all four, and make sure they agree. The DBML and the ER live in
 `documentation/db/schema.md` and `documentation/db/diagrams/`; the SQL
 lives only in migration files — the document has no SQL block:
 
-1. **DBML** — table definitions with relationships. **Comments are mandatory, not optional.** Every table has a table-level `Note` that says why the table exists (the entity or use-case state it stores). Every column has a `note:` that says what the attribute is. A Note that only repeats the identifier (`orders` → "orders", `id` → "id") does not count. Notes come from the SRS — do not invent a purpose the inputs did not decide. A Note says what the data means, never how a screen shows it, and no column exists only to drive a widget or a layout (a menu order, a colour, an icon) unless the SRS requires it as data (`doc-versioning` → What, not how it looks).
+1. **DBML** — table definitions with relationships. **Comments are mandatory, not optional.** Every table has a table-level `Note` that says why the table exists (the entity or use-case state it stores). Every column has a `note:` that says what the attribute is. **The first sentence of a column note is its description for readers** — plain, whole on its own, ids at its end; the table documents show only it, so details (which trigger sets it, why there is no index) come after. A table `Note` opens with one or two such sentences — what a row is — before any detail. A Note that only repeats the identifier (`orders` → "orders", `id` → "id") does not count. Notes come from the SRS — do not invent a purpose the inputs did not decide. A Note says what the data means, never how a screen shows it, and no column exists only to drive a widget or a layout (a menu order, a colour, an icon) unless the SRS requires it as data (`doc-versioning` → What, not how it looks).
 
 ```dbml
 Table holds {
@@ -424,7 +424,13 @@ the table — pick one, not both.
    `COMMENT ON COLUMN` so the files and the DBML agree. No version and no
    changelog in a migration file; `schema.md`'s changelog row names it.
 
-3. **ER** — `documentation/db/diagrams/er.d2` and `er.svg`, embedded under `## ER`. Follow `references/er-diagram.md`. The picture is a projection of this DBML: same tables, columns, and keys, nothing added. Render the SVG in the same write. Questions go in `documentation/db/open-questions.md`, not in a section of the schema.
+3. **Table documents** — one `documentation/db/tables/<table>.md` per table, generated from the DBML and
+   `## Status attributes` by `python3 "${CLAUDE_SKILL_DIR}/scripts/table_docs.py"` (columns: Поле, Тип данных,
+   Свойства, Значение по умолчанию, Связь, Допустимые значения, Описание; then the incoming references with
+   what deleting a row does). Run it after the DBML is written; the plugin's hook reruns it after any later edit
+   under `documentation/db/`. Never edit those files — edit the DBML; they go into the same commit.
+
+4. **ER** — `documentation/db/diagrams/er.d2` and `er.svg`, embedded under `## ER`. Follow `references/er-diagram.md`. The picture is a projection of this DBML: same tables, columns, and keys, nothing added. Render the SVG in the same write. Questions go in `documentation/db/open-questions.md`, not in a section of the schema.
 
 The wrapping `documentation/db/schema.md` opens with
 frontmatter per `doc-versioning` → Frontmatter (`version:` the open
@@ -455,6 +461,7 @@ and outputs — the API-contract step reads directly off these names.
 - [ ] `## Status attributes` for every closed-set column — §5
 - [ ] No raw secret column — §6
 - [ ] Every table and column has a note that says more than its name; DBML, migration SQL, and ER agree; names match the SRS — Output
+- [ ] Each column note opens with a plain sentence a reader understands alone; `documentation/db/tables/` regenerated (`table_docs.py`) and matches the DBML — Output
 
 ## Closing
 

@@ -281,6 +281,9 @@ class Site:
 
         def anchor(text: str) -> str | None:
             t = re.sub(r"[*`]", "", text).strip()
+            if pg["rel"].startswith("db/tables/") and re.fullmatch(r"\w+", t) and t not in placed:
+                placed.add(t)  # a table document's row is the column it names: users.md#email
+                return t
             m = re.match(rf"^({ID})\b", t)
             if m and m.group(1) in anchors_here and m.group(1) not in placed:
                 placed.add(m.group(1))
@@ -316,6 +319,8 @@ class Site:
                 return 2.9, ("tests", "Тест-кейсы"), "Обзор", ""  # the group's first item
             return 3, ("tests", "Тест-кейсы"), re.sub(r"\s*\((?:[^()]*\d[^()]*)\)\s*$", "",
                                                       re.sub(r"^\d+\.\s*", "", pg["title"])), ""
+        if folders[:1] == ["tables"] and parts[0] == "db":
+            return 1, ("tables", "Таблицы"), stem, ""
         if "areas" in folders:
             return 2, ("areas", "Области требований"), title, ""
         if "scenarios" in folders or "scenarios-" in stem:
