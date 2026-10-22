@@ -475,5 +475,23 @@
       }
     },
     "fix": "clean-architecture-design → Inputs (строка «Anything you had to assume») и references/output-template-foundation.md → Open questions: в documentation/architecture/**/open-questions.md переименовать id допущений A-n → ДП-n (номер тот же), затем во всех документах архитектуры (основа, доменная модель, сценарии, диаграммы) метки допущений «(A-n)», «A-n» в ячейках и ссылки «см. A-n» → ДП-n. Ссылки на акторов SRS (A-n в «Доступ», «SRS … называет A-1») не трогать: перед заменой каждой метки сверить, есть ли такой номер в open-questions.md и о допущении ли речь. Другие документы, цитирующие допущения архитектуры (план, ТЗ на экраны), — тем же правилом. Старые строки журнала изменений не трогать; версии документов не поднимать (doc-versioning, строка «(no row)»). Один коммит; после него пересобрать сайт документации, если он есть (docs-site)."
+  },
+  {
+    "id": "team-plugin-settings",
+    "version": "1.2.168",
+    "title": "Плагин подключается всей команде проекта",
+    "what": "В корне проекта лежит .claude/settings.json: он регистрирует маркетплейс плагина с автообновлением и включает плагин. Каждый, кто клонирует проект и откроет его в Claude Code, получает плагин и его новые версии сам, без установки; подтвердить нужно только доверие к папке при первом открытии.",
+    "applies": {
+      "exists": "documentation"
+    },
+    "behind": {
+      "not": {
+        "grep": {
+          "path": ".claude/settings.json",
+          "pattern": "dev-pipeline@dev-pipeline-marketplace"
+        }
+      }
+    },
+    "fix": "repo-scaffold → Step 6 «The plugin for everyone who opens the repo»: добавить в .claude/settings.json ключи extraKnownMarketplaces (dev-pipeline-marketplace, autoUpdate: true) и enabledPlugins (dev-pipeline@dev-pipeline-marketplace: true); если файл есть — дописать только эти ключи, остальное оставить как есть. Один коммит; документы и их версии не меняются."
   }
 ]
