@@ -5,6 +5,8 @@
     python3 project_format.py check <project dir> <id>   # exit 0 when this change is no longer pending
     python3 project_format.py skip  <project dir> <id>   # the user declined it for good: never offered again
     python3 project_format.py stamp <project dir>        # record the installed version — only when nothing is pending
+    python3 project_format.py born  <project dir>        # a new project's first document: record the installed version
+                                                         # at once (its stages produce today's formats); no-op when stamped
 
 The changes are ../changes.json: each names the plugin version that brought it, a check that it applies to the
 project (`applies`) and a check that the project is still behind (`behind`). A check is one of
@@ -128,6 +130,15 @@ def main() -> None:
         behind = holds(root, c["applies"]) and holds(root, c["behind"])
         print("still behind" if behind else "done")
         sys.exit(1 if behind else 0)
+    if cmd == "born":
+        if (root / STAMP).exists():
+            print(f"{STAMP}: already stamped — left as it is")
+            return
+        (root / STAMP).parent.mkdir(parents=True, exist_ok=True)
+        (root / STAMP).write_text(json.dumps({"plugin": installed()}, ensure_ascii=False, indent=2) + "\n",
+                                  encoding="utf-8")
+        print(f"{STAMP}: born at {installed()}")
+        return
     if cmd in ("skip", "stamp"):
         st = stamp_of(root)
         if cmd == "skip":
