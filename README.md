@@ -115,7 +115,12 @@
 <details>
 <summary><b>macOS</b></summary>
 
-**1. Homebrew** — менеджер программ для macOS. Если уже стоит (`brew --version` печатает версию), пропустите.
+**Перед началом обновите macOS до 15 (Sequoia) или новее:** меню  → «Системные настройки» → «Основные» →
+«Обновление ПО». На более старой macOS Homebrew не находит готовых программ и собирает их из исходного кода —
+установка затягивается на часы.
+
+**1. Homebrew** — менеджер программ для macOS. Вместе с ним ставятся инструменты разработчика Apple, а в них
+уже есть Git и Python 3. Если Homebrew уже стоит (`brew --version` печатает версию), пропустите.
 
 ```bash
 /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
@@ -123,24 +128,11 @@
 
 В конце установщик покажет две-три команды «Next steps» — выполните их, чтобы `brew` стал доступен.
 
-**2. D2 и Node.js** (Git и Python 3 уже поставил установщик Homebrew вместе с инструментами разработчика Apple):
+**2. D2 и Node.js:**
 
 ```bash
 brew install d2 node
 ```
-
-На macOS старше 15 (Sequoia) Homebrew может не найти готовых программ и собирать их из исходного кода
-часами. Тогда лучше сначала обновить macOS — или поставить D2 и Node.js готовыми, без Homebrew:
-
-```bash
-curl -fsSL https://d2lang.com/install.sh | sh -s -- --method=standalone
-```
-
-```bash
-curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.40.8/install.sh | bash
-```
-
-Откройте новое окно терминала и поставьте Node.js: `nvm install 22`.
 
 **3. Docker Desktop:**
 
@@ -150,7 +142,7 @@ brew install --cask docker
 
 Откройте Docker Desktop из «Программ» один раз и дождитесь, пока он запустится (значок кита в строке меню).
 
-**4. Python и uv** — только если сервис будет на Python:
+**4. uv** — только если сервис будет на Python:
 
 ```bash
 brew install uv
@@ -168,9 +160,6 @@ npx playwright install chromium
 ```bash
 brew install plantuml
 ```
-
-На macOS 15 и новее это несколько минут. На более старой Homebrew собирает Java и Graphviz из исходного кода
-часами — там лучше оставить PlantUML на Docker.
 
 </details>
 
