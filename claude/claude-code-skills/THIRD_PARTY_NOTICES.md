@@ -13,6 +13,9 @@ for this plugin; where the folder has no licence file, the row links to it.
 | `fastapi/` | the official FastAPI agent skill, https://github.com/fastapi/fastapi (`fastapi/.agents/skills/fastapi/SKILL.md`) — parts of the text follow it closely, see `fastapi/VENDORED.md` | MIT — `fastapi/LICENSE` | © 2018 Sebastián Ramírez |
 | `frontend-design/` | Anthropic `frontend-design`, https://github.com/anthropics/skills (commit `683bc88`) | Apache License 2.0 — `frontend-design/LICENSE.txt` | Anthropic (Apache 2.0, no separate copyright line in the licence file) |
 | `playwright-cli/` | the playwright-cli skill, https://github.com/microsoft/playwright-cli (`skills/playwright-cli/`) — adapted, see `playwright-cli/VENDORED.md` | Apache License 2.0 — `playwright-cli/LICENSE` | © Microsoft Corporation |
+| `brainstorm/`, `doc-review/` | Compound Engineering by Every, https://github.com/EveryInc/compound-engineering-plugin (`ce-brainstorm`, `ce-doc-review`) — adapted | MIT — the licence in that repository | © 2025 Every |
+| `grill-me/` | `grill-me` by Matt Pocock, https://github.com/mattpocock/skills (`skills/productivity/grill-me`) — adapted | MIT — the licence in that repository | © 2026 Matt Pocock |
+| `pipeline/references/pause-and-resume.md`, `deploy-topology/references/verify-skill.md`, `reflect/` | pstack by Lauren Tan, https://github.com/cursor/plugins/tree/main/pstack — ideas and parts adapted | MIT — `pstack/LICENSE` in that repository | © 2026 Lauren Tan |
 
 `ui-ux-pro-max/data/` also carries data its authors collected under their
 own terms, recorded in `ui-ux-pro-max/data/data-provenance.json` and

@@ -91,7 +91,7 @@ white-space:nowrap;position:relative}
 max-width:380px;white-space:normal;background:#1f2328;color:#f3f4f6;font:13px/1.45 -apple-system,BlinkMacSystemFont,sans-serif;
 padding:8px 10px;border-radius:8px;box-shadow:0 6px 20px rgba(0,0,0,.18);pointer-events:none}
 </style></head><body>
-<div class="bar"><a href="../index.html">← Назад к документации</a><span>{title} · контракт API</span></div>
+<div class="bar"><a id="back" href="../index.html">← Назад к документации</a><span>{title} · контракт API</span></div>
 <div id="swagger-ui"></div>
 <script src="../assets/swagger/swagger-ui-bundle.js"></script><script src="spec.js"></script>
 <script>
@@ -99,6 +99,16 @@ window.ui = SwaggerUIBundle({
   spec: window.SPEC, dom_id: "#swagger-ui", deepLinking: true, docExpansion: "list",
   defaultModelsExpandDepth: 0, defaultModelExpandDepth: 3, displayOperationId: true, filter: true,
   supportedSubmitMethods: [], tryItOutEnabled: false, syntaxHighlight: {activated: true, theme: "agate"}
+});
+// «Назад к документации» returns to the page and the spot the reader came from (site.js keeps them)
+document.getElementById("back").addEventListener("click", function (e) {
+  var s = null;
+  try { s = JSON.parse(sessionStorage.getItem("docs-back") || "null"); } catch (x) {}
+  var top = s && s[s.length - 1];
+  if (!top) return;
+  e.preventDefault();
+  try { sessionStorage.setItem("docs-ret", JSON.stringify(top.p)); } catch (x) {}
+  location.href = top.p;
 });
 // a requirement link's title becomes the page's own tooltip (instant, readable) instead of the browser's
 new MutationObserver(function () {
@@ -402,7 +412,7 @@ class Site:
 <meta name="viewport" content="width=device-width,initial-scale=1"><title>{html.escape(title)} — {html.escape(self.title)}</title>
 <link rel="stylesheet" href="{root}/assets/site.css"></head><body>
 <header><button class="menu" aria-label="Меню" onclick="document.body.classList.toggle('nav-open')">☰</button>
-<a class="brand" href="{root}/index.html">{html.escape(self.title)}</a>
+<a class="brand" href="{root}/index.html">{html.escape(self.title)}</a><a id="back" class="back" href="#" hidden>← Назад</a>
 <div class="search"><input id="q" type="search" placeholder="Поиск: текст или номер, например FR-12" autocomplete="off">
 <div id="results"></div></div></header>
 <div class="wrap"><nav id="nav"></nav><main>

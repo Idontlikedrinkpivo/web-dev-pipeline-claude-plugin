@@ -4,6 +4,7 @@
 body{margin:0;background:var(--bg);color:var(--fg);font:16px/1.6 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif}
 header{position:sticky;top:0;z-index:10;display:flex;align-items:center;gap:16px;height:56px;padding:0 16px;background:var(--bg);border-bottom:1px solid var(--line)}
 .brand{font-weight:700;color:var(--fg);text-decoration:none;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:40%}
+.back{color:var(--acc);text-decoration:none;white-space:nowrap;font-size:14px}.back[hidden]{display:none}
 .menu{display:none;background:none;border:0;color:var(--fg);font-size:20px;cursor:pointer}
 .search{position:relative;margin-left:auto;width:min(460px,100%)}
 #q{width:100%;padding:8px 12px;border:1px solid var(--line);border-radius:8px;background:var(--card);color:var(--fg);font:inherit;font-size:14px}

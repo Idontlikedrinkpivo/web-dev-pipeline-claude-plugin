@@ -58,4 +58,47 @@
     document.addEventListener("keydown", function (e) { if (e.key === "/" && document.activeElement !== q) { e.preventDefault(); q.focus(); } });
   }
   document.querySelectorAll("nav a").forEach(function (a) { a.addEventListener("click", function () { document.body.classList.remove("nav-open"); }); });
+
+  // Back to the same spot. Before a link takes the reader elsewhere on the site, the page keeps where they were (a
+  // stack in the tab's sessionStorage). «← Назад» in the header and the browser's Back return to that spot, and the
+  // API page's «Назад к документации» returns to the page and the spot the reader came from.
+  function load(k) { try { return JSON.parse(sessionStorage.getItem(k) || "null"); } catch (e) { return null; } }
+  function keep(k, v) { try { sessionStorage.setItem(k, JSON.stringify(v)); } catch (e) {} }
+  var here = location.pathname, stack = load("docs-back") || [], back = document.getElementById("back");
+  var nt = (window.performance && performance.getEntriesByType && (performance.getEntriesByType("navigation")[0] || {}).type) || "";
+  var at = -1;
+  for (var k = stack.length - 1; k >= 0; k--) if (stack[k].p === here) { at = k; break; }
+  if (at >= 0 && (nt === "back_forward" || load("docs-ret") === here)) {
+    var y = stack[at].y;
+    stack = stack.slice(0, at); keep("docs-back", stack);
+    try { sessionStorage.removeItem("docs-ret"); } catch (e) {}
+    window.scrollTo(0, y);
+    window.addEventListener("load", function () { window.scrollTo(0, y); });
+  }
+  function show() {
+    var top = stack[stack.length - 1];
+    if (!back) return;
+    back.hidden = !top;
+    if (top) back.title = "Вернуться: " + top.t;
+  }
+  show();
+  document.addEventListener("click", function (e) {
+    var a = e.target.closest && e.target.closest("a[href]");
+    if (!a || a === back || a.target === "_blank" || a.origin !== location.origin) return;
+    if (a.pathname === here && !a.hash) return;
+    stack.push({p: here, y: window.scrollY, t: document.title.split(" — ")[0], h: a.pathname === here ? a.hash : ""});
+    stack = stack.slice(-50); keep("docs-back", stack); show();
+  }, true);
+  window.addEventListener("popstate", function () {  // the browser's Back after a jump inside the page
+    var top = stack[stack.length - 1];
+    if (top && top.p === here && top.h && location.hash !== top.h) { stack.pop(); keep("docs-back", stack); show(); }
+  });
+  if (back) back.addEventListener("click", function (e) {
+    e.preventDefault();
+    var top = stack[stack.length - 1];
+    if (!top) return;
+    if (top.p === here) { stack.pop(); keep("docs-back", stack); show(); window.scrollTo(0, top.y); return; }
+    keep("docs-ret", top.p);
+    location.href = top.p;
+  });
 })();
