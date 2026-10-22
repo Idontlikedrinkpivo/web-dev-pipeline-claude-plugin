@@ -98,15 +98,14 @@ documentation/
 | **Git** | история изменений, каждый шаг — коммит |
 | **Python 3** | на нём работают хуки плагина: страницы прогресса, пересборка сайта документации и страниц таблиц БД, проверка проекта при старте сессии; ещё — поиск по базе стилей при выборе визуального направления |
 | **D2** | схемы в документах (архитектура, схема БД) |
-| **PlantUML** | диаграммы последовательности для сложных сценариев |
+| **PlantUML** | диаграммы последовательности для сложных сценариев. Ставить не обязательно: без него плагин запускает PlantUML в Docker |
 | **Node.js 22+** | проверка и разбивка контракта API, страница API на сайте документации; сервис на TypeScript; тесты через браузер |
 | **uv** | зависимости сервиса — только если он на Python |
 | **Docker** (Docker Desktop или Docker Engine) | локальная база данных, контейнеры, сборка образов, сканеры аудита |
 | **Браузер для тестов** (Chromium от Playwright) | проверка приложения через интерфейс |
 
-Если D2 или PlantUML не установлены, документы всё равно пишутся, но вместо картинки схемы останется
-только её исходный текст — плагин об этом скажет. PlantUML можно заменить Docker'ом: плагин сам
-запустит его в контейнере.
+Если D2 не установлен, документы всё равно пишутся, но вместо картинки схемы останется только её исходный
+текст — плагин об этом скажет.
 
 ### 4. Установка программ по шагам
 
@@ -121,11 +120,24 @@ documentation/
 
 В конце установщик покажет две-три команды «Next steps» — выполните их, чтобы `brew` стал доступен.
 
-**2. Git, D2, PlantUML, Node.js, Python 3:**
+**2. D2 и Node.js** (Git и Python 3 уже поставил установщик Homebrew вместе с инструментами разработчика Apple):
 
 ```bash
-brew install git d2 plantuml node python
+brew install d2 node
 ```
+
+На macOS старше 15 (Sequoia) Homebrew может не найти готовых программ и собирать их из исходного кода
+часами. Тогда лучше сначала обновить macOS — или поставить D2 и Node.js готовыми, без Homebrew:
+
+```bash
+curl -fsSL https://d2lang.com/install.sh | sh -s -- --method=standalone
+```
+
+```bash
+curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.40.8/install.sh | bash
+```
+
+Откройте новое окно терминала и поставьте Node.js: `nvm install 22`.
 
 **3. Docker Desktop:**
 
@@ -152,13 +164,13 @@ npx playwright install chromium
 <details>
 <summary><b>Linux (Ubuntu, Debian)</b></summary>
 
-Через `apt` ставятся только Git, curl и PlantUML: D2 в стандартных репозиториях нет, а Docker и Node.js там
+Через `apt` ставятся только Git, curl и Python: D2 в стандартных репозиториях нет, а Docker и Node.js там
 устаревших версий, поэтому для них — официальные способы установки.
 
-**1. Git, curl, PlantUML, Python 3:**
+**1. Git, curl, Python 3:**
 
 ```bash
-sudo apt update && sudo apt install -y git curl plantuml python3
+sudo apt update && sudo apt install -y git curl python3
 ```
 
 **2. D2:**
@@ -205,7 +217,7 @@ curl -LsSf https://astral.sh/uv/install.sh | sh
 npx playwright install --with-deps chromium
 ```
 
-На Fedora и Arch вместо шага 1 — `sudo dnf install git curl plantuml` или `sudo pacman -S git curl plantuml`;
+На Fedora и Arch вместо шага 1 — `sudo dnf install git curl python3` или `sudo pacman -S git curl python`;
 остальные шаги те же.
 
 </details>
@@ -262,10 +274,10 @@ Docker Desktop должен быть запущен, когда плагин с�
 
 Дальше всё — в окне Ubuntu (Пуск → Ubuntu, или вкладка Ubuntu в Windows Terminal).
 
-**3. Git, curl, PlantUML, Python 3:**
+**3. Git, curl, Python 3:**
 
 ```bash
-sudo apt update && sudo apt install -y git curl plantuml python3
+sudo apt update && sudo apt install -y git curl python3
 ```
 
 **4. D2:**
@@ -325,10 +337,6 @@ git --version
 
 ```bash
 d2 --version
-```
-
-```bash
-plantuml -version
 ```
 
 ```bash
