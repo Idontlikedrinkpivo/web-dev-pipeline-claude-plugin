@@ -300,8 +300,8 @@ Per unit, in this order, and never skip to the next unit on a broken tree:
    the evidence rather than committing on the claim. `RED OBSERVED` cannot be
    reconstructed after the fact, which is exactly why an empty one is a return
    and not a note in the report.
-4. **Review by grade** — the `code-review-unit` skill does the review; your
-   part is its inputs and its verdict:
+4. **Review by grade** — first set the unit's row to `🔍 проверка: ревью` (the page shows the user where the run
+   is); then `code-review-unit` does the review, and your part is its inputs and its verdict:
    1. Write the diff to a file under `$(git rev-parse --git-dir)/pipeline-work/`.
       Never paste it: pasted text stays in your context for the rest of the
       run and brings on the compaction Step 1 exists to survive.
@@ -461,8 +461,8 @@ at Step 7, before writing the report.
 - Every High and risk-floor unit had its red witnessed in a `tests-only`
   phase — Step 4b.
 - The plan document is byte-identical to how the run found it — Step 1.
-- The chat showed the progress link before the first dispatch, and the `План:` line with it after the
-  committed set was known, after every commit and every stop — Step 1, Step 5.6.
+- The chat showed the progress link before the first dispatch, the `План:` line once the committed set was known
+  and after every commit and stop; a unit's row read `🔍 проверка: ревью` during its review — Steps 1, 5.4, 5.6.
 - The run report names grade corrections — Step 6.
 - Every changed decision is under «Изменённые решения» and committed in
   its documents before the next dispatch — Step 6.
