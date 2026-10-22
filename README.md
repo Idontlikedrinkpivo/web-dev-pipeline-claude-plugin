@@ -386,27 +386,39 @@ claude plugin install dev-pipeline@dev-pipeline-marketplace
 
 Номер последней версии указан в начале этого README («Версия плагина»).
 
-1. **Узнайте, какая версия стоит у вас** — строка `Version`:
+В Claude Code (в чате):
 
-   ```bash
-   claude plugin list
+1. **Узнайте, какая версия стоит у вас:**
+
+   ```text
+   /plugin list
    ```
 
-2. **Обновите список версий из этого репозитория:**
+2. **Обновите плагин.** Команда откроет вкладку Marketplaces — выберите в ней `dev-pipeline-marketplace` и
+   пункт **Update marketplace**:
 
-   ```bash
-   claude plugin marketplace update dev-pipeline-marketplace
+   ```text
+   /plugin marketplace update dev-pipeline-marketplace
    ```
 
-3. **Обновите плагин:**
+3. **Включите новую версию в открытой сессии** (в новых сессиях она работает сразу):
 
-   ```bash
-   claude plugin update dev-pipeline@dev-pipeline-marketplace
+   ```text
+   /reload-plugins
    ```
 
-4. **Перезапустите Claude Code** — закройте и снова откройте приложение Claude или выйдите из `claude` в
-   терминале и запустите его заново. Уже открытые сессии продолжают работать на старой версии.
-5. **Проверьте:** `claude plugin list` показывает новую версию.
+Или то же самое в терминале, после чего перезапустите Claude Code:
+
+```bash
+claude plugin marketplace update dev-pipeline-marketplace
+```
+
+```bash
+claude plugin update dev-pipeline@dev-pipeline-marketplace
+```
+
+**Чтобы обновления приходили сами:** `/plugin` → вкладка Marketplaces → `dev-pipeline-marketplace` →
+**Enable auto-update**. Claude Code будет сам проверять новые версии после начала сессии.
 
 Документы и код ваших проектов при обновлении не меняются, вход в Figma сохраняется. Если проект был
 на середине этапа, напишите `/dev-pipeline:pipeline где я` — плагин найдёт, где вы остановились, и
