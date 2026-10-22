@@ -31,7 +31,7 @@ no changelog, no `sources:`.
 Финальное ревью: <не запускалось | verdict of code-review-full> · BASE `<sha>` · обновлено <YYYY-MM-DD HH:MM>
 ````
 
-Statuses: `⏳ ждёт`, `🔄 в работе`, `🔍 проверка: ревью`, `✅ готово`,
+Statuses: `⏳ ждёт`, `🔄 в работе`, `🔍 ревью`, `✅ готово`,
 `⛔ остановлено: <причина>`, `⏭ пропущено: вне объёма прогона`. Escalations add `(эскалация → impl-critical)` to the
 executor cell. The Ревью cell shows the unit review's path
 (`FIX_THEN_COMMIT (<что>) → исправлено`, `review-hard ×2: COMMIT`).
@@ -66,7 +66,7 @@ create it or rebuild it on a resumed run. Never write it from the shell
 the pane keeps showing the old version until the user reopens it.
 
 Change it the moment a status changes, not in a batch at the commit:
-`🔄 в работе` when the unit is dispatched (with its executor), `🔍 проверка: ревью`
+`🔄 в работе` when the unit is dispatched (with its executor), `🔍 ревью`
 when `code-review-unit` starts, `✅ готово` right after the unit's commit
 lands — and the progress bar line and the `Обновлено` time with each change. A
 resumed run resets any in-between status from git (no `Plan-Unit:` trailer →

@@ -139,14 +139,14 @@ document keeps none.
 
 Every row of every progress file — a unit, a screen, a document, a
 section, a scanner, a fix, a stand — uses only these seven. A stage may add
-a short detail after a colon (`🔄 в работе: печать`, `🔍 проверка: ревью`),
-never a new word or emoji:
+a short detail after a colon (`🔄 в работе: печать`), never a new word or emoji. `🔍` names the kind of
+check instead of the word «проверка» when it has one: `🔍 ревью`, `🔍 аудит`, `🔍 разбор`:
 
 | Status | Means |
 |---|---|
 | `⏳ ждёт` | not started |
 | `🔄 в работе` | started: dispatched, drawing, writing, running, being fixed |
-| `🔍 проверка` | done by its maker, being checked: the session's inspection, a review, an audit, a triage |
+| `🔍 проверка` (`🔍 ревью`, `🔍 аудит`, `🔍 разбор`) | done by its maker, being checked: the session's inspection, a review, an audit, a triage |
 | `✅ готово` | finished and accepted; the bar counts these |
 | `🔁 возвращено: <что>` | sent back for rework after a check |
 | `⛔ остановлено: <причина>` | cannot go on without a decision or a missing input, or could not run |

@@ -106,7 +106,7 @@ as they are. The report names the number and what limited it («3 стенда:
   per stand («Стенд 2 · 8180: 120 из 188 · упало 4»).
 - **An e2e suite's progress is progress only.** In `work` its section of
   `progress.md` holds the overall bar with its count line and, per stand, a
-  bar with its count line and state (`🔄 в работе`, `🔍 проверка: разбор
+  bar with its count line and state (`🔄 в работе`, `🔍 разбор
   падений`, `🔄 в работе: повтор после исправлений`, `✅ готово`) — no list of tests, failed or passed. Which
   tests failed and why belongs to the run report and the fixes, not the
   progress view. A UI test run's `test-run.md` keeps its cases table: there
