@@ -45,6 +45,8 @@ h1{font-size:24px;line-height:1.25;margin:4px 0 16px}.head{background:var(--card
 table{border-collapse:collapse;width:100%;font-size:14px;background:var(--card)}th,td{border-bottom:1px solid var(--line);padding:7px 9px;text-align:left;vertical-align:top}
 th{color:var(--muted);font-weight:600;white-space:nowrap}pre{background:var(--bar);padding:8px 10px;border-radius:6px;overflow-x:auto;font-size:12px}code{font-size:.92em}
 a{color:var(--acc)}.hash{display:none}
+.bar2{display:flex;align-items:center;gap:10px;font-weight:600;font-variant-numeric:tabular-nums}.bar2 .track{flex:1}
+td:first-child{white-space:nowrap}
 """
 
 
@@ -85,6 +87,10 @@ def page(md: Path) -> None:
     if count:
         body_md = body_md.replace(count, "", 1) if count in body_md else body_md
     body = mdhtml.convert(body_md).html
+    # a section's own bar (a re-run, pass 2, the fixes after the final review) is drawn as a bar too
+    body = re.sub(r'<pre><code class="language-text">[█░\s]+?(\d{1,3})\s*%\s*</code></pre>',
+                  lambda m: f'<div class="bar2"><div class="track"><div class="fill" style="width:{m.group(1)}%">'
+                            f'</div></div><span>{m.group(1)}%</span></div>', body)
     now = dt.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
     width = pct if pct is not None else 0
     doc = (f'<!doctype html><html lang="ru"><head><meta charset="utf-8">'

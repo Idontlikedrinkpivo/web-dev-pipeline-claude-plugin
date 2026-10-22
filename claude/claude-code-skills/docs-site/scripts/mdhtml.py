@@ -91,6 +91,7 @@ def inline(text: str, hooks: Hooks, autolink: bool = True) -> str:
     text = re.sub(r"<(https?://[^>\s]+)>", lambda m: stash(
         f'<a href="{html.escape(m.group(1))}" target="_blank" rel="noopener">{html.escape(m.group(1))}</a>'), text)
     text = re.sub(r"<br\s*/?>", lambda m: stash("<br>"), text)
+    text = re.sub(r"</?su[bp]>", lambda m: stash(m.group(0)), text)
 
     text = html.escape(text, quote=False)
     if autolink:
@@ -206,6 +207,7 @@ class Converter:
                 i += 1
             text = "\n".join(para)
             text = re.sub(r"(\s{2}|\\)\n", "<br>", text)
+            text = re.sub(r"\n(?=\*\*[^*\n]{1,40}:\*\*)", "<br>", text)  # «**Кто:** …» under «**Проверяет:** …»
             pid = self.hooks.anchor(text) if text.startswith("**") else None  # «**З-2. …**» defines З-2
             pattr = ' id="%s"' % html.escape(pid) if pid else ""
             out.append(f"<p{pattr}>{inline(text, self.hooks)}</p>")
