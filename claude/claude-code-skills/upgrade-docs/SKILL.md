@@ -16,8 +16,7 @@ that the project still lacks it; `scripts/project_format.py` runs the checks. Th
 checks and names what is pending, so the user hears about it in any project after an update.
 
 The list has two kinds. Rows with `"kind": "code"` change the project's code and settings — quality gates, the
-project's verify skill, the plugin's team settings — and belong to `upgrade-code`, which follows these steps with
-its own differences. The rows without a kind are documents, and they are this skill's.
+project's verify skill — and belong to `upgrade-code`, which follows these steps with its own differences. The rows without a kind are documents, and they are this skill's.
 
 ## Steps
 

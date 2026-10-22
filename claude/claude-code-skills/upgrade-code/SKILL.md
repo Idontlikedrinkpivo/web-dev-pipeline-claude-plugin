@@ -2,8 +2,8 @@
 name: upgrade-code
 description: >-
   Brings a project's code and settings up to a newer dev-pipeline plugin — quality gates in linters and CI, the
-  project's verify skill, the plugin's team settings: lists what the project lacks, asks which to make, makes them
-  one commit each with the checks green before and after. Use when the session-start hook names code changes, or
+  project's verify skill: lists what the project lacks, asks which to make, makes them one commit each with the
+  checks green before and after. Use when the session-start hook names code changes, or
   for «обнови код проекта под плагин». Documents go to `upgrade-docs`.
 ---
 
