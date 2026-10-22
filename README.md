@@ -319,8 +319,6 @@ mkdir -p ~/projects && cd ~/projects
 <details>
 <summary><b>Проверка установки</b></summary>
 
-На Windows — в окне Ubuntu. Каждая команда должна напечатать номер версии:
-
 ```bash
 git --version
 ```
