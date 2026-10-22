@@ -115,7 +115,7 @@
 | Вариант | Что сделать | Когда подходит |
 |---|---|---|
 | Через Docker | ничего: плагин сам запускает PlantUML в контейнере | по умолчанию; Docker Desktop должен быть запущен на этапе архитектуры |
-| Установить у себя | macOS: `brew install plantuml`; Linux и Windows (Ubuntu): `sudo apt install -y plantuml` | если хотите рисовать схемы без Docker. На macOS 15 и новее это несколько минут, на более старой Homebrew собирает Java и Graphviz из исходного кода часами |
+| Установить у себя | необязательный шаг «PlantUML» в «Установке программ по шагам» для вашей системы | если хотите рисовать схемы без Docker |
 
 ### 4. Установка программ по шагам
 
@@ -168,6 +168,15 @@ brew install uv
 ```bash
 npx playwright install chromium
 ```
+
+**6. PlantUML — не обязательно,** только если хотите рисовать схемы без Docker:
+
+```bash
+brew install plantuml
+```
+
+На macOS 15 и новее это несколько минут. На более старой Homebrew собирает Java и Graphviz из исходного кода
+часами — там лучше оставить PlantUML на Docker.
 
 </details>
 
@@ -225,6 +234,12 @@ curl -LsSf https://astral.sh/uv/install.sh | sh
 
 ```bash
 npx playwright install --with-deps chromium
+```
+
+**7. PlantUML — не обязательно,** только если хотите рисовать схемы без Docker:
+
+```bash
+sudo apt install -y plantuml
 ```
 
 На Fedora и Arch вместо шага 1 — `sudo dnf install git curl python3` или `sudo pacman -S git curl python`;
@@ -326,7 +341,13 @@ curl -LsSf https://astral.sh/uv/install.sh | sh
 npx playwright install --with-deps chromium
 ```
 
-**8. Папка для проектов.** Держите проекты внутри Ubuntu, а не на диске `C:` (`/mnt/c/...`): там работа с
+**8. PlantUML — не обязательно,** только если хотите рисовать схемы без Docker:
+
+```bash
+sudo apt install -y plantuml
+```
+
+**9. Папка для проектов.** Держите проекты внутри Ubuntu, а не на диске `C:` (`/mnt/c/...`): там работа с
 файлами в разы медленнее, и сборка с тестами заметно тормозит.
 
 ```bash
