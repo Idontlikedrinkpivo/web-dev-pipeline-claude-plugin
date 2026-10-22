@@ -1294,17 +1294,18 @@ UI-тестов и аудит ведут рядом с файлом прогре
 
 ## Откуда идеи
 
-Часть скиллов и приёмов взята из открытых проектов и переделана под этот пайплайн. Авторы и лицензии — в
-[THIRD_PARTY_NOTICES.md](claude/claude-code-skills/THIRD_PARTY_NOTICES.md).
+Часть скиллов плагина основана на существующих решениях:
 
-- **UI UX Pro Max** — база стилей, палитр и шрифтов для `ui-ux-pro-max`.
-- **Anthropic `frontend-design`** — как сделать макеты не шаблонными, `frontend-design`.
-- **Vercel Web Interface Guidelines** — правила интерфейса на уровне кода, `web-design-guidelines`.
-- **Zod skill (Anivar Aravind), официальный скилл FastAPI, Microsoft `playwright-cli`** — основа для
-  `zod-skill`, `fastapi` и `playwright-cli`.
-- **pstack** — записка для продолжения прогона, «проверить, а не спросить», проверка допущения перед третьим
-  исправлением (Attack the Premise) и скилл запуска стенда в проекте (`create-verification-skill`).
-- Разбор сессий для плагина (`/dev-pipeline:reflect`) — упрощённый `reflect` из pstack.
+| Скилл плагина | Основа | Автор | Лицензия |
+|---|---|---|---|
+| `ui-ux-pro-max` | [UI UX Pro Max](https://github.com/nextlevelbuilder/ui-ux-pro-max-skill) | Next Level Builder | MIT |
+| `frontend-design` | [frontend-design](https://github.com/anthropics/skills) | Anthropic | Apache 2.0 |
+| `web-design-guidelines` | [Web Interface Guidelines](https://github.com/vercel-labs/web-interface-guidelines) | Vercel Labs | MIT |
+| `zod-skill` | [zod-skill](https://github.com/anivar/zod-skill) | Anivar Aravind | MIT |
+| `fastapi` | [скилл FastAPI](https://github.com/fastapi/fastapi) | Sebastián Ramírez | MIT |
+| `playwright-cli` | [playwright-cli](https://github.com/microsoft/playwright-cli) | Microsoft | Apache 2.0 |
+| продолжение прерванного прогона, «проверить, а не спросить», проверка допущения, скилл запуска стенда | [pstack](https://github.com/cursor/plugins/tree/main/pstack) | Lauren Tan | MIT |
+| разбор сессий `/dev-pipeline:reflect` | [pstack](https://github.com/cursor/plugins/tree/main/pstack) | Lauren Tan | MIT |
 
 ---
 
