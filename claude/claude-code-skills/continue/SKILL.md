@@ -3,7 +3,7 @@ name: continue
 description: >-
   Picks a project back up: reads the files on disk to tell where the pipeline stopped — which stage, what is done,
   what is stale — and offers the next step. Use for «продолжим», «где я», «что дальше», «на чём остановились», a new
-  session on a project already started. Not for starting a new project (`brainstorm`) or a plugin update (`upgrade-docs`).
+  session on a project already started. Not for starting a new project (`brainstorm`) or a plugin update (`upgrade-docs`, `upgrade-code`).
 ---
 
 # Continue the project

@@ -1,12 +1,13 @@
 ---
 name: upgrade-docs
 description: >-
-  Brings a project's documents up to a newer dev-pipeline plugin: lists the format changes the project lacks, asks
-  which to make, makes them one commit each. Use when the session-start hook says the project is behind, after a
-  plugin update, or for «обнови проект под плагин», «что поменялось в плагине». Not writing documents from scratch.
+  Brings a project's documents up to a newer dev-pipeline plugin: lists the document format changes the project
+  lacks, asks which to make, makes them one commit each. Use when the session-start hook names document changes,
+  after a plugin update, or for «обнови документы под плагин», «что поменялось в плагине». Code and project
+  settings go to `upgrade-code`; not writing documents from scratch.
 ---
 
-# Upgrade a project to the installed plugin
+# Upgrade a project's documents to the installed plugin
 
 A plugin release can change what a project's files should look like: a new document, a new section of one, a new
 rule for text the pipeline already wrote. Projects written under an older release do not change by themselves.
@@ -14,10 +15,16 @@ rule for text the pipeline already wrote. Projects written under an older releas
 that the project still lacks it; `scripts/project_format.py` runs the checks. The session-start hook runs the same
 checks and names what is pending, so the user hears about it in any project after an update.
 
+The list has two kinds. Rows with `"kind": "code"` change the project's code and settings — quality gates, the
+project's verify skill, the plugin's team settings — and belong to `upgrade-code`, which follows these steps with
+its own differences. The rows without a kind are documents, and they are this skill's.
+
 ## Steps
 
-1. **List.** Run `python3 <this skill's folder>/scripts/project_format.py list .` from the project's root. Nothing
-   pending — say so in one sentence, run `stamp` (step 6) and stop.
+1. **List.** Run `python3 <this skill's folder>/scripts/project_format.py list . --kind docs` from the project's
+   root. Nothing pending — say so in one sentence, run `stamp` (step 6) and stop. When the output also names
+   changes for `upgrade-code`, say in one line that they are the code's and `/dev-pipeline:upgrade-code` makes
+   them; do not make them here.
 
 2. **Explain.** For each pending change tell the user, in plain Russian, one short paragraph: what the plugin does
    differently now, what it means in this project (which files, roughly how much work: a whole new document and a
@@ -44,10 +51,12 @@ checks and names what is pending, so the user hears about it in any project afte
    - «Не нужно этому проекту»: `python3 <…>/project_format.py skip . <id>`.
 
 6. **Stamp.** `python3 <…>/project_format.py stamp .` writes the installed version into
-   `documentation/.dev-pipeline.json` — only when nothing is pending (skipped changes do not count), otherwise it
-   lists what is left and writes nothing. Commit the file: `docs: проект приведён к плагину <version>`.
+   `documentation/.dev-pipeline.json` — only when nothing of either kind is pending (skipped changes do not count),
+   otherwise it lists what is left and writes nothing. Code changes left for `upgrade-code` keep the stamp off too:
+   say so, and that the stamp comes with the last of them. Commit the file: `docs: проект приведён к плагину <version>`.
 
-7. **Report**: what was made (with commits), what was skipped for good, what was left for later, the branch. On a
+7. **Report**: what was made (with commits), what was skipped for good, what was left for later, what is left
+   for `upgrade-code`, the branch. On a
    `docs/plugin-<version>` branch the user merges and pushes it; on an iteration's branch the changes reach `main`
    with the iteration.
 

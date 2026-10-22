@@ -1,15 +1,17 @@
 """Which of the plugin's format changes a project still lacks, and the project's stamp of the plugin version.
 
     python3 project_format.py hook  <project dir>        # the session-start line; prints nothing when the project is in line
-    python3 project_format.py list  <project dir>        # every pending change in full (--json for a machine)
+    python3 project_format.py list  <project dir> [--kind docs|code]   # every pending change in full, of one kind
+                                                         # or of both (--json for a machine)
     python3 project_format.py check <project dir> <id>   # exit 0 when this change is no longer pending
     python3 project_format.py skip  <project dir> <id>   # the user declined it for good: never offered again
     python3 project_format.py stamp <project dir>        # record the installed version — only when nothing is pending
     python3 project_format.py born  <project dir>        # a new project's first document: record the installed version
                                                          # at once (its stages produce today's formats); no-op when stamped
 
-The changes are ../changes.json: each names the plugin version that brought it, a check that it applies to the
-project (`applies`) and a check that the project is still behind (`behind`). A check is one of
+The changes are ../changes.json: each names the plugin version that brought it, its kind (`"kind": "code"` for the
+project's code and settings, brought in by the upgrade-code skill; no kind — documents, the upgrade-docs skill), a
+check that it applies to the project (`applies`) and a check that the project is still behind (`behind`). A check is one of
 {"exists": path}, {"missing": path} (a path with * is a glob), {"grep": {"path": file or folder, "pattern": regex}} (text files under a
 folder, multiline), {"all": [...]}, {"any": [...]}, {"not": check}; paths are relative to the project.
 The stamp is documentation/.dev-pipeline.json — {"plugin": "<version>", "skipped": [ids]}, committed with the
@@ -84,12 +86,20 @@ def holds(root: Path, c: dict) -> bool:
     raise ValueError(f"unknown check {c}")
 
 
-def pending(root: Path) -> list[dict]:
+SKILL = {"docs": "dev-pipeline:upgrade-docs", "code": "dev-pipeline:upgrade-code"}
+WHAT = {"docs": "documents", "code": "code and project settings"}
+
+
+def kind(c: dict) -> str:
+    return c.get("kind", "docs")
+
+
+def pending(root: Path, only: str | None = None) -> list[dict]:
     st = stamp_of(root)
     since, skipped = ver(st.get("plugin", "0")), set(st.get("skipped", []))
     changes = json.loads(CHANGES.read_text(encoding="utf-8"))
     return [c for c in changes if ver(c["version"]) > since and c["id"] not in skipped
-            and holds(root, c["applies"]) and holds(root, c["behind"])]
+            and (only is None or kind(c) == only) and holds(root, c["applies"]) and holds(root, c["behind"])]
 
 
 def main() -> None:
@@ -105,20 +115,30 @@ def main() -> None:
         st, now = stamp_of(root).get("plugin"), installed()
         head = (f"The dev-pipeline plugin is {now}; this project was brought in line with {st}." if st else
                 f"The dev-pipeline plugin is {now}; this project has no stamp of the plugin version.")
-        print(f"{head} {len(todo)} change(s) of the plugin's formats are not in the project yet: "
-              + "; ".join(f"«{c['title']}» ({c['version']})" for c in todo) + ".")
-        print("Tell the user in one or two plain sentences and offer the dev-pipeline:upgrade-docs skill; change nothing "
-              "without their answer.")
+        print(f"{head} {len(todo)} change(s) of the plugin's formats are not in the project yet.")
+        groups = [k for k in SKILL if any(kind(c) == k for c in todo)]
+        for k in groups:
+            print(f"{WHAT[k].capitalize()} — the {SKILL[k]} skill: "
+                  + "; ".join(f"«{c['title']}» ({c['version']})" for c in todo if kind(c) == k) + ".")
+        print("Tell the user in one or two plain sentences and offer "
+              + " and ".join(f"the {SKILL[k]} skill for the {WHAT[k]}" for k in groups)
+              + "; change nothing without their answer.")
         return
     if cmd == "list":
-        todo = pending(root)
+        only = sys.argv[sys.argv.index("--kind") + 1] if "--kind" in sys.argv else None
+        if only not in (None, *SKILL):
+            sys.exit(f"--kind is docs or code, not {only}")
+        todo = pending(root, only)
         if "--json" in sys.argv:
             print(json.dumps(todo, ensure_ascii=False, indent=1))
             return
         st = stamp_of(root)
         print(f"plugin {installed()}; project stamp {st.get('plugin', 'none')}; skipped {st.get('skipped', [])}")
         if not todo:
-            print("nothing pending")
+            print("nothing pending" + (f" of kind {only}" if only else ""))
+        rest = [c for c in pending(root) if only and kind(c) != only]
+        if rest:
+            print(f"also pending, for the {SKILL[kind(rest[0])]} skill: " + ", ".join(c["id"] for c in rest))
         for c in todo:
             print(f"\n[{c['id']}] {c['title']} — {c['version']}\n  Что: {c['what']}\n  Чем исправить: {c['fix']}")
         return
@@ -146,7 +166,7 @@ def main() -> None:
         else:
             todo = pending(root)
             if todo:
-                print("not stamped — pending: " + ", ".join(c["id"] for c in todo))
+                print("not stamped — pending: " + ", ".join(f"{c['id']} ({SKILL[kind(c)]})" for c in todo))
                 sys.exit(1)
             st["plugin"] = installed()
         (root / STAMP).parent.mkdir(parents=True, exist_ok=True)

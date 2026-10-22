@@ -20,6 +20,9 @@ themselves.
 }
 ```
 
+- `kind` — `"code"` when the change touches the project's code or settings (linter and CI config, a project
+  skill, `.claude/settings.json`): `upgrade-code` makes it, with the project's checks around it. Leave it out for
+  a document change, like the row above — `upgrade-docs` makes those.
 - `id` — stable, kebab-case; a project's stamp lists skipped ids, so never rename one.
 - `version` — the release that brings the change (the version `sync.sh` is about to print).
 - `applies` — true only for projects that have the thing at all: no API, no API rule.
