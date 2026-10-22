@@ -232,6 +232,9 @@ reasoning is a recorded escalation (Step 6). `PATTERN TO MIRROR` is the unit's
 `Образец` field verbatim; do not pick a pattern yourself — a pattern chosen at
 execution time is a design decision nobody reviewed.
 
+The run's first dispatch — and the first after a resume or a compaction — waits until this turn's chat
+already shows the progress link (Step 1, «Show the link before the first dispatch»): the user watches the run
+from that page, and a run started without it is invisible until the first commit.
 Dispatch with the Step 2 row: `subagent_type` is `dev-pipeline:<name>`, and the
 call passes no `model`. Omit any permission-mode override so the user's
 own settings apply. This run does not ask which model to use. Only when the
@@ -458,9 +461,8 @@ at Step 7, before writing the report.
 - Every High and risk-floor unit had its red witnessed in a `tests-only`
   phase — Step 4b.
 - The plan document is byte-identical to how the run found it — Step 1.
-- The chat showed the `План:` line with the progress file's link after the
-  committed set was known, after every commit and every stop — Step 1,
-  Step 5.6.
+- The chat showed the progress link before the first dispatch, and the `План:` line with it after the
+  committed set was known, after every commit and every stop — Step 1, Step 5.6.
 - The run report names grade corrections — Step 6.
 - Every changed decision is under «Изменённые решения» and committed in
   its documents before the next dispatch — Step 6.
