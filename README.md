@@ -1286,10 +1286,19 @@ UI-тестов и аудит ведут рядом с файлом прогре
 
 ## Ограничения
 
-- **Стек.** Бэкенд — TypeScript (Fastify, Drizzle, Zod, Vitest) или Python (FastAPI, SQLAlchemy, pytest), база
-  PostgreSQL. Фронтенд — React + Vite или Next.js на TypeScript (TanStack Query, React Hook Form и Zod,
-  Tailwind CSS и shadcn/ui, Vitest и Testing Library, Playwright). Другие технологии — только если они уже есть
-  в проекте.
+Плагин пишет код на этом стеке:
+
+| Часть | Технологии |
+|---|---|
+| Бэкенд на TypeScript | Fastify, Drizzle, Zod, Vitest |
+| Бэкенд на Python | FastAPI, SQLAlchemy, pytest |
+| База данных | PostgreSQL |
+| Фронтенд | React + Vite или Next.js на TypeScript |
+| Данные и формы на фронтенде | TanStack Query, React Hook Form и Zod |
+| Внешний вид | Tailwind CSS и shadcn/ui |
+| Тесты фронтенда | Vitest и Testing Library, Playwright |
+
+Другие технологии — только если они уже есть в проекте.
 
 ---
 
