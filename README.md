@@ -1238,9 +1238,9 @@ claude plugin update dev-pipeline@dev-pipeline-marketplace
 
 ---
 
-<a id="все-скиллы"></a>
+<a id="перечень-скиллов"></a>
 <details>
-<summary><h2>Все скиллы</h2></summary>
+<summary><h2>Перечень скиллов</h2></summary>
 
 В плагине 44 скилла. Сами вы обычно вызываете только `brainstorm` (или `srs-writer`) в начале и `pipeline`,
 чтобы узнать, где вы; дальше плагин сам предлагает следующий этап. Любой этап можно запустить и напрямую.
