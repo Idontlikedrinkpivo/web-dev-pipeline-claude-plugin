@@ -1304,8 +1304,8 @@ UI-тестов и аудит ведут рядом с файлом прогре
 | `zod-skill` | [zod-skill](https://github.com/anivar/zod-skill) | Anivar Aravind | MIT |
 | `fastapi` | [скилл FastAPI](https://github.com/fastapi/fastapi) | Sebastián Ramírez | MIT |
 | `playwright-cli` | [playwright-cli](https://github.com/microsoft/playwright-cli) | Microsoft | Apache 2.0 |
-| продолжение прерванного прогона, «проверить, а не спросить», проверка допущения, скилл запуска стенда | [pstack](https://github.com/cursor/plugins/tree/main/pstack) | Lauren Tan | MIT |
-| разбор сессий `/dev-pipeline:reflect` | [pstack](https://github.com/cursor/plugins/tree/main/pstack) | Lauren Tan | MIT |
+| `pipeline` — продолжение прерванного прогона, «проверить, а не спросить», проверка допущения; `deploy-topology` — скилл запуска стенда | [pstack](https://github.com/cursor/plugins/tree/main/pstack) | Lauren Tan | MIT |
+| `reflect` (`/dev-pipeline:reflect`) | [pstack](https://github.com/cursor/plugins/tree/main/pstack) | Lauren Tan | MIT |
 
 ---
 
