@@ -429,6 +429,27 @@ claude plugin update dev-pipeline@dev-pipeline-marketplace
 ветке `docs/plugin-<версия>`. Версию плагина он записывает в `documentation/.dev-pipeline.json`, когда не
 осталось изменений «на потом». Без вашего ответа он ничего не меняет.
 
+### Плагин для всей команды проекта
+
+Чтобы каждый, кто откроет проект, получил плагин сам — без установки и сразу с автообновлением, положите в
+корень проекта файл `.claude/settings.json` и закоммитьте его:
+
+```json
+{
+  "extraKnownMarketplaces": {
+    "dev-pipeline-marketplace": {
+      "source": { "source": "github", "repo": "Idontlikedrinkpivo/web-dev-pipeline-claude-plugin" },
+      "autoUpdate": true
+    }
+  },
+  "enabledPlugins": { "dev-pipeline@dev-pipeline-marketplace": true }
+}
+```
+
+Коллеге останется подтвердить доверие к папке при первом открытии и один раз подключить Figma. В облачных
+сессиях на claude.ai/code это не срабатывает. Выключить плагин у себя в таком проекте можно строкой
+`"dev-pipeline@dev-pipeline-marketplace": false` в `enabledPlugins` файла `.claude/settings.local.json`.
+
 ---
 
 ## Быстрый старт: первый проект
