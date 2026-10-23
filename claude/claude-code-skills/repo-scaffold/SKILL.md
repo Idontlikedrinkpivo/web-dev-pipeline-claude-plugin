@@ -193,7 +193,9 @@ the project's migration tool at that folder (runner config or a small
 script) and wire one command (`make migrate` or `npm run migrate`). A plain
 runner applies the files in name order, each once, records it in a version
 table in the project schema, and applies a file that contains
-`CONCURRENTLY` outside a transaction. A tool with its own format (Alembic,
+`CONCURRENTLY` outside a transaction, statement by statement — a driver that
+sends the file as one query string runs it as one implicit transaction, and
+PostgreSQL refuses `CREATE INDEX CONCURRENTLY` there. A tool with its own format (Alembic,
 EF, Liquibase) gets one entry per file that executes that file's text —
 `references/stack-files.md`. The runner reads the folder by its
 repo-relative path, so the backend image carries it at that same path

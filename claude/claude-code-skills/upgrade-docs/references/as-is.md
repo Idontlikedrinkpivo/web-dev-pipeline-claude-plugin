@@ -27,8 +27,9 @@ exists comes first, as in the normal chain; a missing one above it is read from 
 3. **Requirements** (business requirements, SRS) speak the user's language, never the code's: a use case per
    action a user can take (a route, a screen action, a scheduled job that changes data), its acceptance criteria
    from the tests that cover it, else from the code paths — the success path and each error the code returns.
-   The grill and the review are not optional here: the user confirms that what the code does is what they want,
-   and each «нет, должно быть иначе» is a changed decision (`pipeline` → `references/decision-changes.md`).
+   The grill and the review matter most here — the user confirms that what the code does is what they want —
+   so their questions recommend A; skipping stays the user's call and is recorded. Each «нет, должно быть иначе»
+   is a changed decision (`pipeline` → `references/decision-changes.md`).
 4. **The database schema** is the state the project's migrations produce, cross-checked with the models. The
    migrations stay where the project keeps them: `schema.md`'s frontmatter `migrations: <folder>` names that folder
    (the table pages read its constraint comments there) and `migration:` the newest file in it; nothing is copied
@@ -45,7 +46,10 @@ exists comes first, as in the normal chain; a missing one above it is read from 
    `contract-test` change adds it.
 6. **The architecture** shows the real modules, layers, dependencies and transactions. A section the template
    requires that the code has nothing for — no ports, no entities with behaviour, no invariant table — says «в коде
-   нет» in one line instead of inventing structure. The file tree is the real one. Deviations the user kept on an
+   нет» in one line instead of inventing structure — the rows the template marks «всегда» too (the service paths,
+   `SHUTDOWN_TIMEOUT_SEC`): «в коде нет» is their as-is value, and the final check accepts it. A rule the code
+   enforces in a handler or in the database still gets its invariant row, «Где проверяется» naming that handler or
+   constraint — the table records where the rule lives now. The file tree is the real one. Deviations the user kept on an
    earlier code audit (the `accepted` list of `documentation/.dev-pipeline.json`) move to §1 «Принятые
    отклонения», and the list is emptied.
 7. **Screen specs** come from the frontend: a screen `S-n` per route, in route order; its elements, the states the
@@ -57,16 +61,23 @@ exists comes first, as in the normal chain; a missing one above it is read from 
 9. **Version.** No iteration is opened for an as-is document: it describes a release that already runs. A
    versioned document is born at the service's current version — the manifest's `version`; with none, ask the
    user once for the number the running system has — and that number is the packet's `VERSION`, the writer's and
-   the typist's alike. Its single journal row: «описан выпуск <version> как есть», typed «—». Its `sources:` pin
-   the documents it read at their versions; when it read only code, they list the code folders, unpinned (code
-   has no document version).
+   the typist's alike. Its single journal row: «описан выпуск <version> как есть», typed «—». Where the document
+   has `sources:` (the SRS has none), they pin the documents it read at their versions; when it read only code,
+   they list the code folders, unpinned (code has no document version). A stage that keeps a progress file keeps
+   it in `documentation/plans/as-is/` — not a version folder, so no iteration appears.
 10. **Commit as written — that commit is its stamp.** The document is born complete at its version, so its first
     commit is `docs: <документ> <version> — как есть`, on the branch `upgrade-docs` picked; the gates follow it,
     and a fix a gate makes is a later commit under the same version on that branch — no iteration, no new
-    journal row, no separate stamp.
+    journal row, no separate stamp. The SRS's stamp names its gates, because «где я» reads them from it:
+    `docs: SRS <version> — как есть · grill: не запускался · review: не запускался` first, and when its gates
+    close one more commit with their states (`прошёл` / `пропущен`) — `--allow-empty` when they changed nothing.
+    When the project has `documentation/_web-docs/`, each such commit carries the rebuilt site (`docs-site` →
+    `rebuild.py . --wait`), as a stamp does.
 
 ## After the set
 
 The project's own earlier documents (`set . --foreign`) are asked about one file per message, once the documents
 that replace them exist: keep it, or remove it (`git rm` — it stays in the history). Never removed unasked, never
-edited.
+edited. A file's replacement is the set document that covers its subject: an API draft or endpoint notes → the API;
+an architecture or data-flow note → the architecture; a README → the business requirements and the project map;
+a deploy note → the deploy document. A file whose subject spans several waits until all of them exist.

@@ -346,7 +346,9 @@ docker compose -p "$p" -f "$f" start backend
    second CPU reading), so no `sleep`:
 
    ```bash
-   ids=$(docker compose -p "$p" -f "$f" ps -q backend frontend)
+   apps=$(docker compose -p "$p" -f "$f" config --services | grep -xE 'backend|frontend' | tr '\n' ' ')
+   ids=$(docker compose -p "$p" -f "$f" ps -q $apps)
+   [ -n "$ids" ] || { echo "no app container is running" >&2; exit 1; }   # an empty list would sample every container
    while :; do
      docker stats --no-stream --format '{{.Name}};{{.CPUPerc}};{{.MemUsage}}' $ids | sed "s/^/$(date +%T);/"
    done > documentation/plans/<version>/resources.txt   # stopped after the last phase
@@ -368,7 +370,7 @@ docker compose -p "$p" -f "$f" start backend
    ```bash
    docker compose -p "$p" -f "$f" restart backend
    n=0; until curl -fsS -o /dev/null "http://127.0.0.1:${APP_PORT:-<app-port>}/health/ready"; do n=$((n+1)); sleep 0.5; done
-   echo "ready after ~$((n / 2)) s"
+   [ "$n" -lt 2 ] && echo "ready after < 1 s" || echo "ready after ~$((n / 2)) s"
    ```
 
 7. **Write «Ресурсы».** Per container: idle; typical — the median of the
@@ -382,13 +384,17 @@ docker compose -p "$p" -f "$f" start backend
 
 The load script — written to `documentation/plans/<version>/load.py` when
 nothing else drives the stand, aimed at the read operations a signed-in
-user calls most and one write, with a test role's token (the verify
-skill's `token.sh`, or the test fixtures' sign-in):
+user calls most, with a test role's token (the verify skill's `token.sh`,
+or the test fixtures' sign-in). It sends GETs only: the how-line says
+«нагрузка — только чтение». It counts the app's error answers apart from
+connection failures on this machine (Docker Desktop's port forwarding drops
+connections under load) — only the first are the app's:
 
 ```python
 """load.py (--rate R | --clients C) [--seconds S] URL... — R requests/s, or C clients as fast as they go.
-TOKEN in the environment adds `Authorization: Bearer <TOKEN>`. Prints requests, errors and p95 latency."""
-import argparse, os, threading, time, urllib.request
+TOKEN in the environment adds `Authorization: Bearer <TOKEN>`. Prints requests, the app's error answers, the
+connection failures on this side, and p95 latency."""
+import argparse, os, threading, time, urllib.error, urllib.request
 
 ap = argparse.ArgumentParser()
 mode = ap.add_mutually_exclusive_group(required=True)
@@ -398,19 +404,22 @@ ap.add_argument("--seconds", type=float, default=120)
 ap.add_argument("urls", nargs="+")
 args = ap.parse_args()
 headers = {"Authorization": f"Bearer {os.environ['TOKEN']}"} if os.environ.get("TOKEN") else {}
-lock, took, errors, threads = threading.Lock(), [], [0], []
+lock, took, errors, threads = threading.Lock(), [], [0, 0], []  # [app error answers, connection failures]
 end = time.monotonic() + args.seconds
 
 
 def hit(url: str) -> None:
-    started, ok = time.monotonic(), True
+    started, kind = time.monotonic(), -1
     try:
         urllib.request.urlopen(urllib.request.Request(url, headers=headers), timeout=10).read()
-    except Exception:  # an HTTP error status counts too
-        ok = False
+    except urllib.error.HTTPError:  # the app answered with an error status
+        kind = 0
+    except Exception:  # no answer: a refused, reset or timed-out connection on this side
+        kind = 1
     with lock:
         took.append(time.monotonic() - started)
-        errors[0] += not ok
+        if kind >= 0:
+            errors[kind] += 1
 
 
 def client(first: int) -> None:
@@ -435,7 +444,8 @@ for t in threads:
     t.join()
 took.sort()
 p95 = took[max(0, int(len(took) * 0.95) - 1)] * 1000 if took else 0
-print(f"{len(took)} requests in {args.seconds:.0f} s, {errors[0]} errors, p95 {p95:.0f} ms")
+print(f"{len(took)} requests in {args.seconds:.0f} s, {errors[0]} app errors, {errors[1]} connection failures, "
+      f"p95 {p95:.0f} ms")
 ```
 
 `python3 load.py --rate 5 --seconds 120 <urls>` for the typical phase,
@@ -538,8 +548,9 @@ headers — split rows on `|`), and assert:
 13. **Dependencies.** Each variable in «Адрес в переменной» is in the
     «Переменные» table of a container its «Направление» names.
 14. **DBA.** The PostgreSQL major equals the major of the database image in
-    `docker-compose.test.yml`; the schema equals the `search_path` in
-    `.env.example`'s `DATABASE_URL`; every `CREATE EXTENSION` in
+    `docker-compose.test.yml`; the schema equals the `search_path` of the
+    `migrate` service's `DATABASE_URL` in `docker-compose.test.yml`
+    (`.env.example` holds that value empty); every `CREATE EXTENSION` in
     `documentation/db/migrations/*.sql` is named in «Расширения» (or the row
     says «нет» and there is none); every `GRANT` and `ALTER DEFAULT
     PRIVILEGES` statement of `docker/db-init/roles.sql` is in the section's

@@ -107,8 +107,8 @@ The built images exist only in `deploy-topology` Step 8, so the image scan
 runs there, over the release tar:
 
 ```bash
-docker run --rm -v "$PWD/release/<version>:/r" aquasec/trivy:latest \
-  image --input /r/<project>-<version>.tar --severity HIGH,CRITICAL --format json
+docker run --rm -v "$PWD/release/<version>:/r:ro" -v pipeline-trivy-cache:/root/.cache/trivy aquasec/trivy:latest \
+  image --input /r/<project>-<version>.tar --severity HIGH,CRITICAL --format json > "$OUT/trivy-images.json"
 ```
 
 ## When a scanner cannot run

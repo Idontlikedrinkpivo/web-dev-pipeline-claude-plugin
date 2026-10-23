@@ -478,7 +478,7 @@
         }
       ]
     },
-    "fix": "repo-scaffold → references/quality-gates.md: это изменение кода, поэтому сначала спросить пользователя — сделать сейчас отдельной веткой или первым юнитом ближайшей итерации. Для каждой части: конфиг линтера с правилами и порогами из quality-gates.md, текущие нарушители — списком с предупреждениями («храповик»), проверка типов тестов (найденные ошибки типов в тестах исправить, не списком), границы слоёв для фронтенда, knip и jscpd в `lint` (порог дублей — текущий), команды `lint`, `typecheck`, `test` в каждой части и в CI (ci-pipeline) вместе с проверкой зависимостей; поставить инструменты тестов свойств (fast-check / hypothesis) и мутационного тестирования (Stryker / mutmut) — их запускает work. Поведение кода не меняется; все тесты зелёные до и после."
+    "fix": "repo-scaffold → references/quality-gates.md: это изменение кода, поэтому сначала спросить пользователя — сделать сейчас (в ветке открытой итерации, если она идёт, иначе отдельной веткой chore/plugin-<версия>) или первым юнитом ближайшей итерации. Для каждой части: конфиг линтера с правилами и порогами из quality-gates.md, текущие нарушители — списком с предупреждениями («храповик»), проверка типов тестов (найденные ошибки типов в тестах исправить, не списком), границы слоёв для фронтенда, knip и jscpd в `lint` (порог дублей — текущий), команды `lint`, `typecheck`, `test` в каждой части и в CI (ci-pipeline) вместе с проверкой зависимостей; поставить инструменты тестов свойств (fast-check / hypothesis) и мутационного тестирования (Stryker / mutmut) — их запускает work. Поведение кода не меняется; все тесты зелёные до и после."
   },
   {
     "id": "architecture-assumption-ids",
@@ -788,6 +788,31 @@
         }
       ]
     },
-    "fix": "Это изменение кода и настроек: сначала спросить — сделать сейчас отдельной веткой или первым юнитом ближайшей итерации. Код — repo-scaffold §5 и правила стека (typescript-fastify или fastapi → references/service-endpoints.md): /health/live, /health/ready, /metrics в корне композиции, который называет дерево §5 архитектуры (bootstrap/ — только по умолчанию; переносить существующий код ради этого не нужно); JSON-логи с request_id, остановка по SIGTERM/SIGINT, LOG_LEVEL и SHUTDOWN_TIMEOUT_SEC в .env.example и конфиге, no-console / Ruff T20 в линтере. Новые файлы, библиотеки и переменные — изменённое решение архитектуры: сначала отдельный коммит «docs: решение изменено — …» по pipeline → references/decision-changes.md. Если /health описан в контракте API как операция, он остаётся — служебные пути добавляются рядом; если нет, это служебный путь прежнего вида, и его место занимают /health/live и /health/ready. Три служебных пути в NOT_IN_CONTRACT — если тест контракта уже есть (иначе он придёт с изменением contract-test). Проверка: repo-scaffold/scripts/service_check.py на запущенном процессе. Если в проекте уже есть образы — deploy-topology шаги 2, 4, 6, 7, 7b (проверка сервиса в контейнере и замер ресурсов) и 8; шаг 7a — скил verify — отдельное изменение verify-skill: числовой USER в Dockerfile, вопрос про образ без оболочки (один раз; критичная уязвимость базового образа — deploy-topology → references/images.md → A vulnerable base), защита app-контейнеров в docker-compose.test.yml и docker-compose.prod.yml, healthcheck на /health/ready, stop_grace_period, две обычные учётные записи БД — migrate (владелец схемы, право CREATE на базу) и backend (только данные) — в roles.sql, суперпользователь стенда только выполняет roles.sql, отдельный env-файл для prod-migrate; пометки [required] / [secret] / [infra] в .env.example, замер ресурсов, новые разделы DEPLOY.md и правила его теста, openapi.yaml в build-images.sh; scripts/e2e-stands.sh — только если есть экраны. Имена томов в существующем dev-файле не менять. Остальные шаги этапа не повторять. Поведение API не меняется; тесты зелёные до и после. Другой стек (не Fastify и не FastAPI) — только части про образы и DEPLOY.md, про код — сказать пользователю."
+    "fix": "Это изменение кода и настроек: сначала спросить — сделать сейчас (в ветке открытой итерации, если она идёт, иначе отдельной веткой chore/plugin-<версия>) или первым юнитом ближайшей итерации. Код — repo-scaffold §5 и правила стека (typescript-fastify или fastapi → references/service-endpoints.md): /health/live, /health/ready, /metrics в корне композиции, который называет дерево §5 архитектуры (bootstrap/ — только по умолчанию; переносить существующий код ради этого не нужно); JSON-логи с request_id, остановка по SIGTERM/SIGINT, LOG_LEVEL и SHUTDOWN_TIMEOUT_SEC в .env.example и конфиге, no-console / Ruff T20 в линтере. Новые файлы, библиотеки и переменные — изменённое решение архитектуры: сначала отдельный коммит «docs: решение изменено — …» по pipeline → references/decision-changes.md. Если /health описан в контракте API как операция, он остаётся — служебные пути добавляются рядом; если нет, это служебный путь прежнего вида, и его место занимают /health/live и /health/ready. Три служебных пути в NOT_IN_CONTRACT — если тест контракта уже есть (иначе он придёт с изменением contract-test). Проверка: repo-scaffold/scripts/service_check.py на запущенном процессе. Если в проекте уже есть образы — deploy-topology шаги 2, 4, 6, 7, 7b (проверка сервиса в контейнере и замер ресурсов) и 8; шаг 7a — скил verify — отдельное изменение verify-skill: числовой USER в Dockerfile, вопрос про образ без оболочки (один раз; критичная уязвимость базового образа — deploy-topology → references/images.md → A vulnerable base), защита app-контейнеров в docker-compose.test.yml и docker-compose.prod.yml, healthcheck на /health/ready, LOG_LEVEL: info на тестовом стенде (проверка сервиса читает строки запросов), сервис приложения с другим именем (app) — переименовать в backend в compose-файлах, Makefile и документах, где он назван, stop_grace_period, две обычные учётные записи БД — migrate (владелец схемы, право CREATE на базу) и backend (только данные) — в roles.sql, суперпользователь стенда только выполняет roles.sql, отдельный env-файл для prod-migrate; пометки [required] / [secret] / [infra] в .env.example, замер ресурсов, новые разделы DEPLOY.md и правила его теста, openapi.yaml в build-images.sh; scripts/e2e-stands.sh — только если есть экраны. Имена томов в существующем dev-файле не менять. Остальные шаги этапа не повторять. Поведение API не меняется; тесты зелёные до и после. Другой стек (не Fastify и не FastAPI) — только части про образы и DEPLOY.md, про код — сказать пользователю."
+  },
+  {
+    "id": "as-is-schema-migrations",
+    "version": "1.2.186",
+    "title": "Схема БД «как есть» называет папку миграций проекта",
+    "what": "Схема БД, описанная по коду, ссылается на миграции там, где их держит проект: в заголовке schema.md поле migrations: с этой папкой. По нему страницы таблиц берут описания ограничений, а правки схемы кладут новые миграции туда же.",
+    "applies": {
+      "all": [
+        {
+          "exists": "documentation/db/schema.md"
+        },
+        {
+          "missing": "documentation/db/migrations"
+        }
+      ]
+    },
+    "behind": {
+      "not": {
+        "grep": {
+          "path": "documentation/db/schema.md",
+          "pattern": "^migrations:\\s*\\S"
+        }
+      }
+    },
+    "fix": "db-schema-design, только заголовок: в frontmatter schema.md добавить migrations: <папка миграций проекта> (upgrade-docs/references/as-is.md §4), затем пересобрать страницы таблиц (db-schema-design/scripts/table_docs.py). Текст схемы не менять."
   }
 ]

@@ -22,7 +22,8 @@ project's code and settings, brought in by the upgrade-code skill; no kind — d
 check that it applies to the project (`applies`) and a check that the project is still behind (`behind`). A check is one of
 {"exists": path}, {"missing": path} (a path with * is a glob), {"grep": {"path": file or folder, "pattern": regex}} (text files under a
 folder, multiline; a path with * is a glob of files read whatever their type — `*/Dockerfile`, `*/src/bootstrap/*`), {"all": [...]}, {"any": [...]}, {"not": check}; paths are relative to the project.
-The stamp is documentation/.dev-pipeline.json — {"plugin": "<version>", "skipped": [ids]}, committed with the
+The stamp is documentation/.dev-pipeline.json — {"plugin": "<version>", "skipped": [ids], "accepted": [the code audit's
+kept deviations while the project has no architecture: {"id", "audit", "rule", "where": [...], "reason", "date"}]}, committed with the
 documents. Changes up to the stamped version count as done; a project without a stamp is checked against all.
 Read-only except skip and stamp. Standard library only. Adding a row: ../references/adding-a-change.md.
 """
@@ -179,12 +180,13 @@ def main() -> None:
         print("still behind" if behind else "done")
         sys.exit(1 if behind else 0)
     if cmd == "born":
-        if (root / STAMP).exists():
+        st = stamp_of(root)
+        if "plugin" in st:
             print(f"{STAMP}: already stamped — left as it is")
             return
+        st = {"plugin": installed(), **st}  # a file the code audit started (its `accepted` list) keeps its keys
         (root / STAMP).parent.mkdir(parents=True, exist_ok=True)
-        (root / STAMP).write_text(json.dumps({"plugin": installed()}, ensure_ascii=False, indent=2) + "\n",
-                                  encoding="utf-8")
+        (root / STAMP).write_text(json.dumps(st, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
         print(f"{STAMP}: born at {installed()}")
         return
     if cmd == "set":

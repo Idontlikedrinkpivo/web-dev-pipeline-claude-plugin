@@ -32,6 +32,8 @@ RULES TO JUDGE AGAINST (read each in full before judging; a rule you cite is quo
       migration-safety.md;
     - API: <SKILLS ROOT>/openapi-spec-generator/SKILL.md, references/security-schemes.md,
       common-patterns.md, base-schemas.md.
+  Data access outside the stack's ORM (raw driver calls, a hand-written migration runner): the ORM skill's rules
+  for repositories, transactions and migrations still apply, and the choice itself is one finding.
   Judge decisions only: layering, where a rule lives, ports and adapters, transaction boundaries, keys and
   constraints, exposed internal ids, migration safety, one operation per use case, the error format, status codes,
   paging, the security model, what the stack skills forbid or require. Never headings, tables, wording or file
@@ -54,7 +56,9 @@ FINDINGS        one block per finding:
                   Как должно быть: <by that rule, concretely for this code>
                   Затронет: <files, documents, the API, the data — what a fix changes>
                   Поведение: не меняется | меняется — <how>
-DECIDED ON PURPOSE  <decisions the documents record that differ from the rules — one line each, or: none>
+DECIDED ON PURPOSE  <decisions the user made that differ from the rules — an accepted row, an answered question —
+                one line each, or: none. A document written «как есть» describes, it does not decide: its
+                descriptions and its open questions are not decisions on purpose>
 MODULE VERDICT  поправить на месте | переписать заново | оставить — <one sentence why: the share of files the
                 findings touch, whether the structure itself contradicts the rules>
 NOT CHECKED     <what you could not confirm, and why>

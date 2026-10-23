@@ -64,7 +64,7 @@ READ FROM DISK  <repo-relative paths, every part of each: the SRS
                  code audit's fix: the plan is born with its units). revise:
                  the current plan.md and plan-review.md.>
 
-INVENTORY       <increment and brownfield: the code-explorer answer, pasted —
+INVENTORY       <increment, brownfield and a code audit's fix: the code-explorer answer, pasted —
                  paths and shapes only: entry points, the files that
                  implement each changed id, the patterns a new unit would
                  mirror, storage access, test conventions, and the call

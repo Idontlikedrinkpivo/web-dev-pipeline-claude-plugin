@@ -106,14 +106,14 @@ written in each source file.
    rows of this version, plus unstamped changes typed from the diff since
    the last tag. A changed level is asked again. VERSION in the packet:
    number, level, reason; MANIFEST: the manifest's current `version`.
-3. **Plugin code changes waiting** (greenfield and increment):
+3. **Plugin code changes waiting** (greenfield, increment, and a code audit's fix plan — the first plan of its iteration):
    `python3 "${CLAUDE_SKILL_DIR}/../upgrade-docs/scripts/project_format.py" list . --kind code`.
    A change `upgrade-code` left for «the first unit of the next iteration»
    is lost unless this plan carries it. When the list is not empty, ask
    one question (`pipeline/references/question-format.md`): put them into
    this plan as its first units, or leave them for `upgrade-code`. A yes
    fills DEFERRED in the packet — id, title and `fix` of each.
-4. **Increment and brownfield: the inventory.** Resolve the
+4. **Increment, brownfield and a code audit's fix: the inventory.** Resolve the
    `code-explorer` row and dispatch it under `executor-catalog` → Dispatch
    contract. Read that section's bullets and stop before its example. Ask
    for: the entry points; the files that implement each id this version

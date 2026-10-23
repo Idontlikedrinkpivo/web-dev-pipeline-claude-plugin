@@ -32,10 +32,13 @@ require. Security in depth stays `security-audit`'s.
    accepted deviations and risks of architecture §1 go into every packet, so nothing accepted comes back. Post one
    chat line as each scope returns («Аудит: 3 из 7 модулей»).
 4. **Merge** the findings into decisions: the same rule broken in many places is one decision with every
-   occurrence; ids `A1…An` by severity, then in the module order of step 2, then by the first occurrence's
-   `file:line` — the questions follow the ids. A decision that a pending `upgrade-code` change makes (the service
-   endpoints are `devops-ready`, the gates `quality-gates`, the contract test `contract-test`) is reported under
-   that change's name: its question is the change's, asked in the queue, not twice. For each decision: the module(s), «сейчас», the rule, «как должно быть»,
+   occurrence; ids `A1…An` by severity, then in the module order of step 2, then by the smallest `file:line` of
+   its occurrences — the questions follow the ids. A decision several scopes found takes the highest severity they
+   gave and sorts under the first of them in step 2's order. A decision that a pending `upgrade-code` change makes
+   (the service endpoints are `devops-ready`, the gates `quality-gates`, the contract test `contract-test`) gets no
+   A-id: it is listed under that change's name, and its question is the change's, asked in the queue, not twice. A
+   finding that mixes a change's part with another rule is split: the change's part under the change, the rest a
+   decision of its own. For each decision: the module(s), «сейчас», the rule, «как должно быть»,
    what it changes — documents, code, the API (a breaking change for its callers?), the data (a migration?) —,
    whether behaviour changes, and the cost in plan units with their grade (`plan` → the complexity cascade, as an
    estimate). For each module: its findings by severity, the auditor's verdict, and the share of its files they
@@ -56,16 +59,23 @@ require. Security in depth stays `security-audit`'s.
    - each scope's P2/P3 together, the documents scope too: `A. Исправить вместе`, `B. Оставить`, `C. Позже`;
    - each module whose verdict is «переписать заново»: `A. Переписать заново`, `B. Поправить на месте`,
      `C. Оставить как есть` — with what a rewrite costs and what it risks (behaviour the tests do not pin).
-   No answer is «позже». A recommendation comes from the evidence: a P0 is fixed; a rule the documents decided on
+   A non-answer counts as C: nothing is recorded. A recommendation comes from the evidence: a P0 is fixed; a rule the documents decided on
    purpose is offered as B.
 8. **Make what was chosen**:
    - **Оставить** — a row of architecture §1 «Принятые отклонения» (rule, where, the user's reason, date), through
-     `pipeline` → `references/decision-changes.md`, committed. Later audits and reviews skip it. With no
+     `pipeline` → `references/decision-changes.md`, committed — on an open iteration's branch, with none on
+     `chore/plugin-<installed version>` (`upgrade-code` → Steps 3). Later audits and reviews skip it. With no
      architecture yet, the row goes to the `accepted` list of `documentation/.dev-pipeline.json` (committed, so
-     another machine sees it), and the architecture's first writing — by its stage or as it is — moves it to §1.
-   - **Исправить** — open the next iteration first (`pipeline` → Service version: the level from the revised
-     documents' rows — fixes and «уточняет» are PATCH, a «ломает» for the API's callers is MINOR), so everything
-     lands on its branch. Then the documents: each decision a design document states changes there to «как должно
+     another machine sees it) as `{"id": "A<n>", "audit": "code-audit-<date>.md", "rule": "<skill → rule>",
+     "where": ["<file or document>"], "reason": "<the user's words>", "date": "<YYYY-MM-DD>"}`, and the
+     architecture's first writing — by its stage or as it is — moves it to §1. An open question of an as-is
+     document that this answer settles is closed in the same commit: the row leaves `open-questions.md`, its
+     answer lives in the accepted row.
+   - **Исправить** — open the next iteration first (`pipeline` → Service version: the level from how each
+     revision will be typed — a fix or «уточняет» is PATCH, a «добавляет» or a «ломает» for the API's callers is
+     MINOR; `plan` re-checks it from the diff), so everything lands on its branch. A chosen fix that needs part of
+     another decision the user left for later says so in that decision's question, and carries that part in its
+     own documents and plan; the rest stays as answered. Then the documents: each decision a design document states changes there to «как должно
      быть», through `references/decision-changes.md` (a `doc-typist` `MODE revise`), with the stage's review
      offered, committed. Then the code: `plan` `MODE fix` over the chosen rows (`code-audit-<date>.md A<n>`), then
      `plan-review` and `work` as usual.

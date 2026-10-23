@@ -39,7 +39,7 @@ still writing is that stage's own work.
 | What changed | Owner document | Writer that edits it |
 |---|---|---|
 | product behaviour, a business rule, a limit, an actor's right, an acceptance criterion | SRS — `srs.md` and the area file | `srs-author`, `MODE grill-reversal`, the decision in `REVERSALS` |
-| a table, a column, an index | DB schema, plus a new migration file | `doc-typist`, `MODE revise` |
+| a table, a column, an index | DB schema, plus a new migration file — in the folder `schema.md`'s `migrations:` names when the schema was written as it is; the plan's first unit makes it applicable, so `migrate` is not run on the branch before it | `doc-typist`, `MODE revise` |
 | an operation, a field, a status or error code | OpenAPI | `doc-typist`, `MODE revise` |
 | a module, a layer, a port, an adapter, a configuration variable, a stack version | architecture foundation | `doc-typist`, `MODE revise` |
 | an entity, an invariant, a named error | domain model | `doc-typist`, `MODE revise` |

@@ -31,7 +31,8 @@ SKILL           <SKILLS ROOT>/<stage>/SKILL.md
 PARENT          srs-author | design-lite | design-medium | design-hard | plan-lite | plan-medium | plan-hard | session (a changed decision, a print defect)
 OUTPUT PATH     <repo-relative path; db schema: documentation/db/schema.md
                 plus each documentation/db/migrations/<NNNN>_<slug>.sql
-                the parent settled; OpenAPI: documentation/api/openapi.yaml
+                the parent settled (an as-is schema: in the folder its
+                frontmatter `migrations:` names); OpenAPI: documentation/api/openapi.yaml
                 plus each paths/ and components/ file it references; SRS:
                 documentation/requirements/srs/srs.md plus each areas/ file>
 DIAGRAM PATH    <the `diagrams/` files next to the document: architecture

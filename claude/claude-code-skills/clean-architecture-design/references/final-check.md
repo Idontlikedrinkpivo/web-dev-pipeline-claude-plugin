@@ -61,7 +61,9 @@ states the rule; fix the document there, not here.
   the service-channel table (with `GET /health/live`, `GET /health/ready`
   and `GET /metrics`, none of them in OpenAPI), and one named-error → HTTP
   table with the route-guard paragraph exist; every named error of the
-  domain model has an HTTP row — `configuration-and-http.md`.
+  domain model has an HTTP row — `configuration-and-http.md`. In `MODE
+  as-is` a row the code has nothing for reads «в коде нет» and passes
+  (`upgrade-docs/references/as-is.md` §6).
 - §5 is real file names for what this document owns, with `domain/` and
   `application/` folders pointing at the document that names their files;
   every port, adapter, mapper and storage model from §4 has a line. Its

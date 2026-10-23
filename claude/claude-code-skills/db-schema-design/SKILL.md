@@ -259,7 +259,8 @@ gives the API name.
 
 Every reference is a real `FOREIGN KEY` with an explicit `ON DELETE`
 (table below) and an index on the FK column — an unenforced reference
-is an orphan waiting to happen.
+is an orphan waiting to happen. In DBML it is a standalone `Ref: … [delete:
+…]` line: an inline `ref:` cannot carry the action.
 
 ```sql
 -- One-to-many

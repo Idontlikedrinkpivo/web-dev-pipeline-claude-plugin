@@ -338,7 +338,7 @@ stand's proof).
 
 1. **The service contract in the container.** Stop `backend`, then run
    `repo-scaffold`'s check against that container:
-   `python3 "${CLAUDE_SKILL_DIR}/../repo-scaffold/scripts/service_check.py" --port <APP_PORT> --expect-ready -- docker start -a <backend container>`
+   `python3 "${CLAUDE_SKILL_DIR}/../repo-scaffold/scripts/service_check.py" --port <APP_PORT> --expect-ready --shutdown-timeout <SHUTDOWN_TIMEOUT_SEC> -- docker start -a <backend container>`
    (`docker start -a` passes SIGTERM on and exits with the container's
    code; `docker compose run` adds lines that are not JSON). It proves
    probes, metrics, JSON logs and the SIGTERM exit under the read-only root
