@@ -219,7 +219,8 @@ def main() -> None:
                 notes.append(f"{main_ref} not fast-forwarded from origin (diverged or blocked): "
                              f"{(r.stderr or r.stdout).strip().splitlines()[-1:]}")
         if not main_ref and not base_arg:
-            fail("no main branch (main or master) to start from: rerun with --base <branch> after asking the user.")
+            fail("no main branch (main or master) to start from — a question for the user: which branch the iteration "
+                 "starts from; rerun with --base <branch>. The branch was not created.", 2)
         if not base_arg and not unborn:
             refs = [r for r in out(root, "for-each-ref", "--format=%(refname:short)", "refs/heads/iteration/",
                                    "refs/remotes/origin/iteration/").split() if r not in (branch, f"origin/{branch}")]

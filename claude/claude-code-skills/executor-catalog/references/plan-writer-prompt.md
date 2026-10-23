@@ -47,7 +47,8 @@ VERSION         <x.y.z> · MAJOR | MINOR | PATCH · <one-line reason>
                  Service version; §1 states it)
 MANIFEST        <the manifest's current `version`. A bump unit exists only
                  when it differs from VERSION; on a new repo the scaffold
-                 already wrote VERSION, and fix never adds one>
+                 already wrote VERSION, and a fix appended to a plan that
+                 ran never adds one>
 MODE            greenfield | increment | fix | revise
 
 READ FROM DISK  <repo-relative paths, every part of each: the SRS
@@ -58,7 +59,9 @@ READ FROM DISK  <repo-relative paths, every part of each: the SRS
                  screen specs in scope and the frames register. increment:
                  also the changelog rows of this version (what changed).
                  fix: the report (documentation/plans/<version>/test-run.md
-                 or security-audit.md) and the current plan.md. revise:
+                 or security-audit.md, or documentation/plans/
+                 code-audit-<date>.md) and the current plan.md (none for a
+                 code audit's fix: the plan is born with its units). revise:
                  the current plan.md and plan-review.md.>
 
 INVENTORY       <increment and brownfield: the code-explorer answer, pasted —
@@ -69,7 +72,8 @@ INVENTORY       <increment and brownfield: the code-explorer answer, pasted —
                  greenfield: none>
 
 REPORT ROWS     <fix only: the row ids the user chose to fix — TC-n of
-                 test-run.md, F<n> of security-audit.md — one per line.
+                 test-run.md, F<n> of security-audit.md, A<n> of
+                 code-audit-<date>.md — one per line.
                  Otherwise: none>
 FINDINGS        <revise only: the blocking row numbers of plan-review.md
                  to settle. Otherwise: none>
@@ -102,7 +106,8 @@ RULES
 - Do not invent product behavior the inputs did not decide.
 - On fix: append units numbered on from the plan's highest U-id (U25 →
   U26, U27 …); touch no existing unit, no version bump unit. Each unit
-  cites its report row.
+  cites its report row. A code audit's fix plan has no units before it:
+  U1 on, a bump unit last when MANIFEST differs (plan → references/modes.md).
 - On revise: change only what FINDINGS names. No re-slicing, new units,
   grade or wave changes beyond the rows. A row that cannot be settled
   without more than that is STATUS HARDER_THAN_EXPECTED — the

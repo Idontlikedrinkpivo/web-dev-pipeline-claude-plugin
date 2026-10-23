@@ -1,8 +1,10 @@
 ---
 name: upgrade-code
 description: >-
-  Brings a project's code and settings (quality gates, linters, CI) up to a newer dev-pipeline plugin, a commit each.
-  Use when the session-start hook names code changes, or «обнови линтеры и CI под плагин». Documents: upgrade-docs.
+  Brings a project's code and settings (quality gates, linters, CI) up to a newer dev-pipeline plugin, a commit each,
+  and audits the code and its technical decisions against the plugin's rules — fix, rewrite or accept, the user
+  decides each. Use when the session-start hook names code changes, «обнови линтеры и CI под плагин», «проведи аудит
+  кода», «нужно ли переписывать». Documents: upgrade-docs.
 ---
 
 # Upgrade a project's code to the installed plugin
@@ -42,6 +44,15 @@ Follow `upgrade-docs` → Steps — one change per message, no answer is «по�
    `upgrade-docs` keep it off — say so.
 
 5. **Report.** As there, plus the checks before and after.
+
+## Code audit
+
+On «проведи аудит кода», «проверь код на соответствие плагину», «нужно ли переписывать», or offered once after
+`upgrade-docs` wrote the document set as it is: `references/audit.md`. Read-only `code-auditor` dispatches, one per
+module and one for the design documents' technical decisions (`references/auditor-prompt.md`); a report of every
+deviation with the rule, the fix, its cost and its risk; one question per item — fix (the document first, then the
+code through `plan` `MODE fix`), rewrite the module by its documents (characterization tests first), or keep it as
+an accepted deviation. Not the format of documents (`upgrade-docs`), not security in depth (`security-audit`).
 
 ## Rules
 

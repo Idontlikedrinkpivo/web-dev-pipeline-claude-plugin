@@ -84,9 +84,23 @@ After a UI acceptance run with the verdict `DEFECTS`
 ROWS in the packet, `TC-n` or `F<n>`. The plan of this version already
 ran; fix units join it.
 
+From a code audit (`documentation/plans/code-audit-<date>.md`, rows
+`A<n>` the user chose to fix or to rewrite — `upgrade-code` →
+`references/audit.md`) the iteration was opened for these fixes and has no
+plan yet: the fix units are the plan — `plan.md` is born with them from U1,
+and, as in any new plan, the last unit bumps the manifest when it differs
+from VERSION (the «no bump unit» below is for fixes appended to a plan that
+already ran). The documents the
+rows change were revised first; each unit cites the revised document and
+the row. A row that does not change behaviour starts with a
+characterization test that pins what the code does now and stays green; a
+rewrite of a module starts with those tests over the whole module, builds
+it anew by the documents, and removes the old code in its last unit.
+
 - **Append, touch nothing.** New units take the next unused U-ids after
   the plan's highest. No existing unit is edited, renumbered or
-  re-graded, and no bump unit is added — the version is set. A fix unit
+  re-graded, and no bump unit is added — the version is set (a fix plan
+  born in its own iteration, from a code audit, is the exception above). A fix unit
   may name a done unit in `Зависит от`; it is already committed.
 - **One unit per row, or per shared cause.** Rows with one root cause
   (one missing check behind three cases) are one unit naming all of
@@ -104,8 +118,8 @@ ran; fix units join it.
   user rules «так и должно быть», a finding whose fix reverses a settled
   decision: those go to `open-questions.md` and to the user
   (`pipeline` → `references/decision-changes.md`).
-- **§1 gets one line** — «Исправления по test-run.md: TC-3, TC-12» or «по
-  security-audit.md: F2, F5». §2 gets the new rows, §4 their wave.
+- **§1 gets one line** — «Исправления по test-run.md: TC-3, TC-12», «по
+  security-audit.md: F2, F5» or «по code-audit-<date>.md: A1, A4». §2 gets the new rows, §4 their wave.
 - Grade each unit by the unit cascade as usual; a finding about access,
   auth or data leaks keeps the risk floor.
 

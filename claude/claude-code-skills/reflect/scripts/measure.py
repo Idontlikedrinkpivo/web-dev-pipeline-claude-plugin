@@ -40,6 +40,7 @@ GROUPS = [  # (group, agent names without the plugin prefix)
     ("Макеты в Figma", {"figma-opus", "figma-sonnet"}),
     ("Прогон UI-тестов", {"ui-test-runner"}),
     ("Аудит безопасности", {"security-auditor"}),
+    ("Аудит кода", {"code-auditor"}),
     ("Поиск по коду и разбор сессий", {"code-explorer", "session-reviewer"}),
 ]
 SESSION = "Сессия (оркестратор)"

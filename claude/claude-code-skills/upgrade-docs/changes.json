@@ -430,16 +430,34 @@
               ]
             },
             {
-              "missing": "eslint.config.*"
-            },
-            {
-              "missing": "*/eslint.config.*"
-            },
-            {
-              "missing": ".eslintrc*"
-            },
-            {
-              "missing": "*/.eslintrc*"
+              "not": {
+                "any": [
+                  {
+                    "grep": {
+                      "path": "eslint.config.*",
+                      "pattern": "\\bcomplexity\\b"
+                    }
+                  },
+                  {
+                    "grep": {
+                      "path": "*/eslint.config.*",
+                      "pattern": "\\bcomplexity\\b"
+                    }
+                  },
+                  {
+                    "grep": {
+                      "path": ".eslintrc*",
+                      "pattern": "\\bcomplexity\\b"
+                    }
+                  },
+                  {
+                    "grep": {
+                      "path": "*/.eslintrc*",
+                      "pattern": "\\bcomplexity\\b"
+                    }
+                  }
+                ]
+              }
             }
           ]
         },

@@ -86,7 +86,8 @@ commit (`docs: итерация <old> → <new>`), and renames the branch to
 name too) — it was never released, so nothing outside the iteration names
 it. The plan's last unit bumps the manifest's `version` to the folder's
 name — only when the manifest says otherwise: a new repository's scaffold
-already wrote it, and a fix plan (`plan` `MODE fix`) never adds one
+already wrote it, and a fix appended to a plan that already ran (`plan`
+`MODE fix`) never adds one
 (`plan` → `references/modes.md`); `summary.md` and the tag close the
 iteration (`pipeline` → End of the pipeline).
 

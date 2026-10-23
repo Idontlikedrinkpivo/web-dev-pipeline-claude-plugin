@@ -67,6 +67,11 @@ reads the code that exists, not a diff, and a missed hole is the expensive
 failure. Scanners do the cheap, exhaustive part first, so the auditor reads
 routes and access checks, not every file. Not measured.
 
+`code-auditor` is `opus` at `high` for the same reason: it reads a whole
+module that exists and judges its design against the rules, and the user
+decides fixes and rewrites on what it reports. The project's own tools run
+first, so it reads the structure, not every line again. Not measured.
+
 There is no second whole-run pass. In the 2026-10-01 benchmark a second pass
 on Opus or Fable found nothing the first pass had missed (9 of 9 planted
 defects found by the first pass alone) and made the whole-run review 1.5–2
@@ -136,7 +141,7 @@ Effort buys thinking where a row decides, not where it types:
   `srs-author`, `screen-writer`, `ui-test-runner`, `figma-opus`, and the
   remaining reviewers — `review-medium`, `review-full-plan`,
   `doc-review-medium`, `doc-review-hard`, `docs-consistency-checker`,
-  `security-auditor`;
+  `security-auditor`, `code-auditor`;
 - `xhigh` — the single-shot adversarial judgments where a missed finding is
   the expensive failure, `review-hard` and `plan-review-hard`, and the High
   writers `design-hard` and `plan-hard` (measured below);

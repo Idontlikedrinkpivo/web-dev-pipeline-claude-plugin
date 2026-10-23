@@ -47,6 +47,6 @@ into a plan unit is a P0 for `plan-review`:
 `figma-opus` · `figma-sonnet` · `design-lite` ·
 `design-medium` · `design-hard` · `srs-author` · `doc-typist` ·
 `plan-lite` · `plan-medium` · `plan-hard` · `code-explorer` ·
-`security-auditor` · `session-reviewer`
+`security-auditor` · `code-auditor` · `session-reviewer`
 
 Slugs (`sonnet`, `gpt-*`, …) are never plan fields.

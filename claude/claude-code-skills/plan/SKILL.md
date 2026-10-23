@@ -46,7 +46,7 @@ against the fixed text (`pipeline` → `references/decision-changes.md`).
 |---|---|---|
 | `greenfield` | the product's first plan: the code is what `repo-scaffold` made | slices everything the documents hold |
 | `increment` | a version over code that runs — its documents changed; also a brownfield repo whose code is the design (no documents) | slices only what this version added or changed, against the inventory of the code it reaches |
-| `fix` | a UI acceptance run returned `DEFECTS`, or a security audit `FIX`: the report rows the user chose to fix | appends fix units to this version's `plan.md`; no bump unit |
+| `fix` | a UI acceptance run returned `DEFECTS`, a security audit `FIX`, or a code audit's rows: the report rows the user chose to fix | appends fix units to this version's `plan.md`, no bump unit; a code audit's fix plan is born in its own iteration, with one |
 | `revise` | `plan-review` returned `FIX_THEN_PROCEED` or `RETURN_TO_PLAN` | settles the blocking findings only |
 
 What each mode changes — scope, inventory, citations, coverage:
@@ -63,7 +63,7 @@ What each mode changes — scope, inventory, citations, coverage:
 | OpenAPI `api/openapi.yaml` with `paths/` and `components/` | when the surface is HTTP | one unit per operation group; `operationId` names the unit |
 | DB schema `db/schema.md` + `db/migrations/` | when there is storage | migration units and their ordering: a schema change in scope is a unit that adds the next numbered file `db-schema-design` wrote to the app's migration run — never an edit of a committed file |
 | Screen specs `ui/screen-specs/` (+ `ui/frames-register.md`) | when there are screens | one unit per screen: its elements, states, response outcomes and the Figma `nodeId` the unit cites; after a restyle, the register's «Визуальное направление» line and the `🎨 Tokens` page for the theme unit |
-| A report — `plans/<version>/test-run.md` (`DEFECTS`) or `security-audit.md` (`FIX`) | `MODE fix` | the rows the user chose to fix, by id (`TC-n`, `F<n>`) |
+| A report — `plans/<version>/test-run.md` (`DEFECTS`), `security-audit.md` (`FIX`) or `plans/code-audit-<date>.md` | `MODE fix` | the rows the user chose to fix, by id (`TC-n`, `F<n>`, `A<n>`) |
 | Scaffold state (the repo itself) | always | what already exists — never plan a unit that recreates it |
 
 `docs-consistency.md` in the version folder is read for its first line and its
@@ -79,7 +79,8 @@ worse than no plan. The one exception is a repo whose code *is* the design
 (brownfield, no docs, `MODE increment`): then the code stands in for the
 docs — inventoried by `code-explorer` in the orchestrator, not read into
 this session — and every unit's `Документы` cell reads `code:<path>` so
-execution knows the citation is inferred, not specified.
+execution knows the citation is inferred, not specified. A code audit's fix plan
+(`MODE fix`, rows `A<n>`) is the same case: its rows, the documents they revised and the code stand in.
 
 ## Orchestrator (session)
 
@@ -218,7 +219,7 @@ Slice along the architecture's own seams:
 | Theme (after a `ui-design` restyle) | one unit: the project's theme file — colours light and dark, radius, shadows, density, fonts with their Cyrillic subset — from the Figma variables, and the values screens hardcode moved into it; `Документы` cite the register's «Визуальное направление» line and the `🎨 Tokens` `nodeId`; `impl-ui`; screen units that fix the look depend on it |
 | Mechanical batch | one unit for a repo-wide rename, codemod, or config sweep |
 | Plugin code change (DEFERRED in the packet) | one unit per change, first in the plan: its `fix` is the approach, `Документы` cite `plugin change <id>`; graded by the cascade |
-| Version bump | only when MANIFEST differs from VERSION (a new repo's scaffold already wrote it; `fix` never adds one): the last unit, sets the manifest's `version` to VERSION; grade 0, `mechanical-worker`, `Зависит от` every other unit |
+| Version bump | only when MANIFEST differs from VERSION (a new repo's scaffold already wrote it; a `fix` appended to a plan that ran never adds one): the last unit, sets the manifest's `version` to VERSION; grade 0, `mechanical-worker`, `Зависит от` every other unit |
 
 Split a unit when it crosses a ring (domain **and** adapter), when it mixes a
 decision with mechanics, or when two halves would land in separate commits
@@ -265,7 +266,7 @@ unused number. Deletion leaves a gap; gaps are fine.
 
 | | |
 |---|---|
-| **Документы** | scenarios/orders/01-orders.md `<UseCase>` · domain §4 <rule row> · SRS UC-2 / AC-Exc-1 · BR-3 · api `createOrder` (fix: + `test-run.md TC-n` / `security-audit.md F<n>`; brownfield: `code:<path>`) |
+| **Документы** | scenarios/orders/01-orders.md `<UseCase>` · domain §4 <rule row> · SRS UC-2 / AC-Exc-1 · BR-3 · api `createOrder` (fix: + `test-run.md TC-n` / `security-audit.md F<n>` / `code-audit-<date>.md A<n>`; brownfield: `code:<path>`) |
 | **Файлы** | repo-relative paths, including the test file |
 | **Меняет символы** | each field, constant, environment variable, response shape or public symbol the unit removes or changes — or `—` |
 | **Не затрагивается** | each use of those symbols the unit leaves as it is, with the reason — or `—`. With «Меняет символы» filled, search the repository for every use (code, tests, e2e, CI, documents): each hit is in `Файлы` or here |

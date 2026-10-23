@@ -110,7 +110,8 @@ answered, and a question left unanswered was answered by the model itself («В�
    step 3 (made now, when no change was made before): `docs: проект приведён к плагину <version>`.
 
 5. **Report**: the set — documents written, skipped, postponed, still missing, and the project's own files kept or
-   removed; the format changes — made (with commits), skipped for good, left for later; what is left for
+   removed (when documents were written as they are, offer `upgrade-code`'s code audit in one line: it compares
+   them and the code with the plugin's rules); the format changes — made (with commits), skipped for good, left for later; what is left for
    `upgrade-code`; the branch. On a `docs/plugin-<version>` branch the user merges and pushes it; on an
    iteration's branch the changes reach `main` with the iteration.
 

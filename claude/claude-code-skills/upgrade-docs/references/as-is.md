@@ -22,7 +22,8 @@ exists comes first, as in the normal chain; a missing one above it is read from 
    ids in the API) is described as it is: changing it is `upgrade-code`'s audit, not this document's.
 2. **A guess is an open question.** Intent the code cannot tell — «так задумано или ошибка?», a magic number, a
    field nobody reads, two code paths that disagree — goes to the document's `open-questions.md` with the file and
-   line, never into the body as a decision. The stage's gate shows them to the user.
+   line, never into the body as a decision. The stage's gate shows them to the user. A project's own earlier
+   document is quoted there, not cited by path: it may be removed after the set.
 3. **Requirements** (business requirements, SRS) speak the user's language, never the code's: a use case per
    action a user can take (a route, a screen action, a scheduled job that changes data), its acceptance criteria
    from the tests that cover it, else from the code paths — the success path and each error the code returns.
@@ -44,7 +45,9 @@ exists comes first, as in the normal chain; a missing one above it is read from 
    `contract-test` change adds it.
 6. **The architecture** shows the real modules, layers, dependencies and transactions. A section the template
    requires that the code has nothing for — no ports, no entities with behaviour, no invariant table — says «в коде
-   нет» in one line instead of inventing structure. The file tree is the real one.
+   нет» in one line instead of inventing structure. The file tree is the real one. Deviations the user kept on an
+   earlier code audit (the `accepted` list of `documentation/.dev-pipeline.json`) move to §1 «Принятые
+   отклонения», and the list is emptied.
 7. **Screen specs** come from the frontend: a screen `S-n` per route, in route order; its elements, the states the
    code renders, the operations it calls by `operationId`. There are no frames: where a spec cites a `nodeId` it
    cites the component's file, and the spec says «кадров нет — по коду». The frames register is not written; a

@@ -23,6 +23,10 @@ and plan reading the old one, and nothing says which is true.
 - **The user accepts a risk** on a security-audit finding («Принять риск»)
   — a row of architecture §1 «Принятые риски»: the risk, the audit's
   version and finding id, the user's reason, the date.
+- **The user keeps a deviation** from the plugin's rules on a code audit
+  («Оставить как принятое отклонение», `upgrade-code`) — a row of
+  architecture §1 «Принятые отклонения»; or decides to fix one, and the
+  document changes to how it should be before any code does.
 
 Not a changed decision: a worker's local choice inside what the documents
 fix (the run report's `Decisions` hold it), an implementation detail no

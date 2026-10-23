@@ -57,6 +57,7 @@ table, holds the model and effort.
 | **Run** | review | `review-full-plan` | `code-review-full` | once per run: cross-unit drift, aggregate invariant/AC coverage, критерии готовности, over the whole branch diff |
 | **Feedback** | plugin | `session-reviewer` | `reflect` | at the iteration's close: one dispatch per session digest, finding where the plugin itself worked badly, with the user's quotes. Read-only |
 | **Audit** | security | `security-auditor` | `security-audit` | once per iteration, over the whole application: one dispatch per area tracing each operation from route to data, one for the application-wide settings and the scanner findings, one `MODE verify` that tries to disprove the P0/P1. Read-only |
+| **Audit** | code | `code-auditor` | `upgrade-code` | on request, over an existing project: one dispatch per module and one for the design documents, judging technical decisions against the plugin's design and stack rules — every deviation with file:line, the rule, how it should be and what fixing it touches. Read-only |
 | **Mid** | plan-review | `plan-review-medium` | `plan-review` | the structural half of a plan review: dependency graph, parallel safety, files completeness, citation integrity, coverage ledger, executor validity, existing work, service version, plan hygiene |
 | **High** | plan-review | `plan-review-hard` | `plan-review` | the judgment half: whether a unit can land green alone, whether its grade survives the cascade, whether a scenario is writable before the code |
 | **Low** | docs-review | `doc-review-low` | `doc-review` | coherence and feasibility: the document agrees with itself. Always on |
@@ -357,6 +358,7 @@ Every screen spec goes to `screen-writer`; no grade. Packet:
   `references/plan-writer-prompt.md`, `references/doc-typist-prompt.md`,
   `references/figma-packet.md` — the writer and Figma packets.
 - `security-audit/references/auditor-prompt.md` — the `security-auditor`
+  packet; `upgrade-code/references/auditor-prompt.md` — the `code-auditor`
   packet.
 - `references/model-economics.md` — why each row has its model and effort, and
   what was measured. Read before re-pointing a tier.
