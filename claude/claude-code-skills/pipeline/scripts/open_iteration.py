@@ -108,7 +108,7 @@ def commit_gitignore(root: Path, changed: bool, notes: list) -> None:
     notes.append("committed .gitignore: documentation/plans/ is out of git" + (" (untracked, files kept)" if tracked else ""))
 
 
-def design_line(root: Path) -> str:
+def design_line(root: Path, picked_up: bool = False) -> str:
     doc = root / "documentation"
     regs = sorted(doc.glob("ui/frames-register.md")) + sorted(doc.glob("ui/*/frames-register.md"))
     for reg in regs:
@@ -116,6 +116,9 @@ def design_line(root: Path) -> str:
         if m and m.group(1).strip(" *`"):
             return (f"Design: «{m.group(1).strip(' *`')}» per {reg.relative_to(root)} — say it in one line, no "
                     "question (pipeline → references/design-owner.md).")
+    if picked_up:  # another session opened this iteration and asked it there; the answer is not on the branch yet
+        return ("Design: not recorded on the branch — do not ask it now; `ui-design` asks it when it starts "
+                "(pipeline → references/design-owner.md → When to ask).")
     if regs:
         return ("Design: the product has screens and the frames register names no owner — ask once who runs the "
                 "design (pipeline → references/design-owner.md).")
@@ -190,6 +193,9 @@ def main() -> None:
             remote = False
     unborn = git(root, "rev-parse", "-q", "--verify", "HEAD").returncode != 0
     current = out(root, "symbolic-ref", "-q", "--short", "HEAD")
+    # picked up: the branch exists (here or on origin) but this machine has no folder for it — a fresh clone, or a
+    # colleague's pushed work; the one-time design question was that session's, not this one's
+    picked_up = not folder.is_dir() and (has_ref(root, f"refs/heads/{branch}") or has_ref(root, f"refs/remotes/origin/{branch}"))
     main_ref = main_branch(root, remote) or (current if unborn else None)
 
     if current == branch:
@@ -255,7 +261,7 @@ def main() -> None:
           + (" (another open iteration: " + ", ".join(others) + ")" if others else ""))
     for n in notes:
         print(f"- {n}")
-    print(design_line(root))
+    print(design_line(root, picked_up))
     line = code_changes(root)
     if line:
         print(line)

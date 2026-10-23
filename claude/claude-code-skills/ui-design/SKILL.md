@@ -110,7 +110,9 @@ file is how the user tells progress from a hang.
 ## Entry question
 
 Ask once, when there is no register yet, per `grill-me` → "How a question
-is shown", in the chat, no question card. When the iteration's design
+is shown", in the chat, no question card. When the design owner is recorded
+nowhere — an iteration picked up from another session — ask
+`references/design-owner.md`'s question first. When the iteration's design
 owner is known (`pipeline` → `references/design-owner.md`), show only what
 it leaves: «мы» — B and C; «дизайнер с плагином» — the designer's
 session asks all three; «дизайнер без плагина» — only A, in this session:

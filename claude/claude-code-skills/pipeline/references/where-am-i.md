@@ -72,7 +72,13 @@ unfinished progress file), else a stage left open after its writer
 stage of a branch that is not done (for the design branch the frames
 register, `ui/screen-specs/` and `ui/test-cases/`, read from `origin` when
 stages were handed to others — `references/team.md`; both branches as
-options when both are open), else stage 10, with the unrun gates as
+options when both are open — equal ones, with no «(рекомендую)» between
+them unless the user said whose session this is: which branch is theirs is
+not in the files, and a guess from a git name or a habit sends the
+designer to the API; one line says so. Their shape: one option per
+branch's next stage, tagged «[Дизайн]» / «[Бэкенд]», then the earliest
+unrun gate, then «Остановиться»; several letters run both branches in this
+session), else stage 10, with the unrun gates as
 options. An unrun gate may have been skipped on purpose: list the unrun
 gates in one line and offer the earliest as an option, never as the only
 way forward.

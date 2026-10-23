@@ -16,6 +16,12 @@ worker, a CLI) gets no question. When the opening stage cannot tell yet,
 ask at the fork after the SRS, before the branch-order question — the
 answer shapes its recommendation.
 
+A session that **picks up** an iteration another session opened — a fresh
+clone, a colleague's pushed branch (`open_iteration.py` says so) — does not
+ask it on entering, nor in `continue`: the person at the keyboard may be the
+designer, and the options speak to the iteration's owner. When nothing on
+the branch records the answer, `ui-design` asks it when it starts.
+
 The frames register already says **Дизайн ведёт** — no question: one line
 in the chat («Дизайн ведёт дизайнер в своей сессии плагина, как в реестре
 кадров; поменялось — скажите») and go on.
