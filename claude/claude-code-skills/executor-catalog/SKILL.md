@@ -124,7 +124,8 @@ tool like this. Consumers point here instead of restating it.
   disk — the documents, their parts, the plugin's own files — by path, and
   pastes only what is on no disk: the user's answers and the decisions of
   this session, and the session's own short derivations (a ledger, a list
-  of findings, the few rows one unit cites). A pasted document is paid on
+  of findings, the few rows one unit cites). A secret's value is never in a
+  packet — its variable name is (`pipeline` → Secrets). A pasted document is paid on
   every dispatch, and a long one arrives cut. A split document is named by all its parts: the SRS is
   `srs.md` and every `areas/*.md`, the API `openapi.yaml` and every file
   under `paths/` and `components/`, the schema `schema.md` and

@@ -2,7 +2,8 @@
 name: reflect
 description: >-
   At an iteration's end, reads its sessions and logs where the dev-pipeline plugin itself failed, with the user's
-  words, in a feedback file outside the repo. Use for «разбери сессии для плагина», /reflect. Never edits the plugin.
+  words, and what the run cost by agent, in a feedback file outside the repo. Use for «разбери сессии для плагина»,
+  «сколько стоила итерация», /reflect. Never edits the plugin.
 ---
 
 # Reflect
@@ -69,12 +70,19 @@ rules (check them — the session may have run an older version).
    «What counts» excludes; for each, check the current skill text — a rule
    that already says the right thing is marked «уже в правилах с <version>,
    нарушено» rather than proposed again.
-5. **Write.** Append one section to
+5. **Measure.**
+   `python3 "${CLAUDE_SKILL_DIR}/scripts/measure.py" "$PWD" --since <the same date>` (and the same `--also`)
+   — what the iteration's sessions and agents spent, from Claude Code's own logs: by group and by agent, the
+   models, the context each agent reached, and the flags it raises. Its output goes into the section unchanged,
+   under «### Расход»: the maintainer tunes unit size, reviews and packets from these numbers, and a paraphrase
+   loses them. A flag becomes a finding only when a skill caused it (a stage pasting whole documents, a
+   session kept for days on a huge context).
+6. **Write.** Append one section to
    `~/.claude/dev-pipeline-feedback/<project folder's basename>.md` (create the
    folder and the file when missing; never rewrite earlier sections). Shape
    below. Nothing is written into the project and nothing is committed.
-6. **Report** in one line: the file as a clickable link, how many findings,
-   how many sessions read. With none, write the section anyway, saying so —
+7. **Report** in one line: the file as a clickable link, how many findings,
+   how many sessions read, the run's total from the measure. With none, write the section anyway, saying so —
    the maintainer sees the iteration was reviewed.
 
 ## The section
@@ -92,6 +100,13 @@ rules (check them — the session may have run an older version).
 - **Предложение:** <the change in one or two sentences>
 - **Закрепить:** текстом правила | скриптом / проверкой: <which>
 - **Повторялось:** <n> раз (<sessions>)
+
+### Расход
+<measure.py's output from «Окно» on, unchanged>
 ```
 
 Order by cost to the user: repeated corrections first.
+
+**Asked only what the run cost** («сколько стоила итерация», «куда ушли токены»): run step 5 alone, from the
+iteration's first commit or the date the user names, and answer with its tables and flags in plain words; nothing
+is written.
