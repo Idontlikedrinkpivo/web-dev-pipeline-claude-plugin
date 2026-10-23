@@ -45,7 +45,15 @@ COMPLEXITY      Low | Mid | High  (<why the cascade fired>; architecture:
                 one line per document, dispatched at the highest)
 EXECUTOR        design-lite | design-medium | design-hard
 
-MODE            greenfield | increment
+VERSION         <x.y.z — the open iteration's; as-is: the service's current
+                version (upgrade-docs/references/as-is.md §9)>
+MODE            greenfield | increment | as-is
+                as-is: the system exists and this document does not —
+                write it from the code (migrations and models, routes and
+                validators, modules) and the project's own documents, per
+                <SKILLS ROOT>/upgrade-docs/references/as-is.md; the
+                inputs below name those paths; a missing upstream document
+                is read from the code
                 clean-architecture-design adds the documents after a
                 dot, in order: `greenfield · foundation, domain,
                 scenarios:top-ups, scenarios:refunds`, `increment ·
@@ -61,7 +69,9 @@ OUTPUT PATH     <repo-relative path the file must land at, by document:
                 db-schema-design: documentation/db/schema.md, plus
                   documentation/db/migrations/<NNNN>_<slug>.sql —
                   greenfield 0001_init.sql; an increment adds the next
-                  number and never edits a committed file.
+                  number and never edits a committed file; as-is:
+                  schema.md alone — the project's own migration folder
+                  goes in READ FROM DISK, nothing is written there.
                 openapi-spec-generator: documentation/api/openapi.yaml and
                   the paths/ and components/ files it references
                   (openapi-spec-generator → Step 8 → Layout)>
@@ -154,7 +164,9 @@ RULES
   (`doc-versioning`). Greenfield starts at `version: <iteration version>`
   — the name of the open `documentation/plans/<version>/` (no
   `summary.md`), `0.1.0` on a new product — with one «первый выпуск» row
-  typed «—»; leave that row alone after creating it. Pins are
+  typed «—»; leave that row alone after creating it. As-is starts at
+  `version: <VERSION>` with one row «описан выпуск <VERSION> как есть»
+  typed «—», and no iteration is involved. Pins are
   `path@<version>`, the `version` written in each source now.
   Architecture foundation: `## Описание системы` after the H1, then
   `## Журнал изменений`; domain model and scenarios:

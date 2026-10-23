@@ -17,7 +17,10 @@ only for a print defect (step 4).
 
 1. Stop if the SRS is missing. Name `srs-writer`. If the slice persists
    state and there is no schema document, stop and name `db-schema-design`.
-   Do not wait for `clean-architecture-design`.
+   Do not wait for `clean-architecture-design`. From `upgrade-docs`
+   (`MODE as-is`, `upgrade-docs/references/as-is.md`) the routes stand in
+   for a missing SRS or schema: every route the app serves is an operation,
+   and none of the questions below is asked — the code answers them.
 2. When a spec already exists, read `doc-versioning`.
    The writer runs as a subagent and cannot ask the user. Before dispatch, settle what the SRS leaves open: the auth scheme when the
    security NFR names none (no answer → root `security: []`, Step 4),
@@ -71,6 +74,9 @@ only for a print defect (step 4).
    `info.version`. See `doc-versioning`.
 
 ## Writer (dispatched)
+
+`MODE as-is` (`upgrade-docs/references/as-is.md` §5): paths, statuses and error bodies come from the code; Step 3's
+problem+json rule, Step 6's status list and `references/base-schemas.md` do not apply.
 
 You settle the contract. You do not print it. When every decision this
 template needs is settled, nest `doc-typist` per `executor-catalog` →

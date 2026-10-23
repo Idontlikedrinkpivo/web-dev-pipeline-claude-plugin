@@ -246,7 +246,9 @@ sends the frontend developer to the designer for nothing.
 The session writes no screen file. `screen-writer` reads Figma and the API
 and writes the files itself; there is no `doc-typist` on this stage.
 
-1. **Find the register.** Missing → stop and name `ui-design`. Read its
+1. **Find the register.** Missing → stop and name `ui-design` — except
+   from `upgrade-docs` (`MODE as-is`, `upgrade-docs/references/as-is.md`):
+   no frames, the screens come from the frontend's routes, in route order. Read its
    header and both tables. Only screens with status `готово к разработке`
    in «Экраны» are specified; a `черновик`
    screen is left out and named in the close, because its frame may still

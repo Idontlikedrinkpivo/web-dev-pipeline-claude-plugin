@@ -351,6 +351,7 @@ stand's proof).
 
 ### Step 8. The release for hand-over
 
+From `upgrade-docs` (`MODE as-is`, a project with its own containers and no deploy document): only item 1, from the project's own Dockerfiles and compose files as they are (`upgrade-docs/references/as-is.md`).
 The operators get one folder per release and nothing else — every file
 the plugin produces for them: the image archive, `DEPLOY.md`, the
 variables file and the API contract `openapi.yaml`. They do not get

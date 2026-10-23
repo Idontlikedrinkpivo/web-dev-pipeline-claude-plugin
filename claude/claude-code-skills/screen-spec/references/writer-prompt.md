@@ -23,7 +23,11 @@ SKILL           <SKILLS ROOT>/screen-spec/SKILL.md — follow "What each file
                 Orchestrator half. Read
                 <SKILLS ROOT>/screen-spec/references/template.md before the
                 first file and copy its shape exactly.
-MODE            greenfield | increment
+MODE            greenfield | increment | as-is
+                as-is: no frames — the screens come from the frontend code
+                (routes, components) per <SKILLS ROOT>/upgrade-docs/
+                references/as-is.md; a spec cites a component's file where
+                it would cite a nodeId
 UI FOLDER       documentation/ui/ | documentation/ui/<product>/ (several UI
                 products: the register and screen-specs/ paths below sit
                 in that subfolder)

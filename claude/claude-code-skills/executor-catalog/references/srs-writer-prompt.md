@@ -29,13 +29,21 @@ EXECUTOR        srs-author
 
 OUTPUT PATH     documentation/requirements/srs/srs.md and its areas/
                 files (srs-writer → Document Structure → Layout)
-MODE            greenfield | increment | grill-reversal
-VERSION         <x.y.z — the open iteration's version (srs-writer, step 2)>
+MODE            greenfield | increment | grill-reversal | as-is
+                as-is: the system exists and the SRS does not — write it
+                from the code and the project's own documents named in
+                READ FROM DISK, per <SKILLS ROOT>/upgrade-docs/references/
+                as-is.md (describe, never design; a guess is an open
+                question)
+VERSION         <x.y.z — the open iteration's version (srs-writer, step 2);
+                as-is: the service's current version (upgrade-docs/
+                references/as-is.md §9)>
 
 READ FROM DISK  <the source when it is a file (the business-requirements
                 document, a note); on increment or grill-reversal also the
                 current SRS — documentation/requirements/srs/srs.md and every
-                areas/*.md>
+                areas/*.md; on as-is the code that shows the behaviour (routes,
+                screens, jobs, the tests) and the project's own documents>
 SOURCE TEXT     <pasted: the source when it exists only in the chat, and the
                 user's answers of this session; or: none>
 

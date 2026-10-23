@@ -40,12 +40,12 @@ The dispatched writer settles the sitting's documents and nests
 `DELEGATED` is not `doc-typist` comes back until it is. The session does not
 dispatch the typist.
 
-1. **Gather inputs.** Stop without
-   `documentation/requirements/srs/srs.md`; when the product stores
-   data, without `documentation/db/schema.md` (name `db-schema-design`);
-   when it has HTTP, without `documentation/api/openapi.yaml` (name
-   `openapi-spec-generator`). A stop ends with one question: whether to
-   run the named stage. Screens are not an input: the architecture
+1. **Gather inputs.** Stop without `documentation/requirements/srs/srs.md`;
+   when the product stores data, without `documentation/db/schema.md` (name
+   `db-schema-design`); when it has HTTP, without `openapi.yaml` (name
+   `openapi-spec-generator`) — one question: whether to run the named stage.
+   From `upgrade-docs` (`MODE as-is`, `upgrade-docs/references/as-is.md`)
+   the code stands in for a missing one. Screens are not an input: the architecture
    places use cases, rules and ports, and none of those depends on how a
    screen looks. When any of the three documents already exists, read
    `doc-versioning`, every existing one and its diagrams (`.d2`, `.puml`),

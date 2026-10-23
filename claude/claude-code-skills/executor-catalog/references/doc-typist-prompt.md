@@ -41,7 +41,9 @@ DIAGRAM PATH    <the `diagrams/` files next to the document: architecture
                 db ER (documentation/db/diagrams/er.d2), the plan's
                 dependency graph (documentation/plans/<version>/diagrams/deps.d2),
                 or none>
-MODE            greenfield | increment | grill-reversal | revise | fix (a plan)
+MODE            greenfield | increment | grill-reversal | revise | fix (a plan) | as-is
+                (as-is prints like greenfield, at the parent's VERSION —
+                upgrade-docs/references/as-is.md)
 
 READ FROM DISK (do not expect them pasted)
   <repo-relative paths of the inputs, every part of a split document
@@ -80,7 +82,8 @@ RULES
   `version: <iteration version>` — the name of the open
   `documentation/plans/<version>/` (no `summary.md`), `0.1.0` on a new
   product — with one «первый выпуск» row typed «—» (OpenAPI: in
-  `info.x-changelog`). Pins are `path@<version>`, the source's current
+  `info.x-changelog`); as-is starts at the parent's VERSION with one row
+  «описан выпуск <VERSION> как есть» typed «—». Pins are `path@<version>`, the source's current
   `version`. Grill-reversal replaces the contradicted line and touches
   neither.
 - Fix (a plan that already ran): append the settled units after the last

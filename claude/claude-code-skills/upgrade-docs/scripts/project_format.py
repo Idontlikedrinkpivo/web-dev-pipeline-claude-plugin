@@ -12,6 +12,10 @@
     python3 project_format.py stamp <project dir>        # record the installed version — only when nothing is pending
     python3 project_format.py born  <project dir>        # a new project's first document: record the installed version
                                                          # at once (its stages produce today's formats); no-op when stamped
+    python3 project_format.py set   <project dir> [--next [--after <id>] | --foreign]
+                                                         # the document set (doc_set.py): which documents the code calls
+                                                         # for, which are there; --next: only the next missing one;
+                                                         # --foreign: the project's own files under documentation/
 
 The changes are ../changes.json: each names the plugin version that brought it, its kind (`"kind": "code"` for the
 project's code and settings, brought in by the upgrade-code skill; no kind — documents, the upgrade-docs skill), a
@@ -30,6 +34,8 @@ import sys
 from pathlib import Path
 
 HERE = Path(__file__).resolve().parent
+sys.path.insert(0, str(HERE))
+import doc_set  # noqa: E402
 CHANGES = HERE.parent / "changes.json"
 STAMP = "documentation/.dev-pipeline.json"
 TEXT = {".md", ".yaml", ".yml", ".json", ".txt", ".sql", ".dbml", ".html"}
@@ -180,6 +186,33 @@ def main() -> None:
         (root / STAMP).write_text(json.dumps({"plugin": installed()}, ensure_ascii=False, indent=2) + "\n",
                                   encoding="utf-8")
         print(f"{STAMP}: born at {installed()}")
+        return
+    if cmd == "set":
+        skipped = set(stamp_of(root).get("skipped", []))
+        if "--foreign" in sys.argv:
+            own = doc_set.foreign(root)
+            print("\n".join(own) if own else "no files of the project's own under documentation/")
+            return
+        rows = doc_set.state(root, skipped)
+        missing = [r for r in rows if r[2] in ("нет", "неполный")]
+        if "--next" in sys.argv:
+            after = sys.argv[sys.argv.index("--after") + 1] if "--after" in sys.argv else None
+            ids = [r[0] for r in rows]
+            rest = [r for r in missing if after is None or after not in ids or ids.index(r[0]) > ids.index(after)]
+            if not rest:
+                print("nothing missing in the set" + (f" after {after}" if after and missing else ""))
+                return
+            did, title, status, why, how = rest[0]
+            needed = [r[0] for r in rows if r[2] != "не нужен"]  # a stable count: written ones stay in it
+            print(f"document {needed.index(did) + 1} of {len(needed)} in the set; missing now: {len(missing)}")
+            print(f"[{did}] {title} — {status}\n  Нужен, потому что: {why}\n  Как создать: {how}")
+            return
+        sig = doc_set.signals(root)
+        print("code shows: " + (", ".join(k for k, v in sig.items() if v) or "nothing"))
+        for did, title, status, why, how in rows:
+            print(f"[{did}] {title}: {status}" + (f" — {why}" if status in ("нет", "неполный") else ""))
+        own = doc_set.foreign(root)
+        print(f"missing: {len(missing)}; the project's own files under documentation/: {len(own)}")
         return
     if cmd in ("skip", "stamp"):
         st = stamp_of(root)

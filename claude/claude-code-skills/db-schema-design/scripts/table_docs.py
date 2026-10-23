@@ -199,7 +199,14 @@ def constraint_comments(db: Path) -> dict:
     """constraint name → its COMMENT ON CONSTRAINT text from the migrations; a later file wins."""
     out: dict = {}
     rx = re.compile(r"COMMENT\s+ON\s+CONSTRAINT\s+\"?(\w+)\"?\s+ON\s+[\w.\"]+\s+IS\s+'((?:[^']|'')*)'", re.I)
-    for f in sorted(db.rglob("*.sql")):
+    files = sorted(db.rglob("*.sql"))
+    # a schema described as it is keeps the project's migrations where they are: schema.md's `migrations: <folder>`
+    fm = re.match(r"---\n(.*?)\n---", (db / "schema.md").read_text(encoding="utf-8", errors="replace")
+                  if (db / "schema.md").is_file() else "", re.S)
+    own = re.search(r"^migrations:\s*(\S+)", fm.group(1), re.M) if fm else None
+    if own and (db.parent.parent / own.group(1)).is_dir():
+        files += sorted((db.parent.parent / own.group(1)).rglob("*.sql"))
+    for f in files:
         for m in rx.finditer(f.read_text(encoding="utf-8", errors="replace")):
             out[m.group(1)] = " ".join(m.group(2).replace("''", "'").split())
     return out

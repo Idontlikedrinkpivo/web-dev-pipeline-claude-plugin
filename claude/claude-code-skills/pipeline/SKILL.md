@@ -282,7 +282,9 @@ skipped ones do not apply.
 
 **Commit each document as soon as it is written.** The moment a writer
 returns a document, the session commits it, before its gates and without
-asking: `docs: <документ> — написан, этап не закрыт`. A document of several
+asking: `docs: <документ> — написан, этап не закрыт` (an as-is document
+from `upgrade-docs` is born complete: `docs: <документ> <version> — как
+есть`, its stamp). A document of several
 files (the schema with its migration, the API's parts) is one commit; each
 architecture document, screen spec and test-case section is its own. Gate
 fixes are committed as they land. The stamp (`doc-versioning` →

@@ -23,7 +23,9 @@ session dispatches the typist only for a print defect (step 4).
    files outside `documentation/`) or ORM models: stop and ask whether to
    document that schema as it is, in the namespace it lives in (`public`
    included), or to design a new one beside it. The greenfield branch
-   would otherwise lay a second schema over a live one.
+   would otherwise lay a second schema over a live one. From `upgrade-docs`
+   (`MODE as-is`) that is answered — as it is — and the code stands in for a
+   missing SRS (`upgrade-docs/references/as-is.md`).
 2. When a schema document already exists, read `doc-versioning`.
    The writer runs as a subagent and cannot ask the user. Before dispatch,
    settle what only the user can: the DBMS and its major version when no
@@ -51,8 +53,8 @@ session dispatches the typist only for a print defect (step 4).
    `MODE revise` with one `SETTLEMENT` line per missing note, its text
    taken from the SRS (`executor-catalog` → Nesting), until none is
    missing. A missing `documentation/db/diagrams/er.d2`, or a slice
-   whose tables have no new file in `documentation/db/migrations/`, sends
-   the writer back. A diff that edits a migration file already committed
+   whose tables have no new file in `documentation/db/migrations/` (not in
+   `MODE as-is`: no migration is written there), sends the writer back. A diff that edits a migration file already committed
    (`git diff HEAD -- documentation/db/migrations/`) sends the writer
    back: that change is a new file.
    When that `.d2` exists and the `.svg` does not, run the render command
@@ -473,7 +475,7 @@ and outputs — the API-contract step reads directly off these names.
 ## Before you finish
 
 - [ ] Project schema, not `public`: `0001_init.sql` opens with `CREATE SCHEMA` and `SET search_path`, every later file with `SET search_path`; the connection's `search_path` and the migration tool's version table point at it — §0
-- [ ] This slice's DDL is a new numbered file in `documentation/db/migrations/`; no committed file edited; `schema.md` has no SQL block, shows the whole current schema, and its `migration:` names the last file — Output
+- [ ] This slice's DDL is a new numbered file in `documentation/db/migrations/` (as-is: none — `migrations:` names the project's folder); no committed file edited; `schema.md` has no SQL block, shows the whole current schema, and its `migration:` names the last file — Output
 - [ ] One table per stored entity; PKs, FKs with `ON DELETE`, `NOT NULL`, timestamps, and types as §1 says; reference columns named `<thing>_id` so the API names follow — §1
 - [ ] «Решения по базе» opens with the DBMS and its major version — Output
 - [ ] 3NF; any denormalization names its SRS id — §2
