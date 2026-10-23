@@ -47,62 +47,59 @@ document keeps none.
   in `.html` (`progress-screen-specs.md` → `progress-screen-specs.html`):
   the bar drawn as a bar, the count, the status counts, then the file in
   full; it reloads itself every 5 seconds. The plugin's hook rebuilds the
-  page after every edit of its file, a subagent's included;
-  `python3 <pipeline skill folder>/scripts/progress_page.py <file.md>`
-  rebuilds one by hand. The Markdown file stays the source the agents
-  edit; **the link the user gets is always the page**, never the `.md`.
+  page after every Edit or Write of its file, a subagent's included. The
+  Markdown file stays the source the agents edit; **the link the user gets
+  is always the page**, never the `.md`.
+- **The chat line is printed, never written by hand.**
+  `python3 "<pipeline skill folder>/scripts/progress_link.py" <the .md>`
+  rebuilds the page and prints the one line to paste — the stage's name,
+  the count from the file's count line, and the clickable link:
+
+  ```text
+  ТЗ на экраны: 5 из 10 · разрывов: design 9 · [progress-screen-specs.html](http://127.0.0.1:8790/progress-screen-specs.html)
+  ```
+
+  Add `--desktop` when the session has the built-in browser (the desktop
+  app): the script starts or reuses the progress server for the folder and
+  the link is its `http://127.0.0.1:<port>/` address, because a page
+  opened as a file is not reloaded there. Without it the link is the
+  page's path from the repository root, which the user's own browser
+  reloads by itself (a terminal, Codex). `--count "<text>"` replaces the
+  count when a section other than the top one is running (the fixes, the
+  e2e suite). Paste the line as printed: a link typed by hand is how a
+  `.md` link or a dead file path reaches the user. A subagent that owns
+  rows does not post the line; the session does when its dispatch returns.
 - **When.** Create the file before the first step or dispatch, every row
-  `⏳ ждёт`; make sure its page exists beside it (run the command above
-  when it does not). Then open it and post its link before the first step
-  starts.
-- **Open it.** In the desktop app (the built-in browser's tools are
-  there), a page opened as a file is not reloaded — serve the folder:
-  `python3 <pipeline skill folder>/scripts/progress_server.py
-  documentation/plans/<version>` prints `http://127.0.0.1:<port>/` (it
-  reuses a server already running for that folder). Open
-  `<that base><page>.html` in the built-in browser yourself, and give that
-  address as the link. Without the built-in browser (a terminal, Codex)
-  the link is the page's repo-relative path; the user's browser reloads a
-  file by itself. Stop the server at the iteration's close
-  (`references/closing-cleanup.md`) or when the user says they are done
-  watching: the same script with `--stop`.
-
-  ```text
-  Прогресс ТЗ на экраны: [progress-screen-specs.html](http://127.0.0.1:8790/progress-screen-specs.html) — открыл во встроенном браузере, страница обновляется сама.
-  ```
-
-  A run resumed after a break or a context compaction rebuilds the rows from
-  what is on disk, sets anything half-done back to `⏳ ждёт`, and posts the
-  link again before it goes on.
+  `⏳ ждёт`, run the script, open the link in the built-in browser
+  yourself when there is one, and paste the line before the first step
+  starts. A run resumed after a break or a context compaction rebuilds
+  the rows from what is on disk, sets anything half-done back to
+  `⏳ ждёт`, and pastes the line again before it goes on.
 - **After each item.** Every time an item is finished — its row reaches
-  done, stopped or returned — write one line in the chat: the count from
-  the file's count line and the same clickable link, so a user who closed
-  the file or stepped away reopens it from the last message, not by
-  scrolling to the start:
-
-  ```text
-  ТЗ на экраны: 5 из 10 · [progress-screen-specs.html](documentation/plans/2.1.0/progress-screen-specs.html)
-  ```
-
+  done, stopped or returned — run the script and paste its line, so a user
+  who closed the page or stepped away reopens it from the last message,
+  not by scrolling to the start. A stop or a question to the user carries
+  the line too, as its last line. Any message that mentions the progress
+  file carries the line; a file name in plain text or in backticks opens
+  nothing.
+- **The server** is stopped at the iteration's close
+  (`references/closing-cleanup.md`) or when the user says they are done
+  watching: `python3 "<pipeline skill folder>/scripts/progress_server.py"
+  documentation/plans/<version> --stop`.
 - **One set of statuses** in every progress file (below), so the user reads
   every file the same way.
-- **The file is never named without its link.** Any message that mentions
-  the progress file — an update, a resume, «запускаю следующего» — carries
-  the clickable Markdown link with the repo-relative path. «Обновил
-  прогресс в progress-design.md — файл можно открыть» is wrong: the name in
-  plain text or in backticks opens nothing, and the user has to search for
-  the file. Write `[progress-design.html](documentation/plans/2.1.1/progress-design.html)`.
-
-  Where a subagent changes the rows (the Figma builder, the test writer,
-  the test runner), write the line each time its dispatch returns. A stop
-  or a question to the user carries the line too, as its last line.
+- **The file is never named without its line.** «Обновил прогресс в
+  progress-design.md — файл можно открыть» is wrong: the name opens
+  nothing, and the user has to search for the file. Where a subagent
+  changes the rows (the Figma builder, the test writer, the test runner),
+  paste the script's line each time its dispatch returns.
 - **How.** Change it with the **Edit** tool the moment a row changes — one
   call per row or line, the bar and the count together with the row — and
   **Write** only to create it. Never from the shell (`python`, `sed`,
   `cat >`), and never by a script that rewrites the file on a timer: the
-  user's file pane redraws only on edit-tool changes, so such a file is
-  fresh on disk and stale on screen until reopened. A script may compute
-  the numbers; the agent writes them. The bar is printed, not counted by
+  page is rebuilt by the plugin's hook on Edit and Write only, so a file
+  changed any other way is fresh on disk and stale on the page the user
+  watches. A script may compute the numbers; the agent writes them. The bar is printed, not counted by
   hand: `python3 -c "d,t=<done>,<total>;p=d*100//t;print('█'*p+'░'*(100-p),f'{p}%')"`.
 - **A subagent's rows are watched, not trusted.** A subagent deep in its
   task forgets the progress file, and then the user sees a hang. So while
@@ -132,7 +129,10 @@ document keeps none.
   `PROGRESS FILE` and changes only its rows, the bar and the count line;
   the title, the other sections and the state line stay the session's.
 - **A new run** of the same stage in the same iteration rewrites the file.
-  It is never committed and never cited by a document.
+  It is never committed and never cited by a document. The one exception
+  is `security-audit.md`: it is the audit's result as well as its progress,
+  so a re-audit updates it in place (`security-audit` →
+  `references/report.md`).
 
 
 ## Statuses
@@ -155,7 +155,8 @@ check instead of the word «проверка» when it has one: `🔍 ревью
 The one exception is a test case's **outcome** in a UI test run's
 `test-run.md`, whose table is the defect report: `✅ прошёл`,
 `❌ не прошёл`, `⛔ заблокирован: <причина>`, `⏭ не автоматизирован:
-<причина>`, and the triage results (`ui-test-cases` → Statuses). While a
+<причина>`, and the triage results (`ui-test-cases` →
+`references/run-report.md` → Statuses). While a
 case waits or runs it uses `⏳ ждёт` and `🔄 в работе` like any row.
 
 ## Keeping the run moving
@@ -345,8 +346,8 @@ gate runs. The bar counts `✅ готово`.
 ````
 
 The rows are the stage's own steps: for `repo-scaffold` its sections 1–6,
-for `deploy-topology` its Steps 1–8 («Сборка образов» under Step 8 can run
-for minutes — its row says so while it runs). Statuses: `⏳ ждёт`,
+for `deploy-topology` one row per Step, 1–9 with 7a («Сборка образов»
+under Step 8 can run for minutes — its row says so while it runs). Statuses: `⏳ ждёт`,
 `🔄 в работе`, `✅ готово`, `⏭ пропущено: <почему>`, `⛔ остановлено:
 <причина>`. The state line carries the closing check: the quality gate for
 the scaffold, the compose-contract tests and the release folder for the

@@ -1,9 +1,7 @@
 ---
 name: zod-skill
 description: >-
-  Zod at the boundary: parse untrusted data once, the use case gets its own input type, no zod in the domain, no raw
-  input in errors or logs, env and form schemas, schema tests. Use when code imports zod or validates requests, forms,
-  env or external APIs. Not a Zod API catalogue.
+  Zod at the boundary: parse untrusted input once, no zod in the domain; read before zod code.
 license: MIT
 compatibility: "TypeScript projects using zod"
 metadata:
@@ -22,9 +20,11 @@ env vars, external API responses, queue messages. Compile-time-only types stay p
 
 **Which layout applies.** With an architecture document (`clean-architecture-design`), schemas live
 in the adapters the foundation's §5 tree (`documentation/architecture/architecture.md`) names (HTTP, config, gateways); `domain/` and `application/` never import
-zod or a wire schema. Without one, in an existing repo, keep its schema files and the types its
-services already take; do not restructure unasked. A new business rule still goes into a module with
-no Zod, Fastify, or Drizzle import — say so in one line.
+zod or a wire schema — the boundary lint refuses it (`clean-architecture-design/references/machine-checkable-boundaries.md`).
+At the Framework-first level (foundation §1 «Уровень») the route's schema is the boundary and there is no
+separate input type; the one `domain/` module still imports no zod. Without an architecture document, in an
+existing repo, keep its schema files and the types its services already take; do not restructure unasked. A new
+business rule still goes into a module with no Zod, Fastify, or Drizzle import — say so in one line.
 
 ## Boundary rules
 
@@ -69,26 +69,22 @@ await registerUser.execute(toRegisterUserInput(result.data)) // use case gets it
   optional vs nullable, unknown keys). Assert on issue path and code, not message text, unless the
   message is the contract. For boundary code, test the handler's error response too.
 
-## Version-sensitive behaviour
-
-This skill does not pin library facts that change between releases (signatures, defaults, generated-artifact paths, "since version X"). Before relying on one: read the installed version from the lockfile or manifest, then check current docs via the context7 MCP (`resolve-library-id`, then `query-docs`) or run a quick probe in the project. The checklist below names where the silent pitfalls usually are; it deliberately does not give the answer, because the answer depends on the version.
-
-### Check before relying on it
-
-- **Major line and import path** (`zod`, a versioned subpath, the mini build): string formats, enums,
-  object strictness helpers, error-customisation params and error formatters differ between majors.
-- **Cross-field refinements on an object:** whether the parent check still runs when some fields
-  failed, and with what data.
-- **Defaults, prefaults and catch:** whether the default is validated or transformed, and when.
-- **String → boolean/number for env and query params:** which strings a helper accepts, versus what
-  a generic coerce does (a coerced `"false"` may be truthy).
-- **Optional vs explicit `undefined`** under `exactOptionalPropertyTypes`, and what the output type
-  says about it.
-- **Date/ISO and URL helpers:** string format or codec, offsets accepted, schemes and hosts accepted.
-- **Parse options and global config:** the raw-input-in-issues option, error maps and their timing.
-
 ## On the frontend
 
 A form's format rule comes from the schema generated from the contract (or the one rules module the domain model's
 «Кто ещё применяет» names), never a regex typed into the form — a copy of a server rule drifts from it (`react` →
 «A form is one library (React Hook Form) and one schema»).
+
+**Version-sensitive points** — [references/version-checks.md](./references/version-checks.md). In a `work` packet
+their answers come in `CURRENT LIB DOCS`; where it says `none`, probe the installed version in the project instead
+of fetching docs. Outside `work`, read the file and check each point you rely on against the installed version.
+
+## The reviewer checks
+
+1. **Untrusted data is parsed once, at the entry point**; no service or repository parses it again.
+2. **The use case receives its own input type**, mapped from the parsed wire value without a cast.
+3. **Wire types come from the schema or the generated contract**, never a hand-written interface mirroring one.
+4. **`safeParse` for untrusted input**, a throwing `parse` only for startup config; no throw inside a refinement or
+   transform.
+5. **No raw input or raw issues in a response or a log line** — field paths and the schema name only.
+6. **A form's format rule comes from the generated schema or the rules module**, never a regex typed into the form.

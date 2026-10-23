@@ -3,9 +3,13 @@
 ```
 You write the user test cases for one product from its documents. You do
 not run anything, edit the documents, or decide behaviour the spec left
-open — such a case goes to GAPS.
+open — such a case goes to GAPS. You cannot ask the user: a question only
+the user can answer, without which the set cannot be written, is STATUS
+BLOCKED with that one question in BLOCKER.
 
-SKILL           <path to ui-test-cases/SKILL.md> — follow Mode write
+SKILLS ROOT     <absolute folder holding the plugin's skills
+                (executor-catalog → Dispatch contract)>
+SKILL           <SKILLS ROOT>/ui-test-cases/SKILL.md — follow Mode write
 OUTPUT PATH     documentation/ui/test-cases/ — README.md and one file per
                 section (documentation/ui/<product>/test-cases/ with several
                 UI products); an old single test-cases.md was already moved
@@ -14,12 +18,17 @@ MODE            greenfield | increment (keep every TC- id; new cases take the ne
 PROGRESS FILE   documentation/plans/<version>/progress-test-cases.md
 
 INPUTS (read in full)
-  SRS:        documentation/requirements/srs/srs.md@<version> | none
-              (frontend repo: cases from the screen specs alone)
+  SRS:        documentation/requirements/srs/srs.md@<version> and every
+              areas/*.md beside it | none (frontend repo: cases from the
+              screen specs alone)
   Screens:    documentation/ui/frames-register.md + one
               documentation/ui/screen-specs/S-<n>-<slug>.md per screen
   OpenAPI:    documentation/api/openapi.yaml | none
   Existing cases: <the test-cases/ folder> | none
+
+ANSWERS
+  <pasted: the user's answer to each question an earlier dispatch returned
+   as BLOCKED, with the question — or: none>
 
 RULES
 - Progress comes first in every section: before the section's first edit,
@@ -42,7 +51,8 @@ RULES
   ARIA expectations. A «Проверяет» line with the requirement ids opens each
   case. Steps go through controls the spec names when another path exists;
   expected texts carry real values computed from the preconditions, never
-  `{дата}` or «по кадру». A text the spec marks `текст — нет в «Тексты»`:
+  `{дата}` or «по кадру». A text the spec marks missing (`текст — нет в «Тексты»` or `текст —
+  нет на кадре`):
   the case names the state without a quote, and the text goes to the set's
   spec gaps.
 - Preconditions name the data, so a runner can seed it.
@@ -50,7 +60,7 @@ RULES
   at its end, the coverage table: AC → TC ids, or «Без интерфейса» +
   reason. A section file holds only its cases. TC ids run across the set.
 - Russian prose; ids, operationIds, paths untranslated.
-- Readable (doc-versioning → references/readable.md): a precondition or an
+- Readable (<SKILLS ROOT>/doc-versioning/references/readable.md): a precondition or an
   expected result is one fact per line; README's shared parts are short
   paragraphs and tables, not one paragraph per topic.
 - Write only under OUTPUT PATH. Do not commit.
@@ -64,4 +74,6 @@ FILES WRITTEN README.md and each section file written or changed | none
 COUNTS        N cases · M AC covered of K · L «Без интерфейса»
 GAPS          one line per behaviour the spec did not decide, or none
 PROGRESS      each section's row set before and after it: yes | no — which not
+BLOCKER       only for BLOCKED: the one question only the user can answer,
+              or what is missing
 ```

@@ -12,6 +12,23 @@ migrate command). Not `app` / `web`.
 
 ## `docker-compose.test.yml`
 
+Written to be copied from the start: a long browser run starts several
+identical stands side by side (`ui-test-cases` → `references/parallel-stands.md`),
+each as its own compose project — `docker compose -p <project>-e2e-2 -f
+docker-compose.test.yml up` with other ports. Three things in the file decide
+whether a copy is a separate stand or a second door into the first one:
+
+- **Host ports come from variables with today's value as the default**
+  (`${DB_PORT:-5432}`): a copy sets other values; a fixed port makes the copy
+  fail to start, or — worse — its tests reach the first stand.
+- **Volumes have no `name:`.** Compose then prefixes them with the project
+  name, so every stand gets its own data. A fixed `name:` makes every copy
+  share one database, and `docker compose -p <copy> down -v` deletes the main
+  stand's data with the copy's.
+- **The application images are named** — `image: <project>-backend:${IMAGE_TAG:-test}`
+  next to `build:` — so the copies run the image built once instead of each
+  building its own, and `scripts/e2e-stands.sh` starts them without a rebuild.
+
 ```yaml
 name: <project>-test
 
@@ -23,7 +40,7 @@ services:
       <DB_PASSWORD>: <fixture-password>
       <DB_NAME>: <project>_test
     ports:
-      - "127.0.0.1:<db-port>:<db-port>"   # host access for local test runs; drop if tests run inside compose only
+      - "127.0.0.1:${DB_PORT:-<db-port>}:<db-port>"   # host access for local test runs; drop if tests run inside compose only
     volumes:
       - db_data:<data-path-from-image-docs>   # Postgres ≤17: /var/lib/postgresql/data; 18+: /var/lib/postgresql
     healthcheck:
@@ -40,7 +57,7 @@ services:
       AWS_ACCESS_KEY_ID: <fixture-access-key>       # SeaweedFS reads these as the S3 identity
       AWS_SECRET_ACCESS_KEY: <fixture-secret-key>
     ports:
-      - "127.0.0.1:8333:8333"   # S3 API — host `make test` reaches it here; publish the admin UI too only if wanted
+      - "127.0.0.1:${S3_PORT:-8333}:8333"   # S3 API — host `make test` reaches it here; publish the admin UI too only if wanted
     volumes:
       - store_data:/data
     healthcheck:
@@ -67,6 +84,7 @@ services:
     restart: "no"
 
   migrate:
+    image: <project>-backend:${IMAGE_TAG:-test}   # the backend image, built once, shared by the copies
     build: .
     depends_on:
       <db>:
@@ -81,6 +99,7 @@ services:
     restart: "no"
 
   backend:
+    image: <project>-backend:${IMAGE_TAG:-test}
     build: .
     depends_on:
       migrate:
@@ -88,7 +107,7 @@ services:
       <object-store>-init:
         condition: service_completed_successfully
     ports:
-      - "127.0.0.1:<app-port>:<app-port>"  # loopback only — never all interfaces
+      - "127.0.0.1:${APP_PORT:-<app-port>}:<app-port>"  # loopback only — never all interfaces
     volumes:
       - ./<mock-fixtures-dir>:/app/<mock-fixtures-dir>:ro
     env_file:
@@ -109,13 +128,14 @@ services:
     restart: unless-stopped
 
 volumes:
-  db_data:
-    name: <project>_test_dbdata
+  db_data:        # no `name:` — compose prefixes it with the project, one per stand
   store_data:
-    name: <project>_test_storedata
 ```
 
 **Invariants for this file:**
+- Copyable: no `container_name`, no volume `name:`, no fixed host path for
+  data, every published host port a `${VAR:-default}`, the application
+  services carry `image:` with `${IMAGE_TAG:-test}`.
 - The mock-gate variable is non-empty *only* here.
 - `migrate` has no published port and `restart: "no"`.
 - `backend` waits for `migrate` via `service_completed_successfully`, not a
@@ -127,7 +147,7 @@ volumes:
   a binary that exists in the image (`curl`, `wget`, or the app's own
   health CLI); a probe the image lacks makes the service permanently
   unhealthy.
-- The object store's S3 API port publishes on `127.0.0.1:<api-port>:<api-port>`
+- The object store's S3 API port publishes on `127.0.0.1:${S3_PORT:-<api-port>}:<api-port>`
   — `make test` on the host and CI Variant A reach it there. A console/admin
   port is optional.
 
@@ -141,7 +161,9 @@ bucket creation explicit and store-agnostic.
 ## `docker-compose.dev.yml`
 
 Identical infrastructure shape to test — same `<db>`, `<object-store>`,
-`<object-store>-init`, `migrate` pattern — with exactly these differences:
+`<object-store>-init`, `migrate` pattern, ports from variables, volumes
+without `name:`, `image: <project>-backend:${IMAGE_TAG:-dev}` — with exactly
+these differences:
 
 - `env_file: required: true` for `.env.dev.local` (no safe default secrets
   exist for real third-party credentials).
@@ -219,8 +241,9 @@ Present in all three files, after `backend`. The image is the SPA image of
     depends_on:
       backend:
         condition: service_healthy
+    image: <project>-frontend:${IMAGE_TAG:-test}   # dev: ${IMAGE_TAG:-dev}; prod: the hand-over tag, required
     ports:
-      - "127.0.0.1:<frontend-port>:8080"    # the entry point; loopback only
+      - "127.0.0.1:${FRONTEND_PORT:-<frontend-port>}:8080"    # the entry point; loopback only
     environment:
       BACKEND_SERVICE: backend:<app-port>
       BACKEND_PROTOCOL: http

@@ -24,7 +24,7 @@ carries each part move.
 | Fork code with base secrets (6) | never `pull_request_target` | do not run fork MR pipelines in the parent project | keep "pass secrets to forked PRs" off |
 | Advisory `security` job (7) | not in required checks; no `continue-on-error` | `allow_failure: true` per job; `GIT_DEPTH: "0"` on the secret scan | not in required checks |
 
-A row that is a project setting rather than a file key goes into the Step 8
+A row that is a project setting rather than a file key goes into the Step 9
 message beside branch protection: the skill cannot set it, so the user has
 to.
 

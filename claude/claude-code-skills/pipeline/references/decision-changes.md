@@ -20,6 +20,9 @@ and plan reading the old one, and nothing says which is true.
   `repo-scaffold`).
 - **A run shows the spec, not the code, is wrong** — the user rules so on a
   test-run defect or a review finding.
+- **The user accepts a risk** on a security-audit finding («Принять риск»)
+  — a row of architecture §1 «Принятые риски»: the risk, the audit's
+  version and finding id, the user's reason, the date.
 
 Not a changed decision: a worker's local choice inside what the documents
 fix (the run report's `Decisions` hold it), an implementation detail no
@@ -63,7 +66,11 @@ the template's shape and the ids that other documents cite.
    gone, the ids that other documents cite still resolve.
 5. **Commit at once**: one commit per decision, staging only those
    documents (and a new migration file or re-rendered diagram that belongs
-   to them), message `docs: решение изменено — <кратко>`. Leave `version`,
+   to them), message `docs: решение изменено — <кратко>`; inside a `work`
+   run add the trailer `Plan-Unit: <version>/decision-<n>` (`<n>` the next
+   free number; `work/scripts/plan_state.py` lists the iteration's
+   trailers), so `code-review-full` maps the commit to the run instead of
+   reading it as stray. Leave `version`,
    `updated`, `info.version`, the changelog and the pins as they are: like a
    move, this commit needs no request from the user, and the next stamp
    (`doc-versioning`) types these changes, because it compares each
@@ -78,7 +85,8 @@ the template's shape and the ids that other documents cite.
   gets a follow-up commit through its own executor, like a fix after a
   commit, carrying that unit's `Plan-Unit:` trailer, and listed in the run
   report. Outside `work`, the stage report names it as a fix for the next
-  plan.
+  plan; when the user wants it now, it goes through `work` → "A change
+  asked in chat outside a run", never typed by the session.
 - **The plan.** `work` never edits the plan. A unit whose text contradicts
   the changed decision gets, in its packet, the decision as
   `CHANGED DECISIONS` — the document is already fixed and wins over the

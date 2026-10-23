@@ -1,9 +1,9 @@
 ---
 name: frontend
 description: >-
-  Builds screens from a screen spec (ТЗ на экран) and the OpenAPI contract on React + Vite or Next.js: every element,
-  state and error mapped, a typed client, accessible markup. Use for «сверстай экран», «сделай страницу», a screen id
-  like S-1, or fixing pages, forms and components. Not drawing (`ui-design`) or E2E tests.
+  Builds screens from a screen spec and OpenAPI (React + Vite or Next.js): each element, state and error mapped, a
+  typed client. Usually run by work; «сверстай экран S-3» once its ТЗ exists. No mockup yet: ui-design; a chat fix:
+  work.
 ---
 
 # Frontend
@@ -22,13 +22,22 @@ between releases are checked live (Version-sensitive behaviour).
 | Architecture foundation `documentation/architecture/architecture.md` §1 «Стек» / «Ключевые решения» | framework, language, profile | Read first. Pick the profile below |
 | Architecture foundation §5 «Дерево файлов» | where each file goes | Wins over the profile layout. A file the tree does not place goes where the profile says, and the report names it |
 | Screen spec `documentation/ui/screen-specs/S-<n>-*.md` (`documentation/ui/<product>/screen-specs/` with several UI products) | elements and their behaviour per condition, the operation and fields each uses, states, response outcomes, derived values | Behaviour comes from here. Its element № matches the frame annotation |
-| Figma `S-n · Аннотация` «Тексты» table (the screen spec quotes it) | the exact wording of every label and message | Copy verbatim, with no rewording. The «» that mark a text in the table are not part of it; quotes, «…» and dashes inside the text stay as written (UX-78). A text with no row is a gap question, not text you write |
+| Figma `S-n · Аннотация` «Тексты» table, or a text layer marked «текст слоя» in a designer's file without annotation (the screen spec quotes either) | the exact wording of every label and message | Copy verbatim, with no rewording. The «» that mark a text in the table are not part of it; quotes, «…» and dashes inside the text stay as written (UX-78). A text with no row is a gap question, not text you write |
 | `documentation/api/openapi.yaml` | every HTTP call, request and response shape, status codes | Only through a client or types generated from this file, so a contract change surfaces as a type error instead of a silent runtime mismatch. A hand-written `fetch`/axios URL, path string or DTO interface drifts from the contract unnoticed |
 | Figma `fileKey` / `nodeId` cited in the spec | widgets, presentation of nested steps, layout at every width, spacing, tokens, visual hierarchy | Read with the Figma MCP (`get_design_context`, `get_screenshot`, `get_variable_defs`); if `figma-*` skills are installed, follow them instead. Map to the project's components and tokens — generated snippets are a reference, not code to paste |
 | Existing code in the repo | patterns, shared components, the app-wide handler | Reuse before adding. A second button, modal or API client beside an existing one is a defect |
 
 A spec input missing (no screen spec for the screen, no OpenAPI when the screen
 calls HTTP) is a stop: name it. Do not build from the SRS or from a guess.
+
+**A small fix on a screen with no spec.** A project whose screens were built
+before this pipeline has code but no screen specs, and stopping there would
+block a one-line fix. A fix that changes no behaviour a document defines —
+a wrong text the user dictates, a broken handler, a layout or contrast bug,
+a missing loading or error branch the user describes — goes ahead without
+a spec; the report says «без ТЗ на экран: <что поправлено>». A new element,
+state, operation or rule still needs the spec (`screen-spec`) or the
+frames (`ui-design`) first.
 
 ## Pick the stack profile
 
@@ -152,6 +161,18 @@ API and tests are tied to them, so a guess in code silently forks the
 design. Inside `work`: report `BLOCKED` with the gap. Outside `work`: name
 the gap and the stage, write no code for it.
 
+**Called directly, outside `work`** — a change asked for in the chat
+between runs. It gets what a plan unit gets before it is committed or
+merged: a review of the diff (`/code-review`) and the tests it touches run
+on the branch — the component tests and the user test cases of its screen
+(`ui-test-cases`) when the suite exists. The report ends with one line
+«Ревью: … · тесты: …», and a skipped one is named there with why. Without
+this, chat fixes reached commit and push with neither, four times in one
+evening of a real project. In a project the pipeline built (it has
+`documentation/`), the order is `work` → A change asked in chat outside a
+run (`work/references/chat-change.md`): an executor writes the change and
+`code-review-unit` reviews it — follow that instead of `/code-review`.
+
 ## Accessibility baseline
 
 Target from the frames register header (default WCAG 2.2 AA). Semantic elements first
@@ -182,7 +203,12 @@ test); a missing one is reported, not invented.
    (render with router and session, the network mock, typed fixtures) live in
    one shared test folder, never copied into a test file; tests are grouped by
    behaviour, not by plan unit, and never read a stylesheet or a source file.
-2. E2E for the screen's main path, written per `playwright-cli`.
+2. Walk the screen's main path in the running app with `playwright-cli`
+   (open, act, check the result in the snapshot) — a check, not a committed
+   spec. The E2E folder (`e2e/`) and its config belong to the user test
+   suite of `ui-test-cases`, built from the test cases one spec per
+   section; a per-screen spec beside it would test the same path twice and
+   drift from the cases.
 3. When the spec cites a `nodeId`: run the app, `playwright-cli resize` to
    each width in the frames register, `screenshot` the page and each state, get
    the frame with `get_screenshot`, and list the visible differences (layout,
@@ -198,22 +224,14 @@ test); a missing one is reported, not invented.
 ## Version-sensitive behaviour
 
 This skill does not pin library facts that change between releases
-(signatures, defaults, generated-artifact paths, "since version X"), because
-they would go stale faster than the skill is edited. Before relying on one:
-read the installed version from the lockfile or manifest, then check current
-docs via the context7 MCP (`resolve-library-id`, then `query-docs`) or run a
-quick probe in the project.
-
-Check per stack before relying on it:
-
-- **Rendering and data fetching** — where data loads (server, client, both),
-  what is cached, for how long, and how to invalidate after a mutation.
-- **Router APIs** — file conventions, params, navigation calls, loading/error
-  boundaries, redirects.
-- **Forms and validation** — how the form library binds a schema, and whether
-  the schema library's installed major is the one its resolver supports.
-- **OpenAPI client generator** — config file name and keys, output path,
-  client flavour, how errors and non-2xx statuses are typed.
+(signatures, defaults, generated-artifact paths, "since version X"): they
+would go stale faster than the skill is edited. The points to check are in
+[references/version-checks.md](./references/version-checks.md). In a `work`
+packet their answers come in `CURRENT LIB DOCS`; where it says `none`, probe
+the installed version in the project instead of fetching docs. Outside
+`work`, read the file and check each point you rely on against the
+installed version (context7 MCP — `resolve-library-id`, then `query-docs` —
+or a quick probe).
 
 ## Report
 

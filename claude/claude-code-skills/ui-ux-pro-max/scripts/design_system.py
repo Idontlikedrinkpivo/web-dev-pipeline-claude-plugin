@@ -72,6 +72,74 @@ def _pairing_has_cyrillic(row: dict) -> bool:
     }
     return bool(families) and families <= _cyrillic_families()
 
+
+# dev-pipeline: the pairing is then chosen for the product type, not taken as
+# the first Cyrillic row of the search. The search ranks by words, so a
+# "corporate booking" query could land on a poster pairing with Playfair
+# Display as body text. Every Cyrillic pairing is a candidate (only about a
+# fifth of the rows qualify, so the whole file is the fallback, not one more
+# search); the search order is only a tiebreak bonus.
+_DECORATIVE_KINDS = ("display", "script", "handwritten")
+_LANGUAGE_FAMILIES = re.compile(r"\b(JP|KR|SC|TC|HK|Arabic|Hebrew|Thai|Devanagari)\b")
+_B2B_WORDS = {"enterprise", "dashboard", "dashboards", "admin", "business", "saas",
+              "productivity", "professional", "corporate", "tools", "data", "analytics",
+              "fintech", "finance", "documentation", "panels", "apps"}
+
+
+def _pairing_kinds(row: dict) -> tuple:
+    """(heading kind, body kind) from the Category column, e.g. 'Sans + Serif (Display) + Mono'."""
+    parts = [p.strip().lower() for p in row.get("Category", "").split("+") if p.strip()]
+    heading = parts[0] if parts else ""
+    return heading, parts[1] if len(parts) > 1 else heading
+
+
+def _pairing_usable(row: dict, product_type: str) -> bool:
+    if not _pairing_has_cyrillic(row):
+        return False
+    families = row.get("Heading Font", "") + " " + row.get("Body Font", "")
+    if _LANGUAGE_FAMILIES.search(families):
+        return False  # a face made for another script; Cyrillic is a side subset there
+    heading, body = _pairing_kinds(row)
+    if any(k in body for k in _DECORATIVE_KINDS):
+        return False  # a display or script face is never body text
+    if product_type == "b2b":
+        if any(k in heading for k in _DECORATIVE_KINDS) or "sans" not in body:
+            return False  # B2B restraint: sans body, no display heading
+    return True
+
+
+def _select_typography(search_rows: list, product_type: str, context: str) -> dict:
+    """The Cyrillic pairing that fits the product type best; {} when none does."""
+    with open(DATA_DIR / "typography.csv", encoding="utf-8", newline="") as f:
+        every_row = list(csv.DictReader(f))
+    ranked = [r.get("Font Pairing Name") for r in search_rows]
+    context_tokens = set(re.findall(r"[a-z0-9]+", context.lower()))
+    best, best_score = {}, None
+    for order, row in enumerate(every_row):
+        if not _pairing_usable(row, product_type):
+            continue
+        fit = set(re.findall(r"[a-z0-9]+", (row.get("Best For", "") + " "
+                                            + row.get("Mood/Style Keywords", "")).lower()))
+        score = 2 * len(fit & context_tokens)
+        name = row.get("Font Pairing Name")
+        if name in ranked:
+            score += max(1, 6 - ranked.index(name))
+        heading, _ = _pairing_kinds(row)
+        if product_type == "b2b":
+            score += 3 * len(fit & _B2B_WORDS) + (3 if ("sans" in heading or "mono" in heading) else -2)
+        if best_score is None or score > best_score:
+            best, best_score = row, score
+    return best
+
+
+def _product_type(value, density_info) -> str:
+    """b2b | b2c | '' — explicit, else from the density dial (SKILL.md: B2B 7-8, B2C 3-5)."""
+    if value:
+        return value.lower()
+    if density_info and density_info.get("value") is not None:
+        return "b2b" if density_info["value"] >= 6 else "b2c"
+    return ""
+
 SEMANTIC_COLOR_ENTRIES = (
     ("Primary", "primary", "--color-primary"),
     ("On Primary", "on_primary", "--color-on-primary"),
@@ -499,7 +567,8 @@ class DesignSystemGenerator:
         return search_result.get("results", [])
 
     def generate(self, query: str, project_name: str = None,
-                 variance: int = None, motion: int = None, density: int = None) -> dict:
+                 variance: int = None, motion: int = None, density: int = None,
+                 product_type: str = None) -> dict:
         """Generate complete design system recommendation.
 
         variance/motion/density are optional 1-10 dials (see DIAL_TIERS) that bias
@@ -544,14 +613,12 @@ class DesignSystemGenerator:
         # style ship with a light background.
         color_mode = reasoning.get("preferred_mode") or _resolve_color_mode(query, best_style)
         best_color = _select_palette_for_mode(color_results, color_mode, category)
-        best_typography = next(
-            (row for row in typography_results if _pairing_has_cyrillic(row)), None)
-        if best_typography is None:
-            fallback = self._extract_results(search(
-                f"{reasoning.get('typography_mood', '')} clean sans",
-                "typography", 74))
-            best_typography = next(
-                (row for row in fallback if _pairing_has_cyrillic(row)), {})
+        best_typography = _select_typography(
+            typography_results,
+            _product_type(product_type, density_info),
+            " ".join([query, category, reasoning.get("typography_mood", ""),
+                      best_style.get("Keywords", ""), best_style.get("Best For", "")]),
+        )
         best_landing = next(
             (row for row in landing_results
              if row.get("Pattern Name") == reasoning.get("pattern")),
@@ -630,6 +697,7 @@ class DesignSystemGenerator:
                 "google_fonts_url": best_typography.get("Google Fonts URL", ""),
                 "css_import": best_typography.get("CSS Import", ""),
                 "cyrillic": True,  # dev-pipeline: only Cyrillic pairings are chosen; the Inter default has it too
+                "product_type": _product_type(product_type, density_info),  # '' when neither is given
             },
             "key_effects": combined_effects,
             "anti_patterns": _filter_anti_patterns_for_mode(
@@ -800,6 +868,8 @@ def format_ascii_box(design_system: dict) -> str:
     add_wrapped(f"{typography.get('heading', '')} / {typography.get('body', '')}", "│  ")
     if typography.get("cyrillic"):
         add_wrapped("Cyrillic: yes (every family has the cyrillic subset)")
+    if typography.get("product_type"):
+        add_wrapped(f"Picked for: {typography['product_type'].upper()} — check it against the brief")
     if typography.get("mood"):
         add_wrapped(f"Mood: {typography.get('mood', '')}")
     if typography.get("best_for"):
@@ -921,6 +991,8 @@ def format_markdown(design_system: dict) -> str:
     lines.append(f"- **Body:** {typography.get('body', '')}")
     if typography.get("cyrillic"):
         lines.append("- **Cyrillic:** yes (every family has the `cyrillic` subset)")
+    if typography.get("product_type"):
+        lines.append(f"- **Picked for:** {typography['product_type'].upper()} — check it against the brief")
     if typography.get("mood"):
         lines.append(f"- **Mood:** {typography.get('mood', '')}")
     if typography.get("best_for"):
@@ -981,7 +1053,7 @@ def format_markdown(design_system: dict) -> str:
 def generate_design_system(query: str, project_name: str = None, output_format: str = "ascii",
                            persist: bool = False, page: str = None, output_dir: str = None,
                            variance: int = None, motion: int = None, density: int = None,
-                           force: bool = False) -> dict:
+                           force: bool = False, product_type: str = None) -> dict:
     """
     Main entry point for design system generation.
 
@@ -1004,7 +1076,8 @@ def generate_design_system(query: str, project_name: str = None, output_format: 
         persist_design_system(), or None if persist=False)
     """
     generator = DesignSystemGenerator()
-    design_system = generator.generate(query, project_name, variance=variance, motion=motion, density=density)
+    design_system = generator.generate(query, project_name, variance=variance, motion=motion,
+                                       density=density, product_type=product_type)
 
     persistence_result = None
     if persist:

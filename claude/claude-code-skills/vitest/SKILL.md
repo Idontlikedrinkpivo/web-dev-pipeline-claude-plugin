@@ -1,14 +1,12 @@
 ---
 name: vitest
 description: >-
-  Vitest rules: tests per architecture layer, in-memory fakes over vi.mock, awaited async assertions, mock and timer
-  cleanup, component tests with Testing Library and MSW, version traps. Use for *.test.ts(x), vitest.config, flaky or
-  slow tests, a Jest migration. Not Playwright E2E.
+  Vitest rules (tests per layer, fakes over vi.mock, MSW); read before writing *.test.ts files.
 ---
 
 # Vitest
 
-**Which layering applies.** With an architecture document (`clean-architecture-design`; foundation `documentation/architecture/architecture.md` §6): one entity test per row of the domain model's invariant table (`domain.md` §4), no I/O; use-case tests with in-memory fakes of the ports; repository adapter tests against a real Postgres; one round-trip test per mapper; HTTP tests through `app.inject`; one end-to-end path. Without one, in an existing repo: mirror its placement, naming, setup files, and fakes (colocated `*.test.ts` when there is no precedent); do not restructure the suite unasked.
+**Which layering applies.** With an architecture document (`clean-architecture-design`; foundation `documentation/architecture/architecture.md` §6): one entity test per row of the domain model's invariant table (`domain.md` §4), no I/O; use-case tests with in-memory fakes of the ports; repository adapter tests against a real Postgres; one round-trip test per mapper; HTTP tests through `app.inject`; one end-to-end path. At the Framework-first level (foundation §1 «Уровень») there are no ports to fake: the one `domain/` module gets plain unit tests, the rest is tested through `app.inject` against the real database. Without an architecture document, in an existing repo: mirror its placement, naming, setup files, and fakes (colocated `*.test.ts` when there is no precedent); do not restructure the suite unasked.
 
 ## House rules
 
@@ -24,23 +22,26 @@ description: >-
    race test against the real database: `Promise.all` of two calls, each with its own connection from the pool
    (never one transaction shared), then count the effect — exactly one — and assert what the second caller got.
 10. When `work` asks for it, mutation-test the unit's files with Stryker in incremental mode; a surviving mutant names the missing assertion.
+11. **No database reachable here** (a sandbox without Docker): write the repository, race and HTTP tests as they would run, run the rest, and report the database run as owed — in a `work` packet a line in `CONCERNS` with the command. Never replace the database with a mocked client to get a green run.
+12. Coverage has one threshold, in `coverage.thresholds` of the Vitest config (the foundation §6 number, otherwise 80% of lines); the full suite measures it in CI (`repo-scaffold/references/quality-gates.md`, the Coverage gate), a unit's focused run does not.
 
 A whole-application browser flow (log in, open a page, type, click, see the result) is Playwright, not Vitest:
 route it to `playwright-cli`. A component test is Vitest with Testing Library (jsdom, or Browser Mode where the
 project uses it): render through the shared `renderWithProviders`, mock the network with MSW, query by role and
 label, act with `userEvent`, wait with `findBy*` — the rules are `react` → «Tests».
 
-## Version-sensitive behaviour — verify
+**Version-sensitive points** — [references/version-checks.md](./references/version-checks.md). In a `work` packet
+their answers come in `CURRENT LIB DOCS`; where it says `none`, probe the installed version in the project instead
+of fetching docs. Outside `work`, read the file and check each point you rely on against the installed version.
 
-Read the installed version from the lockfile, then check docs via context7 (`resolve-library-id`, `query-docs`) or a quick probe. The answers change between majors:
+## The reviewer checks
 
-- Which of clear / reset / restore mocks is on by default, and what each undoes for `vi.spyOn` vs `vi.fn()` — calls recorded in `beforeAll` or at module level may be wiped before the test reads them.
-- What `vi.mock` / `vi.hoisted` do when not at top level, and which outer variables a factory may use.
-- Whether a mock implementation called with `new` must be a `function` / `class`, not an arrow.
-- Config keys from older snippets (pool options, per-glob environments, workspace files, worker limits): renamed or removed keys may be ignored silently — compare collected test counts before and after.
-- `projects`: whether inline projects inherit root plugins, setup files, and environment, and how to opt out.
-- Sharding: which reporter shards need, where each shard writes its blob report, where the merge reads from, and how coverage merges.
-- Concurrent tests: whether the global `expect` misattributes snapshots and assertion counts (use the test-context `expect`).
-- Upgrades: read every crossed major's migration guide, walk this list against the config and suite (Vitest 5:
-  `clearMocks` on by default, an un-awaited `resolves` / `rejects` fails the test; Vitest 4: `workspace` became
-  `projects`, `poolOptions` removed; MSW 3: `onUnhandledRequest` became `onUnhandledFrame`).
+1. **A fake of a port, never `vi.mock` of the project's own module or a mocked database client**; the test asserts
+   what was stored and returned, not call counts.
+2. **Every `.resolves` / `.rejects` is awaited; what a test changed is undone in `afterEach`**; no state shared
+   between tests.
+3. **A guard against a double action has a race test against the real database** — two calls, each on its own
+   connection, the effect counted.
+4. **The error path and the exact boundary values sit beside the happy path**, one behaviour per test, `describe`
+   by behaviour, never by plan unit.
+5. **No committed `.only`; a `.skip` says why and when it returns.**

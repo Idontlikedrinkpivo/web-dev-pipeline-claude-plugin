@@ -6,11 +6,11 @@ Use visual probes when a brainstorm decision is faster to judge by seeing a roug
 
 Use this reference only when the next question has a specific visual decision:
 
-- behavior shape: "Which annotation or drawing behavior feels right?"
-- layout shape: "Which navigation structure matches the workflow?"
-- flow shape: "Where should this decision point sit?"
-- state shape: "Which empty/loading/error state communicates the right thing?"
-- diagram shape: "Which relationship or system boundary is clearer?"
+- behavior shape — which annotation or drawing behavior feels right;
+- layout shape — which navigation structure matches the workflow;
+- flow shape — where a decision point sits;
+- state shape — which empty / loading / error state says the right thing;
+- diagram shape — which relationship or system boundary is clearer.
 
 Do not use a visual probe for product goals, scope boundaries, success criteria, evidence probes, tradeoff prose, or technical decisions that are easier to discuss in chat.
 
@@ -25,7 +25,7 @@ When the Phase 0.3 tripwire flagged an inherently-visual topic, the offer must f
 ## Offer
 
 Ask once at the decision point. Do not enable a session-wide mode.
-Follow `grill-me` → "How a question is shown": one question in the chat,
+Follow `pipeline` → `references/question-format.md`: one question in the chat,
 in Russian. The user answers by sending a message. Do not open a card.
 
 In the chat, explain both options. A visual sketch is a rough picture in
@@ -140,7 +140,9 @@ Do not add click tracking, selected states, event ingestion, forms, analytics, o
 
 A minimal version, after showing the artifact:
 
-> I’m showing three rough options. Reply here with A, B, C, or "mix", plus anything that feels off. Judge the behavior shape, not the exact styling.
+> В браузере три грубых варианта: A — …, B — …, C — … (что каждый показывает, словами). Судите по поведению, а не по цветам и шрифтам. «Смешать» — взять части из нескольких вариантов.
+>
+> Ответьте сообщением: буква, «смешать» с тем, что взять из каждого, или свой текст.
 
 The user's chat response is authoritative. The visual artifact is supporting context only.
 

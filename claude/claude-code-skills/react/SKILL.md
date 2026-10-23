@@ -1,10 +1,7 @@
 ---
 name: react
 description: >-
-  React rules agents break by default: compute instead of storing, effects only for outside systems, server data
-  through the data layer, a page as a data hook plus a view, one form schema, Testing Library tests. Use whenever
-  React components, hooks or their tests are written, reviewed or refactored. Not what to build from a screen spec
-  (`frontend`).
+  React rules (derived state, effects only for outside systems, data hooks); read before React code.
 ---
 
 # React

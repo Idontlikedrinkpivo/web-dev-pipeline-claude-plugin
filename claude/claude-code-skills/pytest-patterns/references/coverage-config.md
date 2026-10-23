@@ -1,6 +1,6 @@
 # Coverage configuration
 
-`pyproject.toml` block for the thresholds in SKILL.md → Coverage. `fail_under` makes a plain `pytest --cov` run fail below 80% without repeating the flag in CI; the matching command line is `uv run pytest --cov=src`.
+`pyproject.toml` block for the one threshold in SKILL.md → Coverage. `fail_under` makes a `pytest --cov` run fail below 80% (or the foundation §6 number) without repeating the flag in CI; the matching command line is `uv run pytest --cov=src`. A run without `--cov` (a unit's focused tests) measures nothing and is not held to it.
 
 ```toml
 [tool.coverage.run]
@@ -19,4 +19,4 @@ exclude_lines = [
 ]
 ```
 
-This block alone is not enough for an app that uses SQLAlchemy's async API: without the right `concurrency` setting, lines that run after an awaited DB call are not traced and the report comes out several points low. Which values the installed coverage.py needs is version-sensitive — look it up (SKILL.md, "Check before relying on it") and confirm by comparing the report with and without the setting.
+This block alone is not enough for an app that uses SQLAlchemy's async API: without the right `concurrency` setting, lines that run after an awaited DB call are not traced and the report comes out several points low. Which values the installed coverage.py needs is version-sensitive — look it up (`version-checks.md` → coverage of async SQLAlchemy paths) and confirm by comparing the report with and without the setting.

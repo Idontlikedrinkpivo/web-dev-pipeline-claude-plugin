@@ -1,8 +1,8 @@
 # Routing (interactive only)
 
 After the report, if any actionable finding remains (`gated_auto` or
-`manual` at anchor `75` or `100`), follow `grill-me` → "How a question is
-shown".
+`manual` at anchor `75` or `100`), ask one question, shown as `pipeline` →
+`references/question-format.md` says.
 
 In the chat, in Russian, say how many findings remain and what each option
 does. A finding is one review comment. `gated_auto` means the reviewer
@@ -13,7 +13,7 @@ defers it. It is not where the question is shown.
 - **A. Разобрать по одному.** Каждое замечание отдельно: применить, отложить или пропустить.
 - **B. Применить рекомендованное.** Для каждого замечания берётся действие, которое ревьюер уже предложил.
 - **C. Отложить все.** Замечания уходят в `open-questions.md` рядом с документом, сам документ не меняется.
-- **D. Только отчёт.** Никаких правок.
+- **D. Только отчёт.** Никаких правок; ревью считается пройденным, замечания остаются только в этом отчёте.
 
 Recommend one in a sentence — by default **A**: the user sees every
 finding and decides each; recommend B only when every finding is a small,
@@ -42,9 +42,9 @@ after the user chooses Отложить.
 Рекомендация: A. Применить — одно предложение, почему.
 ```
 
-M is the number of findings to route in this round, so the user sees how many are left. Open each finding with one plain sentence — what a person will see or what breaks — and a concrete example (an input and what comes out); the finding's ids and terms follow in brackets and stay, with what they mean for this fix (`grill-me` → How a question is shown). End the message with «Ответьте сообщением: буква или свой текст.» Options:
+M is the number of findings to route in this round, so the user sees how many are left. Open each finding with one plain sentence — what a person will see or what breaks — and a concrete example (an input and what comes out); the finding's ids and terms follow in brackets and stay, with what they mean for this fix (`pipeline` → `references/question-format.md`). End the message with «Ответьте сообщением: буква или свой текст.» Options:
 
-- `A. Применить` — when that is the recommended action, append ` (Recommended)`
+- `A. Применить` — when that is the recommended action, append ` (рекомендую)`
 - `B. Отложить`
 - `C. Пропустить`
 
@@ -65,14 +65,27 @@ skipped counts). Then see "Re-review" below.
 ## B — Best judgment
 
 Preview the planned action per finding (`Apply` / `Defer` / `Skip` from
-`recommended_action`). Ask Proceed / Cancel. On Cancel, return to A–D.
-On Proceed, execute the preview. Then see "Re-review" below.
+`recommended_action`), one line each, then one question:
+
+```text
+**Применить рекомендованное?**
+
+<the preview: «1. Применить — …», «2. Отложить — …»>
+
+  A. Применить как в списке (рекомендую)
+  B. Вернуться к выбору: по одному, отложить все или только отчёт
+
+Ответьте сообщением: буква или свой текст.
+```
+
+On B, ask the A–D question again. On A, execute the preview. Then see
+"Re-review" below.
 
 ## Re-review
 
 When at least one fix was applied in this round, ask once more, one
 question in the chat: `A. Проверить ещё раз` / `B. Закончить` — A
-`(Recommended)`, because a fix can open a new gap. There is no limit on
+«(рекомендую)», because a fix can open a new gap. There is no limit on
 rounds: they go on until one brings no finding the user has not decided —
 the report then says «Новых замечаний нет — ревью пройдено» — or progress
 stops (`pipeline` → `references/convergence.md`): a decided finding comes
@@ -86,13 +99,14 @@ not a pipeline transition; each opens with one line in the chat («Ревью,
 
 ## C — All to the parking lot
 
-Preview the list. On Proceed, Defer every remaining actionable finding
-into `open-questions.md` beside the reviewed document. No other edits. Do not touch
-the reviewed document.
+Preview the list and ask the same way («A. Отложить все как в списке
+(рекомендую)», «B. Вернуться к выбору»). On A, Defer every remaining
+actionable finding into `open-questions.md` beside the reviewed document.
+No other edits. Do not touch the reviewed document.
 
 ## D — Report only
 
-No edits. Done.
+No edits. The gate closes with the findings waived (SKILL.md → Closing).
 
 ## Defer — append to `open-questions.md`
 

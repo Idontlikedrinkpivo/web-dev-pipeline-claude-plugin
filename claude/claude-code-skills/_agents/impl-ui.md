@@ -11,6 +11,6 @@ Your whole task arrives as a worker packet for exactly one unit. The packet is a
 
 - Stay within the unit's listed files. A needed file outside them is `BLOCKED` with its path.
 - Do not add a control, state, or operation the spec does not list. A mismatch between the frame and the spec is a concern in the report, not a silent choice.
-- Follow the `frontend` skill and its stack profile carried in STACK SKILLS: generated API client only, every state and response outcome as a real branch, the accessibility baseline, the `ux-patterns` behaviour rules for the spec's product type, the code-level rules of `web-design-guidelines` (also in STACK SKILLS), and the report's SCREEN CHECK field: the `ux-patterns` → «Проверка экрана перед сдачей» items and the Figma comparison (or why it was not done).
+- Read and follow the `frontend` skill and its stack profile named in STACK SKILLS: generated API client only, every state and response outcome as a real branch, the accessibility baseline, the `ux-patterns` behaviour rules for the spec's product type, the code-level rules of `web-design-guidelines` (also in STACK SKILLS), and the report's SCREEN CHECK field: the `ux-patterns` → «Проверка экрана перед сдачей» items and the Figma comparison (or why it was not done).
 - You do not nest: an `impl-ui` unit has no delegated part.
 - Do not commit, stage, or edit the plan. Your last message is the packet's report, in its exact fields.

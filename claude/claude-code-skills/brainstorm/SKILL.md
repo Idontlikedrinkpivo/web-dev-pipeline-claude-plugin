@@ -1,9 +1,8 @@
 ---
 name: brainstorm
 description: >-
-  Turns a vague software idea into a business-requirements document (goal and product contract) in
-  documentation/requirements/. Use when the user wants to brainstorm, think through scope or decide what to build —
-  «давай подумаем», «что строим». Not implementation, debugging or code review; specified work goes to `srs-writer`.
+  Turns a vague idea or new feature into the business-requirements document: goal, scope, product contract. Use for
+  «давай подумаем», «что строим», «хочу новую фичу». A ready description goes to srs-writer.
 ---
 
 # Brainstorm a Feature or Improvement
@@ -36,10 +35,10 @@ These rules apply to every brainstorm.
 1. **Ask one question at a time** - One question per turn, even when sub-questions feel related. Stacking several questions in a single message produces diluted answers; pick the single most useful one and ask it.
 2. **Prefer single-select multiple choice** - Use single-select when choosing one direction, one priority, or one next step.
 3. **Use multi-select rarely and intentionally** - Use it only for compatible sets such as goals, constraints, non-goals, or success criteria that can all coexist. If prioritization matters, follow up by asking which selected item is primary.
-4. **The question is one chat message** — Follow `grill-me` → "How a question is shown". One question: what is being decided, what each option changes, the real terms with what they mean here, and which option you recommend. Then stop. The user answers by sending a message. Do not call `AskUserQuestion` or any other question card. This holds for opening and elicitation questions too, not only narrowing. Never silently skip the question. On a visual topic, the Phase 1.3 visual-probe gate comes before this rule.
+4. **The question is one chat message** — shown as `pipeline` → `references/question-format.md` says: what a person will see, with an example, first; then the real terms with what they mean here, the options, which one you recommend and why, and «Ответьте сообщением: буква или свой текст.» Then stop. The user answers by sending a message. Do not call `AskUserQuestion` or any other question card. This holds for opening and elicitation questions too, not only narrowing. Never silently skip the question. On a visual topic, the Phase 1.3 visual-probe gate comes before this rule.
 5. **Use an open-ended question only when the question is genuinely open** - Ask it in the chat with no options when the answer is inherently narrative, when presented options would steer a diagnostic or introspective answer, or when you cannot write 3-4 genuinely distinct, plausibly-correct options without padding. The test: if you'd be straining to fill the option slots, the question is open — ask it open-ended. Rule 1 still applies: one question per turn.
 6. **Open-ended questions earn their place only when they're specific enough to elicit a substantive answer** - Apply Rule 5 silently: just ask the question, never narrate the form choice. The question must give the user something concrete to anchor on. Good: *"What's the most concrete thing someone's already done about this — paid for it, built a workaround, quit a tool over it?"* — it names what counts as an answer. Too thin: *"What's your take?"* — nothing to bite into, and framings that imply a short answer ("briefly", yes/no) waste the open question the same way.
-7. **A list as input is kept as a ledger** — When the input is a list of tasks, requests or requirements (a release backlog, a stakeholder's bullet list), write it down line by line first, each with its fate: «в релизе», «снят пользователем», «уже сделано», with the reason. Every «убираю X» and every «остаётся N» is recounted against that ledger, and the synthesis summary and the document are checked against it by count before they are shown: an item that silently drops out of a list is the failure this prevents.
+7. **A list as input is kept as a ledger** — When the input is a list of tasks, requests or requirements (a release backlog, a stakeholder's bullet list), write it down line by line first, each with its fate: «в релизе», «снят пользователем», «уже сделано», with the reason — in the file `${TMPDIR:-/tmp}/brainstorm-<repo>-input.md` (`<repo>` the repo folder's name), so a compaction does not lose it, and show it once in the chat. Every «убираю X» and every «остаётся N» updates that file and is recounted against it, and the synthesis summary and the document are checked against it by count before they are shown: an item that silently drops out of a list is the failure this prevents. Delete the file when the document is committed.
 
 ## Artifact Root
 
@@ -56,8 +55,11 @@ folder, not in a section of the document.
 
 **The document is unversioned** — a working draft, not a contract; versioning
 starts at the SRS. On every write, greenfield or increment: no `version`
-in the frontmatter and no `## Журнал изменений` table; if a leftover `version` or
-changelog is already in the file, delete them on this write.
+or `type` in the frontmatter and no `## Журнал изменений` table; if a
+leftover `version`, `type` or changelog is already in the file, delete them
+on this write. **A write that changes the text removes `grilled:`**: that
+date said the grill covered the old text, and «где я» would read the new
+one as grilled too. The grill gate of this run sets it again.
 
 **A feature added to a product that already has a business requirements document
 is an increment.** Read the `doc-versioning` skill: keep the existing path,
@@ -73,7 +75,7 @@ product — the resume path below is the mechanism.
 
 The **feature description** is the input this skill was invoked with — what to explore, present in the current prompt or conversation, whether the user provided it directly or a calling skill passed it.
 
-**If no feature description was provided, ask the user:** "What would you like to explore? Please describe the feature, problem, or improvement you're thinking about."
+**If no feature description was provided, ask the user** in one open question: «Что хотите обдумать? Опишите задачу, проблему или улучшение — своими словами, как есть.»
 
 Do not proceed until you have a feature description from the user.
 
@@ -88,9 +90,27 @@ Do not proceed until you have a feature description from the user.
 This resume scan needs `documentation/requirements/`, so it applies only to a repo-backed run. If there is no git repository, skip the scan and continue.
 
 In a repo-backed run, if the user references an existing brainstorm topic or document, or `documentation/requirements/business-requirements/business-requirements.md` already exists:
-- Read the document
-- Confirm with the user before resuming: "Found an existing requirements-only document for [topic]. Should I continue from this, or start fresh?"
-- If resuming, summarize the current state briefly, continue from its existing decisions and outstanding questions, and update the existing document instead of creating a duplicate
+- Read the document.
+- Ask before resuming, one question per Interaction Rule 4:
+
+  ```text
+  **Вопрос. Продолжить готовые бизнес-требования или переписать их**
+
+  В проекте уже есть бизнес-требования «<название>» (<дата>): <одна строка —
+  что в них решено, например «бронь переговорных для резидентов, оплата
+  картой»>. Новая задача <ложится в них / меняет их — одной строкой>.
+
+    A. Продолжить — дописать к ним новое; решённое остаётся, как есть.
+       (рекомендую)
+    B. Переписать — разобрать продукт заново; старый текст заменяется.
+
+  Рекомендую A: <почему, одной строкой>.
+
+  Ответьте сообщением: буква или свой текст.
+  ```
+
+  There is one document per product (Artifact Root), so «заново» rewrites that file; it never starts a second one.
+- If resuming, summarize the current state briefly, continue from its existing decisions and outstanding questions, and update the existing document instead of creating a duplicate.
 
 #### 0.1b Classify Task Domain
 
@@ -166,11 +186,11 @@ SCRATCH_DIR="$SCRATCH_ROOT/brainstorm/<run-id>";
 echo "$SCRATCH_DIR";
 ```
 
-3. **Dispatch the grounding scout:** `code-explorer` through `executor-catalog` (`subagent_type: "dev-pipeline:code-explorer"`, no `model` — the agent file holds it). Not `Explore` or `general-purpose`: an uninstalled agent is named to the user with `install.sh`, per the catalog's Dispatch contract. Without a subagent primitive, do the same work inline or serially. With background dispatch, go on to Phase 1.2/1.3 **without waiting** — the scout runs during the user's think-time on the opening questions. Scout prompt:
+3. **Dispatch the grounding scout:** `code-explorer` through `executor-catalog` (`subagent_type: "dev-pipeline:code-explorer"`, no `model` — the agent file holds it). Not `Explore` or `general-purpose`, and not the session doing the scout's reads itself: a missing agent is a stop, per the catalog's Dispatch contract — the user installs or updates the `dev-pipeline` plugin. With background dispatch, go on to Phase 1.2/1.3 **without waiting** — the scout runs during the user's think-time on the opening questions. The scout is read-only, so it returns the dossier as its reply and the session saves it. Scout prompt:
 
-   > Gather grounding for a requirements brainstorm about **{topic}** in this repo. Search first with the native file-search and content-search tools, then read targeted sections — budget ~20 reads, preferring ranges over whole files. Find: whether something similar already exists, the most relevant existing artifacts (brainstorms, plans, specs, feature docs), adjacent examples of similar behavior, and the current state of anything the topic would touch (tables, routes, config, dependencies). Write a **grounding dossier** to `{scratch-dir}/grounding.md`: at most 150 lines of verbatim quotes and short code snippets, each with a `file:line` pointer. Extraction only — quote what the repo says; do not interpret or propose. If the topic has little footprint, write less rather than padding. Return only a gist: 3-5 lines summarizing what the dossier holds, plus its absolute path.
+   > Gather grounding for a requirements brainstorm about **{topic}** in this repo. Search first with the native file-search and content-search tools, then read targeted sections — budget ~20 reads, preferring ranges over whole files. Find: whether something similar already exists, the most relevant existing artifacts (brainstorms, plans, specs, feature docs), adjacent examples of similar behavior, and the current state of anything the topic would touch (tables, routes, config, dependencies). Reply with a **grounding dossier**: first a gist of 3-5 lines saying what it holds, then at most 150 lines of verbatim quotes and short code snippets, each with a `file:line` pointer. Extraction only — quote what the repo says; do not interpret or propose. If the topic has little footprint, return less rather than padding. Do not write files.
 
-4. **Carry only the gist in the dialogue.** Read the dossier on demand — when the user challenges a claim or an approach needs grounding. It is a verified quote-sheet, always cheaper than re-scanning raw files. If Phase 2 needs it and the scout has not returned, wait for it then.
+4. **Save it, carry only the gist.** Write the reply to `{scratch-dir}/grounding.md` with the Write tool as it came, so a compaction does not lose it, and keep only its gist in the dialogue. Read the dossier on demand — when the user challenges a claim or an approach needs grounding. It is a verified quote-sheet, always cheaper than re-scanning raw files. If Phase 2 needs it and the scout has not returned, wait for it then.
 5. If the scan and scout surface nothing relevant, say so and continue.
 
 Two rules govern technical depth during the scan, for every tier and topic:
@@ -218,16 +238,20 @@ A session-settled decision counts as already-probed toward every clause — neve
 **Example — one Standard-tier turn.** The opening was "поддержку будят ночные уведомления, надо дать их глушить"; the counterfactual gap was already probed (open question, no card: «Что поддержка делает сегодня, когда пинг приходит в 3 ночи — выключает телефон, отписывается от канала, терпит?» → «выключают звук у всего Slack»). The next turn narrows:
 
 ```text
-Вопрос 1. Что глушим: одного человека или один канал?
+**Вопрос 1. Что глушим: одного человека или один канал**
 
-Сейчас пинги в 3 ночи приходят из канала #support-alerts.
-- A. Человека. Каждый сотрудник сам выключает себе всё на ночь;
-  дежурный тоже может выключить и пропустить аварию.
-- B. Канал. Пауза ставится на правило уведомлений канала и действует
-  на всю команду; остальные каналы звучат как раньше.
+Сейчас в 3 ночи пинг из канала #support-alerts будит всю поддержку
+разом: у каждого звенит телефон.
+
+  A. Человека — каждый сотрудник сам выключает себе всё на ночь;
+     дежурный тоже может выключить и пропустить аварию.
+  B. Канал — пауза ставится на правило уведомлений канала и действует
+     на всю команду; остальные каналы звучат как раньше. (рекомендую)
 
 Рекомендую B: будят не одного человека, а всю поддержку, и решать
 это настройкой каждого по отдельности — значит пропустить дежурного.
+
+Ответьте сообщением: буква или свой текст.
 ```
 
 The user answers with a message. That answer becomes "Per-channel over per-user" in the example summary of `references/synthesis-summary.md`. Do not open a question card.
@@ -265,7 +289,7 @@ A fresh-context verifier replaces self-grading: the author confirming its own cl
 3. **Dispatch `code-explorer`** through `executor-catalog` at the same moment the Path B confirmation question goes up, so it runs during the user's think-time. Same dispatch as the scout (`subagent_type: "dev-pipeline:code-explorer"`, no `model`). Pass the claim list, the grounding dossier path if one exists (the path, not its contents), and this instruction: verify each claim directly against the codebase — budget ~15 targeted reads — and return a per-claim verdict: **confirmed** (with `file:line`), **refuted** (with the contradicting evidence), or **unverifiable**.
 4. Do not block the confirmation question on the verifier.
 5. **At Phase 3,** correct refuted claims before writing and label unverifiable ones as explicit assumptions.
-6. If the dispatch fails, verify the claims inline before the Phase 3 write — Phase 1.1's verify-before-claiming rule holds either way.
+6. A missing agent is a stop, as for the scout. A verifier that returns nothing usable is dispatched once more; claims still without a verdict are written as explicit assumptions — the session does not verify them on its own model.
 
 ### Phase 3: Capture the Business Requirements Document
 
@@ -283,7 +307,9 @@ Required section names and frontmatter keys stay as this skill specifies.
 
 **Write tight.** A section being material is not license to pad it. Hold every kept section to the prose-economy discipline in `references/brainstorm-sections.md`: lead with the decision or outcome, one idea per sentence, a requirement is intent plus at most one qualifier, defer forks to `open-questions.md` beside the file rather than specifying both arms, resolve superseded text in place rather than stacking strata.
 
-Write to `documentation/requirements/business-requirements/business-requirements.md` (folder, increment, and the no-`version` / no-changelog rule are in Artifact Root). A new project — `documentation/` did not exist before this write — also gets the plugin's version stamp, committed with the document: `python3 "${CLAUDE_SKILL_DIR}/../upgrade-docs/scripts/project_format.py" born .` Its stages produce today's formats, so the session-start check must not report them as missing. Title is `<Name> - Business Requirements` (matching the H1; no conventional-commit prefix). Keep the doc light and standalone-readable: a Goal Capsule (objective, product authority, open blockers) and the Product Contract. Do **not** emit a Goal Launch Block or Reader Index. See `references/brainstorm-sections.md` — which owns the artifact content rules, including repo-relative file paths inside the doc.
+**Open the iteration first** — the document is committed on the iteration's branch, never on `main` (`pipeline` → Service version). An open `documentation/plans/<version>/` (no `summary.md`) is the current iteration: reuse it. None open: this stage opens it — greenfield `0.1.0` without asking; on a product that already has documents propose the number with its level and a one-line reason (a new area of the product → MAJOR proposed; new behaviour inside existing areas → MINOR) as one question — then `python3 "${CLAUDE_SKILL_DIR}/../pipeline/scripts/open_iteration.py" <version>` from the repo root. Its exit 2 or 3 is a question for the user, asked before writing. The uncommitted document is safe to write before or after: the branch carries it.
+
+Write to `documentation/requirements/business-requirements/business-requirements.md` (folder, increment, and the no-`version` / no-changelog rule are in Artifact Root). A new project — `documentation/` did not exist when this stage started — also gets the plugin's version stamp, committed with the document: `python3 "${CLAUDE_SKILL_DIR}/../upgrade-docs/scripts/project_format.py" born .` Its stages produce today's formats, so the session-start check must not report them as missing. Title is `<Name> - Business Requirements` (matching the H1; no conventional-commit prefix). Keep the doc light and standalone-readable: a Goal Capsule (objective, product authority, open blockers) and the Product Contract. Do **not** emit a Goal Launch Block or Reader Index. See `references/brainstorm-sections.md` — which owns the artifact content rules, including repo-relative file paths inside the doc.
 
 **Ready for Planning Check.** After writing the actual file, run the four checks in `references/brainstorm-sections.md`: Complete, Consistent, Focused, and Usable by planning. Fix failures in place when the correction preserves settled intent, then rerun the failed checks. If a correction would choose or change product behavior or scope, ask one targeted question, update the artifact after the answer, and rerun the checks. Do not declare the artifact written or enter Phase 4 while any check fails. When confirming in chat after the pass, report the artifact with its absolute path so the reference is clickable.
 
@@ -301,14 +327,16 @@ Follow the format set by existing entries. Apply edits silently. (If Phase 3 ski
 
 #### Grill gate — after the business requirements document, before the closing summary
 
-The document is written first, then interrogated. A written Product Contract is something the user can falsify; a dialogue still in flight is not. Ask before the gate, per `pipeline` → "Asking before a transition". Skip: do not run `grill-me`, do not set `grilled:`, say so in the closing summary, and go on to it. Stop: end the turn. Run:
+The document is written first, then interrogated. A written Product Contract is something the user can falsify; a dialogue still in flight is not. Ask before the gate, per `pipeline` → "Asking before a transition". Skip: do not run `grill-me`, do not set `grilled:`, say so in the closing summary, and go on to it. Stop: commit the document (below), then end the turn. Run:
 
 1. **Run `grill-me` on the written document.** Load that skill (Skill tool, or read `grill-me/SKILL.md`) and follow it. Do not summarize it and do not invent a shorter interview.
 2. **The frontier decides the length, not a quota.** This phase already ran the pressure test and the blindspot pass, so a run that settled everything cleanly has an empty frontier and the gate closes in one turn. That is a pass, not a skipped gate.
-3. **Apply what the grill reversed in place**, in this same document — a reversed decision replaces the line it contradicts rather than sitting beside it. Re-run the Ready for Planning Check over anything the grill changed.
+3. **Apply what the grill reversed, once, at its close**, in this same document — a reversed decision replaces the line it contradicts rather than sitting beside it — and each question the user deferred as a row of `open-questions.md` beside it (`grill-me` → The ledger). Re-run the Ready for Planning Check over anything the grill changed.
 4. **Record it in the frontmatter** — `grilled: YYYY-MM-DD` — so a later session can tell the gate closed without replaying this conversation. See the `doc-versioning` skill for the field.
 
 A paused run that never reached a document skips this gate: there is nothing settled to interrogate. Say so in the pause summary.
+
+**Commit the document** on the iteration's branch once the gate closed, was skipped, or the user stopped at its question: the document, its `open-questions.md`, and on a new project `documentation/.dev-pipeline.json` — `docs: бизнес-требования · допрос: прошёл | пропущен | не запускался` (`не запускался` — the user stopped before answering the gate's question). When the project has a documentation site, wait for its rebuild first (`docs-site` → `rebuild.py . --wait`) and stage `documentation/_web-docs` too. Nothing of this stage stays uncommitted when the next one is offered.
 
 ### Phase 4: Closing Summary
 
@@ -321,29 +349,30 @@ Use absolute paths for chat-output file references — relative paths are not au
 When a document was written, display:
 
 ```text
-Requirements captured.
+Бизнес-требования записаны.
 
-Document: <absolute path to the business requirements document>
+Документ: <absolute path to the business requirements document>
+Коммит: <short sha> на iteration/<version>
 
-Key decisions:
-- [Decision 1]
-- [Decision 2]
+Главные решения:
+- [Решение 1]
+- [Решение 2]
 
-Grill: [what it changed, or "frontier was empty — nothing left assumed"]
+Допрос: [что он изменил | «вопросов не осталось — допущений нет» | «не запускался — пропущен по вашему выбору»]
 ```
 
 If the user pauses with open items still unresolved, display:
 
 ```text
-Brainstorm paused.
+Обсуждение приостановлено.
 
-Document: <absolute path to the business requirements document>  # omit line if no artifact was created
+Документ: <absolute path to the business requirements document>  # omit line if no artifact was created
 
-Still open:
-- [Open item 1]
-- [Open item 2]
+Осталось решить:
+- [Вопрос 1]
+- [Вопрос 2]
 
-Resume with `brainstorm` to pick this back up.
+Продолжить: /dev-pipeline:brainstorm — разговор начнётся с этого документа.
 ```
 
-When no document was warranted (brief alignment only), skip the "Document:" line and summarize the decisions reached in the conversation instead.
+When no document was warranted (brief alignment only), skip the «Документ:» line and summarize the decisions reached in the conversation instead.

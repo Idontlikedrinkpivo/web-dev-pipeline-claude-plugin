@@ -1,9 +1,7 @@
 ---
 name: fastapi-sqlalchemy
 description: >-
-  SQLAlchemy async and Alembic under FastAPI: records mapped to domain entities, repositories, a session per request,
-  commits, migrations, the problem+json error handler, login wiring. Use for models, repositories, sessions,
-  migrations, MissingGreenlet or lost commits. Not routes (`fastapi`), schema design or tests.
+  SQLAlchemy async and Alembic under FastAPI (repositories, sessions, commits, migrations); read before such code.
 ---
 
 # FastAPI + SQLAlchemy async
@@ -11,8 +9,9 @@ description: >-
 ## Which layout governs — decide first
 
 - **An architecture document exists** (`documentation/architecture/architecture.md`, the foundation): its §5 tree is the layout, foundation §4 holds the ports, the wiring and the named-error → HTTP table, the domain model (`documentation/architecture/domain.md`) §4 the invariant table, foundation §1 the security decisions. Use those names; do not add folders §5 does not list.
+- **The level is Framework-first** (foundation §1 «Уровень»): no ports, repository adapters or mappers — the models are the storage and the route or a small service queries them directly; the rules sit in the one framework-free `domain/` module, which takes and returns plain values, never a record. Sessions, commits, loading, migrations and driver errors below hold unchanged.
 - **No architecture document, existing repo**: follow the repo's layout and patterns for the change at hand (a `src/<domain>/service.py` stays where it is). Do not restructure the project or move code into new layers unasked. A new business rule still goes into a function or class that imports neither FastAPI nor SQLAlchemy, not into a route; say so in one line of the final answer.
-- **HTTP contract**: `documentation/api/openapi.yaml` when it exists, otherwise the shapes and statuses the repo already returns. Never introduce a second error format.
+- **HTTP**: routes, the problem+json error handlers, auth and settings are `fastapi`; this skill ends where a repository returns an entity or raises a named error.
 
 ## Layout with an architecture document
 
@@ -51,7 +50,7 @@ class SqlOrderRepository:                      # implements application.ports.Or
 - One `AsyncSession` per request (or per use-case run in a job). Never module-global, never shared between concurrent tasks.
 - Create the sessionmaker with `expire_on_commit=False`, so returned objects stay readable after commit without implicit IO.
 - Commit explicitly at the unit-of-work boundary the design names: inside `repository.save` for a single-entity save, a `UnitOfWork` adapter when a scenario saves several. Brownfield: where the repo already commits.
-- The commit happens **before the response is sent**. Code after `yield` in a dependency may run after the response, so a failing commit there still answers 2xx. If a dependency owns commit / rollback, make it finish before the response (see checklist), roll back and re-raise on an exception, and let the code inside call `flush()` (database ids exist before serialization) instead of `commit()`.
+- The commit happens **before the response is sent**. Code after `yield` in a dependency may run after the response, so a failing commit there still answers 2xx. If a dependency owns commit / rollback, make it finish before the response (`references/version-checks.md` → `yield`-dependency timing), roll back and re-raise on an exception, and let the code inside call `flush()` (database ids exist before serialization) instead of `commit()`.
 - One alias per dependency, a noun without suffix, shared with `fastapi`: `DbSession = Annotated[AsyncSession, Depends(get_db)]`, `CurrentUser`, `CurrentAdmin`. Reuse the names the repo already has.
 
 ## Models and column types
@@ -70,45 +69,44 @@ class SqlOrderRepository:                      # implements application.ports.Or
 
 - The migrations are the SQL files in `documentation/db/migrations/` (`0001_init.sql`, `0002_…`), written by `db-schema-design`. Alembic only orders and records them: one revision per file, revision id = the file's number, `down_revision` = the previous one, and `upgrade()` executes that file's text read from `documentation/db/migrations/` (path from the repo root, the same relative path inside the image). Never autogenerate DDL and never retype a file into `op.*` calls — two copies of a migration drift. A committed SQL file is never edited; a change is the next file and the next revision.
 - `downgrade()` undoes what the schema changelog row calls reversible; otherwise it raises with the file name.
-- Never `metadata.create_all` in application code (test fixtures only). Migrations run before the app starts, not from the lifespan. `version_table_schema` is the project schema (`db-schema-design` §0).
+- A file with `CONCURRENTLY` (its own file, `db-schema-design/references/migration-safety.md`) runs inside `with op.get_context().autocommit_block():` — a revision runs in a transaction, and PostgreSQL refuses `CREATE INDEX CONCURRENTLY` inside one. The block commits what ran before it, so `env.py` sets `transaction_per_migration=True`: each revision is then its own transaction, and a failed one leaves the earlier ones recorded.
+- Never `metadata.create_all` — not in application code and not in test fixtures: the tests build their schema with the same migrations (`pytest-patterns`), so a model that disagrees with the files fails there. Migrations run before the app starts, not from the lifespan. `version_table_schema` is the project schema (`db-schema-design` §0).
 - After `alembic upgrade head`, `alembic check` (or autogenerate into a scratch file) must find no difference between the models and the database: a difference is a model that does not match `schema.md`.
 - No database up: render the SQL offline (`alembic upgrade head --sql`) and read it.
 
-## Errors as problem+json
+## Driver errors and install
 
-- Exception handlers, registered once in `bootstrap/` (brownfield: next to the app object), implement `documentation/api/openapi.yaml`:
-  - named domain / use-case error → its status and `code` from the spec (foundation §4 error → HTTP table), body `Problem {type, title, status, detail, instance, code}`;
-  - request validation failure → 422 `code: VALIDATION_ERROR` with `errors: [{field, message}]`, `field` in wire (snake_case) names — replace FastAPI's default `{"detail": [...]}` body;
-  - unparsable request (malformed JSON, undecodable cursor) → 400; anything unnamed → logged, 500 with a generic `detail`.
-- All with media type `application/problem+json`. Routes and use cases raise named errors; they do not build bodies or `raise HTTPException(detail=...)`.
-- Brownfield without `openapi.yaml`: keep the error format the repo already returns.
+- A constraint violation the repository can expect (a duplicate email, a dangling reference, an overlap the
+  database refuses) is classified by its SQLSTATE and constraint name read from the driver's error (`e.orig.sqlstate`;
+  where the constraint name sits is a version check), never from its message — and raised as a domain exception with fields
+  (`raise BookingOverlap(room_id=…) from e`); its HTTP status is the contract's for that named error (`fastapi`).
+  Never a bare re-raise of the driver's error as an answer, never `except Exception: pass` (`python`).
+- A serialization failure (`40001`) or a deadlock (`40P01`) propagates unchanged from the repository. A use case
+  whose transaction can lose to a concurrent one is wrapped in `bootstrap/` by one shared helper that reruns its
+  whole run — load → decide → save, with a fresh session — a bounded number of times (three, with a short random
+  wait); never one statement, never a loop in the repository, and the use case knows no driver codes. What is left
+  after the attempts the handler answers with the contract's 503 and `Retry-After`. Anything else the
+  repository does not classify propagates unchanged and ends as the contract's 500 (`fastapi` → «Errors as
+  problem+json»).
+- Async SQLAlchemy needs `sqlalchemy[asyncio]`: from 2.1 greenlet is no longer installed by default, and without it
+  the first async call fails with an error that names the missing greenlet library — install the extra.
+  `MissingGreenlet` is a different failure: IO started outside an `await`, nearly always a lazy load — fix the
+  loading (above), not the install.
 
-## Auth and configuration
+**Version-sensitive points** — `references/version-checks.md`. In a `work` packet their answers come in
+`CURRENT LIB DOCS`; where it says `none`, probe the installed version in the project instead of fetching docs.
+Outside `work`, read the file and check each point you rely on against the installed version.
 
-- Token kind, lifetime, hashing and roles come from architecture §1 «Решения по безопасности»; brownfield: from the existing code or the user. Implementing password login with JWT: read [references/jwt-auth.md](references/jwt-auth.md).
-- Settings via `pydantic-settings`. A secret (a signing key, an API token, a password) has no default, so a missing one stops the start; `.env.example` lists every variable. Touch only the settings the task needs: in an existing repo, keep the defaults of settings the task is not about (removing `DATABASE_URL`'s default breaks every command run without `.env`). CORS lists exact origins, never `*` with credentials.
-- No blocking call inside `async def`: use an async driver, `asyncio.to_thread`, or a plain `def` path operation.
+## The reviewer checks
 
-## Version-sensitive behaviour
-
-This skill does not pin library facts that change between releases (signatures, defaults, generated-artifact paths, "since version X"). Before relying on one: read the installed version from the lockfile or manifest, then check current docs via the context7 MCP (`resolve-library-id`, then `query-docs`) or run a quick probe in the project. The checklist below names where the silent pitfalls usually are; it deliberately does not give the answer, because the answer depends on the version.
-
-### Check before relying on it
-
-- **Dependency versions** — which releases are current (`pip index versions <pkg>` or PyPI) before adding a pin; never copy a version range from memory.
-- **`yield`-dependency timing** — when code after `yield` runs relative to sending the response, and whether `Depends` takes a scope that makes it run before; this decides where a committing dependency is safe.
-- **Validation errors** — where per-field locations live in the request-validation exception, and how a malformed JSON body is reported, so it maps to 400 and field failures to 422.
-- **Async loading** — which loader strategies and `refresh(...)` options work for relationships under `AsyncSession`, and what `awaitable_attrs` needs on the base class.
-- **Alembic** — the async template name for `alembic init`; whether the driver Alembic runs on accepts a whole SQL file in one execute (asyncpg behind SQLAlchemy prepares statements and may reject several in one call — split the file or run Alembic on a sync driver); which differences `alembic check` does not detect (server defaults, `CHECK` constraints, enum values) in the installed version.
-- **Driver types** — how the async PostgreSQL driver returns `Numeric` (Decimal) and timezone-aware timestamps.
-- **Form and validator quirks** — `model_fields_set` with `Form()` models, optional `Literal` form fields, `Json` inside a form, union-typed path parameters, and whether a `ValueError` in a validator becomes 422 or 500. Probe before relying on any of them.
-- **Background work** — whether tasks added to an injected `BackgroundTasks` survive returning a `Response` that carries its own `background`.
-- **Postponed annotations** — whether `from __future__ import annotations` with a forward-referenced dependency type still produces the right OpenAPI schema.
-
-## Install and errors
-
-- Async SQLAlchemy needs `sqlalchemy[asyncio]` — from 2.1 greenlet is no longer installed by default, and its
-  absence shows up as `MissingGreenlet` at the first query. 2.1 also autoflushes before every executed statement;
-  check the installed line.
-- A repository raises a domain exception with fields (`raise BookingOverlap(room_id=…) from e`), never a bare
-  re-raise of the driver's error and never `except Exception: pass` (`python`).
+1. **The commit happens before the response is sent** — not in code after a dependency's `yield` that runs after
+   it; a failing commit must not answer 2xx.
+2. **Every relationship is `lazy="raise"` and every query that is mapped or serialized loads what it reads**
+   (`selectinload` / `joinedload`), the object a create returns included.
+3. **Migrations are the SQL files**: one revision per file executing its text, no autogenerated or retyped DDL, no
+   edited committed file, `CONCURRENTLY` inside `autocommit_block()`, no `create_all` anywhere.
+4. **`domain/` and `application/` import no SQLAlchemy**; the repository returns entities through a mapper that has
+   a round-trip test.
+5. **An expected constraint violation becomes a named exception with fields, `from e`**, classified by SQLSTATE
+   and constraint name; nothing else is swallowed or turned into a client answer here.
+6. **One `AsyncSession` per request or job**, never module-global, never shared by concurrent tasks.

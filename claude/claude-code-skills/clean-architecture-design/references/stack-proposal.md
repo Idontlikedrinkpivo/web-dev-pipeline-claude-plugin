@@ -25,9 +25,15 @@ Do not propose in a vacuum:
    that stack in §1 Стек and continue. Do not stop for a chat pick
    when the stack is already a fact. Propose an alternative only if the
    named stack cannot meet a stated NFR.
-3. **SRS constraints only** — team language, hosting, latency, compliance,
+3. **The database is already decided** — `db-schema-design` asked for the
+   DBMS and its major version and wrote them on the first line of
+   `documentation/db/schema.md` «Решения по базе». Read it: it is a fact
+   on every card, never a choice here, so the user is not asked the same
+   question twice and the schema's SQL (`uuidv7()` needs PostgreSQL 18)
+   runs on what the stack installs. No storage, no schema: no database.
+4. **SRS constraints only** — team language, hosting, latency, compliance,
    "this repo". Not a framework name unless the SRS actually named one.
-4. **Nothing found** — still propose; still do not pick silently.
+5. **Nothing found** — still propose; still do not pick silently.
 
 ## Brownfield
 
@@ -38,8 +44,8 @@ free-choice catalog on a live codebase.
 
 ## What may go on a card
 
-Every technology on a greenfield card — runtime, framework, database,
-frontend framework, and any library a card names — is **widely used and has
+Every technology on a greenfield card — runtime, framework, frontend
+framework, and any library a card names — is **widely used and has
 complete official documentation** (guides plus an API reference for the
 current major, kept up to date). Why: agents write this code from current
 docs, not memory, and later stages check version-sensitive behaviour live
@@ -63,8 +69,8 @@ NFR-…") instead of a full card. Each card states, in this order:
 |---|---|
 | Language + runtime | the language, its runtime and major version (`Node 22`, `Python 3.13`, `Go 1.24`), not "backend" |
 | HTTP framework | one concrete framework, with its major version |
-| Database | one engine (Postgres unless a constraint forbids it), with its major version |
-| Local run | Compose or not — and what processes it starts |
+| Database | the schema's DBMS and major, copied — the same on every card (constraint 3) |
+| Local run | Compose or not — and what processes it starts; goes to foundation §5 «Локальный запуск» |
 | Boundary linter | the tool this skill maps to that stack, with the major its sketch in `machine-checkable-boundaries.md` targets |
 | Frontend | only when the system has a human-facing UI: React + Vite (an app behind a login with a separate backend) or Next.js (public pages that need SEO or server rendering), with its major — the two stacks the `frontend` skill has profiles for and the Figma frames' shadcn/ui style matches. Offer another framework only when the repo already uses one (brownfield) |
 
@@ -79,13 +85,13 @@ the other cards, the main risk. No essay.
 ## Asking
 
 When no stack is already a fact: mark **one card as recommended** and
-say why in one or two sentences. Follow `grill-me` → "How a question is
-shown". The full cards stay in the chat, each term (language, framework,
-database, Compose, linter) explained by what it changes for this system.
-Each option is a short name of one card, with ` (Recommended)` on the
-one you marked. One question, then stop. The user answers by sending a
-message. Do not open a question card. Do not dispatch the foundation writer on a
-guess. When the
+say why in one or two sentences. Follow
+`pipeline/references/question-format.md` for the shape and for how the
+recommended option is marked. The full cards stay in the chat, each term
+(language, framework, Compose, linter) explained by what it changes for
+this system. Each option is a short name of one card. One question, then
+stop. The user answers by sending a message. Do not open a question card.
+Do not dispatch the foundation writer on a guess. When the
 stack is already stated (case 2 above), skip the wait.
 
 ORM, broker, queue — mention on a card only when a port in this design
@@ -98,6 +104,6 @@ it fits this app). Record the pick as the «Стек» row of §1 «Ключев
 решения»; its «Вместо» cell names the cards the user did not pick, one
 sentence, not the chat comparison. Adapter client libraries that are
 not the runtime stack go under foundation §4 Сборка. Local run goes under
-§5, the boundary linter under §6. Do not paste the chat comparison into the
+§5 «Локальный запуск», the boundary linter under §6. Do not paste the chat comparison into the
 file. Then dispatch the foundation writer. The file tree (§5) and the
 lint table (§6) must match this choice.

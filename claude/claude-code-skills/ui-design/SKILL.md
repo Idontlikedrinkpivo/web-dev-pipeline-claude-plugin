@@ -1,10 +1,9 @@
 ---
 name: ui-design
 description: >-
-  Design stage: picks the visual direction (options drawn as style tiles), draws Figma mockups from the SRS, restyles
-  existing ones, and keeps the frames register with screen ids S-n. Use for «нарисуй макеты», «дизайн экранов»,
-  «макеты в фигме», «перекрась макеты», «визуальное направление». Not the screen spec (`screen-spec`) or code
-  (`frontend`).
+  Design stage in Figma: visual direction as style tiles, mockups from the SRS, restyles, the frames register. Use for
+  «нарисуй макеты», «дизайн экранов», «сделай экран настроек» with no mockup yet, «перерисуй стильнее», «сделай менее
+  шаблонно», «нужен характер». Not screen-spec or frontend.
 ---
 
 # UI Design
@@ -81,8 +80,9 @@ flow (`UC-3 Exc-1`), and `screen-spec` maps them to status codes later.
 
 1. Entry question — only when there is no register yet.
 2. Header lines — product type, widths, accessibility.
-3. Visual direction — when the look is not chosen yet, or the user asks
-   for a new one.
+3. Design system, then visual direction — the file's library or
+   variables are read first; the direction runs when the look is not
+   chosen yet, or the user asks for a new one.
 4. Mode **draw**: screen set and coverage plan → drawing → verification.
    Mode **index**: indexing → completeness questions to the designer.
    **Restyle**: the existing frames take the chosen direction →
@@ -97,11 +97,14 @@ touches only what changed.
 **Progress file.** Before the first Figma dispatch of a run (tiles,
 drawing, restyle, redraw, renaming) create
 `documentation/plans/<version>/progress-design.md` per `pipeline` →
-`references/progress-files.md`, every tile and screen `⏳ ждёт`; post its
-link and pass it to the builder as `PROGRESS FILE`. The builder marks each
-screen `🔄 в работе` → `✅ готово`; the session checks each one (a failed
-one → `🔁 возвращено: <что>`) and writes the count with the link after each
-returned dispatch. The file is how the user tells progress from a hang.
+`references/progress-files.md`, every tile and screen `⏳ ждёт`, and pass
+it to the builder as `PROGRESS FILE`. The builder marks each screen
+`🔄 в работе` → `✅ готово`; the session checks each one (a failed one →
+`🔁 возвращено: <что>`). For the chat, run `python3
+"${CLAUDE_SKILL_DIR}/../pipeline/scripts/progress_link.py"
+documentation/plans/<version>/progress-design.md` (add `--desktop` when
+the session has the built-in browser) and paste the line it prints as is — before the first dispatch and after each returned one. The
+file is how the user tells progress from a hang.
 
 ## Entry question
 
@@ -109,8 +112,10 @@ Ask once, when there is no register yet, per `grill-me` → "How a question
 is shown", in the chat, no question card. When the iteration's design
 owner is known (`pipeline` → `references/design-owner.md`), show only what
 it leaves: «мы» — B and C; «дизайнер с плагином» — the designer's
-session asks all three. A and B carry the file link, so this one
-message asks for it:
+session asks all three; «дизайнер без плагина» — only A, in this session:
+the designer draws in Figma on their own, and this stage indexes the
+frames once they are there (mode **index**), so the question is just the
+file link. A and B carry the file link, so this one message asks for it:
 
 ```text
 **Вопрос 1. Есть ли уже макеты**
@@ -122,10 +127,13 @@ message asks for it:
      экранам номера S-n, составлю реестр кадров и проверю, все ли сценарии
      и состояния нарисованы; пробелы станут вопросами дизайнеру.
   B. Макетов нет — пришлите ссылку на файл, где рисовать (пустой подойдёт).
-     Я решу набор экранов по сценариям SRS и нарисую их. (Recommended)
+     Я решу набор экранов по сценариям SRS и нарисую их. (рекомендую)
   C. Макетов нет и файла нет — я создам пустой файл в вашем Figma сам и
      нарисую в нём. Можно добавить ссылку на проект Figma, куда его
      положить; без неё файл ляжет в черновики (Drafts).
+
+Рекомендую B: о готовых макетах в разговоре речи не было, а сценарии SRS
+уже есть.
 
 Ответьте сообщением: буква и ссылка на figma.com (для C — не обязательна).
 ```
@@ -156,6 +164,18 @@ unauthorized, stop: do not invent node ids, and tell the user to connect and
 authorize the Figma MCP once with `/mcp`. Use the `figma-*` skills when
 installed; otherwise the MCP tools directly (`mcp__figma__*`, or
 `mcp__plugin_dev-pipeline_figma__*` when the server comes from this plugin).
+
+**Figma limits.** Figma counts the MCP's reads (`get_metadata`,
+`get_screenshot`, `get_design_context`, …) against the user's seat: a View
+or Collab seat, or the Starter plan, gets about 20 a month — not enough for
+one screen set; a Full or Dev seat on a paid plan gets 200 a day (600 on
+Enterprise) and 10–20 a minute. Before the first Figma dispatch of a
+sitting, say it in one line when `whoami` or the user shows a View or
+Collab seat or the Starter plan, and recommend a Full or Dev seat before
+drawing; a run cut off by the limit reports the screens left `черновик`.
+Keep reads to what a step needs — one `get_screenshot` per screen, not per
+element. The numbers are Figma's and change: developers.figma.com → Figma
+MCP server → Rate limits.
 
 ## Artifact — the frames register
 
@@ -221,12 +241,20 @@ the one characteristic thing. It is chosen once, before the first frame,
 written into the register header as **Визуальное направление**, and reused
 by every later run.
 
+**The design system is read first.** Before the table below, read what the
+file already carries: the libraries enabled in it (`get_libraries`), else
+its local variables (`get_variable_defs` on a frame), else `none` — the
+packet's `DESIGN SYSTEM`. A linked library already is a look, and style
+tiles drawn before this check could contradict it.
+
 | Situation | What happens |
 |---|---|
 | Mode draw on a file with no product frames and no linked library | the step runs before the screen set is drawn |
 | Product frames exist, the register has no direction (they were drawn before this step existed), and nobody asks for a new look | no step: new screens follow the existing frames; the line says `по кадрам файла` |
-| The user asks for a new look of existing frames («перекрась», «новый стиль», «переработать интерфейс», «нарисуй заново») — a designer's frames too | the step runs, then Restyle or Redraw. When the request does not say which, ask once: **перекрасить** — the same frames, only the look changes; or **нарисовать заново на отдельной странице** — every screen drawn anew in the new direction, the old frames left untouched on their page. On a restyle of a designer's file, say once that their look changes and the old one is kept in `🗄 Архив` |
+| The user asks for a new look of existing frames («перекрась», «новый стиль», «переработать интерфейс», «нарисуй заново», «сделай стильнее», «менее шаблонно», «нужен характер») — a designer's frames too | the step runs, then Restyle or Redraw. When the request does not say which, ask once: **перекрасить** — the same frames, only the look changes; or **нарисовать заново на отдельной странице** — every screen drawn anew in the new direction, the old frames left untouched on their page. On a restyle of a designer's file, say once that their look changes and the old one is kept in `🗄 Архив` |
 | A linked library, or a designer's frames (mode index), with no request for a new look | no step: the look is theirs; the line says `по библиотеке <имя>` or `по макетам дизайнера` |
+| A linked library, and the user asks for a new look | the library is the team's code-facing design system and wins over any direction (`executor-catalog` → `references/figma-packet.md`): a direction reaches only what the file owns — local variables, the layout, the one bold thing outside library components. Say so in the same message as the options; a new look for the components themselves is a change to the library, made by its designer. A restyle of library-bound frames stops |
+| The user declines the step (option «без направления» of its question, or «не надо» before it) | no more tiles; the line says `отказ — нейтральная палитра, YYYY-MM-DD`, the packet's `VISUAL DIRECTION` is `declined`, and later runs do not offer the step again unless the user asks |
 | The SRS or the user pins the look (a brand book, brand colours) | the options stay inside that; with everything pinned, one option and no question |
 
 Read `references/visual-direction.md` and follow it: a three-line brief
@@ -302,9 +330,9 @@ keeps its ids, and stays out of `SCREENS`. A frame the register cites but
 the file no longer has is a row in `open-questions.md`, not a silent
 redraw.
 
-**Design system.** Fill the packet's `DESIGN SYSTEM` from the file: the
-libraries enabled in it (`get_libraries`), else its local variables
-(`get_variable_defs` on a frame), else `none`. With `none` the builder
+**Design system.** The packet's `DESIGN SYSTEM` is what the
+visual-direction step read (a linked library, local variables, or `none`);
+read it now when that step did not run. With `none` the builder
 creates the token set from the chosen direction (the packet's `VISUAL
 DIRECTION`) and draws the components itself in the shadcn/ui style; say so
 in one line and that a shadcn/ui kit linked as a library (for example the
@@ -349,60 +377,22 @@ the SRS version the run drew from and `updated:` to today.
 On failure (`BLOCKED`, unresolved ids), leave the ids empty and the screens
 `черновик`, report what blocked, and do not offer the next stage.
 
-## Restyle
+## Restyle and redraw
 
-A new look for frames that already exist: the visual direction changes;
-the screens, their structure, layer names, texts, annotation frames and
-every `nodeId` stay. It is not a redesign — a screen whose structure must
-change is `редизайн` and goes through Drawing.
+A new look for frames that already exist, after the user chose a direction.
+Read `references/restyle-redraw.md` and follow it.
 
-1. The visual-direction step has run and the user has chosen. The register
-   line names the new direction and `прежнее: «<имя>»`.
-2. Read the file: `get_metadata` on every page, `get_variable_defs` on a
-   screen frame. Local variables are restyled in place. A linked library
-   belongs to its designer: say so and stop — its variables are not edited
-   from here.
-3. Dispatch `figma-sonnet` with `MODE restyle`: `SCREENS` lists every
-   screen of the register with the mark `перекраска` and its frames, `APP-WIDE STATES` the app-wide
-   frames, `VISUAL DIRECTION` the chosen direction.
-4. Verify: every `nodeId` of the register still resolves under its name;
-   one `get_screenshot` per screen shows the new look with no clipped text
-   and no template tells (UX-60). A miss goes back with only the missing
-   items, round after round while each round fixes at least one; what no
-   round can fix is a row in `open-questions.md`.
-
-The register's ids and statuses do not change; `updated:` moves on. When
-the frontend is already built (the repository holds the screens' code),
-the next stage is `plan`: its theme unit carries the `🎨 Tokens` variables
-into the project's theme file. The screen specs stay valid, because only
-the look changed.
-
-## Redraw on a new page
-
-The whole interface drawn anew in the chosen direction, on its own page.
-The old frames stay exactly as they are on theirs — a designer's work is
-neither restyled nor archived, and both versions can be compared side by
-side.
-
-1. The visual-direction step has run and the user has chosen.
-2. Read the file: `get_metadata` on every page. Every product frame goes
-   into `EXISTING FRAMES` and stays untouched.
-3. Dispatch `figma-opus` with `MODE draw`, `PAGE` a new page `✅ Экраны ·
-   «<имя направления>»`, every screen of the register in `SCREENS` marked
-   `редизайн` with its old frames as the reference, every app-wide state
-   `draw`, and `VISUAL DIRECTION`. The screens keep their S-ids and M-ids,
-   and each element keeps the № and layer name of the old annotation
-   wherever it stays, so the screen specs need new nodeIds rather than a
-   rewrite.
-4. Verify as in Drawing. The register then points at the new frames: the
-   frame, state and step cells take the new nodeIds; the header says
-   **Кадры рисует:** `ui-design`, drops **Слои по действиям**, and adds
-   **Прежние кадры:** the old page, who drew it, and that it is no longer
-   used.
-
-The next stage is `screen-spec` for every screen — the nodeIds changed,
-and an element the builder added or reshaped needs its row — then
-`ui-test-cases` (write) for the frame ids, then `plan`.
+- **Restyle** — the same frames take the direction (`figma-sonnet`, `MODE
+  restyle`); structure, layer names, texts, annotations and every `nodeId`
+  stay, so the register and the screen specs stay valid. A linked library's
+  variables are not edited from here: a restyle of library-bound frames
+  stops and says so. Next stage, when the screens are already built:
+  `plan` (its theme unit).
+- **Redraw on a new page** — every screen drawn anew in the direction on a
+  page `✅ Экраны · «<имя>»` (`figma-opus`, `MODE draw`), the old frames
+  untouched on theirs; S-ids, M-ids and element № stay. Next stage:
+  `screen-spec` for every screen (new nodeIds), then `ui-test-cases`
+  (write), then `plan`.
 
 ## Indexing (mode index)
 
@@ -433,7 +423,11 @@ missing. It does not draw over a designer's work.
    frames beside the screens, without changing anything the actor sees. A
    yes dispatches `figma-sonnet` with `MODE rename` (see the packet); a no
    is recorded in the register header (**Слои по действиям:** нет) and
-   `screen-spec` reads the frames as they are.
+   `screen-spec` reads the frames as they are — elements numbered in
+   reading order, every text copied from its text layer and marked «текст
+   слоя». Recommend yes: the annotation gives each element a number that
+   stays across iterations and each text its flow, which the screen specs,
+   the test cases and the code all cite.
 
 A screen in index mode becomes `готово к разработке` when its frames are
 in the register and no `Блокирует старт` row names it. When the user asks to
@@ -460,7 +454,8 @@ row named in Closing.
    belong to `screen-spec`.
 7. Ids were only appended: no `S-` or `M-` id was renumbered or reused.
 8. The header has **Визуальное направление**, or says whose look the
-   frames follow (a library, a designer).
+   frames follow (a library, the file's frames, a designer) or that the
+   user declined the step.
 9. The screenshots show realistic content in Russian — no «Lorem ipsum»,
    «Название 1» or empty tables standing in for data.
 

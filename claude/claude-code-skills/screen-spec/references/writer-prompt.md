@@ -13,11 +13,15 @@ per screen, from the Figma frames, the OpenAPI contract and the SRS. You do
 not draw or edit frames, you do not edit the API, the SRS or the register,
 and you decide no product behaviour: what the inputs do not settle is a
 Разрывы row with its owner (design | API | SRS), never a guess. You cannot
-ask the user.
+ask the user: a question only the user can answer, without which a screen
+cannot be written, is STATUS BLOCKED with that one question in BLOCKER.
 
-SKILL           <path to screen-spec/SKILL.md> — follow "What each file
+SKILLS ROOT     <absolute folder holding the plugin's skills
+                (executor-catalog → Dispatch contract)>
+SKILL           <SKILLS ROOT>/screen-spec/SKILL.md — follow "What each file
                 holds", "The sync check" and the Writer half; skip the
-                Orchestrator half. Read references/template.md before the
+                Orchestrator half. Read
+                <SKILLS ROOT>/screen-spec/references/template.md before the
                 first file and copy its shape exactly.
 MODE            greenfield | increment
 UI FOLDER       documentation/ui/ | documentation/ui/<product>/ (several UI
@@ -37,9 +41,13 @@ INPUTS (read in full)
                «Общие состояния» → Общее · … frames)
   Figma:      fileKey <key>
   OpenAPI:    documentation/api/openapi.yaml | none (no HTTP)
-  SRS:        documentation/requirements/srs/srs.md@<version>
-              (the register's sources: pin)
+  SRS:        documentation/requirements/srs/srs.md@<version> and every
+              areas/*.md beside it (the register's sources: pin)
   Existing file (increment): <path> | none
+
+ANSWERS
+  <pasted: the user's answer to each question an earlier dispatch of these
+   screens returned as BLOCKED, with the question — or: none>
 
 GENERAL HANDLER
   <the `общий обработчик` rows from an existing screen file of this product,
@@ -51,7 +59,8 @@ RULES
   Аннотация frame; one get_screenshot per screen, state and nested-step
   frame; get_design_context on the Аннотация frame to copy its «Элементы»
   and «Тексты» tables verbatim, and on another frame only when metadata and
-  the screenshot cannot tell what an element is. Use the figma-* skills when
+  the screenshot cannot tell what an element is, or — with «Слои по
+  действиям: нет» — to read its text layers. Use the figma-* skills when
   installed, else the Figma MCP tools (mcp__figma__* or
   mcp__plugin_dev-pipeline_figma__*). Neither available → BLOCKED.
 - № comes from the annotation's «Элементы» table, one numbering across the
@@ -59,7 +68,13 @@ RULES
   number in reading order and add the Разрыв «нет аннотации — № назначены ТЗ».
 - Every text in «» is copied from «Тексты». It is keyed by element and SRS
   flow, not by status: map flow → SRS named error → the status whose error
-  code the operation declares, and write the flow id beside the code.
+  code the operation declares, and write the flow id beside the code. With
+  «Слои по действиям: нет» there is no «Тексты»: read the text layers with
+  get_design_context on each screen, state and nested-step frame, copy each
+  character for character, and mark it `текст слоя` with the layer's
+  nodeId; the frame it sits on gives its flow (the register's state name).
+  Only a meaning with no text layer anywhere is a Разрыв «текст — нет на
+  кадре»; never read a text off a screenshot.
 - Every branch of an interactive element ends in one outcome of the closed
   set; every non-success status of every called operation has a row in
   «Ошибки ответов»; every computed value is defined once in «Производные
@@ -100,7 +115,8 @@ SYNC CHECK      per screen: the eight checks — ok | the count of misses
 FIGMA READS     per screen: get_metadata N · get_screenshot N · get_design_context on <nodeIds>
 GENERAL HANDLER the общий обработчик rows as written (only when derived here) | copied
 CONCERNS        one line each, or none
-BLOCKER         only for BLOCKED: what is missing (MCP, register row, operation)
+BLOCKER         only for BLOCKED: what is missing (MCP, register row, operation),
+                or the one question only the user can answer
 ```
 
 A screen with no file, or a file that cites a `nodeId` the writer did not

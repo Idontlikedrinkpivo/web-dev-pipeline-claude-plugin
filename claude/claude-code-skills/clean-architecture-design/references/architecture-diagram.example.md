@@ -35,9 +35,9 @@ follow `output-template-foundation.md`.
 
 ## 2. Модули и функциональные области
 
-| Область | Модуль | Группа SRS | Документ сценариев | … |
+| Область | Модуль | Группы SRS | Сценарии | … |
 |---|---|---|---|---|
-| `venues` | `src/venues/` | … | `scenarios/venues/venues.md` | … |
+| `venues` | `src/venues/` | … | `scenarios/venues/` | … |
 
 Одна область; схемы модулей нет.
 

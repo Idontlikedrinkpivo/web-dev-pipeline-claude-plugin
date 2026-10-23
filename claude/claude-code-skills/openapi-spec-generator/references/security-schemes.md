@@ -34,6 +34,10 @@ security:
 
 ## OAuth 2.0 — Authorization Code
 
+The URLs are the identity provider's, from the SRS or the user — never a
+placeholder host shipped as the contract (SKILL.md → Step 2). Without
+one, the flow is a BLOCKED question.
+
 ```yaml
 components:
   securitySchemes:
@@ -41,9 +45,9 @@ components:
       type: oauth2
       flows:
         authorizationCode:
-          authorizationUrl: https://auth.example.com/oauth/authorize
-          tokenUrl: https://auth.example.com/oauth/token
-          refreshUrl: https://auth.example.com/oauth/refresh
+          authorizationUrl: https://<auth host the SRS names>/oauth/authorize
+          tokenUrl: https://<auth host the SRS names>/oauth/token
+          refreshUrl: https://<auth host the SRS names>/oauth/refresh
           scopes:
             read:users: Read user profiles
             write:users: Create and update users
@@ -62,7 +66,7 @@ components:
       type: oauth2
       flows:
         clientCredentials:
-          tokenUrl: https://auth.example.com/oauth/token
+          tokenUrl: https://<auth host the SRS names>/oauth/token
           scopes:
             api:read: Read access
             api:write: Write access
@@ -75,7 +79,7 @@ components:
   securitySchemes:
     OpenIDConnect:
       type: openIdConnect
-      openIdConnectUrl: https://auth.example.com/.well-known/openid-configuration
+      openIdConnectUrl: https://<auth host the SRS names>/.well-known/openid-configuration
 ```
 
 ## Multiple Schemes (AND — both required)

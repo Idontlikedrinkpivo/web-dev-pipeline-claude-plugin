@@ -6,4 +6,4 @@ one was copied was not recorded.
 
 Adapted for this plugin: the house rules are rewritten around the pipeline's architecture (parse once at the
 boundary, the use case's own input type, no raw input in logs), the version checklist is kept as «verify against
-the installed version», and a section on frontend form rules is added.
+the installed version» in `references/version-checks.md`, and a section on frontend form rules and «The reviewer checks» are added.

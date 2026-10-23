@@ -2,8 +2,8 @@
 
 `doc-versioning` runs this once per dirty contract document (SRS, OpenAPI,
 DB schema, architecture foundation, domain model, scenarios, screen specs)
-at a stage's close and when the user asks to version or publish
-(`references/version-birth.md`). `plan` does not call it. Writers, gates,
+at a stage's close, at the iteration's close before the tag, and when the
+user asks to version or publish (`references/version-birth.md`). `plan` does not call it. Writers, gates,
 and reviews mid-stage, and `work`, do not run this list: they leave
 `version`, `updated`, and the changelog as they found them.
 
@@ -15,14 +15,14 @@ with its date set; do not add a second row.
 
 **Before any file**
 
-- [ ] The iteration's version is the open `plans/<version>/` (no `summary.md`); none open → opened per `pipeline` → Service version, on the user's answer — When a version is born
+- [ ] The iteration's version is the open `plans/<version>/` (no `summary.md`) and the branch is `iteration/<version>`; none open, or another branch → opened by `open_iteration.py` after the user's answer on the number (`pipeline` → Service version) — When a version is born
 
 **Every document in the commit**
 
 - [ ] One canonical file for this system, at its unchanged Registry path (no date, no topic) — Which mode am I in · Registry · One folder per document
 - [ ] An unversioned row got no `version`, no changelog, no typed row — Registry
 - [ ] Plan: a closed version's folder untouched. DB: a new numbered file in `db/migrations/`, no committed one edited, and `migration:` names the newest file — `references/exceptions.md`
-- [ ] Every cited token the diff against the last stamped state touches is typed ломает / добавляет / уточняет / no row; an explanation of an existing token is no row — What a version is · `references/change-types.md`
+- [ ] Every cited token the diff against the last stamped state touches is typed ломает / добавляет / уточняет / no row; an explanation of an existing token is no row; the hunks of `upgrade-docs` commits get no row — What a version is · Commits that are not stamps · `references/change-types.md`
 - [ ] No id renumbered, reused, or deleted without an `удалён:` note — ID stability
 - [ ] Every pin read: stale ones (a «ломает» after the pin) carry the banner; pins behind by «уточняет» only are refreshed — Staleness and cascade
 - [ ] The diff contains only what the feature touches — Increment discipline

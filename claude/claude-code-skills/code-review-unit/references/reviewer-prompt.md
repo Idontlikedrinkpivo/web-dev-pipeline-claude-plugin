@@ -38,6 +38,14 @@ VERIFICATION
 EVIDENCE STRATEGY THE UNIT WAS GIVEN
   <test-first | characterization-first | smoke | none>
 
+STACK REVIEW RULES
+  <the «The reviewer checks» items of every stack skill `work` picked for
+   this unit's files (`work/references/stack-skills.md`) — `typescript`,
+   `react`, `python` and the library skills — pasted, each under its
+   skill's name; or: none — no picked skill has review checks>
+  These are the rules a linter cannot see. Check the diff against each one
+  that its code touches; skip the ones it does not.
+
 WORKER REPORT
   <TESTS / EVIDENCE / RED OBSERVED / SCREEN CHECK / CONCERNS / OUT OF SCOPE, or "none">
 
@@ -99,7 +107,8 @@ TEST SCENARIOS THE UNIT WAS GIVEN
 
 plus that unit's design excerpts, «Подход», «Проверка», and evidence
 strategy. THE DIFF is the single `git show` file, sectioned by U-id. The
-rest of the packet is shared. The report carries one `VERDICT U<n> …` line
+rest of the packet is shared; STACK REVIEW RULES carries the union of the
+batch's skills, once each. The report carries one `VERDICT U<n> …` line
 per U-id; every FINDINGS line names its U-id.
 
 ## The report

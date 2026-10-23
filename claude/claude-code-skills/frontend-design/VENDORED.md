@@ -14,6 +14,8 @@
 
 ## Changed in `SKILL.md`
 
+- «Loaded straight from a request?»: a direct call hands the work to
+  `ui-design`, which owns the style tiles, the archive and the register.
 - Description and opening: the design goes into the visual direction and
   the frames; `frontend` builds the frames as they are.
 - «Ground the design»: the brief is the SRS, `ui-wishes.md` and the user's

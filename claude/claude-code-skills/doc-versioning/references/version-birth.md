@@ -15,10 +15,14 @@ finished (`pipeline` → `references/decision-changes.md`). Opening an iteration
 → Service version), not a document's: a document takes that number only
 when a commit stamps a change in it.
 
-**Stamps happen at two moments, by these steps only:** when a document
+**Stamps happen at three moments, by these steps only:** when a document
 stage closes (its gates run or skipped — `pipeline` → Asking before a
-transition), and when the user asks to version or publish. A writer, a
-gate or a review mid-stage never stamps.
+transition); at the iteration's close, before the tag (`pipeline` → End of
+the pipeline), over every contract document that still differs from its
+last stamped state — decisions changed after the plan, fixes after the UI
+run or the audit — so the release's journal carries them; and when the
+user asks to version or publish. A writer, a gate or a review mid-stage
+never stamps.
 
 **At a stage's close** — or when the user stops at a gate or transition
 question after the document is written — the steps below run over that stage's documents
@@ -27,8 +31,11 @@ three architecture documents, or the screen specs — with no question, and
 the commit message names them: `docs: <документ> <version>` («docs: SRS
 2.1.1», «docs: схема БД и миграция 0007 2.1.1»). An SRS stamp also names
 its two gates, so a later session reads them from `git log` (`pipeline` →
-Where am I): `docs: SRS <version> · grill: прошёл | пропущен · review:
-прошёл | пропущен`. A later change in the same
+Where am I): `docs: SRS <version> · grill: <state> · review: <state>`,
+each state one of `прошёл`, `пропущен` (the user chose B on the gate's
+question — not offered again) or `не запускался` (the question was not
+answered: the user stopped first, or the session ended — «где я» offers
+it again). A stop is never written as `пропущен`. A later change in the same
 iteration (a decision changed, a gate re-run) stamps again at its own close
 under the same version: rows of this version are amended, not doubled.
 
@@ -48,11 +55,13 @@ under the same version: rows of this version are amended, not doubled.
 2. None of them differ from its last stamped state — stop. Report that
    nothing was stamped. Do not commit.
 3. Read the iteration's version: the name of the open
-   `documentation/plans/<version>/` (no `summary.md`). The stage that
-   changed the document should have opened it; when none is open, open it
-   now per `pipeline` → Service version (the number with its level and
-   reason, asked as a question; the folder is created on the answer). Two
-   open folders — stop and ask which one is current.
+   `documentation/plans/<version>/` (no `summary.md`), and be on
+   `iteration/<version>`. The stage that changed the document should have
+   opened it; when none is open, or the branch is another one, open it now
+   by `pipeline` → Service version — the number asked as a question, then
+   `open_iteration.py` (`pipeline` → `references/service-version.md`).
+   Never stamp on `main`. Two open folders — stop and ask which one is
+   current.
 4. For each file that differs, run `references/guardrails.md`. List the
    cited tokens its diff against the last stamped state touches — the file
    about to be committed, not the previous chat turn, so several
@@ -69,9 +78,9 @@ under the same version: rows of this version are amended, not doubled.
 5. In the same files, refresh each pin whose source rows after the pin are
    all «уточняет» (Staleness and cascade). Move no other pin.
 6. One commit — at a stage's close `docs: <документ> <version>` (an SRS
-   with its gates: `docs: SRS <version> · grill: прошёл | пропущен ·
-   review: прошёл | пропущен`), on the user's request `docs: publish
-   document versions`. Stage
+   with its gates: `docs: SRS <version> · grill: <state> · review:
+   <state>`), at the iteration's close `docs: документы <version> перед
+   тегом`, on the user's request `docs: publish document versions`. Stage
    only the files just stamped, plus a new file in `db/migrations/` or a
    rebuilt unversioned diagram that belongs to a dirty schema or
    architecture, and — when the project has `documentation/_web-docs/` — the

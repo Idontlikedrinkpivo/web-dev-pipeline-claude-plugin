@@ -3,9 +3,18 @@
 Read in Step 1. Each scanner runs from the repository root through its
 Docker image, so nothing is installed on the machine. Pull the image once
 per audit, check its flags with `--help` before relying on the commands
-below (tools rename subcommands between majors), and save the raw output
-under `OUT=$(git rev-parse --git-dir)/pipeline-work/security`. Never paste
-raw output into the chat or a packet: the auditor reads the file.
+below (tools rename subcommands between majors), and save the raw output in
+one folder, created once before the first scanner:
+
+```bash
+OUT="$(git rev-parse --absolute-git-dir)/pipeline-work/security"
+mkdir -p "$OUT"
+```
+
+Each container gets that folder mounted as `/out` and writes there — never a
+path under `/repo/.git` or `/src/.git`: in a linked worktree `.git` is a file,
+and the git folder lies outside the mounted tree. Never paste raw output into
+the chat or a packet: the auditor reads the file.
 
 ## Network, proxy and caches
 
@@ -63,12 +72,14 @@ commit**: a secret deleted in a later commit is still in the history and
 still has to be rotated.
 
 ```bash
-docker run --rm -v "$PWD:/repo" ghcr.io/gitleaks/gitleaks:latest \
-  git /repo --report-format json --report-path /repo/.git/pipeline-work/security/gitleaks.json --redact
+docker run --rm -v "$PWD:/repo" -v "$OUT:/out" ghcr.io/gitleaks/gitleaks:latest \
+  git /repo --report-format json --report-path /out/gitleaks.json --redact
 ```
 
 `--redact` keeps the secret's value out of the report. Older majors spell
-the subcommand `detect --source /repo`. Fixture values the test compose
+the subcommand `detect --source /repo`. The history scan needs the real git
+folder inside the container: in a linked worktree run it from the main
+working tree (`git worktree list`, first line), which holds the same history. Fixture values the test compose
 file declares on purpose (`deploy-topology` → Step 6) are not findings;
 anything else that looks live is P0 until the user says it is a dummy.
 
@@ -77,9 +88,9 @@ anything else that looks live is P0 until the user says it is a dummy.
 Code patterns of the OWASP Top 10 and the stack's own pitfalls.
 
 ```bash
-docker run --rm -v "$PWD:/src" semgrep/semgrep:latest \
+docker run --rm -v "$PWD:/src" -v "$OUT:/out" semgrep/semgrep:latest \
   semgrep scan --config p/owasp-top-ten --config p/<stack> \
-  --json --output /src/.git/pipeline-work/security/semgrep.json /src
+  --json --output /out/semgrep.json /src
 ```
 
 `<stack>`: `p/typescript` and `p/react` for a TypeScript project,

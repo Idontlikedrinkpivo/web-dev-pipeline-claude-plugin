@@ -2,9 +2,12 @@
 
 Two packets from one template. The **structural** packet goes to
 `plan-review-medium`, the **judgment** packet to `plan-review-hard`. Both are
-bounded: everything a reviewer may look at is pasted in, and neither explores
-the repo beyond the file tree it is given — except the structural reviewer's
-search for the symbols a unit removes or changes (Files completeness).
+bounded: everything a reviewer may look at is named by path, read from disk,
+and neither explores the repo beyond `git ls-files` — except the structural
+reviewer's search for the symbols a unit removes or changes (Files
+completeness). Only the coverage ledger is pasted: the session built it
+and it exists nowhere on disk (`executor-catalog` → Dispatch contract →
+Paths, not pasted documents).
 
 Fill `LENSES` with only that packet's lenses. A reviewer given all twelve skims
 the three that matter.
@@ -15,9 +18,13 @@ the three that matter.
 You review a finished implementation plan before any code exists. You do not
 edit the plan, the design documents, or the repo. Findings and one verdict only.
 
-PLAN                documentation/plans/<version>/plan.md — pasted in full: §1
-                    digest with its version line, the unit table, every unit's
-                    fields, §5 критерии готовности, open-questions.md, pins
+SKILLS ROOT         <absolute folder holding the plugin's skills
+                    (executor-catalog → Dispatch contract)>
+PLAN                documentation/plans/<version>/plan.md and open-questions.md
+                    beside it — read both in full
+MODE                greenfield | increment | fix | brownfield
+UNITS               <the U-ids to review: all, or on a fix plan the appended
+                    units, on a re-review the changed ones>
 
 SERVICE VERSION     (structural packet only) the folder's version, the
                     manifest's current `version`, the iteration's typed
@@ -26,16 +33,22 @@ SERVICE VERSION     (structural packet only) the folder's version, the
                     typed from the diff since the last tag), and whether the
                     API has external consumers (partner-versioned, `/vN` path)
 
-DESIGN DOCUMENTS CITED BY THE PLAN (de-duplicated)
-  <every section, id, operationId, table, and screen any unit's «Документы» names,
-   pasted once each — this is what citations are resolved against>
+READ FROM DISK
+  <repo-relative paths of every document the units' «Документы» cite, every
+   part of a split one (srs.md and areas/*.md; openapi.yaml, paths/,
+   components/); on a fix plan the report (test-run.md or security-audit.md
+   beside the plan); on a brownfield plan the code:<path> files — this is
+   what citations are resolved against>
 
-COVERAGE LEDGER
+COVERAGE LEDGER   (structural packet only)
+  <only the ids in scope (plan-review → Step 1): on an increment, those this
+   version added or changed; on greenfield, all; on a fix plan, the report
+   rows; on brownfield, the request's items.>
   Covered by a test:
-  <every invariant row and AC id from the design documents, one per line>
+  <invariant row and AC ids, one per line>
   Covered by a unit:
-  <every use case, operationId, and screen, one per line; every foundation
-   §1 «Решения по NFR» row and every §4 configuration variable, one per line>
+  <use cases, operationIds, screens, foundation §1 «Решения по NFR» rows,
+   §4 configuration variables; report rows — one per line>
 
 LEGAL EXECUTOR NAMES
   <executor-catalog/references/assignable-implementers.md, verbatim —
@@ -45,11 +58,12 @@ LEGAL EXECUTOR NAMES
    Not the catalog's full Name column: a
    review, plan-review, plan-writer, design, or impl-critical name in a plan is a finding.>
 
-GRADING STANDARD
-  <plan/references/complexity.md, pasted in full>
+GRADING STANDARD  (judgment packet only)
+  <SKILLS ROOT>/plan/references/complexity.md — read it before the units
 
 REPO FILE TREE
-  <the tree, so «Файлы» paths and scaffold overlap can be checked>
+  run `git ls-files` yourself, so «Файлы» paths and scaffold overlap can be
+  checked
 
 PRIOR FINDINGS  (if this is a re-review after a fix)
   <one line per already-closed finding, or "none">
@@ -69,8 +83,9 @@ DO NOT REPORT
 SEVERITY
   P0  the plan cannot execute as written: dependency cycle, a unit that cannot
       land green alone, a floor violation, a «Документы» citation that does
-      not resolve in the pasted documents, an invariant or AC covered by no
-      unit, an «Исполнитель» name absent from LEGAL EXECUTOR NAMES
+      not resolve in the documents read, an in-scope invariant, AC or report
+      row covered by no unit, an «Исполнитель» name absent from LEGAL
+      EXECUTOR NAMES
   P1  executable but buys avoidable rework: a false «Параллельно: yes», a grade off by
       one tier without a floor breach, a scenario whose expected outcome is not
       decided yet, a unit recreating scaffold output, a PATCH over
@@ -93,18 +108,24 @@ Every citation finding names the document and the id that did not resolve.
     runtime resource (test database, port, dev server).
     File disjointness alone is not sufficient; an unmarked shared contract is
     a finding.
-  Files completeness — for each unit that removes or changes a field, a
-    constant, an environment variable, a response shape or a public symbol:
+  Files completeness — for each unit with «Меняет символы», and each unit
+    that visibly removes or changes a field, a constant, an environment
+    variable, a response shape or a public symbol without listing it there:
     search the repository (grep) for the symbol — code, tests, e2e, CI,
     documents — and check that every hit is in the unit's «Файлы» or named
-    under «Не затрагивается» with a reason. A missing caller or test is P1.
-    This is the one lens that reads the repository, and only the hits.
+    under «Не затрагивается» with a reason. A missing caller or test, or a
+    changed symbol missing from «Меняет символы», is P1. This is the one
+    lens that reads the repository, and only the hits.
   Citation integrity — every «Документы» entry resolves to a real section, id,
-    operationId, table, or screen in the pasted documents.
+    operationId, table, or screen in the documents read; a report row
+    (test-run.md TC-n, security-audit.md F<n>) to that row of the report;
+    code:<path> (brownfield) to a file in the repository; plugin change <id>
+    to that id in <SKILLS ROOT>/upgrade-docs/changes.json.
   Coverage — every "covered by a test" line appears in some unit's
     «Тестовые сценарии»; every "covered by a unit" line belongs to some
     unit's «Документы» or «Файлы» (it needs no test line of its own). Name anything with no unit, and
-    anything two units both claim.
+    anything two units both claim. The ledger is already scoped: an id
+    outside it — built by an earlier version — is not a finding.
   Executor validity — every «Исполнитель» and «Вложенный» name is one of
     LEGAL EXECUTOR NAMES; no model slug anywhere in the plan; «Вложенный»
     filled only where «Что делает вложенный» describes separable mechanics.
@@ -121,9 +142,10 @@ Every citation finding names the document and the id that did not resolve.
     «ломает» → MINOR or above, PATCH only with none. MAJOR is the owner's
     call — check only that §1 states it. With a partner-versioned API, a
     «ломает» in OpenAPI inside the same API major (no new path prefix) is
-    P1. A level below the changes is a finding. The last unit is the grade-0
-    mechanical-worker bump of the manifest's version to that number,
-    depending on every other unit.
+    P1. A level below the changes is a finding. When the manifest's version
+    differs from the folder's, the last unit is the grade-0
+    mechanical-worker bump to that number, depending on every other unit;
+    when they are equal, no bump unit is needed, and a fix plan adds none.
   Plan hygiene — U-ids unique and unrenumbered, no progress state (status:,
     checkboxes, "done"), repo-relative paths, version pins present, Open
     Questions blocking named units rather than absorbed as guesses.
@@ -141,7 +163,8 @@ Every citation finding names the document and the id that did not resolve.
     contains an open decision, whether «Тестовые сценарии» has error and
     integration rows, whether «Документы» fully determine the outcome) and compare to the stated grade.
     Check both floors. Check the anti-deflation gate: a unit whose «Образец» is
-    `— first of its kind` is at least Mid, so 0 or Low there is a finding.
+    `— first of its kind` is at least Mid unless the mechanical gate graded
+    it 0, so Low, or 0 outside that gate, is a finding.
     Check the compound gate was reachable: when every High
     unit in the plan is a risky one, that gate was probably skipped and the
     plan's hardest unit went to the Mid implementer.
@@ -156,8 +179,8 @@ Every citation finding names the document and the id that did not resolve.
 
 ```
 VERDICT           PASS | FIX_THEN_PROCEED | RETURN_TO_PLAN | STOP
-FINDINGS          one per line: <sev> | <unit ids> | <lens> | <what> | <fix> | <fix kind>
-                  fix kind on P0/P1: mechanical (the fix is the finished text
+FINDINGS          one per line: <sev> | <unit ids> | <lens> | <what> | <fix> | <вид правки>
+                  вид правки on P0/P1: mechanical (the fix is the finished text
                   edit) | local (a local decision left) | reslice (split, merge,
                   new unit, cross-unit «Зависит от», security/money/migration
                   decision); `—` on P2/P3

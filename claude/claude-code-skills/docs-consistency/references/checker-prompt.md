@@ -31,7 +31,12 @@ AXES (run each one whose documents both exist; a skipped one gets one line)
                          SRS id; an orphan says whether it looks like scope creep
                          or a requirement the SRS is missing
   3 Schema ↔ OpenAPI     names, types, nullability vs required, enums, lengths
-                         and ranges, uniqueness ↔ 409, id format, money and time
+                         and ranges, uniqueness ↔ 409, id format, money and time;
+                         keys: a resource's id is its table's public_id, a
+                         reference <thing>_id keeps the column's name and
+                         carries the referenced row's public_id (uuid), a path
+                         parameter is <resource>_id, no bigint key or reference
+                         in the API (db-schema-design → How the API names keys)
   4 OpenAPI ↔ screens    cited operationIds and fields exist; input rules ↔
                          request schema; every declared status of a called
                          operation has an outcome row; shown data the API never

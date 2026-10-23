@@ -17,6 +17,13 @@ Over the run's diff `BASE...HEAD`, with the tools of `repo-scaffold/references/q
 Save the table under `$(git rev-parse --git-dir)/pipeline-work/` and into the run report as «Здоровье кода»:
 each figure at BASE and at HEAD.
 
+**A tool that is not there.** Use the project's own install of each tool (its dev dependencies, its scripts); a
+one-off run through the package runner (`npx jscpd`, `uvx mutmut`) is fine when it needs no setup. A tool that
+cannot run — not installed and not fetchable, a mutation runner the project never configured, a stack it does
+not support — leaves its row «не измерено: <tool> — <причина>» and the rest of the table goes on. Never add a
+dependency or a config file to the project for this step: that is a change no unit planned. The review reads
+«не измерено» as no data, not as worse, and the run report names the gap so the next plan can add the tool.
+
 ## Simplify
 
 When the run added duplicates or grew a function or file past a threshold, dispatch one `impl-medium` unit

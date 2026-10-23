@@ -1,9 +1,7 @@
 ---
 name: typescript
 description: >-
-  TypeScript rules agents break by default: errors as types with a `kind` and their cause, exhaustive switch, awaited
-  promises, no any or unchecked casts, impossible states unrepresentable, one home per rule. Use whenever .ts / .tsx
-  code is written, reviewed or refactored. Not React, Fastify, Drizzle, Zod or test specifics.
+  TypeScript rules (typed errors, exhaustive switch, no any); read before writing or reviewing .ts code.
 ---
 
 # TypeScript
@@ -21,13 +19,13 @@ audit of a real project found. A rule a machine checks is one line here with its
 | no `as` on outside data, no `as unknown as`, no `!` | `no-unsafe-type-assertion`, `no-non-null-assertion` |
 | an error class is never empty — it carries a `readonly kind` | `no-restricted-syntax` (empty subclass) |
 | a union of errors or statuses is handled in an exhaustive `switch` with `assertNever` | `switch-exhaustiveness-check` |
-| an error made in a `catch` passes the caught one: `{ cause: e }`; a `catch` always names its variable | `preserve-caught-error` (`requireCatchParameter`, the project's error classes in `errorClassNames`) |
+| an error made in a `catch` passes the caught one: `{ cause: e }`; a `catch` always names its variable | `preserve-caught-error` (`requireCatchParameter`; the project's error classes in `errorClassNames`, ESLint 10.7+) |
 | no empty `catch`, not even with a comment inside | `no-empty`, `no-restricted-syntax` (empty catch block) |
 | throw and reject only `Error` and its subclasses; a `catch` variable is `unknown` and narrowed first | `only-throw-error`, `prefer-promise-reject-errors`, `use-unknown-in-catch-callback-variable` |
 | every promise is awaited or explicitly `void`ed with a reason | `no-floating-promises` |
 | no async function where a sync one is expected (`onClick`, `forEach`, `setTimeout`) | `no-misused-promises` |
 | `return await` inside `try` | `return-await` (`in-try-catch`) |
-| a closed set is a string union or an `as const` object, not an `enum` | `erasableSyntaxOnly` or `no-restricted-syntax` |
+| a closed set is a string union or an `as const` object, not an `enum` | `no-restricted-syntax` (`TSEnumDeclaration`), or `erasableSyntaxOnly` where Node runs the `.ts` files directly |
 | no condition the type already decides | `no-unnecessary-condition` |
 | a disabled rule names its reason, never a file-wide disable | `eslint-comments/require-description`, `no-unlimited-disable` |
 
@@ -36,7 +34,10 @@ audit of a real project found. A rule a machine checks is one line here with its
 1. **Every named error is its own type with a literal `kind`; an operation's expected failures are a union of
    them.** Empty classes are identical to the compiler, so a missed branch passes as success — the audit's new
    error answered 204. A failure of an outside call keeps its cause and its operation. The lint checks the cause
-   only for the classes listed in `errorClassNames`: a new error class made in a `catch` joins that list.
+   only for the classes listed in `errorClassNames`: a new error class made in a `catch` joins that list. A plain
+   name there means the constructor takes the options object (`{ cause }`) second, as `Error` does — keep that
+   shape (`new InvalidCursor("shape", { cause: e })`); a class that takes it elsewhere is listed as
+   `{ name, argumentPosition }` (1-based), or the lint reports correct code.
 2. **One translation of failures to answers**, in one module, as a `switch (e.kind)` with `assertNever` — never
    a mapper per route. A table of codes is `satisfies Record<ErrorKind, number>`, so a new kind breaks the build.
 3. **A failure the user only sees as a generic answer writes one log line** with the cause's name, never secrets,

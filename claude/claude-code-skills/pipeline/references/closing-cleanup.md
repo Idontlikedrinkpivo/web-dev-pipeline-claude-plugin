@@ -1,7 +1,8 @@
 # Cleaning up a closed iteration
 
-Read at the end of the pipeline, after the summary and the tag, before the
-last line. Working files pile up iteration after iteration — plans,
+Read at the end of the pipeline, after the tag and the closing lines
+(`SKILL.md` → End of the pipeline, steps 6–7): the question goes below them
+and ends the message. Working files pile up iteration after iteration — plans,
 progress files, run and audit reports — and an old plan beside the new one
 is noise for every later session that searches `documentation/`. This
 step clears what the closed iteration no longer needs, once, with one
@@ -25,11 +26,14 @@ runs (`documentation/plans/<version>/.progress-server` exists):
 The documentation site's server too, when it runs:
 `python3 <docs-site skill folder>/scripts/site_server.py --stop` — after the site is rebuilt and committed.
 
-**Before removing**, move what only a working file still holds into its
-owner document: an accepted risk in `security-audit.md` goes to the
-architecture's accepted risks with its reason and date; a decision recorded
-only in a run report goes through `references/decision-changes.md`. Nothing
-the project still relies on may live only in a file about to go.
+**Before removing**, check that nothing the project still relies on lives
+only in a file about to go: every accepted risk of `security-audit.md` is in
+architecture §1 «Принятые риски», every decision of a run report is in its
+document. `security-audit` writes an accepted risk there when the user
+accepts it, and step 1 of the end of the pipeline catches one it missed,
+before the stamp and the tag. One still missing now goes through
+`references/decision-changes.md` and is committed, and the question says it
+landed after the tag `v<version>`.
 
 ## Stray documents
 
@@ -43,9 +47,9 @@ into the document it belongs to).
 ## The question
 
 `plans/` is out of git, so what is removed there cannot be restored. Ask
-once, per `grill-me` → "How a question is shown": the list with each
+once, per `references/question-format.md`: the list with each
 file's size and the total, what moved into owner documents, and the
-options «A. Удалить рабочие файлы (Recommended)», «B. Оставить». The stray
+options «A. Удалить рабочие файлы (рекомендую)», «B. Оставить». The stray
 documents follow as their own questions. Report what was removed in one
 line («Убрано: 14 файлов, 2,3 МБ; оставлены summary.md итераций 2.0.0 и
 2.1.0»).

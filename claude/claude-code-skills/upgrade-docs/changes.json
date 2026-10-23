@@ -129,7 +129,7 @@
     "behind": {
       "missing": "documentation/_web-docs/api/openapi.json"
     },
-    "fix": "docs-site: пересобрать сайт вместе с контрактом (build_site.py без --keep-api) и закоммитить documentation/_site."
+    "fix": "docs-site: пересобрать сайт вместе с контрактом (rebuild.py . --api --force, затем rebuild.py . --wait) и закоммитить documentation/_web-docs."
   },
   {
     "id": "api-descriptions",
@@ -204,7 +204,7 @@
         }
       ]
     },
-    "fix": "docs-site: собрать сайт в documentation/_web-docs (build_site.py), удалить старую папку из git (git rm -r documentation/_site или documentation/site), закоммитить одним коммитом."
+    "fix": "docs-site: собрать сайт в documentation/_web-docs (rebuild.py . --api --force, затем rebuild.py . --wait), удалить старую папку из git (git rm -r documentation/_site или documentation/site), закоммитить одним коммитом."
   },
   {
     "id": "scenarios-per-srs-group",
@@ -477,5 +477,46 @@
       }
     },
     "fix": "clean-architecture-design → Inputs (строка «Anything you had to assume») и references/output-template-foundation.md → Open questions: в documentation/architecture/**/open-questions.md переименовать id допущений A-n → ДП-n (номер тот же), затем во всех документах архитектуры (основа, доменная модель, сценарии, диаграммы) метки допущений «(A-n)», «A-n» в ячейках и ссылки «см. A-n» → ДП-n. Ссылки на акторов SRS (A-n в «Доступ», «SRS … называет A-1») не трогать: перед заменой каждой метки сверить, есть ли такой номер в open-questions.md и о допущении ли речь. Другие документы, цитирующие допущения архитектуры (план, ТЗ на экраны), — тем же правилом. Старые строки журнала изменений не трогать; версии документов не поднимать (doc-versioning, строка «(no row)»). Один коммит; после него пересобрать сайт документации, если он есть (docs-site)."
+  },
+  {
+    "id": "contract-test",
+    "version": "1.2.179",
+    "title": "Тест контракта API: приложение против openapi.yaml",
+    "kind": "code",
+    "what": "В тестах бэкенда есть тест контракта: приложение строит описание API из своих маршрутов, и тест сравнивает его с documentation/api/openapi.yaml по каждой операции — метод и путь, operationId, статусы, схемы запроса и успешного ответа. Маршрут, разошедшийся с контрактом, роняет test; операции, которых в приложении ещё нет, только перечисляются.",
+    "applies": {
+      "all": [
+        {
+          "exists": "documentation/api/openapi.yaml"
+        },
+        {
+          "any": [
+            {
+              "exists": "package.json"
+            },
+            {
+              "exists": "*/package.json"
+            },
+            {
+              "exists": "pyproject.toml"
+            },
+            {
+              "exists": "*/pyproject.toml"
+            }
+          ]
+        }
+      ]
+    },
+    "behind": {
+      "all": [
+        {
+          "missing": "tests/contract/*"
+        },
+        {
+          "missing": "*/tests/contract/*"
+        }
+      ]
+    },
+    "fix": "repo-scaffold → references/quality-gates.md (Contract test) и references/stack-files.md: в тестах бэкенда — файл из шаблона стека. Fastify: typescript-fastify/references/contract-test-template.ts → tests/contract/openapi.contract.test.ts, пакет yaml в devDependencies, @fastify/swagger в динамическом режиме с преобразованием схем type provider в buildServer. FastAPI: fastapi/references/contract-test-template.py → tests/contract/test_openapi_contract.py, PyYAML в dev-зависимостях. Заглушки шаблона — на настоящую фабрику приложения и подделки, которые уже есть в тестах. Тест красный на существующем коде — это расхождения маршрутов с контрактом, которые уже есть: изменение откатить, список расхождений показать пользователю; их исправление — задача плана (plan), после неё повторить это изменение. Сравнение не ослаблять и операции в NOT_IN_CONTRACT не добавлять. Другой стек (не Fastify и не FastAPI) или репозиторий без бэкенда — сказать и не делать."
   }
 ]

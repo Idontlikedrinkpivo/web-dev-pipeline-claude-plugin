@@ -59,7 +59,7 @@ signal, and rule 2 still applies.
 
 A revise after `plan-review` is graded on its own, not by the plan it
 edits: four spelled-out text fixes on a High plan do not need the High
-writer. Read the `Fix kind` column of `plan-review.md` over the blocking
+writer. Read the «Вид правки» column of `plan-review.md` over the blocking
 (P0/P1) rows and take the highest:
 
 | Blocking rows | Revise grade | Executor |
@@ -85,4 +85,18 @@ There is no grade 0 on this branch. `plan-hard` is terminal. A writer
 that returns `BLOCKED` or `HARDER_THAN_EXPECTED` escalates one tier per
 failure (lite → medium → hard), and that dispatch asks again; at
 `plan-hard` it repeats while each round makes progress
-(`pipeline` → `references/convergence.md`).
+(`pipeline` → `references/convergence.md`). A `BLOCKED` that carries a
+question for the user is asked and sent back to the same row
+(`executor-catalog` → Escalation).
+
+## Grading a fix plan
+
+`MODE fix` appends units for report rows to a plan that already ran
+(`plan` → `references/modes.md`). Grade it by the rows, not by the plan:
+every row a local defect with its expected behaviour already in the
+documents or the report (a wrong text, a missing check the design names,
+a status the contract fixes) → **Low**; a row that touches auth, access,
+money or stored data, or whose cause spans several units → **Mid**; a row
+that needs a fix shape the design does not give (a race, a missing
+transaction boundary) → **High**. The risk floor (rule 2) applies as
+above.

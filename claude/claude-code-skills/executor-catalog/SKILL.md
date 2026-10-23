@@ -1,9 +1,7 @@
 ---
 name: executor-catalog
 description: >-
-  Internal routing table of the pipeline: which agent runs each executor (implementers, reviewers, writers, Figma
-  builders), how it is dispatched, nested and escalated. Read by stages before a dispatch, or when asked which model
-  runs a task or to add an executor. Not a workflow.
+  Internal routing: which agent runs each executor and how it is dispatched; read before any dispatch.
 ---
 
 # Executor Catalog
@@ -65,19 +63,19 @@ table, holds the model and effort.
 | **Mid** | docs-review | `doc-review-medium` | `doc-review` | design language and scope, when those signals are present — not whether the premise is right |
 | **High** | docs-review | `doc-review-hard` | `doc-review` | premise, security decisions, or falsifying the document |
 | **Set** | docs-review | `docs-consistency-checker` | `docs-consistency` | the finished document set read together: traceability both ways and one meaning per name, field, enum, number, status, error, and role. Read-only, one dispatch per check |
-| **Write** | requirements | `srs-author` | `srs-writer` | settles the SRS, including a grill-reversal pass. No grade cascade. The session asks and grills. `doc-typist` prints the file |
+| **Write** | requirements | `srs-author` | `srs-writer`; `grill-me` called directly on an SRS (`MODE grill-reversal`, at the close); the session for a decision changed after the SRS was finished (`pipeline` → `references/decision-changes.md`) | settles the SRS, including a grill-reversal pass. No grade cascade. The session asks and grills. `doc-typist` prints the file |
 | **Low** | design | `design-lite` | `clean-architecture-design` (every mode: foundation, domain model, scenarios of an area), `db-schema-design`, `openapi-spec-generator` | judgment for a bounded one-table / few-operation / plain-CRUD document. `doc-typist` prints it |
 | **Mid** | design | `design-medium` | same three | close local design decisions for a Modest / one-slice document. `doc-typist` prints it |
 | **High** | design | `design-hard` | same three | Full-trigger, security-heavy, or cross-section design judgment. `doc-typist` prints it |
 | **Low** | plan-writer | `plan-lite` | `plan` | slice a fully bounded increment along seams the design already drew. `doc-typist` prints the plan |
 | **Mid** | plan-writer | `plan-medium` | `plan` | close the remaining slice and grade decisions. `doc-typist` prints the plan |
 | **High** | plan-writer | `plan-hard` | `plan` | Full-trigger, security, or cross-section slicing. `doc-typist` prints the plan |
-| **Print** | docs | `doc-typist` | nested by `srs-author`, the three `design-*` rows, and the three `plan-*` rows; dispatched by the session for a changed decision | prints a document those rows already settled, including sibling D2 and `open-questions.md` rows the settlement named, or edits a finished document for a decision the user changed (`MODE revise`). No new decision |
-| **Read-only** | any | `code-explorer` | `plan` (brownfield inventory), `grill-me` (facts), `brainstorm` (scout and claim verifier) | locating patterns, files, and call sites in a repo whose code *is* the design; never edits |
+| **Print** | docs | `doc-typist` | nested by `srs-author`, the three `design-*` rows, and the three `plan-*` rows; dispatched by the session for a changed decision or a print defect, and by `grill-me` called directly on another contract document or a plan (Nesting) | prints a document those rows already settled, including sibling D2 and `open-questions.md` rows the settlement named, or edits a finished document for a decision the user changed or a print defect the session spelled out (`MODE revise`). No new decision |
+| **Read-only** | any | `code-explorer` | `plan` (inventory of the code an increment or a brownfield plan reaches), `grill-me` (facts), `brainstorm` (scout and claim verifier) | locating patterns, files, and call sites in a repo whose code *is* the design; never edits |
 | **Edit** | figma | `figma-sonnet` | `ui-design` | elements added or changed on frames that already exist, or those frames restyled to a chosen visual direction. Not a new screen and not a redesign |
 | **Build** | figma | `figma-opus` | `ui-design` | frames from an empty file, a new screen, or a redesign of an existing screen, from the SRS; the style tiles of a visual direction |
-| **Write** | screen | `screen-writer` | `screen-spec` | one front-end spec per screen from the frames and the OpenAPI contract; writes the file itself; decides no behaviour the frames did not |
-| **Write** | ui-test | `ui-test-writer` | `ui-test-cases` (mode write) | user test cases from SRS acceptance criteria and screen specs; decides no behaviour |
+| **Write** | screen | `screen-writer` | `screen-spec`; the session for a changed element, text or state of a finished screen (`pipeline` → `references/decision-changes.md`) | one front-end spec per screen from the frames and the OpenAPI contract; writes the file itself; decides no behaviour the frames did not |
+| **Write** | ui-test | `ui-test-writer` | `ui-test-cases` (mode write); `docs-consistency` and `screen-spec` (`MODE increment`, cases whose trace broke); the session for a changed expected result (`pipeline` → `references/decision-changes.md`) | user test cases from SRS acceptance criteria and screen specs; decides no behaviour |
 | **Run** | ui-test | `ui-test-runner` | `ui-test-cases` (mode run) | Playwright tests from the cases, run against the app started locally, screens compared with frames; never edits app code |
 
 `plan` writes only names from `references/assignable-implementers.md`;
@@ -117,10 +115,27 @@ tool like this. Consumers point here instead of restating it.
   override is this dispatch only; an escalation goes back to the file.
 - **A rejected `subagent_type`:** retry once with the bare name. If both are
   rejected, the agent is not installed.
-  **Stop** and tell the user to install the `dev-pipeline` plugin (or run
-  `bash install.sh` in the skills folder that holds `_agents/`) and restart
-  the session. Do not fall back to `general-purpose` with a hand-typed model,
-  and do not do the row's work on the session model.
+  **Stop** and tell the user to install or update the `dev-pipeline` plugin
+  and restart the session. Not `install.sh` on top of an installed plugin:
+  it installs every skill a second time. Do not fall back to
+  `general-purpose` with a hand-typed model, and do not do the row's work on
+  the session model.
+- **Paths, not pasted documents.** A packet names what the agent reads from
+  disk — the documents, their parts, the plugin's own files — by path, and
+  pastes only what is on no disk: the user's answers and the decisions of
+  this session, and the session's own short derivations (a ledger, a list
+  of findings, the few rows one unit cites). A pasted document is paid on
+  every dispatch, and a long one arrives cut. A split document is named by all its parts: the SRS is
+  `srs.md` and every `areas/*.md`, the API `openapi.yaml` and every file
+  under `paths/` and `components/`, the schema `schema.md` and
+  `migrations/`.
+- **`SKILLS ROOT` is absolute.** The agent works in the project; the plugin
+  sits elsewhere (its cache). Every packet that names a plugin file carries
+  `SKILLS ROOT`: the absolute folder that holds this plugin's skills — the
+  parent of the dispatching skill's base directory, the `Base directory for
+  this skill` line printed when the stage loaded. `SKILL` and every
+  `<skill>/references/…` path in a packet or in a skill the agent reads
+  resolve under it; a repo-relative path to a plugin file is not found.
 - **Parallel dispatches** (a `work` wave) each pass `isolation: "worktree"` so
   workers never share a working directory. Before integrating (`work` Step
   5.1), merge or cherry-pick each worker's worktree branch into the main tree;
@@ -146,10 +161,13 @@ alias, and the tier, and let the user re-point that file. A rejected alias is
 never replaced by a `gpt-*` one.
 
 **Scope.** This catalog routes pipeline dispatch only. Work outside the
-dispatching skills — an ad-hoc edit, a question, a debugging detour — runs on
-the session model, unrouted: grading is a planning-time decision recorded in a
-plan or a design grade. Ad-hoc work heavy enough to want routing is heavy
-enough to be a plan.
+dispatching skills — a question, a debugging detour — runs on the session
+model, unrouted: grading is a planning-time decision recorded in a plan or a
+design grade. A change to the product's code the user asks for in chat
+between runs is not such work: it goes through `work` → A change asked in
+chat outside a run (an executor, a review, the affected tests), never
+straight from the session into a commit. Ad-hoc work heavy enough to want
+routing is heavy enough to be a plan.
 
 ## Nesting
 
@@ -164,10 +182,19 @@ Dispatch contract like any other, with no `model`.
 - **`doc-typist`** — `srs-author`, the three `design-*` rows, and the three
   `plan-*` rows hand the printing here after the document's decisions are
   settled. Packet: `references/doc-typist-prompt.md`. The session does not
-  ask about it, and a plan file never names it. The one direct dispatch:
-  a decision changed after its document was finished — the user already
-  settled it, so the session sends `MODE revise` with one `SETTLEMENT`
-  line per change (`pipeline` → `references/decision-changes.md`).
+  ask about it, and a plan file never names it. Two direct dispatches, both
+  `MODE revise` with one `SETTLEMENT` line per change:
+  - a decision changed after its document was finished — the user already
+    settled it (`pipeline` → `references/decision-changes.md`); the
+    reversals of a `grill-me` called directly on a contract document or a
+    plan are such decisions, sent once at the grill's close
+    (`grill-me` → When the user invoked this directly);
+  - a print defect the session found when it inspected a printed document
+    and can state as a finished line: a column `note:` with its text from
+    the SRS, a `redocly lint` error with its fix at the JSON pointer, a
+    missing diagram embed. Sending such a defect back to the writer pays an
+    Opus round for typing. A defect whose fix needs a decision — a missing
+    response, a table, a rule — goes back to the writer.
 
 | Rule | Why |
 |---|---|
@@ -178,10 +205,21 @@ Dispatch contract like any other, with no `model`.
 | Deciding what a test asserts never nests | `mechanical-worker` may only replicate an assertion the implementer already wrote across N settled cases |
 
 **A two-phase unit is one executor, twice.** Both phases of a `work` two-phase
-dispatch go to the unit's named implementer and count as one attempt of that
-unit (`work/references/two-phase-dispatch.md`).
+dispatch go to the unit's named implementer and count as one round of that
+unit (`work/references/two-phase-dispatch.md`); how many rounds a unit gets
+is `pipeline` → `references/convergence.md`, nowhere else.
 
 ## Escalation
+
+**A question is not a failure.** A writer row — `srs-author`, a `design-*`
+or `plan-*` row, `screen-writer`, `ui-test-writer` — that returns `BLOCKED`
+with a question only the user can answer (an engine, a status the SRS left
+open, a classification) is not escalated: a higher tier would answer it by
+guessing, and the user would never see it. Ask it in the chat, one question
+per message (`pipeline/references/question-format.md`), add the answer to
+the packet's answers slot, and dispatch the same row again. Only a
+`BLOCKED` without such a question, or `HARDER_THAN_EXPECTED`, moves up a
+tier.
 
 A unit returning `BLOCKED` or `HARDER_THAN_EXPECTED` moves up one tier per
 failure: grade 0 → Low → Mid → High → `impl-critical`.
@@ -222,6 +260,7 @@ dispatch", and do not replace a failed dispatch with the session.
 | Low | none per unit; one `review-medium` pass over the batch |
 | Mid | `review-medium` on the unit diff |
 | High | `review-hard` on the unit diff, plus a second risk pass |
+| an `impl-ui` unit, any grade | its own pass — `review-medium` at 0, Low and Mid, `review-hard` (and the risk pass) at High; never a batch and never none (`code-review-unit` → Step 3. Dispatch by grade) |
 
 The whole-run review is one `review-full-plan` pass over the whole diff per
 run (`code-review-full`), never doubled and never re-dispatched with a
@@ -257,8 +296,10 @@ place.
 ### SRS-writer routing
 
 Every SRS goes to `srs-author`; no grade. Grill reversals are a second
-dispatch of the same row, which nests `doc-typist` to edit the file. Packet:
-`references/srs-writer-prompt.md`.
+dispatch of the same row, which nests `doc-typist` to edit the file: one
+dispatch at the grill's close carrying the whole ledger — every reversal in
+`REVERSALS`, every deferred question in `DEFERRED` — never one per round.
+Packet: `references/srs-writer-prompt.md`.
 
 ### Design-writer routing
 

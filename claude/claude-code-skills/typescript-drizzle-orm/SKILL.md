@@ -1,9 +1,7 @@
 ---
 name: typescript-drizzle-orm
 description: >-
-  Drizzle ORM in TypeScript: repositories mapping records to domain entities, joins, keyset pages, transactions,
-  idempotent inserts, driver-error classification, running the SQL migrations. Use when code imports drizzle-orm or a
-  task changes a repository, query or transaction. Not table design, routes or validation.
+  Drizzle ORM rules (repositories, transactions, keyset pages, migrations); read before Drizzle code.
 ---
 
 # Drizzle ORM
@@ -14,6 +12,10 @@ description: >-
   Table definitions and records live in `adapters/persistence/`; the repository adapter implements
   the port the use case owns and maps records to entities explicitly. The domain imports nothing
   from `drizzle-orm`, HTTP, or validation libraries.
+- **The level is Framework-first** (foundation §1 «Уровень»): no ports, repository adapters or mappers — a
+  route or a small service queries the tables directly; the rules sit in the one framework-free `domain/`
+  module, which takes and returns plain values, never a record. Migrations, keyset pages, transactions,
+  driver-error classification and race tests below hold unchanged.
 - **No architecture document, existing repo:** follow the repo's layout (for example
   `src/db/schema.ts`, `src/<feature>/<feature>.repository.ts`), its return types (rows or
   entities), and its error classes for the change at hand. Do not restructure or introduce
@@ -58,7 +60,9 @@ description: >-
 9. **Transactions.** A single-aggregate save is one transaction inside `repository.save`; a write
    spanning aggregates goes through a `UnitOfWork` port only when the architecture names one.
    Idempotent create: a unique constraint on the key plus an insert that does nothing on conflict
-   (or catches `23505`) and re-reads the winner. Never an in-process map as the source of truth.
+   (or catches `23505`) and re-reads the winner. Never an in-process map as the source of truth. A
+   serialization failure or deadlock is rerun around the use case's whole run by the one shared
+   helper `bootstrap/` wires (`references/repository-adapter.md` → Reading the SQLSTATE).
 10. **Migrations are the SQL files in `documentation/db/migrations/`**, written by `db-schema-design`;
     `schema.ts` follows them, not the other way round. Do not `drizzle-kit generate` them — that
     writes a second migration history from `schema.ts`. Apply them with the command `repo-scaffold`
@@ -93,27 +97,19 @@ async save(user: User): Promise<void> {
 Error helper, pagination, idempotent insert, optimistic lock, tenant predicate, and the migration
 cases: [references/repository-adapter.md](./references/repository-adapter.md).
 
-## Version-sensitive behaviour
+**Version-sensitive points** — [references/version-checks.md](./references/version-checks.md). In a `work` packet
+their answers come in `CURRENT LIB DOCS`; where it says `none`, probe the installed version in the project instead
+of fetching docs. Outside `work`, read the file and check each point you rely on against the installed version.
 
-This skill does not pin library facts that change between releases (signatures, defaults, generated-artifact paths, "since version X"). Before relying on one: read the installed version from the lockfile or manifest, then check current docs via the context7 MCP (`resolve-library-id`, then `query-docs`) or run a quick probe in the project. The checklist below names where the silent pitfalls usually are; it deliberately does not give the answer, because the answer depends on the version.
+## The reviewer checks
 
-### Check before relying on it
-
-- **Docs ahead of the installed line.** Drizzle's documentation and context7 may show the 1.0 line
-  (relational queries v2, `defineRelations`, a new migrations folder) while the installed package is 0.x — check the
-  version in the lockfile before copying an API.
-- **Relations API.** Major lines ship different relation and relational-query APIs (declaration
-  helper, `where` as operator vs object filter). Use the one the installed version supports and
-  the repo already uses; code for the other line does not compile.
-- **Driver error wrapping.** Whether a query error arrives wrapped by Drizzle and where the driver's
-  SQLSTATE sits (`cause`, deeper). Probe it with a real duplicate insert.
-- **Timestamp mode and precision.** Whether a timestamp column reads as `Date` or string, and the
-  stored precision. A JS `Date` holds milliseconds; Postgres stores microseconds, so a cursor
-  built from a `Date` skips or repeats rows that share a millisecond.
-- **`returning()`, `onConflictDoNothing` / `onConflictDoUpdate`** availability and target syntax for
-  the dialect and driver in use.
-- **drizzle-kit / migrator folder format** — what `migrate()` expects in `migrationsFolder` in the
-  installed line (a `meta/` journal, or one folder per migration), before pointing it anywhere.
-- **Identity / generated columns, enum and CHECK helpers**, and how the inferred insert type treats
-  columns with defaults.
-- **Transaction API** on the driver in use (nested transactions / savepoints, isolation option).
+1. **No `drizzle-kit generate`, no `meta/` journal, no edited committed migration file**; a schema change arrives as
+   the next SQL file from `db-schema-design`, and `schema.ts` follows it.
+2. **A paged read is keyset**: sort columns plus the id, the compound predicate, `limit + 1`, never `.offset(`.
+3. **One query per read** — no query per item in a loop.
+4. **An expected constraint violation is classified by SQLSTATE read through the `cause` chain** (and the
+   constraint name when a table has several) into a named error; the driver message never reaches a client.
+5. **A guard against a double action has a race test against the real database** (`vitest`), not only a
+   pre-check.
+6. **A repository returns entities or read models through the mapper**, which has a round-trip test; a business
+   rule in a query uses its owner's constant, never a literal.

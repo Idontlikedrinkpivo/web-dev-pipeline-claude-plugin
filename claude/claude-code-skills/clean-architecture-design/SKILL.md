@@ -1,10 +1,8 @@
 ---
 name: clean-architecture-design
 description: >-
-  Writes the architecture from the settled SRS, schema and OpenAPI: a foundation (stack, modules, file tree, lint
-  rules, diagrams), a domain model with the invariant table, and a scenarios document per SRS group. Use for
-  «спроектируй архитектуру», «доменная модель», «сценарии», Clean / hexagonal / DDD layering. Not tables, API
-  operations, screens or code.
+  Writes the architecture from the SRS, schema and OpenAPI: foundation (stack, modules, file tree), domain model,
+  use-case scenarios. Use for «спроектируй архитектуру», «доменная модель», «сценарии use case». Not tables or API.
 ---
 
 # Clean Architecture Design from Requirements
@@ -19,7 +17,7 @@ settles every document a sitting touches, because the three share names
 
 | Mode | Document | Owns | Changes when |
 |---|---|---|---|
-| `foundation` | `architecture.md` + its D2 views in `diagrams/` (`.d2` / `.svg`), each embedded in the section it illustrates | §1 Состав системы (actors, stores, externals, API, security, NFR, «Ключевые решения» with «Уровень» and «Стек») · §2 Модули и функциональные области · §3 Границы и поток данных · §4 Порты и адаптеры · §5 Дерево файлов · §6 Проверки и тесты | a fundamental decision changes: a new port, external system, store, area, transaction model, or stack |
+| `foundation` | `architecture.md` + its D2 views in `diagrams/` (`.d2` / `.svg`), each embedded in the section it illustrates | §1 Состав системы (actors, stores, externals, API, security, accepted risks, NFR, «Ключевые решения» with «Уровень» and «Стек») · §2 Модули и функциональные области · §3 Границы и поток данных · §4 Порты и адаптеры · §5 Дерево файлов · §6 Проверки и тесты | a fundamental decision changes: a new port, external system, store, area, transaction model, or stack |
 | `domain` | `domain.md` | value objects, entities, named errors, **the invariant table** (the only home of every business rule), boundary checks, what is not an entity, glossary → types | a rule or an entity is added or changed |
 | `scenarios:<area>` | `scenarios/<area>/<group>.md` — one per SRS group the area covers — + `scenarios/<area>/diagrams/<use-case-kebab>.puml` / `.svg` (PlantUML) for key scenarios | each group's use cases (input, access, steps → port / entity method, transaction boundary, output, errors, `operationId`) and its queries | a use case of that group is added or changed |
 
@@ -66,7 +64,9 @@ dispatch the typist.
    `references/stack-proposal.md`, wait for the pick. Do not dispatch a
    writer to guess a framework. A named stack is a fact only for the parts
    it names: when the SRS has a human-facing interface and the user named
-   only a backend, propose the Frontend card alone. On an increment the
+   only a backend, propose the Frontend card alone. The DBMS and its major
+   are never on a card: `db-schema-design` decided them, and the first line
+   of `schema.md` «Решения по базе» is the fact. On an increment the
    stack is the «Стек» row of foundation §1.
 4. **Level.** Decide the level (Step 2) far enough to grade. The
    foundation writer records it as the «Уровень» row of §1 «Ключевые
@@ -74,10 +74,13 @@ dispatch the typist.
 5. **Dispatch one writer for the sitting.** First create
    `documentation/plans/<version>/progress-architecture.md` per
    `pipeline` → `references/progress-files.md` — one row per document in `MODE`, all `⏳ ждёт` —
-   post its link in the chat, and put its path in the packet's
-   `PROGRESS FILE`: one dispatch writes every document, and the file is
-   where the user sees which one it is on. Each document the session
-   inspects or reviews puts the count with the link in the chat. Read `executor-catalog` and
+   and put its path in the packet's `PROGRESS FILE`: one dispatch writes
+   every document, and the file is where the user sees which one it is
+   on. The chat gets the line this prints (`--desktop` with the built-in
+   browser), pasted as it is — now, and after each document the session
+   inspects or reviews; never a link written by hand:
+   `python3 "${CLAUDE_SKILL_DIR}/../pipeline/scripts/progress_link.py" <that file>`.
+   Read `executor-catalog` and
    `executor-catalog/references/design-complexity.md`. Grade each picked
    document by its mode's rules there, and dispatch the highest grade
    once for all of them. Why one: every writer re-reads the SRS, the
@@ -104,7 +107,9 @@ dispatch the typist.
    scenario its «Последовательность» row links. A missing file is an
    incomplete write. When a `.svg` is missing, run the render command in
    `references/architecture-diagram.md` once. Do not edit a `.d2` or a
-   `.puml`. A `BLOCKED` / `HARDER_THAN_EXPECTED` return escalates one
+   `.puml`. A `BLOCKED` with a question for the user is asked and sent
+   back to the same row (`executor-catalog` → Escalation); any other
+   `BLOCKED` / `HARDER_THAN_EXPECTED` escalates one
    tier per failure (lite → medium → hard); every round goes on while it
    makes progress (`pipeline` → `references/convergence.md`). A document the
    report lists under `ALSO CHANGED` (the writer added a name to it, see
@@ -172,7 +177,7 @@ action, its data and its outcome.
 | area → module → SRS groups → scenarios folder | foundation §2 |
 | layer roster, import direction | foundation §3 |
 | port signatures, adapters, composition root, configuration, service paths, named error → HTTP, route-guard mechanism | foundation §4 |
-| file paths of ports, adapters, mappers, storage models, `bootstrap/` | foundation §5 |
+| file paths of ports, adapters, mappers, storage models, `bootstrap/`; the local run | foundation §5 |
 | lint rules, structural tests, test plan | foundation §6 |
 | value objects, entities (with their file path), named errors | domain model §1–§3 |
 | every domain rule (BR id, owner, method, schema constraint, outcome) | domain model §4 — nowhere else |
@@ -180,7 +185,7 @@ action, its data and its outcome.
 | a use case: input, access policy, steps, transaction, output, errors, `operationId`, its file path | scenarios of its area |
 | queries and read-model fields | scenarios of the area that reads |
 | methods, paths, success codes, bodies | `documentation/api/openapi.yaml` — never here |
-| tables, columns, constraints | `documentation/db/schema.md` and its migrations — never here |
+| tables, columns, constraints; the DBMS and its major version | `documentation/db/schema.md` and its migrations — never here (§1 «Стек» copies the DBMS line) |
 
 A fact written in two homes drifts, and the reader must guess which copy
 is the contract. A later document cites an earlier one by name (rule id,
@@ -193,18 +198,17 @@ added there, in its home (Writer → `ALSO CHANGED`), never written here.
 
 ## Why this shape
 
-AI generates code that works today but cannot evolve: rules end up
-scattered across services, controllers, and helpers, and the next
-generation has to reassemble the domain from ten files before it can
-change one rule. A rich entity puts the rule where the model expects
-it — one file, full picture. A use case is a stable unit of work ("build
-the Refund use case") that keeps the model inside orchestration instead
-of inventing rules. Because an agent copies whatever pattern it finds in
-the repo, a boundary that exists only in prose is not a boundary — a
-linter or a structural test enforces it. Design for the reader with the
-smallest context window: meaningful paths, small files, named types —
-and small documents: an agent building one use case opens one scenarios
-document and the domain model, not the whole architecture.
+AI generates code that works today but cannot evolve: rules scatter
+across services, controllers, and helpers, and the next change has to
+reassemble the domain from ten files. A rich entity puts the rule where
+the model expects it — one file, full picture. A use case is a stable
+unit of work ("build the Refund use case") that keeps the model inside
+orchestration instead of inventing rules. An agent copies whatever
+pattern it finds, so a boundary that exists only in prose is not a
+boundary — a linter or a structural test enforces it. Design for the
+smallest context window: meaningful paths, small files, named types,
+small documents — one scenarios document and the domain model per use
+case, not the whole architecture.
 
 ## Shared steps (every mode)
 
@@ -231,6 +235,7 @@ Extract from the inputs, and put each into its home:
 | Data that must survive restarts | named stores in foundation §1 Хранилища (postgres / S3 / files — **not** tables); repository ports follow |
 | Delivery channels (REST, GraphQL, CLI, queue, cron) | foundation §1 API rows; controllers / handlers in adapters |
 | Security NFRs | foundation §1 Решения по безопасности |
+| A risk the user accepted on a security-audit finding | foundation §1 Принятые риски — written through `pipeline` → `references/decision-changes.md`, not by this stage's writer |
 | Other NFRs: performance, reliability, scalability, observability | foundation §1 Решения по NFR |
 | Constraints: versioned API, sensitive data, several clients, team size, lifespan, hosting limits, existing repo | scope (Step 2), stack proposal (Step 2b), DTO decision (foundation «Ключевые решения») |
 | Anything you had to assume | `documentation/architecture/open-questions.md` (shared by the three documents), and tagged `(ДП-n)` rows wherever it matters (`ДП` — допущение; `A-n` is an SRS actor) |
@@ -273,8 +278,9 @@ Modest, Full), the triggers for each, and how the level is recorded.
 
 The tree, wiring and linter are stack-shaped, so the stack is never a
 silent default. A fact (a manifest, or named by the user / SRS) or the
-pick from INPUTS goes into §1 Стек with majors and the «Стек» row; the
-tree and the lint table match it. A missing part (backend or client) →
+pick from ANSWERS goes into §1 Стек with majors and the «Стек» row; the
+DBMS row copies `schema.md` «Решения по базе»; the tree and the lint table
+match it. A missing part (backend or client) →
 `STATUS BLOCKED`: the orchestrator proposes cards (`references/stack-proposal.md`).
 
 ## Mode `foundation`
@@ -337,7 +343,8 @@ screens and nowhere to put them.
   `common/`, no folder that collides with the stack's standard library.
   Why: the path is the first thing an agent reads, and `repo-scaffold`
   creates exactly this tree. Layout sketch:
-  `references/machine-checkable-boundaries.md` → File layout.
+  `references/machine-checkable-boundaries.md` → File layout. Under the
+  tree, «Локальный запуск» (template): `repo-scaffold` builds the run from it.
 - **§6 Проверки и тесты** — name the enforcer (TS → dependency-cruiser;
   Python → import-linter; Java → ArchUnit; C# → NetArchTest + csproj; Go
   → go-arch-lint) and its rules as a table (from → must not import)
@@ -465,8 +472,8 @@ and the domain model; this document cites both and restates neither.
 
 ## Before you finish
 
-Run every Guardrail above as a check, then confirm the items of your
-mode in `references/final-check.md` — the one checklist for this skill.
+Run every Guardrail above as a check, then the items of your mode in
+`references/final-check.md` — the one checklist for this skill.
 
 ## References
 
@@ -478,8 +485,7 @@ Read each file at the step named; skip the rest.
 - `references/final-check.md` — the final checklist, by mode. Before you finish.
 - `references/increment.md` — which modes run and what changes when the documents exist (orchestrator step 2, Step 1b).
 - `references/nfr-decisions.md` — the eleven security sub-items; «Решения по NFR» (foundation §1).
-- `references/writing.md` — how every architecture document reads: short cells, lists, one home per fact;
-  `doc-versioning/scripts/facts_check.py` proves a rewrite kept its facts.
+- `references/writing.md` — how every document reads: short cells, lists, one home per fact; `doc-versioning/scripts/facts_check.py` proves a rewrite kept its facts.
 - `references/stack-proposal.md` — constraints, cards, chat prompt, after the pick (Step 2b).
 - `references/rich-entities.md` — entity vs ORM model, invariants, value objects, when anemic is fine (mode `domain`).
 - `references/use-cases-and-boundaries.md` — why use cases orchestrate, queries, side effects, typed boundaries, layer roster (mode `scenarios`; foundation §3).

@@ -26,7 +26,8 @@ Invoke the `dev-pipeline:ui-ux-pro-max` skill and search with its commands
 is there too:
 
 - `--design-system` with the subject and audience in English terms,
-  `--density` by product type, two or three runs that differ on a real
+  `--product-type` and `--density` by the register's **Тип продукта** (the
+  font pair is then picked for it), two or three runs that differ on a real
   axis: `--variance` (calm or bolder), style keywords (flat or soft), light
   or dark;
 - `--domain color`, `--domain typography`, and `--domain google-fonts` with
@@ -93,18 +94,24 @@ One question, per `grill-me` → "How a question is shown". Link each tile:
 
   A. «Спокойный синий» — светло-серый фон, синий акцент #2563EB, шрифт
      Inter, компактные строки таблиц; смелость только в акценте.
-     Образец: <ссылка>. (Recommended: инструмент на весь рабочий день —
-     ничего не отвлекает от расписания)
+     Образец: <ссылка>. (рекомендую)
   B. «Тёплый графит» — графитовый акцент #334155 на тёплом сером, шрифт
      IBM Plex Sans, скругления крупнее. Образец: <ссылка>.
   C. Своё — опишите словами или пришлите пример.
+  D. Без направления — нейтральная серая палитра и один акцент; выбрать
+     направление можно позже.
+
+Рекомендую A: это инструмент на весь рабочий день — ничего не отвлекает
+от расписания.
 
 Ответьте сообщением: буква или своё описание.
 ```
 
 Recommend the option that fits the product type and the brief best, with
 one sentence why. An answer «своё», or «A, но …», becomes a new option:
-shape it, filter it, draw its tile, ask again.
+shape it, filter it, draw its tile, ask again. D, or «не надо», is a
+decline: record it (step 6) and go on to the screen set with the neutral
+set; the tiles stay on their page.
 
 When the SRS has a public page, ask one more question: two or three landing
 patterns from `--domain landing`, each with its section order and where the
@@ -130,8 +137,16 @@ Write the register header line:
   выбрано 2026-10-06; отклонены: «Тёплый графит»
 ```
 
+A decline is recorded too, so a later run does not take it for «not
+chosen yet» and ask again:
+
+```markdown
+- **Визуальное направление:** отказ — нейтральная палитра, 2026-10-06
+```
+
 On a restyle or a redraw add `прежнее: «<имя>»`. Later runs read the tokens from
 `🎨 Tokens` (`get_variable_defs`), not from this session's notes. The packet's `VISUAL DIRECTION` is the
 chosen plan from step 2 with the user's adjustments: the next `figma-opus`
 run in mode draw creates the tokens from it; `figma-sonnet` in `MODE
-restyle` rewrites the existing ones.
+restyle` rewrites the existing ones. After a decline it is `declined`: the
+builder makes a neutral grey scale plus one accent.

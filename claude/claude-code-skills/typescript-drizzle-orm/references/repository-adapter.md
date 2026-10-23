@@ -3,7 +3,7 @@
 Each pattern is for a present need; reuse what the repo already has first. Names (`User`,
 `EmailAlreadyTaken`, `PageAfter`) stand for the entity, named errors, and port types the
 architecture document defines; in a repo without one, use its existing types and error classes.
-Check every Drizzle call below against the installed version (SKILL.md checklist).
+Check every Drizzle call below against the installed version (`version-checks.md`).
 
 ## Reading the SQLSTATE
 
@@ -24,8 +24,30 @@ export function sqlState(e: unknown): string | undefined {
 | `23505` | unique violation | the named error for that key (`EmailAlreadyTaken`), or re-reads the winner for an idempotency key |
 | `23503` | FK violation | the named error for the missing reference (`AuthorNotFound`) |
 | `23514` | check violation | usually a bug: the entity should have refused first; rethrow |
-| `40001`, `40P01` | serialization failure, deadlock | a transient error the use case may retry; the HTTP layer answers it as the spec says (often 503 with `Retry-After`) |
-| anything else | | rethrow unchanged; the global handler logs it and answers 500 |
+| `40001`, `40P01` | serialization failure, deadlock | rethrow unchanged — the use case reruns its whole transaction a bounded number of times (below); what is left is the contract's 503 with `Retry-After` |
+| anything else | | rethrow unchanged; the global handler logs it with its SQLSTATE and answers the contract's 500 |
+
+A uniqueness clash reaches the client only as its named error, never as a bare 409 (`typescript-fastify` → Errors,
+`openapi-spec-generator` → Step 6).
+
+A rerun wraps load → decide → save, not one statement — the decision was made on the rows the lost transaction
+read. One shared helper does it, wired in `bootstrap/` around each use case whose transaction can lose to a
+concurrent one, so the use case itself knows no driver codes:
+
+```typescript
+// adapters/persistence/rerun.ts — the only loop; the repository never retries
+// bootstrap: const cancelBooking = (input: CancelInput) => rerunOnConflict(() => cancelBookingUseCase.execute(input))
+export async function rerunOnConflict<T>(run: () => Promise<T>, attempts = 3): Promise<T> {
+  for (let attempt = 1; ; attempt++) {
+    try { return await run() }
+    catch (e) {
+      const state = sqlState(e)
+      if (attempt >= attempts || (state !== '40001' && state !== '40P01')) throw e
+      await new Promise((r) => setTimeout(r, 20 * attempt + Math.random() * 30))
+    }
+  }
+}
+```
 
 Match on the constraint name when one table has several unique constraints, so a duplicate
 slug is not reported as a duplicate email.
@@ -33,7 +55,7 @@ slug is not reported as a duplicate email.
 ## Keyset page
 
 The repository returns entities plus the raw values the next cursor needs; the HTTP adapter
-encodes, signs, and validates the cursor.
+encodes the cursor (opaque base64url, not signed) and validates it before the query (`typescript-fastify`).
 
 ```typescript
 async listNewestFirst(limit: number, after?: { createdAt: string; id: string }) {
@@ -120,6 +142,7 @@ Across aggregates only through the `UnitOfWork` port the architecture names.
 - Mapper round-trip without a database.
 - Repository against a real Postgres (container or the project's PGlite setup), one test per
   classified SQLSTATE, produced by a real duplicate insert or FK violation. With no database
-  available, throw an error shaped like the wrapped one (code on `cause`, not top level) from a
-  stubbed insert, and say the real-database test is still owed.
+  available, write those tests as they would run and report the run as owed (`vitest` → no database
+  here); the classification itself can be shown meanwhile by throwing an error shaped like the
+  wrapped one (code on `cause`, not top level) from a stubbed insert.
 - Use-case tests use an in-memory fake of the port, never a mocked Drizzle client.

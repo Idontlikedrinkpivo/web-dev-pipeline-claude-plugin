@@ -36,18 +36,28 @@ many stands) and the run has more than one test file, ask once, before the
 run, per `grill-me` → "How a question is shown":
 
 ```text
-Стенд пока нельзя копировать: <что мешает — фиксированные порты, container_name, нет scripts/e2e-stands.sh>.
-Машина тянет <N> стенда (<что ограничило>), кейсов <M> в <K> файлах.
+**Прогнать тесты на нескольких копиях приложения или на одной**
 
-  A. Сделать стенд копируемым сейчас и прогнать на <N> стендах (Recommended)
+Тестовое приложение (стенд) пока нельзя запустить в нескольких копиях:
+<что мешает — фиксированные порты, container_name, нет scripts/e2e-stands.sh>.
+Машина тянет <N> стенда (<что ограничило>), кейсов <M> в <K> файлах:
+на одном стенде все файлы идут по очереди, и прогон дольше.
+
+  A. Сделать стенд копируемым сейчас и прогнать на <N> стендах (рекомендую)
   B. Прогнать на одном стенде
+
+Рекомендую A: правка механическая, делается один раз, и следующие прогоны
+пойдут на нескольких стендах без вопроса.
+
+Ответьте сообщением: буква или свой текст.
 ```
 
 A: the change is mechanical — ports, addresses and the database URL from
 variables with today's values as defaults, no `container_name`, no fixed
 host volume path, the Playwright `baseURL` from a variable, and
 `scripts/e2e-stands.sh up N` / `down` — dispatched to `mechanical-worker`
-before the run and committed alone (`test(e2e): копируемый стенд`); the
+before the run and committed alone (`test(e2e): копируемый стенд`, trailer
+`Plan-Unit: <version>/stand`, so `work` and `code-review-full` map it); the
 existing single-stand commands keep working. The same question comes in
 `work` before a browser suite in the definition of done. The answer holds
 for the project: once copyable, later runs split without asking.
@@ -99,8 +109,9 @@ as they are. The report names the number and what limited it («3 стенда:
   report. The runner (the session, for `work`) is its only writer, woken by
   the journals (the Monitor tool on them, or a background `sleep 30`) and
   never replaced by a script that rewrites the report on a timer — the
-  user's pane would not redraw (`pipeline` → `references/progress-files.md`
-  → How). It folds each result into the report with the Edit tool as it
+  plugin's hook rebuilds the page the user watches only after an Edit or
+  Write call, so a script's write leaves it stale (`pipeline` →
+  `references/progress-files.md` → Rules for every file, «How»). It folds each result into the report with the Edit tool as it
   arrives — the
   case's row, one bar over all stands, and under the count line one line
   per stand («Стенд 2 · 8180: 120 из 188 · упало 4»).

@@ -1,9 +1,7 @@
 ---
 name: typescript-fastify
 description: >-
-  Fastify in TypeScript: routes implementing openapi.yaml, thin handlers calling use cases, plugins, auth hooks, one
-  problem+json error handler, cursors, idempotency keys. Use when Fastify routes, handlers, plugins, hooks or errors
-  are written or changed. Not Express or NestJS, persistence or validation.
+  Fastify rules (routes from openapi.yaml, problem+json errors, contract test); read before Fastify code.
 ---
 
 # Fastify
@@ -12,14 +10,17 @@ description: >-
 
 - **An architecture document exists** (`clean-architecture-design`): routes live where the foundation's §5 tree
   (`documentation/architecture/architecture.md`) puts the HTTP adapter; a handler parses, calls one use
-  case, and maps the result. `documentation/api/openapi.yaml`
-  (from `openapi-spec-generator`) is the only source for paths, `operationId`, statuses, the
+  case or query (at Modest a read is a query function in the adapters, no use case), and maps the result.
+  `documentation/api/openapi.yaml` (from `openapi-spec-generator`) is the only source for paths, `operationId`, statuses, the
   Problem body, the validation status, JSON casing, and the page shape; this skill defines none of
   them. Named errors map to statuses through the architecture's «Named error → HTTP» table — one module, an
   exhaustive `switch` over the errors' `kind` with `assertNever`, never a mapper per route (`typescript` →
   «Every named error is its own type», «One translation of failures to answers»).
   A failure of an outside call reaches the handler wrapped with its `cause`; where the client only sees a generic
   answer, the handler writes one warn line with the cause's name — never keys, addresses or secrets.
+- **The level is Framework-first** (foundation §1 «Уровень»): no ports or use-case classes — a handler calls the
+  one framework-free `domain/` module for the rules and the ORM directly for reads and writes; the request and
+  response schemas are the boundary. The contract, the error handler and the rules below hold unchanged.
 - **No architecture document, existing repo:** follow the repo's layout, error classes, error body,
   validation status, casing, and page shape for the change at hand, even where they differ from the
   spec defaults above. Do not migrate the contract or restructure unasked; propose it in the answer
@@ -61,10 +62,18 @@ description: >-
   without a contract: its own 400 or 422; a client's bad input is never a 500), named errors (status from the mapping table, or the existing `AppError`
   hierarchy in a brownfield repo), everything else (log it; 500 with a generic `detail`, never the
   internal message, stack, or SQL).
-- A driver error nobody classified (a future route without its own handling) is still mapped in the
-  same handler by SQLSTATE through the persistence error helper: unique → 409, FK → the status the
-  spec gives it, serialization or deadlock → 503 with `Retry-After`. The repository classifies the
-  ones it expects first (`typescript-drizzle-orm`).
+- A database conflict is answered the way the contract declares it (`openapi-spec-generator` → Step 6),
+  the same in both stacks:
+  - a conflict the repository expects (a duplicate key, a dangling reference) it classifies into a named
+    error (`typescript-drizzle-orm`), answered with the status the contract gives that error — never a
+    bare 409;
+  - a serialization failure (`40001`) or deadlock (`40P01`) is first rerun by the server: a use case
+    whose transaction can lose to a concurrent one is wrapped in `bootstrap/` by one shared helper that
+    reruns its whole run a bounded number of times (the repository never loops). When the attempts run
+    out, the handler answers the contract's 503 with `Retry-After`, read through the persistence error
+    helper;
+  - any other driver error — an unexpected violation included — is the third case: logged with its
+    SQLSTATE, the contract's 500.
 - Every extension member an error can emit (`errors`, `retryable`, a context key) is declared in the
   spec's Problem schema and in the shared route response schema, or the serializer strips it. Do not
   open the schema to let undeclared members through; error context is not spread into the body
@@ -85,11 +94,14 @@ description: >-
 function decodeCursor(raw: string, sort: Sort): Cursor {
   let v: unknown
   try { v = JSON.parse(Buffer.from(raw, 'base64url').toString('utf8')) }
-  catch (e) { throw new InvalidCursor({ cause: e }) }
-  if (!isCursorFor(v, sort)) throw new InvalidCursor() // shape, value types, same sort
+  catch (e) { throw new InvalidCursor('undecodable', { cause: e }) } // options second (`typescript` → errorClassNames)
+  if (!isCursorFor(v, sort)) throw new InvalidCursor('shape') // shape, value types, same sort
   return v
 }
 ```
+
+The cursor is not signed: it only says where the caller's own page continues, and every query still applies the
+caller's access predicate.
 
 ## Idempotency keys
 
@@ -111,25 +123,31 @@ its removal is its own change, never part of the one that adds the new major. No
 query-parameter versioning unless the repo already does it. Both majors use the one global error
 handler; `Location` headers point into the major that created the resource.
 
-## Version-sensitive behaviour
+## The contract test
 
-This skill does not pin library facts that change between releases (signatures, defaults, generated-artifact paths, "since version X"). Before relying on one: read the installed version from the lockfile or manifest, then check current docs via the context7 MCP (`resolve-library-id`, then `query-docs`) or run a quick probe in the project. The checklist below names where the silent pitfalls usually are; it deliberately does not give the answer, because the answer depends on the version.
+`tests/contract/openapi.contract.test.ts` compares the OpenAPI the app builds (`@fastify/swagger` in dynamic mode,
+`app.swagger()`) with `documentation/api/openapi.yaml`: every operation the app serves exists there with the same
+method, path and `operationId`, the same error statuses, and the same request and success-response schemas. It is
+written once from [references/contract-test-template.ts](./references/contract-test-template.ts)
+(`repo-scaffold`); a unit that adds or changes a route keeps it green — a red contract test is a route that differs
+from the contract, never a reason to loosen the comparison. Routes therefore declare the contract's error statuses
+in their `response` schema with the shared Problem schema.
 
-### Check before relying on it
+**Version-sensitive points** — [references/version-checks.md](./references/version-checks.md). In a `work` packet
+their answers come in `CURRENT LIB DOCS`; where it says `none`, probe the installed version in the project instead
+of fetching docs. Outside `work`, read the file and check each point you rely on against the installed version.
 
-- Package and import names of the type provider and schema library, and which of their majors match
-  the installed Fastify major.
-- The shape of a validation error as the error handler receives it (code, where per-field issues
-  live), the status Fastify uses for its own validation and body-parse failures, and whether the
-  provider changes either.
-- Response serialization: what happens to properties not in the response schema, and to a body that
-  does not match it (dropped, coerced, or a 500).
-- Validator defaults for request data: coercion of query and params, removal of extra properties,
-  applied `default`s, and which string `format`s are enforced.
-- Shared schemas: how `addSchema` ids or a schema registry are referenced from routes and emitted by
-  the OpenAPI generator (named components or inlined), so `operationId` and component names match.
-- Encapsulation and lifecycle: whether a decorator or hook is visible where used, what
-  `fastify-plugin` metadata enforces, and which hook runs before validation.
-- Async handlers: returning a value versus `reply.send`, and empty bodies on 204.
-- Where the database error code sits on an error that reaches the handler (raw driver error or
-  wrapped by the ORM).
+## The reviewer checks
+
+1. **A handler parses, calls one use case or query, and maps the result** — no business rule, no body of an error
+   built in a route or hook.
+2. **Every status a route can answer is one the contract declares for that operation**: a duplicate is a named
+   error, never a bare 409 from a SQLSTATE; a serialization failure or deadlock is 503 with `Retry-After` only
+   after the bounded reruns.
+3. **A cursor is decoded inside `try` and checked for shape, value types and sort before the query**; anything else
+   is the contract's 400, never a 500.
+4. **An idempotency key or a duplicate is settled by the database constraint**, never by an in-process map or a
+   read-then-insert alone.
+5. **Auth runs in a hook before validation, registered on the prefix it protects**; missing credentials 401, a
+   missing permission 403.
+6. **A new or changed route carries the contract's `operationId` and `tags`**, and the contract test passes.

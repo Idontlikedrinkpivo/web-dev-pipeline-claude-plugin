@@ -20,6 +20,7 @@
 | the `web` domain | it searched `app-interface.csv` |
 | stacks other than `react`, `nextjs`, `shadcn`, `html-tailwind` (SwiftUI, React Native, Flutter, Jetpack Compose, JavaFX, WPF, WinUI, Avalonia, Uno, UWP, Vue, Svelte, Astro, Nuxt, Nuxt UI, Angular, Laravel, three.js) | the pipeline builds with React + Vite and Next.js on shadcn/ui and Tailwind |
 | `scripts/tests/`, `scripts/validate_data.py` | maintenance of the original data, not used at run time |
+| `data/phosphor-icons-upstream.json`, `data/catalog-summary.json` | maintenance snapshots of the original's catalogue, read by no script; `data/data-provenance.json` still names them as the sources it was built from |
 | `data/ux-guidelines.csv` rows 22 Touch Target Size (native units; the web rule is row 104), 26 Pull to Refresh, 27 Haptic Feedback, 94 Gaze Hover, 95 Depth Layering, 97 Asset Weight, 101 Focus Not Obscured (Enhanced), 102 Focus Appearance | native platforms, 3D, WCAG AAA |
 
 ## Changed
@@ -67,7 +68,22 @@
   public page and that suggested effects are proposals; the checklist items
   and the decorative-motion warning cite `UX-n`.
 - `scripts/search.py` — the `--motion` dial and the removed stacks dropped
-  from the arguments and the usage text.
+  from the arguments and the usage text; `--product-type b2b|b2c` added.
+- `scripts/design_system.py` — the font pairing is chosen among every
+  Cyrillic pairing of `typography.csv` for the product type (B2B: sans
+  body, no display or script heading; never a display face as body; no
+  face made for another script), scored by the brief's words and the
+  search order, instead of the first Cyrillic row of the search; the dead
+  fallback search (74 results against a maximum of 20) is gone; the output
+  names the product type it picked for.
+- `data/stacks/shadcn.csv` row 33 — toasts only for success, errors stay
+  on the screen (UX-27); `data/stacks/html-tailwind.csv` rows 15, 30 —
+  desktop first with `max-*` variants (UX-74), row 35 — a loading button
+  keeps focus with a busy state instead of `disabled` (UX-15);
+  `data/stacks/react.csv` row 63 — the same busy state in the
+  `useFormStatus` example.
+- `data/styles.csv` rows 1, 15 and `data/ui-reasoning.csv` (12 rows) —
+  hover durations of 200–400 ms → «≤150ms» (UX-63).
 
 ## Updating from the original
 

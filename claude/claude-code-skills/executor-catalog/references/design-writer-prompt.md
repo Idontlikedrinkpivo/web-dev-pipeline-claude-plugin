@@ -7,7 +7,10 @@ history. What is not in the packet does not exist for it.
 The orchestrator fills every slot from
 `executor-catalog/references/design-complexity.md` and the stage skill.
 The writer follows the **Writer** half of that skill, not the Orchestrator
-half.
+half. The documents go by path, every part of each; only what is on no
+disk is pasted (`executor-catalog` → Dispatch contract → Paths, not pasted
+documents). A writer handed `srs.md` alone reads a table of contents and
+designs without most of the requirements.
 
 ## The packet
 
@@ -16,7 +19,7 @@ You settle the design document(s). You do not print them, and you do
 not write production code. When every decision the templates need is
 settled — on `clean-architecture-design`, for every document in MODE
 before printing any — nest `doc-typist` with
-`executor-catalog/references/doc-typist-prompt.md`, one per document
+`<SKILLS ROOT>/executor-catalog/references/doc-typist-prompt.md`, one per document
 (in parallel when there are several). Each writes its OUTPUT PATH and
 the files at its DIAGRAM PATH: on `clean-architecture-design`
 `foundation`, the D2 views (`.d2` / `.svg`), each embedded in its
@@ -28,10 +31,14 @@ correction dispatch per document, then the report. Do not type the
 correction. Do not paste a finished document into the typist's prompt.
 Writing those files yourself is a failed print.
 
-SKILL           <repo-relative path to the stage skill's SKILL.md>
-                Follow the Writer half and its references. Skip the
-                Orchestrator half. Do not run doc-review. Do not offer
-                the next pipeline stage. Do not commit.
+SKILLS ROOT     <absolute folder holding the plugin's skills — the parent
+                of the stage skill's base directory (executor-catalog →
+                Dispatch contract)>
+SKILL           <SKILLS ROOT>/<stage>/SKILL.md
+                Follow the Writer half and its references; every
+                `<skill>/…` path in them resolves under SKILLS ROOT. Skip
+                the Orchestrator half. Do not run doc-review. Do not
+                offer the next pipeline stage. Do not commit.
 
 STAGE           clean-architecture-design | db-schema-design | openapi-spec-generator
 COMPLEXITY      Low | Mid | High  (<why the cascade fired>; architecture:
@@ -70,25 +77,50 @@ DIAGRAM PATH    <by document; a `diagrams/` folder next to the document:
                 db-schema-design: documentation/db/diagrams/er.d2.
                 openapi-spec-generator: `none`>
 
-INPUTS YOU MUST FOLLOW (pasted, not linked)
-  <db-schema-design: the SRS (documentation/requirements/srs/srs.md).
-  openapi-spec-generator: the SRS and, when the system stores data, the
-  schema (documentation/db/schema.md). clean-architecture-design: the
-  SRS, plus the schema with its migrations and
-  documentation/api/openapi.yaml when those stages ran;
-  §1 Стек when the stack is a fact; on a split greenfield's second
-  dispatch, the foundation and the domain model on disk. On an
-  increment, the current text of every architecture document (the
-  writer may need to add a name to one outside MODE) and the `.d2` /
-  `.puml` files of the documents being edited when they exist (say
-  which file wins if they disagree).>
+READ FROM DISK  <repo-relative paths, every part of each document — read them
+                all before deciding anything:
+                SRS: documentation/requirements/srs/srs.md and every
+                  documentation/requirements/srs/areas/*.md (srs.md alone
+                  is the table of contents).
+                schema — openapi-spec-generator when the system stores
+                  data; clean-architecture-design when that stage ran:
+                  documentation/db/schema.md and every
+                  documentation/db/migrations/*.sql.
+                API — clean-architecture-design when that stage ran:
+                  documentation/api/openapi.yaml and every file under
+                  documentation/api/paths/ and documentation/api/components/.
+                architecture: the foundation's §1 «Стек» when the stack is
+                  a fact; on a split greenfield's second dispatch, the
+                  foundation and the domain model the first one wrote.
+                increment: the current files of the documents in MODE —
+                  for architecture every architecture document (a name may
+                  have to be added to one outside MODE) and the `.d2` /
+                  `.puml` files of the documents being edited; say which
+                  file wins if a diagram and its document disagree.>
+
+ANSWERS         <pasted — the only text here: each answer the user gave in
+                this session that the stage asks for before dispatch, one
+                line with its question. db-schema-design: the DBMS and its
+                major version, a field's classification (§6), how an
+                existing database is documented. openapi-spec-generator:
+                the auth scheme, the status of an exception the SRS left
+                open, whether anyone outside the project calls the API.
+                clean-architecture-design: the stack pick. Or: none>
+
+POPULATED       <db-schema-design on an increment: one line per existing
+                table the slice changes — `rows: yes` (its creating
+                migration is in a released tag), `rows: no` (created in
+                this unreleased iteration), or the user's answer. Picks
+                the safe migration sequence (`migration-safety.md`).
+                Otherwise: none>
 
 PROGRESS FILE   <architecture: documentation/plans/<version>/progress-architecture.md;
                 otherwise none. With the Edit tool, set each document's
                 Статус cell as you go — `🔄 в работе: решения` when you start it,
                 `🔄 в работе: печать` when you hand it to doc-typist, `🔍 проверка`
                 when the typist returns it — and change nothing else there>
-STACK           <chosen row, or: already a fact — see INPUTS>
+STACK           <chosen row from ANSWERS, or: already a fact — the
+                foundation §1 «Стек» or the manifest named in READ FROM DISK>
                 If the architecture skill is waiting on a stack pick,
                 you should not have been dispatched. Stop and report
                 BLOCKED.
@@ -104,7 +136,7 @@ INCREMENT       <when MODE is increment: type each change first —
                  db schema: `## Журнал изменений` too), newest row first — not a
                  block at the end. OpenAPI's rows are `info.x-changelog`.
                  The body is still the complete document: carry unchanged
-                 sections over verbatim from the pasted previous version.
+                 sections over verbatim from the current file on disk.
                  Never write "как в 1.1.0", "без изменений", "см. git".>
 
 LANGUAGE        Russian prose. Do not translate cited tokens (ids, paths,
@@ -162,6 +194,9 @@ RULES
   by domain-model name, no HTTP status; a sequence diagram only for a
   key scenario. No Mermaid.
 - DESIGN in the inputs wins over your preferences.
+- A decision only the user can make and that ANSWERS lacks is STATUS
+  BLOCKED with that one question in BLOCKER, worded for the user. The
+  session asks it and sends you the answer; do not guess it.
 - Do not invoke grill-me, doc-review, or pipeline.
 - Do not commit, do not stage.
 
@@ -192,6 +227,7 @@ DOWNSTREAM        increment only: each change with its type (ломает /
                   reason; for a «добавляет», where the new thing lands.
                   Omit on greenfield.
 CONCERNS          only for DONE_WITH_CONCERNS
-BLOCKER           only for BLOCKED / HARDER_THAN_EXPECTED
+BLOCKER           only for BLOCKED / HARDER_THAN_EXPECTED; a question for
+                  the user is one question, prefixed `ВОПРОС:`
 DELEGATED         doc-typist, or none
 ```

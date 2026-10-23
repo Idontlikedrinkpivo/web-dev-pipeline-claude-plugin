@@ -150,9 +150,15 @@ Images are handed over as one file, never pushed to a registry. Write
    (e.g. `release/1.4.0/room-booking-1.4.0.tar`);
 4. copies `documentation/deploy/deploy.md` to `release/<APP_VERSION>/DEPLOY.md`,
    replacing `<версия>` with the version and `<тег>` with the image tag;
-   and `documentation/operations/operations.md`, when it exists, to
-   `release/<APP_VERSION>/OPERATIONS.md` (`operations-doc`);
-5. prints the folder, the tar size, and both image names with tags.
+   `documentation/deploy/prod.env.example` to
+   `release/<APP_VERSION>/<project>.env.example` (`deploy-doc.md` → The
+   variables file); and `documentation/operations/operations.md`, when it
+   exists, to `release/<APP_VERSION>/OPERATIONS.md` (`operations-doc`);
+5. checks the folder against `DEPLOY.md`: every file name in backticks there
+   that is not created by one of its steps must be in the folder — the
+   script fails naming the missing one, so an operator never gets an
+   instruction for a file they do not have;
+6. prints the folder, the tar size, and both image names with tags.
 
 The file name carries the version so the releases sit side by side and an
 older one is still there for a rollback; a rebuild of the same version

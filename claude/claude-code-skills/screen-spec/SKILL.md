@@ -1,9 +1,9 @@
 ---
 name: screen-spec
 description: >-
-  Writes the front-end spec per screen (ТЗ на экран, one file per S-n) from the Figma frames, the OpenAPI contract and
-  the SRS: each element's behaviour, operation and fields, states, errors. Use once mockups exist, for «ТЗ на фронт»,
-  «ТЗ на экран», «опиши экран для фронта». Not drawing (`ui-design`) or code (`frontend`).
+  Writes the ТЗ на экран, a file per S-n, from the Figma frames, OpenAPI and SRS: each element's behaviour, operation,
+  states, errors. Use once mockups exist, for «ТЗ на экран входа», «ТЗ на фронт». Not drawing (ui-design) or code
+  (frontend).
 ---
 
 # Screen Spec
@@ -51,7 +51,7 @@ pipeline offer.
 | Input | Required | Use |
 |---|---|---|
 | Frames register `documentation/ui/frames-register.md` | always | header (fileKey, Тип продукта, Ширины, Доступность, «Слои по действиям»), `sources:` (the SRS pin); table «Экраны» — `S-n`, UC ids, actors, screen / state / nested-step `nodeId`s, status; table «Общие состояния» — the app-wide state frames (`Общее · …`). Missing → stop and name `ui-design` |
-| The Figma file the register names, through the Figma MCP | always | layers named by action, variants, the `S-n · Аннотация` frame (Фокус line, numbered «Элементы», «Тексты»). MCP unavailable → stop: never invent a `nodeId` or a text. Tell the user to connect and authorise the Figma MCP once with `/mcp` |
+| The Figma file the register names, through the Figma MCP | always | layers named by action, variants, the `S-n · Аннотация` frame (Фокус line, numbered «Элементы», «Тексты»); in a designer's file with **Слои по действиям: нет**, the text layers of the screen, state and step frames themselves. MCP unavailable → stop: never invent a `nodeId` or a text. Tell the user to connect and authorise the Figma MCP once with `/mcp` |
 | `documentation/api/openapi.yaml` | when the product has HTTP | every `operationId`, field path and declared status. Frames done but no API yet → stop and name `openapi-spec-generator` (`pipeline`: the screen specs wait for the contract) |
 | The SRS `documentation/requirements/srs/srs.md` | always | actors (`A-n`) and what each role may do, UC ids, rule ids (`BR-`, `FR-`) to cite |
 | `ux-patterns` | always | the completeness list of states, and what is global (not restated) |
@@ -169,9 +169,17 @@ An action that needs an operation the API lacks is written as
   positions in words. «Пройден: зелёная обводка, бейдж с галочкой» becomes
   «вариант `Урок=Пройден` (12:340)». The frame and the variant name carry it.
 - **Wording that is not on the frame.** Every text in «» is copied verbatim
-  from the «Тексты» table on the screen's `S-n · Аннотация` frame. A meaning
-  with no row there is a Разрыв (`design`) with `текст — нет в «Тексты»`,
-  never a sentence the writer composes. The table is keyed by place and
+  from the frame: from the «Тексты» table on the screen's `S-n · Аннотация`
+  frame, or — in a designer's file the register marks **Слои по действиям:
+  нет**, which has no annotation and no «Тексты» — from the text layer
+  itself, marked `текст слоя` with its `nodeId` («Отменить бронь» (текст
+  слоя `16:771`)). Without that second source every text of such a file
+  would be a Разрыв and `frontend` would stop on every screen. A meaning
+  with no text on the frames is a Разрыв (`design`) with `текст — нет в
+  «Тексты»` (or `текст — нет на кадре` in a file without annotation), never
+  a sentence the writer composes. A text layer belongs to the flow of the
+  frame it sits on — the register's state name carries the flow id
+  (`Занято (UC-4 Exc-1)`). The table is keyed by place and
   SRS flow, not by HTTP status (`S-1 · Empty`, `M1 · заголовок`,
   `№4 отмена брони · UC-3 Exc-1`, `№2 длительность · ошибка`): to put a
   text on a status row, follow the flow to the SRS named error and to the
@@ -265,7 +273,7 @@ and writes the files itself; there is no `doc-typist` on this stage.
    новый элемент 7»), then dispatch; this is not a question.
 
    **The test cases' trace**, when user test cases exist: run
-   `python3 ${CLAUDE_SKILL_DIR}/../ui-test-cases/scripts/check_trace.py --docs documentation`. Cases
+   `python3 "${CLAUDE_SKILL_DIR}/../ui-test-cases/scripts/check_trace.py" --docs documentation`. Cases
    on screens outside this run go to `ui-test-writer` (`MODE increment`) at
    once, to rewrite each broken trace from the current spec; cases on
    screens in this run go to it after their files land, at the close. What
@@ -279,12 +287,17 @@ and writes the files itself; there is no `doc-typist` on this stage.
    the app must handle globally with no row there is a Разрыв (`design`).
 5. **Progress file, then dispatch.** Before the first dispatch, create
    `documentation/plans/<version>/progress-screen-specs.md` per
-   `pipeline` → `references/progress-files.md` with every screen in scope `⏳ ждёт`, and post its
-   link in the chat. A screen goes `🔄 в работе` when its writer is
+   `pipeline` → `references/progress-files.md` with every screen in scope `⏳ ждёт`. A screen goes `🔄 в работе` when its writer is
    dispatched, `🔍 проверка` when its file lands, and `✅ готово` with its
-   element and Разрывы counts after step 6 (or `🔁 возвращено: …`); each
-   finished screen puts the count with the link in the chat («ТЗ на экраны:
-   5 из 10 · [progress-screen-specs.md](…)»).
+   element and Разрывы counts after step 6 (or `🔁 возвращено: …`). For
+   the chat, run `python3
+   "${CLAUDE_SKILL_DIR}/../pipeline/scripts/progress_link.py"
+   documentation/plans/<version>/progress-screen-specs.md` (add `--desktop`
+   when the session has the built-in browser) and paste the line it prints
+   as is — before the first dispatch and after each
+   finished screen. It carries the count and the link to the page that
+   reloads itself; a link written by hand opens the Markdown source or a
+   page that never refreshes.
    Read `executor-catalog`. Resolve `screen-writer`, write the
    resolved row (`screen-writer | dev-pipeline:screen-writer`) and dispatch it
    with `references/writer-prompt.md`, without asking which model and with no
@@ -304,7 +317,10 @@ and writes the files itself; there is no `doc-typist` on this stage.
    after round while each round closes something; when progress stops it
    is a stop with the report (`pipeline` → `references/convergence.md`). Do not edit the file
    yourself.
-   `BLOCKED` from the writer is reported as is; there is no escalation row.
+   `BLOCKED` with a question only the user can answer: ask it in the chat
+   (`executor-catalog` → Escalation), paste the answer into `ANSWERS` and
+   dispatch the same screen again. Any other `BLOCKED` is reported as is;
+   there is no escalation row.
 7. **Close** (below), then ask the gate and the next stage.
 
 ## Writer (dispatched)
@@ -320,14 +336,19 @@ variants, `nodeId`s. The annotation's «Элементы» table gives each laye
 `№` and flow; its Фокус line becomes the «Фокус» table in Экран. When the register says
 **Слои по действиям: нет** (a designer's file left as drawn), read the
 layers as they are, number elements in the user's reading order, and add
-one Разрыв (`design`): «нет аннотации — № назначены ТЗ». One
+one Разрыв (`design`): «нет аннотации — № назначены ТЗ». Its texts come
+from the text layers: `get_design_context` on each screen, state and
+nested-step frame, every text copied character for character and marked
+`текст слоя` with the layer's `nodeId`; a text only a screenshot shows (a
+picture, not a layer) is a Разрыв `текст — нет на кадре`, not read off the
+picture. One
 `get_screenshot` per screen, state and nested-step frame, to see what the
 metadata cannot tell. The «Элементы» and «Тексты» tables must be copied verbatim: read them
 with `get_design_context` on the annotation frame only, because a screenshot
 read risks a typo. Call `get_design_context` on another frame only when
 metadata and the screenshot cannot tell what an element is or which variant
-it uses; it is a code-generation read and pulls assets this step does not
-need. When the `figma-*` skills are installed, follow them for these calls;
+it uses, or to read the text layers of a file without annotation (above);
+it is a code-generation read and pulls assets this step does not need. When the `figma-*` skills are installed, follow them for these calls;
 otherwise use the Figma MCP tools directly (`mcp__figma__*`, or
 `mcp__plugin_dev-pipeline_figma__*` from the plugin). Never write a
 `nodeId` you did not read from the file.
@@ -360,8 +381,9 @@ the packet. Do not commit, and do not run `doc-review` or `pipeline`.
 4. Every non-success status of every called operation has a row in «Ошибки
    ответов»; `общий обработчик` rows match the other screen files of the
    product word for word.
-5. Every text in «» is in the frame's «Тексты» table; a missing one is a
-   Разрыв, not prose.
+5. Every text in «» is in the frame's «Тексты» table or, in a file
+   without annotation, is a text layer marked `текст слоя` with its
+   `nodeId`; a missing one is a Разрыв, not prose.
 6. Every computed value is in «Производные значения» once, with its rule id
    or `из API`; no element row repeats a formula; no business rule the API
    returns is recomputed.

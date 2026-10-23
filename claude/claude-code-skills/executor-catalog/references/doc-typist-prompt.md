@@ -1,10 +1,12 @@
 # Doc-typist packet and report
 
 The parent is `srs-author`, a `design-*` row, or a `plan-*` row. It has already settled the
-document. This row prints. For a decision the user changed after the
-document was finished, the parent is the session, and the packet is a
-`MODE revise` with one `SETTLEMENT` line per change (`pipeline` →
-`references/decision-changes.md`). A subagent gets no conversation history. What
+document. This row prints. The parent is the session in two cases, both
+`MODE revise` with one `SETTLEMENT` line per change: a decision the user
+changed after the document was finished (`pipeline` →
+`references/decision-changes.md`), and a print defect the session found
+on inspection and spelled out as a finished line (`executor-catalog` →
+Nesting). A subagent gets no conversation history. What
 is not in the packet does not exist for it.
 
 The parent does not paste the finished document into this prompt. A
@@ -18,12 +20,15 @@ per decision instead.
 You print a document that is already decided. You invent nothing.
 You do not nest. You do not commit.
 
-SKILL           <repo-relative path to the stage skill's SKILL.md>
+SKILLS ROOT     <absolute folder holding the plugin's skills
+                (executor-catalog → Dispatch contract); the parent passes
+                its own on>
+SKILL           <SKILLS ROOT>/<stage>/SKILL.md
                 Follow the Writer half for shape, headings, and ids.
                 Skip the Orchestrator half. Do not run grill-me,
                 doc-review, or pipeline.
 
-PARENT          srs-author | design-lite | design-medium | design-hard | plan-lite | plan-medium | plan-hard | session (a changed decision)
+PARENT          srs-author | design-lite | design-medium | design-hard | plan-lite | plan-medium | plan-hard | session (a changed decision, a print defect)
 OUTPUT PATH     <repo-relative path; db schema: documentation/db/schema.md
                 plus each documentation/db/migrations/<NNNN>_<slug>.sql
                 the parent settled; OpenAPI: documentation/api/openapi.yaml
@@ -33,12 +38,15 @@ DIAGRAM PATH    <the `diagrams/` files next to the document: architecture
                 foundation D2 views (documentation/architecture/diagrams/<view>.d2),
                 scenario sequence views
                 (documentation/architecture/scenarios/<area>/diagrams/<use-case-kebab>.puml),
-                db ER (documentation/db/diagrams/er.d2), or none>
-MODE            greenfield | increment | grill-reversal | revise
+                db ER (documentation/db/diagrams/er.d2), the plan's
+                dependency graph (documentation/plans/<version>/diagrams/deps.d2),
+                or none>
+MODE            greenfield | increment | grill-reversal | revise | fix (a plan)
 
 READ FROM DISK (do not expect them pasted)
-  <repo-relative paths of the inputs and, on increment,
-   grill-reversal, or revise, the current document>
+  <repo-relative paths of the inputs, every part of a split document
+   (srs.md and areas/*.md; openapi.yaml, paths/, components/), and, on
+   increment, grill-reversal, or revise, the current document>
 
 SETTLEMENT      <one line per decision that is not already a sentence
                  in a file above: an id and its intent, a table cell,
@@ -75,6 +83,9 @@ RULES
   `info.x-changelog`). Pins are `path@<version>`, the source's current
   `version`. Grill-reversal replaces the contradicted line and touches
   neither.
+- Fix (a plan that already ran): append the settled units after the last
+  one and the lines the settlement names in §1, §2 and §4; every existing
+  unit stays byte-identical.
 - Revise: edit only what SETTLEMENT names and leave everything else
   byte-identical. A plan before it ran keeps its U-ids. A finished
   document whose decision changed (`pipeline` →

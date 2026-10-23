@@ -26,7 +26,7 @@ import mdhtml  # noqa: E402
 FILES = {
     "progress-design.md": "Макеты", "progress-screen-specs.md": "ТЗ на экраны",
     "progress-test-cases.md": "Тест-кейсы", "progress-architecture.md": "Архитектура",
-    "progress-scaffold.md": "Каркас", "progress.md": "Код", "progress-e2e.md": "Браузерные тесты",
+    "progress-scaffold.md": "Каркас", "progress.md": "Код",
     "test-run.md": "Проверка через интерфейс", "security-audit.md": "Аудит безопасности",
     "progress-deploy.md": "Релиз",
 }

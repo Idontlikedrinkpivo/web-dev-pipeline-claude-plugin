@@ -1,10 +1,8 @@
 ---
 name: operations-doc
 description: >-
-  Writes the operations document for a built system: what it records and where (audit, history tables, queues, logs,
-  metrics), how to see each — a screen, an API call, a ready SQL query, a log filter — jobs, alarms, troubleshooting
-  by symptom. Use for «эксплуатационная документация», «где посмотреть журналы», «инструкция для поддержки», a
-  runbook. Not installation (`deploy-topology`).
+  Writes the operations document for a built system: what it records and where, how to see each, jobs, alarms,
+  troubleshooting. Use for «эксплуатационная документация», «где посмотреть журналы», «инструкция для поддержки».
 ---
 
 # Operations document

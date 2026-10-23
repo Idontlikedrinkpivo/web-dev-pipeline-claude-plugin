@@ -5,7 +5,7 @@ Read this only when the task implements registration, login or protected routes.
 ## Libraries (house choice)
 
 - Tokens: PyJWT (`import jwt`). Password hashing: `pwdlib` with the Argon2 extra (`PasswordHash`). Not `python-jose`, `passlib` or `bcrypt` directly, and never a bare `hashlib` digest for passwords.
-- Check current releases and the signatures you call against the installed versions (SKILL.md → Version-sensitive behaviour).
+- Check current releases and the signatures you call against the installed versions (`version-checks.md` → Auth libraries).
 
 ## Where the pieces live
 

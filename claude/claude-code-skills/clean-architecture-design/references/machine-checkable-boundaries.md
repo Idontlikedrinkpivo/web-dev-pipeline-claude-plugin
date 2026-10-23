@@ -95,7 +95,7 @@ module.exports = {
     { name: 'application-no-adapters-no-framework', severity: 'error',
       comment: 'Use cases talk to the outside through ports. Inject the adapter in bootstrap/.',
       from: { path: '^src/[^/]+/application' },
-      to:   { path: '^src/[^/]+/adapters|^src/bootstrap|node_modules/(express|@nestjs|@prisma|typeorm|drizzle-orm|fastify|@fastify)' } },
+      to:   { path: '^src/[^/]+/adapters|^src/bootstrap|node_modules/(express|@nestjs|@prisma|typeorm|drizzle-orm|zod|fastify|@fastify)' } },
     { name: 'adapters-do-not-import-bootstrap', severity: 'error',
       from: { path: '^src/[^/]+/adapters' }, to: { path: '^src/bootstrap' } },
     { name: 'shared-domain-is-leaf', severity: 'error',

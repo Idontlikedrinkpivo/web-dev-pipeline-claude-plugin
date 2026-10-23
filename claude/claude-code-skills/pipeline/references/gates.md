@@ -34,9 +34,10 @@ skip when the change is small — never by not asking.
 architecture documents and screen specs together, and a contradiction
 between two of them otherwise surfaces in `work` as a unit that cannot
 satisfy both. It is one `sonnet` dispatch over the whole set — say that in
-the question. On an increment it is offered again whenever a document
-changed after the last check ("Where am I" step 3); for a one-field change
-recommend the skip.
+the question. On an increment it is offered again whenever a document of
+the set changed after the last check (`where_am_i.py` says «после
+сверки», `references/where-am-i.md`); for a one-field change recommend the
+skip.
 
 **`plan-review`, not `doc-review`, is the gate on stage 11 — and it is not asked.** By the plan every product decision is settled in the documents, so `plan` runs the review itself and fixes what it finds round by round until it passes; only a `STOP` (the documents have a gap) or a cycle that stops making progress comes back to the user. A plan is a work order, not a contract: the questions that matter are
 whether a unit lands as one green commit, whether `Зависит от` forms a DAG,

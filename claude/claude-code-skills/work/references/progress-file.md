@@ -47,10 +47,12 @@ edited and completed with the commit once they land:
 - Повторная оплата: «409 PAYMENT_DUPLICATE» → «200 с прежним результатом» · решил пользователь (U6 `BLOCKED`) · OpenAPI `payOrder`, сценарии `payments` · `d03b2e1` · U4 переделан
 ```
 
-Create it before the first dispatch, with every in-scope unit `⏳ ждёт`; on a
-resumed run, rebuild it from the unit map and git. Then post its link in the
-chat before the first dispatch (`work` → Keep the progress file), and again
-in the `План:` line after every commit and every stop. It is never
+Create it before the first dispatch from the unit map and `plan_state.py`
+(`work` → Step 1): a unit with its `Plan-Unit:` trailer `✅ готово`, every
+other unit in scope `⏳ ждёт` — the same on a resumed run and on a second run
+in the same iteration. Then post the progress line before the first dispatch,
+and again after every commit and every stop (`work` → Step 1, the progress
+line from `progress_link.py`, never a hand-written link). It is never
 committed — `documentation/plans/` is out of git — so it lives only on this
 machine, and git keeps the record through the `Plan-Unit:` trailers. A
 pre-existing progress file from another run of the same plan is overwritten,
@@ -58,12 +60,13 @@ not appended to.
 
 ## Writing the file
 
-The user watches the file live in the app's file pane, and that pane redraws
-only when the file is changed through the file-editing tools. Change it with
-**Edit** — one call per row or line that changes — and use **Write** only to
-create it or rebuild it on a resumed run. Never write it from the shell
-(`python`, `sed`, `cat >`, a heredoc, a script): the file on disk changes but
-the pane keeps showing the old version until the user reopens it.
+The user watches the page beside the file, `progress.html`, and the plugin's
+`PostToolUse` hook rebuilds that page only after an **Edit** or **Write** of
+the file. Change it with **Edit** — one call per row or line that changes —
+and use **Write** only to create it or rebuild it on a resumed run. Never
+write it from the shell (`python`, `sed`, `cat >`, a heredoc, a script): the
+hook does not fire, so the file on disk changes but the page keeps showing
+the old version.
 
 Change it the moment a status changes, not in a batch at the commit:
 `🔄 в работе` when the unit is dispatched (with its executor), `🔍 ревью`
@@ -92,7 +95,8 @@ user-test run, whose main bar shows the share of cases that pass — then the ta
 
 The bar is a hundred cells, one per percent — `█` for done, `░` for the
 rest — then the percent. The code block keeps it on one monospace line in
-the file pane instead of wrapping into the prose around it. Every unit
+the Markdown instead of wrapping into the prose around it; the page draws it
+as a bar. Every unit
 weighs the same, whatever its grade or size: percent = ⌊done × 100 /
 total⌋, rounded down so the bar never shows 100% before the last unit
 lands, and the filled cells equal the percent. Done means `✅ готово`
@@ -105,8 +109,8 @@ shape, over its blocking findings (`✅ готово` of the rows that block).
 
 When `code-review-full` returns anything but `PASS`, the fixes are planned in
 the file **before the first fix is dispatched**, so the user can follow them
-the same way as the units, and its link goes to the chat again before the
-first fix (`work` → Step 7). Add this section under the units table, set the
+the same way as the units, and the progress line goes to the chat again
+before the first fix (`work` → Step 7). Add this section under the units table, set the
 `Финальное ревью:` line to the verdict:
 
 ````markdown
@@ -135,7 +139,8 @@ first fix (`work` → Step 7). Add this section under the units table, set the
   trailer is `Plan-Unit: <version>/review-fix-<n>`. A P2/P3
   finding is `⏭ пропущено: в отчёт, не блокирует` and goes to the run report.
 - **Statuses** as for units: `⏳ ждёт` → `🔄 в работе` → `✅ готово`
-  (commit sha in the Ревью cell after its `code-review-unit` verdict), or
+  (commit sha in the Ревью cell once the fix passed the checks; the round's
+  re-review is its review, on the line under the table), or
   `⛔ остановлено: <причина>`.
 - **The units table follows:** a re-opened unit's row reads
   `🔁 возвращено: F1` while it is open and `✅ готово: исправлено в F1` once its fix

@@ -22,17 +22,21 @@ in the chat («Дизайн ведёт дизайнер в своей сесси
 
 ## The question
 
-One question per `grill-me` → "How a question is shown":
+One question per `references/question-format.md`:
 
 ```text
-**Вопрос. Кто ведёт дизайн в этой итерации**
+**Вопрос. Кто рисует макеты экранов в этой итерации**
 
-От ответа зависит порядок работ: кто рисует макеты и пишет тест-кейсы и
-ждёт ли бэкенд дизайн.
+От ответа зависит порядок работ: кто рисует экраны в Figma, кто пишет
+по ним описание для вёрстки и тест-кейсы, и ждёт ли бэкенд дизайн.
 
-  A. Всё делаем сами — макеты рисует плагин в Figma, тест-кейсы тоже здесь.
+  A. Всё делаем сами — макеты рисует плагин в Figma, описания экранов и
+     тест-кейсы тоже здесь.
   B. Отдельный дизайнер работает с плагином на своём компьютере — макеты (и
      тест-кейсы, если договоритесь) он ведёт сам в той же ветке итерации.
+  C. Дизайнер рисует сам, без плагина — пришлёт ссылку на файл Figma;
+     здесь я составлю по его макетам реестр кадров, опишу экраны и напишу
+     тест-кейсы.
 
 Ответьте сообщением: буква или свой текст.
 ```
@@ -43,17 +47,17 @@ iteration and can change at any message («дизайнер ушёл, рисуе
 
 ## What follows from each answer
 
-| | A. Сами | B. Дизайнер с плагином |
-|---|---|---|
-| Fork after the SRS (`references/branch-order.md`) | the usual options and recommendation | recommend «только бэкенд»; the hand-over (`references/team.md`) follows at once |
-| `ui-design` | in this session; its entry question offers only B and C (draw) | in the designer's session; it asks its own entry question |
-| Screen specs and test cases | in this session | one question per stage — the designer, an analyst, or this session (`references/team.md` → Handing over) |
-| Meeting point (`docs-consistency`) | both branches done here | waits for each person's «готово и запушено» |
+| | A. Сами | B. Дизайнер с плагином | C. Дизайнер без плагина |
+|---|---|---|---|
+| Fork after the SRS (`references/branch-order.md`) | the usual options and recommendation | recommend «только бэкенд»; the hand-over (`references/team.md`) follows at once | recommend «сначала бэкенд»: the design branch here starts when the designer's file arrives |
+| `ui-design` | in this session; its entry question offers only B and C (draw) | in the designer's session; it asks its own entry question | in this session, its entry option A only — the designer's frames: screen ids, the register, the completeness check; gaps go to the designer as questions |
+| Screen specs and test cases | in this session | one question per stage — the designer, an analyst, or this session (`references/team.md` → Handing over) | in this session |
+| Meeting point (`docs-consistency`) | both branches done here | waits for each person's «готово и запушено» | both branches done here, once the designer's frames are registered |
 
 ## Where the answer is kept
 
 In the frames register header, **Дизайн ведёт:** `мы` | `дизайнер с
-плагином`, written by the first session that has
+плагином` | `дизайнер без плагина`, written by the first session that has
 both the answer and the register, and committed with it. Before the
 register exists the answer lives in this session; a later session that
 finds neither the field nor a register asks again. It is separate from

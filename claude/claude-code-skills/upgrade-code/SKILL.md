@@ -1,10 +1,8 @@
 ---
 name: upgrade-code
 description: >-
-  Brings a project's code and settings up to a newer dev-pipeline plugin — quality gates in linters and CI, the
-  project's verify skill: lists what the project lacks, asks which to make, makes them one commit each with the
-  checks green before and after. Use when the session-start hook names code changes, or
-  for «обнови код проекта под плагин». Documents go to `upgrade-docs`.
+  Brings a project's code and settings (quality gates, linters, CI) up to a newer dev-pipeline plugin, a commit each.
+  Use when the session-start hook names code changes, or «обнови линтеры и CI под плагин». Documents: upgrade-docs.
 ---
 
 # Upgrade a project's code to the installed plugin
@@ -16,23 +14,22 @@ linters and CI, and a code change wants the project's checks around it.
 
 ## Steps
 
-Follow `upgrade-docs` → Steps, with these differences.
+Follow `upgrade-docs` → Steps — one change per message, no answer is «позже» — with these differences.
 
-1. **List.** `python3 <this skill's folder>/../upgrade-docs/scripts/project_format.py list . --kind code`. Document
-   changes it names as also pending belong to `/dev-pipeline:upgrade-docs`: say so in one line, do not make them.
+1. **What is pending.** `python3 "${CLAUDE_SKILL_DIR}/../upgrade-docs/scripts/project_format.py" list . --kind
+   code`. Document changes it names as also pending belong to `/dev-pipeline:upgrade-docs`: say so in one line, do
+   not make them.
 
-2. **Explain.** Say also what in the code or settings changes, how many files (count them in the project, never
-   guess) and that the app's behaviour does not change.
-
-3. **Ask.** As there. A row whose `fix` names its own question asks it — the quality gates ask whether to make them
+2. **The queue.** `project_format.py next . --kind code`, then `--after <id>` of the change just settled, as there. Say also what in the
+   code or settings changes, how many files (count them in the project, never guess) and that the app's behaviour
+   does not change. A row whose `fix` names its own question asks it — the quality gates ask whether to make them
    now on a separate branch or as the first unit of the next iteration. «Первой задачей итерации» is «позже»
-   here: nothing is made, the session-start line names the change again, and the user runs this skill when that
-   iteration opens.
+   here: nothing is made and nothing recorded. When that iteration opens, `open_iteration.py` names the change
+   again, and `plan` makes it the iteration's first unit — or the user runs this skill then.
 
-4. **Branch.** As there, but outside an open iteration the branch is `chore/plugin-<installed version>`.
-
-5. **Make each chosen change.** Before the first one, run the project's own checks — the `lint`, `typecheck` and
-   `test` commands its manifests name — and keep the result. Then per change:
+3. **Make the chosen change.** The branch as there, but outside an open iteration it is
+   `chore/plugin-<installed version>`. Before the first change, run the project's own checks — the `lint`,
+   `typecheck` and `test` commands its manifests name — and keep the result. Then per change:
    - Do what the `fix` says, with the skill it names, and only that: configuration and tooling, never the app's
      behaviour.
    - Run the same checks again. A check that was red before stays as it was and goes into the report; a check this
@@ -40,10 +37,10 @@ Follow `upgrade-docs` → Steps, with these differences.
    - `project_format.py check . <id>` must print `done`.
    - Commit it alone: `chore: <title of the change> (плагин <version>)`, only that change's files.
 
-6. **Stamp.** As there: the stamp needs nothing of either kind pending, so document changes left for
+4. **Stamp.** As there: the stamp needs nothing of either kind pending, so document changes left for
    `upgrade-docs` keep it off — say so.
 
-7. **Report.** As there, plus the checks before and after.
+5. **Report.** As there, plus the checks before and after.
 
 ## Rules
 

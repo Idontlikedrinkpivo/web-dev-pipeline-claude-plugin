@@ -1,9 +1,8 @@
 ---
 name: ci-pipeline
 description: >-
-  Writes the CI workflow (GitHub Actions; GitLab CI or CircleCI on request) that re-runs the project's own lint,
-  typecheck and tests on every push and PR. Use for CI, PR checks, «чтобы сломанный код не попал в main». Not CD,
-  releases, branch protection or compose files (`deploy-topology`).
+  Writes the CI workflow (GitHub Actions; GitLab or CircleCI on request) that re-runs the project's lint, typecheck
+  and tests on each push and PR. Use for «настрой CI», «чтобы сломанный код не попал в main». Not CD or releases.
 ---
 
 # CI Pipeline
@@ -159,12 +158,28 @@ is unnecessary; check before adding a redundant one.
   run: make typecheck
 - name: Test
   run: make test
+  env:
+    PYTEST_ADDOPTS: --cov=<the source folder>   # pytest-cov; Vitest: npm test -- --coverage
 ```
 
 Not `ruff check .`, not `mypy app` inlined — `make lint` / `make typecheck`.
 The workflow file's job is plumbing (checkout, toolchain setup, service
 containers, caching), never a second copy of what the command does. This is
 what keeps "green in CI" and "green locally" the same claim.
+
+The Test step is the one place that adds something: it runs the full suite
+with coverage on, so the threshold the project keeps once in its test
+tool's config (`coverage.thresholds`, `fail_under` —
+`repo-scaffold/references/quality-gates.md`, the Coverage gate) fails the job. Turn
+measuring on without a second command: `npm test -- --coverage` for
+Vitest, `PYTEST_ADDOPTS: --cov=<the source folder>` in the step's `env:`
+for pytest. Never a threshold on the command line — that would be a second
+number. A project without the coverage tool or its threshold (no
+`@vitest/coverage-v8`, no `pytest-cov`, no `thresholds` / `fail_under`)
+runs the tests without coverage: `--coverage` would break the job, and
+adding the tool is the quality gates' work, not CI's. Say so in the
+report and name the fix — `/dev-pipeline:upgrade-code` (its quality-gates
+change) or the gate in the next plan.
 
 `make test` (or its equivalent) already includes the compose-contract tests
 and the `.env.example`-sync test from `deploy-topology`, because those live
@@ -179,7 +194,7 @@ suite of several test files is split into shards by file — a matrix of
 `--shard=<i>/<N>` jobs, each with its own stand, and a last job that merges
 the reports (`ui-test-cases` → `references/parallel-stands.md` → In CI).
 When the repo has no such target, the workflow has no e2e step, and the
-close (Step 8) says that browser tests are not in CI.
+close (Step 9) says that browser tests are not in CI.
 
 ### Step 5. Triggers
 
@@ -271,10 +286,20 @@ command per toolchain).
   "pipelines must succeed" would otherwise block the MR; removing it is
   the opt-in.
 
-### Step 8. Say what the user still has to do by hand
+### Step 8. Commit the workflow
+
+Commit it on the iteration branch before anything is said about it: the
+iteration's tag and push at the pipeline's end carry only what is
+committed, and a workflow left in the tree never runs. One commit,
+`ci: проверки на каждый push и PR`, staged by name — the workflow file and
+any local target this stage added to the Makefile or `package.json`
+(Step 7) — never `git add .`. An architecture fix has its own commit first
+(Guardrails).
+
+### Step 9. Say what the user still has to do by hand
 
 An unenforced CI only reports, and a PR can merge past a red run, so the
-user has to hear what is still missing. Close by telling the user, in
+user has to hear what is still missing. Tell the user, in
 this order:
 
 1. The check job names this workflow produces, and whether browser e2e is
@@ -289,7 +314,7 @@ this order:
    from item 1, how to make it required (Step 7), and — when it calls a
    tool directly — that the command moves into a local target first.
 
-Example close:
+Example (the iteration's close follows it — References → `pipeline`):
 
 > CI добавлен: `.github/workflows/ci.yml`, проверки `backend` и
 > `frontend`. Отметьте обе как required в Settings → Branches → branch
@@ -330,7 +355,9 @@ Example close:
 - `push` + `pull_request`, no schedule — Step 5.
 - Every Step 6 hardening item is present; no `<sha>` or `<digest>` placeholder is left.
 - `security` job present (or declined), advisory, thresholds and flags checked against the pinned tool versions, no secrets — Step 7.
-- The user was told the check names, to mark them required, that the skill did not enable branch protection, and that CI blocks nothing until they do — Step 8.
+- The workflow is committed on the iteration branch — Step 8.
+- The user was told the check names, to mark them required, that the skill did not enable branch protection, and that CI blocks nothing until they do — Step 9.
+- The iteration was closed: `pipeline` → "End of the pipeline" ran — the message ends with its push command (and the cleanup question below it, when there is one), not with this stage's report.
 
 ## References
 
@@ -345,6 +372,10 @@ Example close:
   when the provider is not GitHub Actions or a toolchain is not Python / Node.
 - `deploy-topology` (skill) — the test topology and fixture values this
   workflow must mirror exactly.
-- `pipeline` (skill) — this is the last stage in it. Nothing follows: say the
-  workflow is in place and stop, rather than inventing a next step. Shipping is
-  the user's own flow.
+- `pipeline` (skill) — this is its last stage, and the iteration's close
+  follows it. After Step 9, read `pipeline` → "End of the pipeline" and do
+  it, unasked, in its order: the last stamp, the documentation site,
+  `summary.md`, the tag, `reflect`, the cleanup, and the push command as the
+  last line. Stopping at «CI добавлен»
+  leaves the iteration without its tag and the plugin's author without the
+  report. Offer no other stage; shipping is the user's own flow.

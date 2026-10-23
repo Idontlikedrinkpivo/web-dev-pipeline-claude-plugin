@@ -2,13 +2,14 @@
 
 Read in Step 7a, and by any stage that is about to run the app and finds no
 `.claude/skills/verify/` in the project (`ui-test-cases` mode run, a browser
-suite in `work`, `security-audit`). Adapted from pstack's
+suite in `work`). `security-audit` only reads its Traps when it exists — its
+scanners need no running app — and never writes it. Adapted from pstack's
 `create-verification-skill` / `maintain-verification-skill`.
 
 ## Why it exists
 
-Every run that drives the app — a UI acceptance run, an e2e suite, an
-audit's scanners — starts by working out the same things: the launch
+Every run that drives the app — a UI acceptance run, an e2e suite, the
+operations document's proof — starts by working out the same things: the launch
 command, when the stand is really ready, how to sign in per role, which
 traps this environment has, how to leave the machine as it was. What one
 session works out dies with it, and the next one pays again, or fails on
@@ -124,7 +125,10 @@ the project's use cases name first; a run that needs another adds it.
 4. **Record the proof** in SKILL.md's opening lines: the date, the commit,
    what ran and what it produced.
 5. **Commit it alone** (`test(e2e): скилл запуска стенда`), only the
-   `.claude/skills/verify/` folder — never other files under `.claude/`.
+   `.claude/skills/verify/` folder — never other files under `.claude/` —
+   with the trailer `Plan-Unit: <version>/verify-skill`, so a whole-run review
+   whose range holds it (written for a browser suite in `work`) maps it
+   instead of flagging an unknown commit (`code-review-full` → Step 1).
 
 ## Using it
 

@@ -34,13 +34,18 @@ later rule may raise the grade but none lowers it.
      or kept idempotent on retry; which fields each audience sees when
      the SRS names the audiences but not the fields.
    - Does **not** escalate: auth, roles, or secrets already fixed by an
-     SRS NFR row (or by a pre-dispatch answer in INPUTS) and only
+     SRS NFR row (or by a pre-dispatch answer in ANSWERS) and only
      transcribed; an amount column with no rounding or currency rule to
      decide; the SRS's standard security checklist itself.
-3. **Level gate** (architecture only, and only when Step 2 has already
-   picked a level). Framework-first → **Low**. Modest whose rules are only
-   field validation (plain CRUD, no state transition, no rule across two
-   entities) → **Low**; other Modest → **Mid**. Full → **High**.
+3. **Level gate.** Architecture, once Step 2 has picked a level:
+   Framework-first → **Low**. Modest whose rules are only field validation
+   (plain CRUD, no state transition, no rule across two entities) →
+   **Low**; other Modest → **Mid**. Full → **High**.
+   Schema and API have no level yet — they run before the architecture —
+   so the same test runs on the SRS: every entity this document stores or
+   every operation it exposes carries only field validation (plain CRUD:
+   no state transition, no rule across two entities, no money or time
+   rule) → **Low**, greenfield included; anything more goes on to rule 4.
    An increment that only appends one entity / one table / one
    operation, with no rule change, is graded by its own size (rule 1 or
    5), not the old document's level.
@@ -56,8 +61,11 @@ Missing inputs are a **stop**, not a grade. `db-schema-design` and
 `openapi-spec-generator` stop without the SRS (and, for OpenAPI, without
 the schema when the system stores data). `clean-architecture-design`
 stops without the SRS or without a schema or OpenAPI spec the pipeline
-already produced; `domain` also stops without the foundation, and
-`scenarios` without the foundation and the domain model. Do not
+already produced. `domain` needs the foundation, and `scenarios` the
+foundation and the domain model — on disk, or settled first in the same
+sitting: a greenfield sitting `foundation, domain, scenarios:…` is one
+writer who settles the foundation first, and nothing stops. Only a
+sitting that leaves them out while they are not on disk stops. Do not
 dispatch a writer to invent a table the SRS did not imply, an operation
 with no use case, or an auth scheme.
 
@@ -86,3 +94,6 @@ There is no grade 0. `design-hard` is terminal on this branch. A
 writer that returns `BLOCKED` or `HARDER_THAN_EXPECTED` escalates one
 tier per failure (lite → medium → hard); at `design-hard` it repeats
 while each round makes progress (`pipeline` → `references/convergence.md`).
+A `BLOCKED` that carries a question for the user is not a failure: ask
+it and send the answer to the same row (`executor-catalog` →
+Escalation).

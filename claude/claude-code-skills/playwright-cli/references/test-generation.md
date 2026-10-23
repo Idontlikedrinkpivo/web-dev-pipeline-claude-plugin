@@ -1,6 +1,7 @@
 # Test generation (plan → generate → heal)
 
 ## Contents
+- Inside dev-pipeline
 - 0. How generation works
 - 1. Planning
 - 2. Generate
@@ -15,6 +16,18 @@ End-to-end workflow for authoring and maintaining Playwright tests with `playwri
 - **Heal** — diagnose failing tests, fix the code, reconcile the spec with reality.
 
 Plan / generate / heal lean on the same mechanic: run `npx playwright test --debug=cli` in the background, then `playwright-cli attach tw-XXXX` to drive the paused page interactively. See [playwright-tests.md](playwright-tests.md) for the debug/attach mechanics.
+
+---
+
+## Inside dev-pipeline
+
+This file is written for a person at the keyboard who owns the app's behaviour. Inside the pipeline — `ui-test-runner` running the user test cases (`ui-test-cases` → Mode run), or a `work` unit that writes or heals Playwright specs — the test is written from documents that were reviewed, by an agent nobody answers. So only §0 (how generation works) and §3.1–3.3 (find, debug and fix a failing test) apply, and these rules replace the rest:
+
+- **The documents are right.** The case and the screen spec say what the app must do; a test asserts that, never what the app happens to do. §2.2's «the live app as the source of truth» and «update the spec to match» do not apply: a mismatch is a failing test and a finding, and the cases and specs are not edited.
+- **Files follow the suite, not the scenario.** One spec file per section of the cases, each test titled with its `TC-` id (`ui-test-cases` → Mode run → Dispatch), not one test per file; no `specs/*.plan.md` and no seed spec of §1 — the cases are the plan.
+- **No question to a person.** §3.4 «stop and ask the user» becomes a line in the run's report (an app defect, a spec gap); `show --annotate` is never run, because it waits for a person forever.
+- **A known app defect stays a failing test** — no `test.fixme` (§3.5): the fix plan turns it green.
+- **No interactive install.** Not `npm init playwright@latest` (§1.1), which waits for answers: `npm install -D @playwright/test` and `npx playwright install chromium`, with the config from [test-config.md](test-config.md).
 
 ---
 

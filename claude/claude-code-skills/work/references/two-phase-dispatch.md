@@ -17,8 +17,9 @@ unit's own implementer twice:
 Both phases go to the same named implementer: the one that wrote the tests is
 the one that has to satisfy them, and a cheaper agent picking up the second
 phase would be free to misread assertions it never chose. Both phases are one
-unit, one commit, and **one attempt** of the unit's budget (`work` Step 6) —
-not a second unit and not an escalation.
+unit, one commit, and **one round** in `pipeline` → `references/convergence.md`
+(the one rule for how many rounds a unit gets) — not a second unit and not an
+escalation.
 
 A retry of a two-phase unit (a `RETURN_TO_EXECUTOR`, or an escalation to the
 next tier including `impl-critical`) keeps the tests you already saw fail: it

@@ -10,8 +10,9 @@ Checks, per case (`## TC-<n>.` … next case):
   - every `шаг N` is a row of the case's table;
   - every `эл. M` is an element number of a screen spec the case names (S-<n> in its «Экран» line);
   - every frame nodeId (`12:160`) appears in those screen specs or in the frames register;
-  - every `operationId` written before `→` exists in the OpenAPI, and a status code after it is among
-    that operation's responses.
+  - every `operationId` written before `→` exists in the OpenAPI with the same spelling and case, and a
+    status code after it is among the responses of that operation (an exact code, or a range like `4XX`) —
+    not merely somewhere in the file.
 Warnings (not failures): a step that selects or enters something with no `шаг N →` mapping.
 """
 from __future__ import annotations
@@ -23,7 +24,7 @@ TRACE = re.compile(r"Трассировка:(.*?)(?:</sub>|$)", re.S)
 STEP_MAP = re.compile(r"шаг\s+(\d+)\s*→([^;·]*)")
 ELEM = re.compile(r"эл\.\s*(\d+)")
 NODE = re.compile(r"(?<![\d.])(\d{1,6}:\d{1,7})(?![\d:])")
-OP = re.compile(r"`([a-z][A-Za-z0-9]+)`\s*→\s*(?:mock\s+)?(\d{3})?")
+OP = re.compile(r"`([A-Za-z_][\w.-]*)`\s*→\s*(?:mock\s+)?(\d{3})?")
 SCREEN = re.compile(r"\((S-\d+)\)|\b(S-\d+)\b")
 ROW = re.compile(r"^\|\s*(\d+)\s*\|", re.M)
 ACTION = re.compile(r"^(Выбрать|Ввести|Нажать|Отметить|Указать|Заполнить)", re.I)
@@ -39,14 +40,60 @@ def load_specs(docs: Path) -> dict[str, tuple[str, set[str]]]:
     return specs
 
 
-def load_operations(docs: Path) -> dict[str, str]:
-    ops = {}
-    for f in docs.glob("api/**/*.y*ml"):
-        text = f.read_text(errors="replace")
-        for m in re.finditer(r"operationId:\s*['\"]?([A-Za-z0-9_]+)", text):
-            ops.setdefault(m.group(1), "")
-            ops[m.group(1)] += text
+def _indent(line: str) -> int:
+    return len(line) - len(line.lstrip(" "))
+
+
+def _significant(line: str) -> bool:
+    stripped = line.strip()
+    return bool(stripped) and not stripped.startswith("#")
+
+
+STATUS_KEY = re.compile(r"""^['"]?(\d{3}|[1-5]XX|default)['"]?\s*:""", re.I)
+
+
+def _responses(lines: list[str], at: int) -> set[str]:
+    """The status keys of the operation whose `operationId:` is on line `at` (block YAML)."""
+    level = _indent(lines[at])
+    start = at
+    while start > 0 and not (_significant(lines[start - 1]) and _indent(lines[start - 1]) < level):
+        start -= 1
+    end = at + 1
+    while end < len(lines) and not (_significant(lines[end]) and _indent(lines[end]) < level):
+        end += 1
+    codes: set[str] = set()
+    for i in range(start, end):
+        line = lines[i]
+        if _indent(line) != level or not line.strip().startswith("responses:"):
+            continue
+        child = None
+        for inner in lines[i + 1:end]:
+            if not _significant(inner):
+                continue
+            if _indent(inner) <= level:
+                break
+            child = _indent(inner) if child is None else child
+            if _indent(inner) == child:
+                m = STATUS_KEY.match(inner.strip())
+                if m:
+                    codes.add(m.group(1).upper())
+    return codes
+
+
+def load_operations(docs: Path) -> dict[str, set[str]]:
+    """operationId -> the status keys its own `responses` block declares, over every API file."""
+    ops: dict[str, set[str]] = {}
+    for f in sorted(docs.glob("api/**/*.y*ml")):
+        lines = f.read_text(errors="replace").splitlines()
+        for i, line in enumerate(lines):
+            m = re.match(r"""\s*operationId:\s*['"]?([^'"\s#]+)""", line)
+            if m:
+                ops.setdefault(m.group(1), set()).update(_responses(lines, i))
     return ops
+
+
+def _declared(code: str, codes: set[str]) -> bool:
+    return code in codes or f"{code[0]}XX" in codes
 
 
 def check(docs: Path):
@@ -93,13 +140,18 @@ def check(docs: Path):
                 if node not in spec_text and node not in register:
                     errors.append(f"{where}: кадр {node} — нет ни в ТЗ, ни в реестре кадров")
             if ops:
+                by_lower = {name.lower(): name for name in ops}
                 for op, code in OP.findall(trace):
-                    if op not in ops and re.search(rf"\b{op}\b", api_text):
+                    if op not in ops and op.lower() in by_lower:
+                        errors.append(f"{where}: `{op}` — в OpenAPI операция пишется `{by_lower[op.lower()]}`")
+                        continue
+                    if op not in ops and re.search(rf"\b{re.escape(op)}\b", api_text):
                         continue  # a parameter or field name, not a call
                     if op not in ops:
                         errors.append(f"{where}: `{op}` — нет такой операции или поля в OpenAPI")
-                    elif code and not re.search(rf"['\"]?{code}['\"]?\s*:", ops[op]):
-                        errors.append(f"{where}: `{op}` → {code} — такого ответа у операции нет")
+                    elif code and not _declared(code, ops[op]):
+                        have = ", ".join(sorted(ops[op])) or "ни одного"
+                        errors.append(f"{where}: `{op}` → {code} — у этой операции такого ответа нет (есть: {have})")
             for n, cell in rows:
                 if n not in mapped and ACTION.match(cell.split("|")[0].strip()):
                     warnings.append(f"{where}: шаг {n} что-то выбирает или вводит, но в трассировке нет «шаг {n} →»")

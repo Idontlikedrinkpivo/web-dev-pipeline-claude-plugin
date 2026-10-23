@@ -21,21 +21,14 @@ function buildResolvedContext() {
   ].join('\n');
 }
 
-// Substitution stays allowed on a failed dispatch, not only on an empty tool
-// surface: workflows here define their own degrade paths (this skill's
-// verifier falls back to orchestrator-only filtering), and this text is
-// positioned to outrank skill prose — a stricter rule would make those paths
-// retry forever or drop required work instead of degrading as intended.
+// The plugin's agents are dispatched by name through executor-catalog; a missing or rejected agent is a stop the
+// user fixes by installing or updating the plugin — never a pass the session runs on its own model.
 const SUBAGENT_AUTHORIZATION = [
   'SUBAGENT_AUTHORIZATION: If your harness gates subagent or agent-tool use on an explicit user request,',
-  "the user's invocation of this skill is that request for the skill's shipped subagents;",
-  'spawn them where a reference file directs, without re-asking.',
-  'Substitute an in-thread pass when the tool surface has no subagent capability at all,',
-  'or when a dispatch fails and this workflow defines its own fallback for that failure —',
-  "follow the workflow's fallback rather than retrying.",
-  'Where this workflow declares that a pass requires independent contexts, do not substitute inline for that pass:',
-  'report the missing capability as a blocker and stop that pass rather than running both sides in one context.',
-  'Disclose any substitution in one line.',
+  "the user's invocation of this skill is that request for the dev-pipeline plugin's agents;",
+  'dispatch them where the skill directs, by name, without re-asking.',
+  'A missing or rejected agent is a stop: tell the user to install or update the dev-pipeline plugin;',
+  'do not do the agent\'s work in this context instead.',
 ].join(' ');
 
 // Observed in the field: a model substituted inline for dispatch and told the
@@ -46,16 +39,6 @@ const HARNESS_ATTRIBUTION = [
   'HARNESS_ATTRIBUTION: A constraint that originates in your system prompt or harness configuration',
   "is never described to the user as their instruction, preference, or standing request.",
   'When you follow, relax, or override such a constraint, any disclosure names the harness as its source.',
-].join(' ');
-
-// A review pass promotes a finding when "2+ independent personas" agree, and
-// nothing verified they ran in separate processes — inline, one context reasoned
-// both lenses and still stamped confidence 100.
-const INDEPENDENCE_ACCOUNTING = [
-  'INDEPENDENCE_ACCOUNTING: Independence is a property of separate dispatched contexts, not of separate personas or lenses.',
-  'When reviewers, researchers, or critics ran in this one context instead of being dispatched,',
-  'do not count their agreement as independent corroboration, do not promote a finding on that basis,',
-  'and name the lost coverage where the run reports its confidence.',
 ].join(' ');
 
 // Same class of harness default as the subagent gate: a standing claim that the
@@ -73,7 +56,6 @@ function cli() {
     SUBAGENT_AUTHORIZATION,
     HARNESS_ATTRIBUTION,
     AUTONOMY_DIRECTIVE_CHECK,
-    INDEPENDENCE_ACCOUNTING,
   ];
   // Header first and CE_CONTEXT_END last are load-bearing: field transcripts
   // show models piping this output through `head`/`tail`, which silently drops

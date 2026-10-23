@@ -1,10 +1,8 @@
 ---
 name: doc-versioning
 description: >-
-  How project documents evolve: edited in place, stable ids, a version per service release, changelog rows ломает /
-  добавляет / уточняет, `sources:` pins, stamped when a stage closes. Use when a feature lands on a system that
-  already has documents, when asked to version or publish documents, or to find stale citations. Writes no document
-  body.
+  How documents evolve: edited in place, stable ids, a version per release, changelog rows, sources pins, the stamp at
+  a stage's close. Use for «проставь версии», «какая версия документа», «найди устаревшие ссылки».
 ---
 
 # Document Versioning
@@ -110,7 +108,7 @@ Before writing anything, look for the canonical document for this stage
 | nothing | **greenfield** | the writer skill creates the file at `version: <iteration version>` — the open `plans/<version>/` folder's name, `0.1.0` on a new product — with one «первый выпуск» row typed «—». The gates that follow leave both alone |
 | a document for this system | **increment** | edit that file in place. Leave `version`, `updated`, and the changelog untouched — writer, grill, and review alike. Grill still sets `grilled:` and review sets `reviewed:` when its gate closes, except on an SRS, which has neither field. `doc-versioning` types the changes once, when the stamp runs: at the stage's close or on the user's request (`references/version-birth.md`). An unversioned row (Registry): edit in place, no rows, no version |
 | a document for a *different* system in the same repo | greenfield for this system | monorepo: canonical path is per system, not per repo — each system has its own `documentation/` tree |
-| several candidates | **stop and ask** | never guess which one is canonical — picking wrong makes the real one stale invisibly. Follow `grill-me` → "How a question is shown": explain each file in the chat, one question, then stop |
+| several candidates | **stop and ask** | never guess which one is canonical — picking wrong makes the real one stale invisibly. Follow `pipeline` → `references/question-format.md`: explain each file in the chat, one question, then stop |
 
 Increment mode is the default in any repo with a `documentation/` tree. A
 stage that writes `documentation/requirements/billing-srs/` while
@@ -124,13 +122,27 @@ first version or stamp a new one.
 
 ### Commits that are not stamps
 
-Two commits of a contract document need no request from the user and stamp
-nothing: the move of a single file into its split layout (the stage that
-splits it), and a decision changed after the document was finished
-(`pipeline` → `references/decision-changes.md`). Both leave `version`,
-`updated`, `info.version`, the changelog and the pins as they were. The
-next stamp compares each document with its last stamped state, not with
-`HEAD`, so the changes these commits carry get their rows then.
+These commits of a contract document need no request from the user and
+stamp nothing; each leaves `version`, `updated`, `info.version`, the
+changelog and the pins as they were:
+
+- the move of a single file into its split layout (the stage that splits
+  it);
+- a decision changed after the document was finished (`pipeline` →
+  `references/decision-changes.md`), a direct `grill-me` landing its
+  reversals among them;
+- `docs-consistency`'s own fixes — a P2 name aligned to the upstream
+  spelling;
+- an `upgrade-docs` change, `docs: <title> (плагин <version>)` — the
+  document brought to a newer plugin's format.
+
+The next stamp compares each document with its last stamped state, not
+with `HEAD`, so the changes the first three carry get their rows then. An
+`upgrade-docs` commit is the exception: it changes form, never what a cited
+token means, so its hunks get no row. Type the diff without them — `git log
+-p <last stamp>..HEAD -- <files>` shows which hunks they brought — or the
+whole rewritten text reads as changes of meaning and the journal fills with
+rows nobody decided.
 
 ## Registry
 
@@ -446,7 +458,7 @@ The changelog is only verifiable if the diff matches it.
   feature contradicts it.
 - **A contradiction is a product decision, not an edit.** When the new feature
   cannot coexist with an existing requirement, stop and ask the user which one
-  wins. Follow `grill-me` → "How a question is shown": the chat says what each
+  wins. Follow `pipeline` → `references/question-format.md`: the chat says what each
   requirement means and what breaks if the other wins. One question, then
   stop. The user answers by sending a message. Do not open a question
   card. Then record it as a «ломает» row with the reason. Silently rewriting the old
@@ -475,7 +487,8 @@ an old major row reads as «ломает», a minor as «уточняет».
 
 ## When this skill is called
 
-The stamp runs at a stage's close and when the user asks to version or
+The stamp runs at a stage's close, at the iteration's close before the tag
+(`pipeline` → End of the pipeline), and when the user asks to version or
 publish; the steps are under "When a version is born". The checklist for
 each dirty file is `references/guardrails.md`. A writer, a gate, a review
 mid-stage, and `work` do not run it.

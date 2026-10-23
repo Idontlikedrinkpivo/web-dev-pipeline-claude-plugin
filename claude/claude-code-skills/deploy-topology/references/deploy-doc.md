@@ -3,10 +3,14 @@
 Read this in Step 8 while writing `documentation/deploy/deploy.md`, and in
 Step 7 while writing its sync test.
 
-The operators receive one folder per release: the image archive and
-`DEPLOY.md`. They do not receive `docker-compose.prod.yml` — they run the
-images in their own way (their compose, their orchestrator, their secrets
-store), so they need the facts, not this project's file. The compose file
+The operators receive one folder per release: the image archive,
+`DEPLOY.md`, the variables file `<project>.env.example`, and `OPERATIONS.md`
+when the operations document exists. They do not receive
+`docker-compose.prod.yml` — they run the images in their own way (their
+compose, their orchestrator, their secrets store), so they need the facts,
+not this project's file. So `DEPLOY.md` names no file the folder does not
+hold: an operator told to fill `.env.prod.local` or to start
+`docker-compose.prod.yml` has neither (ai-initiatives, 2.1.0). The compose file
 stays in the repo as the source those facts are taken from and as a way to
 run the prod shape locally; the sync test keeps the two from drifting.
 
@@ -36,7 +40,8 @@ Write it to be scanned (`doc-versioning` → `references/readable.md`): a cell i
 # Развёртывание room-booking <версия>
 
 Комплект: `room-booking-<версия>.tar` (образы `room-booking-backend:<тег>`,
-`room-booking-frontend:<тег>`) и этот файл.
+`room-booking-frontend:<тег>`), этот файл и `room-booking.env.example` —
+переменные прода с пометками.
 
 Загрузка образов: `docker load -i room-booking-<версия>.tar`
 
@@ -83,7 +88,7 @@ Write it to be scanned (`doc-versioning` → `references/readable.md`): a cell i
 |---|---|---|---|---|
 | BACKEND_SERVICE | да | нет | `backend:3000` | адрес бэкенда |
 | BACKEND_PROTOCOL | да | нет | `http` | протокол до бэкенда |
-| SECURE_MODE | да | нет | `false` | HTTPS внутри контейнера |
+| SECURE_MODE | да | нет | `plain` или `secure` | `plain` — HTTP, TLS на прокси эксплуатации; `secure` — TLS в самом контейнере, сертификаты в `/etc/nginx/ssl/`. Другое значение — nginx не стартует |
 
 ## Внешние зависимости
 
@@ -125,7 +130,36 @@ Where each section comes from:
 | Обновление | fixed text above, with the project's names |
 
 Secrets never appear with values — a format with `***` in place of the secret
-part, or `<секрет>`.
+part, or `<секрет>`. A variable with a fixed set of values lists exactly
+that set in «Пример / формат»; `SECURE_MODE` is `plain` or `secure`, because
+the image's nginx includes `${SECURE_MODE}.conf` and has only those two
+(`references/images.md`).
+
+**Files it names.** Only the bundle's: `<project>-<версия>.tar`, `DEPLOY.md`,
+`<project>.env.example`, `OPERATIONS.md`, or a file a numbered step of the
+document itself tells the operator to create («создайте файл с
+переменными по образцу `room-booking.env.example`»). Never a file of the
+repository — `docker-compose.*.yml`, `.env.example`, `.env.*.local`, a
+script.
+
+## The variables file
+
+`documentation/deploy/prod.env.example`, in git beside `deploy.md`,
+unversioned like it; `scripts/build-images.sh` copies it into the release
+folder as `<project>.env.example`. It is what the operator fills — or copies
+into their secrets store — so it holds the prod variables only, grouped by
+container, each with one comment line:
+
+```bash
+# backend, migrate — обязательна, секрет. Формат: postgres://user:***@host:5432/db
+DATABASE_URL=
+# frontend — обязательна. plain | secure
+SECURE_MODE=plain
+```
+
+No real value of a secret; a non-secret default is written as the value. Not
+the repository's `.env.example`, which documents test, dev and prod together
+and is read by the bootstrap targets.
 
 ## The sync test
 
@@ -147,8 +181,25 @@ fixed headers — split rows on `|`), and assert:
    in the compose file appear in its «Сеть и проверки» row.
 5. **Volumes.** No `volumes:` in the prod compose file ⇔ the «Состояние и
    тома» section says there are none.
+6. **Allowed values.** For a variable with a fixed set — `SECURE_MODE`
+   (`plain`, `secure`), `APP_ENV`, a protocol — the value in every compose
+   file and in `prod.env.example`, and each value in its «Пример / формат»
+   cell, belongs to the set the config layer or the image accepts.
+7. **The variables file.** The names in `prod.env.example` equal the union
+   of the «Переменные» tables, with the same «Обязательна» and «Секрет» marks.
+8. **Named files.** Every file name in backticks in `deploy.md` (a word with
+   an extension, or `<project>…` with one) is one of the bundle's — the
+   tar, `DEPLOY.md`, `<project>.env.example`, `OPERATIONS.md` — or is
+   created by a numbered step of the document; a repository file
+   (`docker-compose.*`, `.env.example`, `.env.*.local`) fails.
 
 The failure message names the file to fix: «deploy.md: переменная
 S3_BUCKET у backend есть в docker-compose.prod.yml, но нет в таблице
-"Переменные"». Someone who adds a variable or changes a port and forgets the
+"Переменные"», «deploy.md: SECURE_MODE = false, допустимо plain или secure»,
+«deploy.md: файл docker-compose.prod.yml в комплект не входит».
+
+The test reads the document; whether the built folder really holds the
+files is checked at build time — `scripts/build-images.sh` ends by looking
+up each file `DEPLOY.md` names in `release/<version>/` and fails naming the
+one that is missing. Someone who adds a variable or changes a port and forgets the
 document then finds out in CI, not from the operators.

@@ -15,7 +15,7 @@ model slug.
 
 | Name | When |
 |---|---|
-| `mechanical-worker` | Grade 0: rename, move, config, apply a settled shape to N sites; the plan's last unit, the manifest `version` bump |
+| `mechanical-worker` | Grade 0: rename, move, config, apply a settled shape to N sites; the manifest `version` bump unit |
 | `impl-lite` | Low: transcribe a fully specified artifact against a local pattern |
 | `impl-medium` | Mid: close local decisions, then prove them |
 | `impl-hard` | High: design the missing part inside given boundaries |

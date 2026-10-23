@@ -74,8 +74,9 @@ VISUAL DIRECTION <draw, edit, restyle: the chosen direction — its name;
                 radius and shadow scales; the density; the one bold thing;
                 «не делаем». `library` when DESIGN SYSTEM is a linked
                 library; `file` when the frames already have a look and
-                no direction was chosen — follow EXISTING FRAMES; `none`
-                only when the user declined the step>
+                no direction was chosen — follow EXISTING FRAMES;
+                `declined` when the user declined the step (the register
+                says «отказ — …»)>
 OPTIONS         <MODE direction only: two or three plans in the same shape,
                 each with its letter and name>
 PROGRESS FILE   <documentation/plans/<version>/progress-design.md>
@@ -139,7 +140,8 @@ RULES
 - A new screen in a file that already has frames reuses their look: the
   same components, variables, spacing, and naming as its neighbours, not a
   fresh style — also when the neighbours were drawn by a designer. A
-  redraw on a new PAGE is the exception: it follows VISUAL DIRECTION.
+  redraw on a new PAGE is the exception: it follows VISUAL DIRECTION,
+  within a linked library when there is one (below).
 - A `правка` screen keeps its structure. Add or change what the packet
   lists; do not restyle the rest. Edit the state and nested-step frames
   that exist; draw one only when this run adds that state or step.
@@ -186,8 +188,7 @@ RULES
   unless PAGE names a new one — and do not rename, move, or regroup what is
   there. A new PAGE gets the structure of `✅ Экраны` below.
   - `📄 Обложка`: one 1920×1080 frame with the product name, the SRS path
-    and version, and today's date (ISO, `2026-10-04`); set it as the file
-    thumbnail (`figma.setFileThumbnailNodeAsync`). Update the date and
+    and version, and today's date (ISO, `2026-10-04`). Update the date and
     version on every run that draws.
   - `✅ Экраны`: one Section per area or flow (`Брони`, `Профиль`), its
     name followed by the status: `Брони · черновик` while the run draws,
@@ -217,6 +218,14 @@ RULES
   spacing a variable already holds. A component the library lacks (for
   example a skeleton) is drawn from the library's own variables in its
   style, and the report names it.
+- **A linked library wins over VISUAL DIRECTION.** The library is the
+  team's code-facing design system; a direction is a look for frames that
+  have none. With DESIGN SYSTEM a linked library, use its components and
+  variables as they are — never detach, recolour or restyle them to match
+  a direction. A direction reaches only what this file owns (local
+  variables, the layout, the one bold thing outside library components).
+  Where the two disagree, follow the library and name the disagreement in
+  the report.
 - When there is none, build in the **shadcn/ui style** (the look the
   pipeline's React + Vite and Next.js stacks build with), so a frame maps
   to code one to one. First create one local set on the `🎨 Tokens` page and
@@ -228,7 +237,7 @@ RULES
     `accent-foreground`, `destructive`, `destructive-foreground`,
     `border`, `input`, `ring`, `chart-1` … `chart-5` — in a `Light` mode,
     and a `Dark` mode of the same collection when the direction has a dark
-    theme. With VISUAL DIRECTION `none`: a neutral grey scale plus one
+    theme. With VISUAL DIRECTION `declined`: a neutral grey scale plus one
     accent;
   - spacing on Tailwind's 4 px scale, multiples of 8 for layout gaps and
     padding, row heights by the direction's density (UX-10); the

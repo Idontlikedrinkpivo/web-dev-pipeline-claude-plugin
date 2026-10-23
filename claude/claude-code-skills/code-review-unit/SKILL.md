@@ -1,9 +1,7 @@
 ---
 name: code-review-unit
 description: >-
-  Reviews one plan unit's diff against its unit spec before the commit; returns COMMIT / FIX_THEN_COMMIT /
-  RETURN_TO_EXECUTOR / STOP. Use after each unit in `work`, or when asked to review a single unit. Not the whole plan
-  (`code-review-full`); an ad-hoc diff or PR goes to /code-review.
+  Reviews one plan unit's diff before its commit; run by work. Whole run: code-review-full; a PR: /code-review.
 ---
 
 # Unit Review
@@ -41,7 +39,7 @@ judgment made from inside one unit's packet.
 | Input | Required | Notes |
 |---|---|---|
 | Unit spec | **yes** | the `### U<n>.` block: Цель, Документы, Файлы, Подход, Тестовые сценарии, Проверка, Сложность (a plan before plugin 1.2.152 names them in English) |
-| Stack review rules | **yes** | the «The reviewer checks» sections of the unit's stack skills — `typescript`, `react`, `python` and the library skills `work/references/stack-skills.md` picks for its files |
+| Stack review rules | **yes** | the «The reviewer checks» sections of the unit's stack skills — `typescript`, `react`, `python` and the library skills `work/references/stack-skills.md` picks for its files — pasted into the packet's `STACK REVIEW RULES`; `none` only when no picked skill has such a section |
 | The diff | **yes** | `git diff HEAD` after `git add -N <unit «Файлы»>` (intent-to-add, so untracked files in scope show up) — the orchestrator commits per unit, so uncommitted work *is* this unit's work. A Low batch is built from commits instead (Low batch, Step 3). Handed to the reviewer as a file path under `$(git rev-parse --git-dir)/pipeline-work/`, not pasted: pasted text stays in the orchestrator's context for the whole run |
 | Cited design excerpts | **yes** | the sections named in `Документы`, pasted, not linked — resolved under `documentation/` (`scenarios/orders` is the group's document under `architecture/scenarios/orders/`, `api` is `api/openapi.yaml`) |
 | Worker report | when there was one | `TESTS`, `RED OBSERVED`, `CONCERNS`, `OUT OF SCOPE` |
@@ -55,8 +53,14 @@ and it will invent expectations the plan never set. Say so and stop.
 ### Step 1. Bound the diff
 
 `git add -N <unit «Файлы»>` first — `git diff HEAD` omits untracked files
-otherwise. Then `git diff HEAD --stat` and the diff itself with context. Compare the changed
-paths against the unit's `Файлы`:
+otherwise. The diff itself goes into one file under `pipeline-work/`
+(`git diff HEAD --stat`, then `git diff HEAD -U10`; `work` Step 5.4 has
+usually written it already), and the reviewer is the one who reads it. Bound
+it here from the paths alone — `git diff HEAD --name-status` and `git status
+--porcelain` — without reading the diff into this session: a second read
+only fills the orchestrator's context for the rest of the run (a grade-0
+unit is the exception — this session's own check is its review). Compare the
+changed paths against the unit's `Файлы`:
 
 - **inside `Файлы`** — reviewed normally.
 - **outside `Файлы`** — a scope breach. Report it as its own finding, at P1
@@ -84,6 +88,7 @@ Always: **spec fidelity**. Then add only what the diff actually touched:
 | **Contract** | the diff touches HTTP, schema, or a published type | status and error mapping, nullability, migration reversibility, backward compatibility for existing callers; a migration file already committed in `documentation/db/migrations/` is never edited — a schema change is the next numbered file |
 | **UI** | an `impl-ui` unit: its `Документы` cite a screen spec, or the `🎨 Tokens` page (a theme unit) | do elements, states and response outcomes match the screen spec rows, and texts the frame's «Тексты» table; does the screen follow the frame; does it keep the `ux-patterns` rules for the spec's **Тип продукта**, Section 8 for code and Section 9 for texts; does the diff pass `web-design-guidelines`, whose anti-patterns are findings on sight; does the worker report's SCREEN CHECK go through «Проверка экрана перед сдачей»; for a theme unit — every Figma variable has its theme variable, contrast holds in each theme (UX-7, UX-62), fonts load with the `cyrillic` subset (UX-59), no screen keeps a hardcoded colour, radius or shadow (UX-1). Each finding starts with the `UX-<n>` it breaks (`UX-61 — transition: all`). The orchestrator pastes the product type, the `ux-patterns` rules the screen touches and the `web-design-guidelines` rules into the design block |
 | **Risk** | grade High, or the unit hit the risk floor (auth, money, migration over live rows, secrets), or the diff has an insert-or-update or a conflict branch | does a conflict branch apply every rule of the main path or refuse? what does a hostile or unlucky caller get: missing authorization, non-idempotent retry, partial write, leaked field, race — and is each guard against a double action (lock, conditional update, unique or idempotency key) proven by a test of two overlapping calls on separate connections? A guard without one is a finding |
+| **Stack rules** | the packet's `STACK REVIEW RULES` is not `none` | does the diff keep each rule its stack skills hand the reviewer — what the linter cannot see (a cursor taken unchecked, a commit before the response, `MagicMock` for an `AsyncSession`, a generated migration)? A broken rule that changes behavior, data or security is a P1; one about form only is a P2 |
 
 A lens that does not fire is not mentioned in the report. Silence is the
 correct output for an absent surface.
@@ -100,15 +105,28 @@ Low unit at High cost, or skip a Mid unit because the diff "looks fine":
 | Grade | Review |
 |---|---|
 | **0** | no dispatch — the orchestrator's own diff-vs-`Файлы` check is the review. A mechanical diff has no judgment to second-guess. |
-| **Low** | no per-unit dispatch. Accumulate the units and run one `review-medium` pass over the batch at the next wave boundary (see Low batch below). |
+| **Low** | no per-unit dispatch. Accumulate the units and run one `review-medium` pass over the batch at the next wave boundary — `work` Step 3 calls it there (see Low batch below). |
 | **Mid** | one `review-medium` carrying the fired lenses. |
 | **High** | one `review-hard` carrying the fired lenses, plus a second `review-hard` dispatch with LENSES TO APPLY = Risk only — a single reviewer that just designed an opinion about the diff is a poor adversary to it. |
 
 Keep the catalog's split: a High unit reviewed on the implementer's
-alias tends to ratify its blind spots. `impl-ui` is the named
-exception: its review stays on the grade's review row.
+alias tends to ratify its blind spots.
 
-Give a grade-0 or Low unit its own `review-medium` pass when the worker
+**An `impl-ui` unit gets its own pass at any grade** — `review-medium` at
+grade 0, Low and Mid, `review-hard` at High — never a batch and never none.
+Its UI lens needs the screen spec rows, the frame and the product type in the
+packet, which a batch packet does not carry, and a screen's grade says how
+hard its code is, not how far it may drift from the frame.
+
+**Two `review-hard` reports for a High unit** become one verdict: the
+findings of both, the same `file:line` and problem kept once; the verdict is
+the stricter of the two — `STOP` over `RETURN_TO_EXECUTOR` over
+`FIX_THEN_COMMIT` over `COMMIT` — and `FIX_THEN_COMMIT` only when every
+blocking finding of both is mechanical. A finding one pass dismissed and the
+other raised stays raised, with the dismissal under **Dismissed** for the
+next round to settle.
+
+Give any other grade-0 or Low unit its own `review-medium` pass when the worker
 returned `DONE_WITH_CONCERNS`, or when Step 1 found a scope breach. Cheap grades earn
 the batch; an anomaly forfeits it.
 
@@ -248,7 +266,8 @@ the missing test means choosing what it asserts — the implementer's judgment.
 
 ## Before you finish
 
-- Every changed path was classified inside or outside `Файлы` — Step 1.
+- Every changed path was classified inside or outside `Файлы`, and the diff was
+  read once, by the reviewer — Step 1.
 - Every fired lens produced a finding or an explicit clean line — Step 2.
 - Every named scenario was checked for existence *and* for asserting its
   outcome, judged against the design excerpt, not the implementation — Step 4.
@@ -257,6 +276,8 @@ the missing test means choosing what it asserts — the implementer's judgment.
 - Every P0/P1 quotes a line this diff adds or changes, or the untested
   scenario; anything else moved to `OPEN` — Step 4.
 - Every dismissal cites which of the three rules applied — Step 4.
+- An `impl-ui` unit had its own pass; a High unit's two passes were merged
+  into one verdict — Step 3.
 - Exactly one verdict, no P0/P1 left unclassified under it — Step 5.
 - Nothing in the tree was changed by this review — Step 5.
 

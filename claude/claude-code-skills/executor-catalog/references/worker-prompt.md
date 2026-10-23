@@ -21,6 +21,13 @@ FILES YOU MAY TOUCH
 Anything outside this list is out of scope. If the unit cannot be done
 without touching another file, stop and report BLOCKED with that path.
 
+SYMBOLS CHANGED <the unit's «Меняет символы» verbatim, or: —>
+NOT TOUCHED
+  <the unit's «Не затрагивается» verbatim — places that use a changed
+   symbol and stay as they are, each with its reason — or: —>
+Leave these as they are. If one has to change after all, stop and report
+BLOCKED with the path: the plan said it does not.
+
 DESIGN YOU MUST FOLLOW (do not re-decide these)
   <the cited excerpts: entity method signatures, port signatures, invariant
    rows, endpoint contract, column definitions, screen states — pasted, not
@@ -45,13 +52,17 @@ FROM DEPENDENCIES
   Treat these as DESIGN YOU MUST FOLLOW. If one conflicts with the pasted
   design, stop and report BLOCKED with both quoted.
 
-STACK SKILLS
-  <the stack skills `work` picked for this unit from architecture §1
-   «Стек» and the unit's «Файлы» (`work/references/stack-skills.md`) —
-   each SKILL.md in full, a references/ file only when the skill sends you
-   there for this unit — plus any skill the user attached; for a frontend
-   unit, also the `frontend` skill in full, its one stack profile and
-   `web-design-guidelines` in full; or: none — no stack skill for <stack>>
+SKILLS ROOT     <absolute folder holding the plugin's skills>
+STACK SKILLS    read each file in full before you write any code; a
+                `<skill>/references/…` path a skill names resolves under
+                SKILLS ROOT
+  <absolute paths of the stack skills `work` picked for this unit from
+   architecture §1 «Стек» and the unit's «Файлы»
+   (`work/references/stack-skills.md`) — each SKILL.md, a references/ file
+   only when the skill sends you there for this unit — plus any skill the
+   user attached; for a frontend unit, also the `frontend` SKILL.md, its
+   one stack profile and the `web-design-guidelines` SKILL.md;
+   or: none — no stack skill for <stack>>
 
 CURRENT LIB DOCS
   <Context7 excerpts for the library APIs this unit calls, with library
@@ -164,5 +175,5 @@ inspecting it.
 | `DONE` | inspect diff, run tests, check the evidence the strategy owed, commit — or return the unit when a behavior-bearing one has none |
 | `DONE` in `tests-only` | run the new tests yourself, confirm they fail for the named reason, then dispatch `PHASE implementation` |
 | `DONE_WITH_CONCERNS` | same, plus route the concern to a reviewer before committing — the grade's reviewer, or a `review-medium` pass for grade 0 and Low (`work` Step 6) |
-| `BLOCKED` | do not commit; escalate one tier with this report attached, or stop and ask the user when the blocker is a design gap |
-| `HARDER_THAN_EXPECTED` | discard or keep the partial work explicitly, escalate one tier once, and note the grade was wrong in the run report |
+| `BLOCKED` | do not commit; escalate one tier with this report attached, or stop and ask the user when the blocker is a design gap or a question only the user can answer (`executor-catalog` → Escalation) |
+| `HARDER_THAN_EXPECTED` | discard or keep the partial work explicitly, escalate one tier with this report attached, and note the grade was wrong in the run report. How many rounds: `pipeline` → `references/convergence.md` |

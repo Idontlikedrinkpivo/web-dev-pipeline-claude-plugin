@@ -112,6 +112,7 @@ if __name__ == "__main__":
     # Design dials (1-10), only applied with --design-system
     parser.add_argument("--variance", type=int, choices=range(1, 11), metavar="1-10", help="DESIGN_VARIANCE dial: 1=centered/minimal, 10=bold/asymmetric (only with --design-system)")
     parser.add_argument("--density", type=int, choices=range(1, 11), metavar="1-10", help="VISUAL_DENSITY dial: 1=spacious, 10=dense/dashboard; overrides the spacing scale (only with --design-system)")
+    parser.add_argument("--product-type", choices=["b2b", "b2c", "B2B", "B2C"], default=None, help="dev-pipeline: the frames register's product type; the font pairing is chosen for it (default: from --density, 6+ = b2b)")
 
     args = parser.parse_args()
 
@@ -134,6 +135,7 @@ if __name__ == "__main__":
             motion=None,
             density=args.density,
             force=args.force,
+            product_type=args.product_type,
         )
 
         if args.json:

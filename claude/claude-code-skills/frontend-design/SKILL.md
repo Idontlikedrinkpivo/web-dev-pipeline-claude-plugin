@@ -1,10 +1,8 @@
 ---
 name: frontend-design
 description: >-
-  Makes mockups and a visual direction look made for this product, not a template: the look grounded in its subject
-  and audience, boldness in one place, critique by screenshot. Use whenever frames or a visual direction are drawn, or
-  for «сделай менее шаблонно», «нужен характер», «перерисуй стильнее». A new look starts in `ui-design`; not code or
-  UX rules.
+  Taste rules for frames and a visual direction, read by ui-design and the Figma builders; «перерисуй стильнее» is
+  ui-design.
 ---
 
 # Frontend Design
@@ -23,6 +21,15 @@ felt cliché or templated: make deliberate choices about palette, typography
 and layout that are specific to this brief. In this pipeline that judgment
 goes into the visual direction (`ui-design`) and the frames the Figma
 builders draw; `frontend` then builds the frames as they are.
+
+**Loaded straight from a request?** This skill is read by `ui-design` and
+the Figma builders; it changes no frame itself. When it came from the
+user's words alone («перерисуй стильнее», «сделай менее шаблонно», «нужен
+характер») and not from one of them, hand the work to `ui-design` and
+follow it: there a new look runs as style tiles the user picks, the old
+look is kept in `🗄 Архив`, and the choice lands in the frames register —
+none of which happens from here, so a restyle started here leaves the
+register and the screen specs describing a look that is gone.
 
 ## Ground the design in the subject matter
 

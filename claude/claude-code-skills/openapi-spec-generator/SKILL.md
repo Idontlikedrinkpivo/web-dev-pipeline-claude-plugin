@@ -1,9 +1,9 @@
 ---
 name: openapi-spec-generator
 description: >-
-  Writes the OpenAPI 3.0 contract in documentation/api/ from the SRS: one operation per use case, schemas,
-  problem+json errors, statuses, security; extends it for the next slice. Use for «опиши API», «какие эндпоинты», an
-  API spec, routes, or which status an error returns. Not tables, screens, Swagger 2.0 or reverse-engineering code.
+  Writes the OpenAPI 3.0 contract from the SRS, slice by slice: an operation per use case, schemas, problem+json
+  errors, statuses, security. Use for «опиши API», «какие эндпоинты нужны». Endpoint code is work (fastapi,
+  typescript-fastify).
 ---
 
 # OpenAPI 3.0 Specification Generator
@@ -12,7 +12,8 @@ description: >-
 
 The session writes no OpenAPI spec. The dispatched writer settles it
 and nests `doc-typist` to print it. A report whose `DELEGATED` is not
-`doc-typist` comes back until it is. The session does not dispatch the typist.
+`doc-typist` comes back until it is. The session dispatches the typist
+only for a print defect (step 4).
 
 1. Stop if the SRS is missing. Name `srs-writer`. If the slice persists
    state and there is no schema document, stop and name `db-schema-design`.
@@ -23,16 +24,21 @@ and nests `doc-typist` to print it. A report whose `DELEGATED` is not
    the status of each named use-case exception the SRS gives none, and —
    on a new spec, when the SRS does not say — whether anyone outside the
    project calls the API (Step 2, Contract version).
-   Ask once in chat and paste the answers into the packet's INPUTS.
+   One question per message (`pipeline/references/question-format.md`);
+   each answer goes into the packet's ANSWERS.
    A single-file spec is split here, before dispatch (writers and the
    typist do not commit): `npx --yes @redocly/cli split
    documentation/api/openapi.yaml --outDir <tmp>`, its output moved into
    `documentation/api/` in the layout of Step 8. The split changes no
    operation, schema, version or changelog row: bundle the old file and
    the new root (`npx --yes @redocly/cli bundle … -o …`) and compare —
-   they must match. Commit the move on its own («docs: OpenAPI разложен
-   по файлам»); it is a move, not a version event, and the change that
-   follows is committed by the stamp when the stage closes.
+   they must match. Without Node or the network, split by hand into the
+   same layout — each path item and each component moved into its file
+   and replaced in the root by its `$ref`, nothing else touched — and say
+   in the close that the bundle comparison did not run. Commit the move
+   on its own («docs: OpenAPI разложен по файлам»); it is a move, not a
+   version event, and the change that follows is committed by the stamp
+   when the stage closes.
 3. Read `executor-catalog` and
    `executor-catalog/references/design-complexity.md`. Dispatch
    exactly one writer with
@@ -44,12 +50,19 @@ and nests `doc-typist` to print it. A report whose `DELEGATED` is not
    user named one. A missing agent or a rejected alias is a stop.
 4. Inspect `documentation/api/openapi.yaml` on disk. Run
    `npx --yes @redocly/cli lint documentation/api/openapi.yaml` (or `spectral lint` when
-   the repo already has a `.spectral.yaml`). Any `error` sends the writer
-   back with the rule ids and JSON pointers, until the lint is clean. When no linter can run
+   the repo already has a `.spectral.yaml`), until the lint is clean. An
+   `error` whose fix you can state as a finished line (a missing
+   `description`, a broken `$ref` path, a stray key) is a print defect:
+   `doc-typist` `MODE revise`, one `SETTLEMENT` line per error with its
+   JSON pointer (`executor-catalog` → Nesting). An error whose fix needs a
+   decision (a missing response, a schema shape) sends the writer back
+   with the rule ids and pointers. When no linter can run
    (no Node, no network), say in the stage close that the spec was not
-   linted. Do not edit the spec yourself. Escalate one design row per
-   `BLOCKED` / `HARDER_THAN_EXPECTED`; every round goes on while it makes
-   progress (`pipeline` → `references/convergence.md`).
+   linted. Do not edit the spec yourself. A `BLOCKED` with a question for
+   the user is asked and sent back to the same row; any other `BLOCKED` /
+   `HARDER_THAN_EXPECTED` escalates one design row (`executor-catalog` →
+   Escalation); every round goes on while it makes progress (`pipeline` →
+   `references/convergence.md`).
 5. Close the stage by asking, per `pipeline` → "Asking before a
    transition". First ask about `doc-review`. Run: run it; it returns
    without asking the next stage. Skip: name it in the report. Stop:
@@ -101,7 +114,7 @@ answer and is not in the packet is STATUS BLOCKED with the question:
 |---|---|
 | What does this API do? | Sets `info.title`, `info.description`, tags |
 | Which use cases / queries are in scope? | One operation per use case or query |
-| Authentication type(s)? | `securitySchemes`. The SRS security NFR, or the orchestrator's answer in INPUTS. What to emit — Step 4 |
+| Authentication type(s)? | `securitySchemes`. The SRS security NFR, or the answer in ANSWERS. What to emit — Step 4 |
 | Existing partial spec to extend? | Merge rather than overwrite |
 
 Map from the SRS and the schema:
@@ -112,8 +125,8 @@ Map from the SRS and the schema:
 | What the use case accepts | Request body and/or path/query params |
 | What the use case returns on success | Success response schema. Do not invent a body the use case did not name |
 | An exception whose status the SRS names | That status. Do not re-pick 409 vs 422 |
-| An exception with no status | The status in INPUTS; if none, return BLOCKED with the question. Do not pick a status in silence |
-| Schema column | Property name and type. Do not rename. A closed-set column's `enum` is the code list from the schema's `## Закрытые наборы значений` (`## Status attributes` before plugin 1.2.152), verbatim |
+| An exception with no status | The status in ANSWERS; if none, return BLOCKED with the question. Do not pick a status in silence |
+| Schema column | Property name and type. Do not rename — except the keys, by the schema's rule (`db-schema-design` → How the API names keys): `public_id` is the resource's `id`, a reference `<thing>_id` keeps its name and carries the referenced row's `public_id` (uuid), a path parameter is `<resource>_id`; the internal `bigint` key never appears. A closed-set column's `enum` is the code list from the schema's `## Закрытые наборы значений`, verbatim |
 | SRS security NFR | `securitySchemes` and root `security` (Step 4) |
 
 If a DBML schema (`documentation/db/schema.md`) exists, every stored property in a request or
@@ -206,7 +219,7 @@ info:
     - documentation/db/schema.md@0.1.0   # only when the schema stage ran
 servers:
   - url: /   # relative; a host appears only when the SRS or the user named it
-security: []   # the SRS named no scheme; otherwise the named scheme, declared in securitySchemes (Step 4)
+security: []   # the SRS named no scheme, so no 401/403 below; otherwise the named scheme (Step 4)
 tags:
   - name: <Tag>
     description: <Tag description>
@@ -223,23 +236,15 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/ResourceList"
+                $ref: "#/components/schemas/ResourcePage"
               example:
                 items: []
-                total: 0
-        "401":
-          $ref: "#/components/responses/Unauthorized"
+                next_cursor: null
         "500":
           $ref: "#/components/responses/InternalError"
 components:
   schemas: {}
   responses:
-    Unauthorized:
-      description: Authentication required
-      content:
-        application/problem+json:
-          schema:
-            $ref: "#/components/schemas/Problem"
     InternalError:
       description: Internal server error
       content:
@@ -266,76 +271,15 @@ contract.
   `user_id`). Do not mix camelCase and snake_case property names in one
   spec; `operationId` stays camelCase.
 
-**Common schema patterns:**
-
-```yaml
-# Collection page — keyset by default: query params `cursor` (opaque) and `limit`.
-# Offset paging (`page`, `page_size`, `total`) only when the SRS asks for page
-# numbers or a total count on screen.
-ResourcePage:
-  type: object
-  required: [items, next_cursor]
-  properties:
-    items:
-      type: array
-      items:
-        $ref: "#/components/schemas/Resource"
-    next_cursor:
-      type: string
-      nullable: true
-      description: null on the last page
-      example: eyJpZCI6MTAwfQ
-
-# Error body — RFC 9457 Problem Details, media type application/problem+json
-Problem:
-  type: object
-  properties:
-    type:
-      type: string
-      format: uri-reference
-      default: about:blank
-      example: https://errors.example.invalid/hold-limit-reached
-    title:
-      type: string
-      example: Превышен лимит броней
-    status:
-      type: integer
-      format: int32
-      example: 409
-    detail:
-      type: string
-    instance:
-      type: string
-      format: uri-reference
-    code:
-      type: string
-      description: Имя исключения use case из SRS; VALIDATION_ERROR для 422 по полям
-      example: HOLD_LIMIT_REACHED
-    errors:
-      type: array
-      description: только у 422 VALIDATION_ERROR — каждое поле, не прошедшее схему
-      items:
-        type: object
-        required: [field, message]
-        properties:
-          field: { type: string, example: starts_at }
-          message: { type: string }
-
-# Timestamps mixin (use allOf)
-Timestamps:
-  type: object
-  properties:
-    created_at:
-      type: string
-      format: date-time
-    updated_at:
-      type: string
-      format: date-time
-```
+**Base schemas.** Read `references/base-schemas.md` before writing
+`components`: the page, the error body (`Problem`), the timestamps mixin
+and the shared responses, each copied as it stands. One copy of each
+lives there, so every spec this skill writes has the same error and page
+shape the stack skills implement.
 
 Every 4xx and 5xx response uses `application/problem+json` with `Problem`.
-A named use-case error sets `code` to the SRS exception name and gets a
-stable `type` URI; do not add a second error schema. When an existing spec
+A named use-case error sets `code` to the SRS exception name and `type` to
+`/problems/<code in kebab-case>`; do not add a second error schema. When an existing spec
 already uses another error format, keep it (Step 1b) — changing it is a
 `ломает` change, not a silent migration.
 
@@ -411,13 +355,16 @@ Status vocabulary — pick per operation, never copy the whole table:
 | `422` | A body, query, or path field fails its schema (`code: VALIDATION_ERROR` with `errors`), or a named use-case error the SRS sets to 422 |
 | `429` | Rate limited |
 | `500` | Internal server error |
+| `503` | A write lost to a concurrent transaction (serialization failure, deadlock) after the server's own retries; `Retry-After` says when to repeat |
 
 Per operation emit exactly: its success code; one response per named
 use-case error; `422` (`VALIDATION_ERROR`) when it takes a body or
 parameters; `400` only when it takes a JSON body or a cursor; `401` and
 `403` only when the operation is secured; `404` only when the path names a
-resource id; `429` only when the SRS names a rate limit; `500` always.
-`409` appears only as a named use-case error.
+resource id; `429` only when the SRS names a rate limit; `503` when it
+changes stored data in a transaction; `500` always. `409` appears only as
+a named use-case error: a uniqueness clash is the use case's named error,
+never a bare 409.
 
 **This file is the one source** for the error body, the validation status,
 the casing, and the page shape. Stack skills (`typescript-fastify`,
@@ -426,12 +373,13 @@ define their own. A code the operation
 cannot return misleads `screen-spec` and every generated client.
 
 The status of a **named** use-case error is not chosen from the generic
-4xx table: it is the SRS status or the orchestrator's answer in INPUTS
+4xx table: it is the SRS status or the answer in ANSWERS
 (Step 1 mapping). Do not stop to wait for an architecture table. A status label
 shown to the client is the schema's «Подпись» column in `## Закрытые
 наборы значений`, not an example invented here.
 
-Use `$ref` to `components/responses` for `401`, `403`, `404`, `429`, `500`.
+Use `$ref` to `components/responses` for `400`, `401`, `403`, `404`,
+`422`, `429`, `500`, `503` (`references/base-schemas.md`).
 
 ### Step 7 — Quality Checklist
 
@@ -493,6 +441,7 @@ test cases, mock servers, or client SDKs unless the user asks.
 
 ## Reference Files
 
+- `references/base-schemas.md` — the page, `Problem`, timestamps and shared responses; before writing `components`
 - `references/security-schemes.md` — OpenAPI 3.0 security schemes; when the SRS names auth
 - `references/common-patterns.md` — pagination, problem+json, webhooks, file upload, filtering; when the SRS
   names one of them, not by default

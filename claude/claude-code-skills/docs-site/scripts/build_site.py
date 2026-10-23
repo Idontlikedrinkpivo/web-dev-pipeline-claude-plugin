@@ -126,10 +126,15 @@ def args() -> dict:
     i = 0
     while i < len(a):
         k = a[i]
+        if k in ("-h", "--help"):
+            print(__doc__.strip())
+            sys.exit(0)
         if k in ("--no-api", "--keep-api"):
             opt["api"] = False if k == "--no-api" else "keep"  # keep: reuse the bundled contract (bundling is slow)
             i += 1
             continue
+        if k not in ("--docs", "--out", "--title") or i + 1 >= len(a):
+            sys.exit(f"build_site.py: unknown option or missing value: {k} (see --help)")
         opt[k.lstrip("-")] = a[i + 1]
         i += 2
     return opt

@@ -1,10 +1,9 @@
 ---
 name: doc-review
 description: >-
-  Reviews one finished document — SRS, DB schema, OpenAPI, architecture, screen spec or business requirements — with
-  parallel reviewer personas; applies the obvious fixes and asks about the rest one at a time. Use at a stage's review
-  gate or when asked to review, critique or find gaps in such a document. Not grilling (`grill-me`), the whole set
-  (`docs-consistency`) or plans (`plan-review`).
+  Reviews one finished document (SRS, schema, OpenAPI, architecture, screen spec) with reviewer personas; fixes the
+  obvious, asks about the rest. Use for «покритикуй ТЗ», «найди дыры в требованиях», «проверь документ». Not grill-me
+  or docs-consistency.
 ---
 
 # Document Review
@@ -185,23 +184,29 @@ session model to "save a dispatch" is a failed dispatch.
 
 Do not reuse `review-medium` / `review-hard` / `review-full-plan` here —
 those review a code diff. If an executor's agent is not installed, or the
-harness rejects the alias in its file, do not substitute a neighbour:
-report it with the executor name (a missing agent → `install.sh`, per the
-catalog) and continue with the personas that resolved.
+harness rejects the alias in its file, the review stops, as the
+catalog's Dispatch contract says: name the executor and
+tell the user to install or update the `dev-pipeline` plugin. Do not
+substitute a neighbour, and do not run the review with the personas that
+happened to resolve — a review missing its lens reads as a clean one.
 
-Read only the selected files under `references/personas/`. Build each
-reviewer prompt from `references/subagent-template.md` with:
+Build each reviewer prompt from `references/subagent-template.md`. The
+reviewer reads the files itself; the packet carries their paths and only
+what this session computed:
 
 | Slot | Value |
 |---|---|
-| `{persona_file}` | Full content of that persona file |
-| `{format}` | Full content of `references/findings-format.md` |
+| `{persona_path}` | Absolute path of the persona file: `${CLAUDE_SKILL_DIR}/references/personas/<persona>.md` |
+| `{format_path}` | Absolute path of `${CLAUDE_SKILL_DIR}/references/findings-format.md` |
+| `{document_files}` | Every file of the document, one repo-relative path per line: the index and its parts (`srs.md` and `areas/*.md`; `openapi.yaml`, `paths/`, `components/`; `schema.md` and `migrations/*.sql`) |
 | `{document_type}` | Type from Phase 1 |
 | `{document_path}` | Path being reviewed |
 | `{origin_path}` | Path or `none` |
-| `{document_content}` | The full document |
-| `{decision_primer}` | Round-1 empty block, or accumulated prior-round decisions (see below) |
+| `{decision_primer}` | Round-1 empty block, or the prior-round decisions from the review ledger (see below) |
 | `{active_personas}` | Comma-separated ids of every persona dispatched this round |
+| `{skills_root}` | `SKILLS ROOT`: the absolute folder holding the plugin's skills, the parent of `${CLAUDE_SKILL_DIR}` (`executor-catalog` → Dispatch contract) |
+
+Never paste the document, the persona or the format into the prompt.
 
 Dispatch the resolved subagents in parallel, bounded by the harness cap.
 Each `Agent` call carries its executor from the printed table as
@@ -221,12 +226,23 @@ Round 1 — no prior decisions.
 </prior-decisions>
 ```
 
-Later rounds in the same session list applied / rejected findings with an
-`Evidence:` snippet (first evidence quote, ~120 characters). Skip and
-Defer count as rejected. A later session on the same file starts
-at round 1 with an empty primer. After a round whose fixes were applied,
-the user is asked whether to run the next one (`references/routing.md` →
-Re-review); there is no limit on rounds.
+Later rounds list applied / rejected findings with an `Evidence:` snippet
+(first evidence quote, ~120 characters). Skip and Defer count as rejected.
+After a round whose fixes were applied, the user is asked whether to run
+the next one (`references/routing.md` → Re-review); there is no limit on
+rounds.
+
+**The review ledger.** Decisions held only in context are lost with a
+compaction, and the user is asked them again. So every decision on a
+finding — applied, deferred, skipped — is appended the moment it is made to
+`${TMPDIR:-/tmp}/review-<repo>-<doc-slug>.md` (`<doc-slug>` as in `grill-me`
+→ The ledger): first line `# Ревью <path> · итерация <version> · <git
+hash-object of the document at round 1, 7 chars>`, then one line per
+finding `Круг N · <title> · применено | отложено | пропущено · Evidence:
+<~120 characters>`. The primer is built from this file. A session that
+resumes the review reads it before anything else and never asks a logged
+finding again; a ledger of another iteration is a past review — delete it
+and start at round 1. Delete it when the review closes.
 The primer rule inside each persona only reduces noise; synthesis step
 3.3a is what drops a re-raised rejection and checks that an applied fix
 landed.
@@ -307,11 +323,15 @@ Name the document path, the counts, and which catalog executors ran.
 
 When the gate closed — every finding applied, waived, or parked by the
 user — set `reviewed: <today>` in the document's frontmatter
-(`info.x-reviewed` in OpenAPI). An SRS gets no `reviewed:`,
-`grilled:`, `status`, or `sources`; the report is the record. That mark
-is how `pipeline` knows in a later session that this review ran. It is
-not a version change; see `doc-versioning` → Frontmatter. A review
-stopped midway sets nothing.
+(`info.x-reviewed` in OpenAPI). «Только отчёт» (`references/routing.md` →
+D) closes it too: the user saw every finding and chose to change nothing,
+which waives them all, and the report names them as not applied. An SRS
+gets no `reviewed:`, `grilled:`, `status`, or `sources`; the report and
+the stamp's `review: прошёл` are the record. That mark is how `pipeline`
+knows in a later session that this review ran. It is not a version change;
+see `doc-versioning` → Frontmatter. A review stopped midway — the user
+left with findings unanswered — sets nothing, and its ledger stays for the
+session that resumes it; a closed review deletes its ledger.
 
 When this ran as a pipeline gate, report and return to the stage that
 called you. Do not ask the next transition; that stage asks, per
@@ -332,14 +352,14 @@ yourself after the report. Do not present a menu of other skills.
 - `references/convention-checks.md` — the session's convention checks, each
   row tagged with the skill that owns the rule. Read before dispatch.
 - `references/subagent-template.md` — the packet each persona receives.
-- `references/findings-format.md` — the `{format}` slot; the labelled text
-  every reviewer returns.
+- `references/findings-format.md` — passed by path as `{format_path}`; the
+  labelled text every reviewer returns.
 - `references/synthesis.md` — merge, prior rounds, confidence gate, silent
   `safe_auto`. Read after every reviewer returns.
 - `references/routing.md` — what to ask after the report (interactive),
   Defer, and the re-review question. Read after the report is shown.
-- `references/personas/*.md` — one file per persona, read only for the
-  personas selected in "Select personas" and pasted into `{persona_file}`:
+- `references/personas/*.md` — one file per persona, passed by path as
+  `{persona_path}` to the personas selected in "Select personas":
   - `references/personas/coherence-reviewer.md` — always
   - `references/personas/feasibility-reviewer.md` — always
   - `references/personas/design-lens-reviewer.md` — UI signal; always on `screen`

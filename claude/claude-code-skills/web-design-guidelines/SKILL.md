@@ -1,10 +1,9 @@
 ---
 name: web-design-guidelines
 description: >-
-  Code-level rules for web interfaces (Vercel's Web Interface Guidelines mapped to UX-n): accessibility, focus, forms,
-  motion, images, performance, theming, locale, Next.js hydration. Use when writing or reviewing React / Next.js
-  screen code, or for «проверь интерфейс», «ревью вёрстки», «аудит доступности кода». Not mockups or the rules'
-  rationale.
+  Code-level UI rules (Vercel guidelines mapped to UX-n): accessibility, focus, forms, motion, performance. Use for
+  screen code written or reviewed, «проверь вёрстку», «ревью вёрстки». Not mockups (ux-patterns) or the running app
+  (ui-test-cases).
 ---
 
 # Web interface guidelines
@@ -25,7 +24,9 @@ Who uses it:
 - `code-review-unit` checks a screen unit's diff against them (its UI lens)
   and reports in the format below.
 - Directly: the user names files or a folder to check. With no files named,
-  ask which ones.
+  ask which ones. These rules read code: «проверь интерфейс» about mockups
+  in Figma goes to `ux-patterns` (its rules and «Полнота макета»), about
+  the running app to `ui-test-cases` (mode run).
 
 The rules are here in full; do not fetch them from the network. The
 upstream file can hold rules that are not yet mapped to `ux-patterns`, and

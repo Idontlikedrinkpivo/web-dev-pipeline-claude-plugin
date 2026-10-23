@@ -1,9 +1,9 @@
 ---
 name: ui-test-cases
 description: >-
-  User test cases for a product with screens. write: SRS acceptance criteria and screen specs become numbered cases
-  with steps and expected texts. run: the cases become Playwright tests run against the local app and compared with
-  the frames. Use for «тест-кейсы», «протыкай приложение», UI acceptance testing. Not unit or API tests.
+  UI acceptance. write: SRS criteria and screen specs become test cases; run: Playwright tests on the local app,
+  checked against the frames. Use for «тест-кейсы», «протыкай приложение», «протестируй в браузере», «e2e». One-off
+  check: playwright-cli.
 ---
 
 # UI Test Cases
@@ -59,16 +59,22 @@ states). Not `ui-wishes.md`: it is never a source of expected behaviour.
 **Dispatch:** resolve `ui-test-writer` through `executor-catalog` and dispatch
 it under the Dispatch contract with `references/writer-prompt.md`, without
 asking which model. The session writes no case; it only moves an old
-single file first (Artifact below).
+single file first (Artifact below). A `BLOCKED` with a question only the
+user can answer: ask it in the chat (`executor-catalog` → Escalation),
+paste the answer into the packet's `ANSWERS` and dispatch the writer again.
 
 **Progress file.** Before the dispatch, create
 `documentation/plans/<version>/progress-test-cases.md` per
 `pipeline` → `references/progress-files.md` — one row per section of the
-set (below) plus «Без интерфейса», all `⏳ ждёт` — post its link in the
-chat, and pass it to the writer as `PROGRESS FILE`. A full set runs to
-hundreds of cases; the writer marks each section as its cases are
-written, and each returned dispatch puts the count with the link in the
-chat.
+set (below) plus «Без интерфейса», all `⏳ ждёт` — and pass it to the
+writer as `PROGRESS FILE`. A full set runs to hundreds of cases; the
+writer marks each section as its cases are written. For the chat, run
+`python3 "${CLAUDE_SKILL_DIR}/../pipeline/scripts/progress_link.py"
+documentation/plans/<version>/progress-test-cases.md` (add `--desktop`
+when the session has the built-in browser) and paste the line it prints as
+is — before the dispatch and each time one returns. It carries
+the count and the link to the page that reloads itself; a link written by
+hand opens the Markdown source or a page that never refreshes.
 
 **What a case set must hold:**
 
@@ -115,13 +121,14 @@ runner needs goes into one «Трассировка» line under it.
   written relative («Д+1») and defined once in the README. `{дата}` or
   «по кадру» inside an expected text is a case the runner cannot check.
 - **«Что должно быть» is what a person sees.** The exact texts the screen
-  spec takes from the frame's «Тексты» table, each labelled — «заголовок
+  spec quotes from the frame — its «Тексты» table, or a text layer marked
+  «текст слоя» in a designer's file with no annotation — each labelled — «заголовок
   «…», ниже текст «…»», «под полем «Дата»: «…»», «уведомление: «…»». No
   field names, derived values, response bodies, status codes or ARIA
   attributes in the body; accessibility in words: «сообщение зачитывает
   экранный диктор», «следующий Tab — «Повторить загрузку»». A text the
-  spec marks `текст — нет в «Тексты»` is neither composed nor marked «по
-  кадру»: the case names the state without a quote, and the missing text
+  spec marks missing (`текст — нет в «Тексты»`, or `текст — нет на кадре`
+  in a designer's file) is neither composed nor marked «по кадру»: the case names the state without a quote, and the missing text
   goes to the set's spec gaps for `screen-spec`.
 - **A server failure is a precondition in words** («сервер не может отдать
   расписание»), its mock goes into the trace line.
@@ -196,7 +203,7 @@ documentation/ui/test-cases/
 | 2 | Выбрать свою бронь «Байкал» | открылось окно «Отмена брони» |
 | 3 | Выбрать «Отменить бронь» | в окне текст «Бронь уже началась, отменить нельзя»; в расписании бронь осталась |
 
-<sub>Трассировка: кадр 12:160 · M2, состояние «Уже началась» · шаг 2 → эл. 11; шаг 3 → эл. 3 (M2), `cancelBooking` → 409 BOOKING_STARTED</sub>
+<sub>Трассировка: кадр 12:160 · состояние «Уже началась» (M2) · шаг 2 → эл. 11; шаг 3 → эл. 3 (12:160) · `cancelBooking` → 409 BOOKING_STARTED</sub>
 ```
 
 `README.md` ends with the coverage table: every AC id → its `TC-` ids, or
@@ -276,47 +283,30 @@ sees how far the full picture is:
 
 The verdict is set only after pass 2.
 
-**Every re-run gets its own bar.** A pass's bar does not move while cases
-are being re-run, and a bar that stands still for twenty minutes reads as a
-hang. So any re-run — the cases of a shared-break pause, or a round of
-re-runs in pass 2 after tests were fixed — opens its own block in the
-report the moment it starts, written so a reader who never saw the run
-understands it:
+**Every re-run gets its own block** in the report — a heading that says
+which re-run it is, what was fixed before it, which cases it re-runs, its
+own bar, and «Итог круга:» at the end — because a pass's bar stands still
+while cases are re-run, and a bar that stands still reads as a hang
+(`references/run-report.md` → Every re-run gets its own block).
 
-- a heading that says which re-run it is and what kind: «Перезапуск после
-  починки общего помощника» or «Перезапуск — круг N: проверка
-  исправленных тестов» (the rounds go on while a fixed test turns green or
-  its failure changes);
-- «Что исправлено перед перезапуском:» — what changed in the tests or
-  helpers, in plain words and with how many tests («исправлено 18 тестов:
-  кнопки искались по тексту вместо роли, тест не ждал загрузки кабинета»);
-- «Что перезапускается:» — which cases and where they came from («54
-  кейса, не прошедших в круге 1»);
-- its own bar over just those cases, and «Перезапущено: N из M · прошли …
-  · снова не прошли …»;
-- at the end «Итог круга:» — what the numbers mean («30 падений были
-  ошибками в тестах, теперь проходят; 24 снова не прошли: 17 — дефекты
-  приложения, 7 — в круг 2»), and the heading gets «— завершён».
-
-While a re-run is on, a line under the pass's count says so — «Сейчас:
-перезапуск, круг 2 — 26 из 28. Основная полоса двинется после него.» — so
-the reader sees what is happening right where they look. The re-run cases
-keep their row in the pass table until their new result is in; a case that
-passes on a re-run turns `✅ прошёл после исправления теста` there, and the
-main bar grows with it.
-
-**The report is live.** Before the dispatch, create the report (path below)
+**The report is live.** Read `references/run-report.md` — the one place
+for the report's shape: path, bars, re-run blocks, an example, statuses,
+the verdict and the lists under it. Before the dispatch, create the report
 with every case of the run `⏳ ждёт`, the pass-1 bar at 0% and `Verdict:
-идёт прогон` under the table, and post its link in the chat as a clickable
-Markdown link with its repo-relative path — the user opens it once and
-watches the cases turn over. Pass 2's section is added under pass 1 when
-pass 1 reaches 100%, and the link is posted again — as it is with the count
-each time a runner dispatch returns and after each re-run round. A run resumed after a
-break or a context compaction keeps the report: every case without a result
-in the current pass goes back to `⏳ ждёт`, the link is posted again, and
-only then the runner goes on. The runner changes the report with the Edit
-tool the moment a case changes status — never from the shell (`python`,
-`sed`, `cat >`): the user's file pane redraws only on edit-tool changes.
+идёт прогон` under the table; then run `python3
+"${CLAUDE_SKILL_DIR}/../pipeline/scripts/progress_link.py"
+documentation/plans/<version>/test-run.md` (add `--desktop` when the
+session has the built-in browser) and paste the line it prints in the chat
+as is — never a link written by hand (it gives the page that
+reloads itself, served in the desktop app). Pass 2's section is added
+under pass 1 when pass 1 reaches 100%, and the line is pasted again — as
+it is each time a runner dispatch returns and after each re-run round. A
+run resumed after a break or a context compaction keeps the report: every
+case without a result in the current pass goes back to `⏳ ждёт`, the line
+is pasted again, and only then the runner goes on. The runner changes the
+report with the Edit tool the moment a case changes status — never from
+the shell (`python`, `sed`, `cat >`): the plugin's hook rebuilds the page
+the user watches only after an Edit or Write call.
 
 **Dispatch:** resolve `ui-test-runner` through `executor-catalog` with
 `references/runner-prompt.md`. The runner:
@@ -325,16 +315,28 @@ tool the moment a case changes status — never from the shell (`python`,
    (`01-login-session.spec.ts`; an existing suite keeps its file names), under the project's E2E
    folder (`e2e/` unless the project has one), each test titled with its
    `TC-` id, using role- and label-based locators from the screen spec's element
-   names, following `playwright-cli` → test generation;
+   names. From `playwright-cli` it takes `references/test-config.md` (the
+   stand-ready config: one worker, `E2E_BASE_URL`, `testDir` the E2E
+   folder) and, of `references/test-generation.md`, only §0 and §3.1–3.3
+   under its «Inside dev-pipeline» block — the rest of that file is for a
+   person at the keyboard: one test per file, the app taken as right,
+   «ask the user», `test.fixme` for a known bug, `show --annotate`, `npm
+   init`. The E2E folder and the config belong to this suite: `ui-test-cases`
+   owns them, and a screen unit in `work` adds no spec there (`frontend` →
+   Verification);
 2. adds or keeps the `test:e2e` script, so `ci-pipeline` can run the
    suite;
 3. pass 1: runs the cases one at a time (`npx playwright test --grep
-   "TC-7\b"`), so each result reaches the report as it happens; for each
-   case takes a screenshot of the screen under test and compares it with the
-   frame (`get_screenshot` of the cited `nodeId`) for layout, texts, and
-   states — not pixel equality; a mismatch is a `❌ не прошёл` with what
-   differs; without Figma access the comparison is skipped and the report
-   says so. On the same screens it checks the items of `ux-patterns` →
+   "TC-7\b"`), so each result reaches the report as it happens; takes a
+   screenshot of the screen under test and compares it with its frame for
+   layout, texts and states — not pixel equality. The frame is read once
+   per `nodeId` (`get_screenshot`) and compared once, at the first case
+   that reaches that screen and state; the cases citing the same `nodeId`
+   reuse that result, because a read per case is hundreds of Figma calls
+   against the seat's limit and as many images in the context. A mismatch
+   is a `❌ не прошёл` with what differs on that first case and a line in
+   the report's «Сверка с макетом»; without Figma access the comparison is
+   skipped and the report says so. On the same screens it checks the items of `ux-patterns` →
    «Проверка экрана перед сдачей» a browser can show: every width of the
    frames register with no sideways page scroll (UX-74), the case's path
    by keyboard with visible focus (UX-63, UX-64), no motion under reduced
@@ -343,114 +345,14 @@ tool the moment a case changes status — never from the shell (`python`,
 4. pass 2: triages each failed case as above. It never edits application
    code.
 
-**Report:** `documentation/plans/<version>/test-run.md`, in the version
-folder of the current iteration — the open `plans/<v>/` folder, the one
-without `summary.md`. No open version folder → say so and ask per
-`pipeline` → "Asking before a transition" which version this run belongs
-to; do not invent one. Overwritten each run (several UI products: one
-section per product). Each pass reads top-down — its title, the bar and the
-count right under it, its table; under the last table the `Verdict:` line —
-`идёт прогон` while the run is on, `PASS | DEFECTS | BLOCKED` after pass 2 —
-with the commit and the update time. The bars follow `work` →
-`references/progress-file.md` → The progress bar (a hundred cells in a code
-block, every case weighing the same). **The main bar, under the title, shows
-the share of automated cases that pass** — ⌊passed × 100 / (all cases −
-не автоматизированы)⌋ — not the share checked: it grows during pass 1 as
-cases pass, and again with every re-run round as fixed tests turn green, so
-the user watches the one number that matters climb. Cases that cannot be
-automated are left out of the percent, so a run with no failures shows
-100% and the bar never suggests a defect that is not there; blocked cases
-stay in it — they are a gap to close. Its count line is always labelled:
-«Проверено: N из M · успешно … · не прошли … · заблокировано … · не
-автоматизированы …» — «не прошли» counts only real failures. The bars
-of pass 2 and of each re-run measure their own work, as described above:
-
-````markdown
-# Прогресс прогона по кейсам — итерация <version>
-
-```text
-██████████████████████████████████████████████████████████████████████████████░░░░░░░░░░░░░░░░░░░░░░ 78%
-```
-
-Проверено: 24 из 24 · успешно 18 · не прошли 4 · заблокировано 1 · не автоматизированы 1
-
-### Перезапуск после починки общего помощника — завершён
-
-Что исправлено перед перезапуском: общий помощник входа под ролью не
-дожидался перехода в кабинет — добавлено ожидание.
-
-Что перезапускается: 6 кейсов, которые упали из-за этого помощника.
-
-```text
-████████████████████████████████████████████████████████████████████████████████████████████████████ 100%
-```
-
-Перезапущено: 6 из 6 · прошли 6 · снова не прошли 0
-
-Итог: все 6 падений были из-за помощника, теперь проходят.
-
-| TC | Кейс | Статус | Файл теста / комментарий |
-|---|---|---|---|
-| TC-1 | Список комнат на сегодня | ✅ прошёл | rooms.spec.ts |
-| TC-7 | Отмена начавшейся брони | ❌ не прошёл | bookings.spec.ts · «Ошибка 409» вместо «Бронь уже началась, отменить нельзя» · e2e/artifacts/TC-7.png |
-| TC-12 | Вход через SMS | ⛔ заблокирован: нет тестовой заглушки SMS | |
-| TC-19 | Ошибка при недоступном хранилище файлов | ⏭ не автоматизирован: остановка хранилища сломает общий стенд | вручную: остановить хранилище на отдельном стенде, загрузить файл, ждать «Не удалось сохранить файл, попробуйте позже» |
-
-## Проход 2 — разбор упавших
-
-```text
-████████████████████████████████████████░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░ 40%
-```
-
-Разобрано: 2 из 5 · тест исправлен 1 · дефект приложения 1
-
-Сейчас: перезапуск, круг 1 — 1 из 2. Полоса разбора двинется после него.
-
-### Перезапуск — круг 1: проверка исправленных тестов
-
-Что исправлено перед перезапуском: 2 теста — кнопка искалась по тексту
-вместо роли, тест не ждал загрузки списка броней.
-
-Что перезапускается: 2 кейса, где разбор нашёл ошибку в тесте.
-
-```text
-██████████████████████████████████████████████████░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░ 50%
-```
-
-Перезапущено: 1 из 2 · прошли 1 · снова не прошли 0
-
-| TC | Кейс | Итог прохода 1 | Разбор | Статус |
-|---|---|---|---|---|
-| TC-7 | Отмена начавшейся брони | ❌ не прошёл | приложение отвечает 409 без текста из ТЗ | ❌ дефект приложения |
-| TC-8 | Отмена за час до начала | ❌ не прошёл | локатор кнопки по тексту, а не по роли | ✅ тест исправлен, прошёл |
-| TC-9 | Отмена чужой брони | ❌ не прошёл | — | 🔍 проверка |
-| TC-15 | … | ❌ не прошёл | | ⏳ ждёт |
-
-Verdict: идёт прогон · коммит 1a2b3c4 · обновлено 2026-10-06 14:32
-````
-
-The comment cell holds the spec file, and for a failure what was seen
-against what was expected and the screenshot path.
-
-Statuses. Pass 1: `⏳ ждёт`, `🔄 в работе`, then the outcome
-`✅ прошёл`, `❌ не прошёл`, `⛔ заблокирован: <причина>`,
-`⏭ не автоматизирован: <причина>`, and later `✅ прошёл после исправления
-теста` for a case a re-run turned green; the main count line is
-«Проверено: N из M · успешно … · не прошли … · заблокировано … · не
-автоматизированы …», always with the «Проверено:» label. Pass 2:
-`⏳ ждёт`, `🔍 проверка`, then `✅ тест исправлен, прошёл`,
-`⛔ тест не удалось исправить`, `❌ дефект приложения`,
-`🖼 расхождение с макетом`, `❓ пробел в ТЗ`; its count line is «Разобрано:
-N из M» with the results that occurred. After pass 2 the runner sets the
-`Verdict:` line: `PASS` when every automated case passed (directly or
-after a test fix), `DEFECTS` when any app defect, mockup mismatch, spec gap or screen-check
-breach remains, `BLOCKED` when blocked cases leave a screen unchecked. Under
-it, a «Проверить вручную» list names every `⏭ не автоматизирован` case
-with its reason and the manual steps — they are not a defect, but nobody
-has checked them yet — and a «Проверка экрана» list names each breach of
-the screen check with its screen and `UX-n` («S-2 · 375 — страница
-прокручивается вбок — UX-74»). A breach is an app defect: it makes the
-verdict `DEFECTS` without changing any case's status.
+**Report:** `documentation/plans/<version>/test-run.md` in the open version
+folder. No open version folder → say so and ask per `pipeline` → "Asking
+before a transition" which version this run belongs to; do not invent one.
+After pass 2 the `Verdict:` line under the last table is `PASS`,
+`DEFECTS` (an app defect, mockup mismatch, spec gap or screen-check breach
+remains) or `BLOCKED` (blocked cases leave a screen unchecked); under it
+the «Проверить вручную», «Проверка экрана» and «Сверка с макетом» lists
+(`references/run-report.md`).
 
 A `DEFECTS` verdict names, per defect, the unit or screen it points at, so
 the next step is one increment plan of fix units, not a hunt. Ask about that
@@ -475,9 +377,9 @@ fix plan must turn green.
 ## Before you finish
 
 - write: every AC has a `TC-` or a «Без интерфейса» line; every state row,
-  user-causable response outcome and «Поля ввода» rule has a case; steps name actions, not widgets; expected texts come
-  from the frame's «Тексты» table, and each text missing there is a spec
-  gap for `screen-spec`, not a case marker.
+  user-causable response outcome and «Поля ввода» rule has a case; steps name actions, not widgets; expected texts are
+  the ones the screen spec quotes, and each text it lacks is a spec gap for
+  `screen-spec`, not a case marker.
 - run: the suite is committed-ready under the E2E folder with `test:e2e`;
   pass 1 reached 100% and every failed case went through pass 2; no
   application file changed; the `Verdict:` line under the last table is the
@@ -487,8 +389,12 @@ fix plan must turn green.
 
 - `references/writer-prompt.md` — packet for `ui-test-writer`.
 - `references/runner-prompt.md` — packet for `ui-test-runner`.
+- `references/run-report.md` — the run report `test-run.md`: bars,
+  re-run blocks, example, statuses, verdict. Read before creating it.
 - `references/parallel-stands.md` — several identical stands for a long
   run: what makes a stand copyable, how many the machine holds, the split.
-- `playwright-cli` — locators, test generation, traces, screenshots.
+- `playwright-cli` — `references/test-config.md` (the stand-ready
+  config), and §0 and §3.1–3.3 of `references/test-generation.md` under its
+  «Inside dev-pipeline» block; locators, traces, screenshots.
 - `ux-patterns` — what a frame comparison may flag besides the spec.
 - `pipeline` — where both modes sit.

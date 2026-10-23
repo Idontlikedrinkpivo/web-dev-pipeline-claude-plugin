@@ -240,7 +240,7 @@ Track which scoping synthesis items the user touched per round. The soft-cut blo
 
 **Identity across rounds is by decision dimension, not surface wording or section.** A revision may cause stage 2 to re-derive — the same underlying decision can come back rephrased, merged with another bullet, or moved to a different section (e.g., what was a Trade-off in round one becomes a Call-out in round two after the user pushed back). "Same item" means the same underlying decision regardless of which section currently holds it. When a re-cut collapses multiple prior bullets into one, the new combined bullet inherits the "touched" status of any of its constituents — soft-cut fires if any underlying decision was already revised once before.
 
-When the soft-cut fires, follow `grill-me` → "How a question is shown". In the chat, say which decision was revised twice and what each option does. Proceeding writes the requirements document now. Holding off keeps the discussion open and does not write the file yet.
+When the soft-cut fires, follow `pipeline` → `references/question-format.md`. In the chat, say which decision was revised twice and what each option does. Proceeding writes the requirements document now. Holding off keeps the discussion open and does not write the file yet.
 
 - **A. Записать документ.**
 - **B. Ещё обсудить.**

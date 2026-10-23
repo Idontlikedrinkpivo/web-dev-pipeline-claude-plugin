@@ -1,23 +1,17 @@
 ---
 name: pipeline
 description: >-
-  The order of the development pipeline: the stages from idea to release, the gates and next stage after each, skip
-  rules, and how a transition is asked. Use at the close of any stage, when the user asks «что дальше» or «где я»
-  (also in a fresh session), or when changing the stage order. Writes no document.
+  Order of the pipeline from idea to release: gates, next stages, skips, how a transition is asked. Use at each
+  stage's close and for «где я», «что дальше», «на чём остановились», «продолжим», also in a new session (user
+  command: /dev-pipeline:continue).
 ---
 
 # Pipeline
 
-Stages name their **successor** here and nowhere else. Reordering or
-retiring a *stage* is a one-table edit. Gates are not: `grill-me` and
-`doc-review` are still invoked from the writer skills that own the
-artifact, so inserting or retiring a gate is this table **plus** those
-hardcoded calls. Do not claim a single-file gate edit.
-
-This is the discipline `executor-catalog` applies to models: a finished
-stage resolves to the next stage and its gates in one table. A stage that
-hardcodes "now run X" is a second source of truth, and the two drift the
-first time the order changes.
+Which stage runs when: the chain, its gates and skips, the iteration a
+stage works in, and how a transition is asked. Stages name their successor
+here and nowhere else. Changing the order, a gate or a stage: read
+`references/maintaining.md` first.
 
 ## Names
 
@@ -47,7 +41,10 @@ which gate did not run, leave its field unset (`grilled:`, `reviewed:`,
 `docs-consistency.md`), and ask the next transition. The user owns the
 trade-off: a small, fully specified change often has nothing for a gate
 to find, and making them sit through it anyway is the inflexibility the
-gate was never meant to buy. A later sitting can still run it.
+gate was never meant to buy. A later sitting can still run it. Where a
+record names the gate (the SRS stamp), a skip the user chose is
+`пропущен`; a gate whose question was never answered — the sitting stopped
+first — is `не запускался`, and "Where am I" offers it again.
 
 ## The chain
 
@@ -75,8 +72,8 @@ scaffolded. They meet before the plan.
 | 10 | Document set check | `docs-consistency` | none — it is the check | `plan` |
 | 11 | Implementation plan | `plan` | `plan-review` — **automatic, do not ask**; its findings are fixed round by round until it passes | `work` |
 | 12 | Execution | `work` | `code-review-unit` per unit → `code-review-full` once — **automatic, do not ask** | `ui-test-cases` (run) when the product has screens, else `security-audit` |
-| 13 | UI acceptance run | `ui-test-cases` — mode run | none | a fix plan (`plan`) when the verdict is `DEFECTS`, else `security-audit` |
-| 14 | Security audit — the whole application, once per iteration | `security-audit` | none — it is the check | a fix plan (`plan`) when the verdict is `FIX`, else `deploy-topology` |
+| 13 | UI acceptance run | `ui-test-cases` — mode run | none | a fix plan — `plan` `MODE fix` over the report's defect rows — when the verdict is `DEFECTS`, else `security-audit` |
+| 14 | Security audit — the whole application, once per iteration | `security-audit` | none — it is the check | a fix plan — `plan` `MODE fix` over the report's `FIX` rows — when the verdict is `FIX`, else `deploy-topology` |
 | 15 | Compose topology | `deploy-topology` | none | `operations-doc` |
 | 16 | Operations document — journals, jobs, alarms, how to see each | `operations-doc` | none — its queries are proven on the test stand | `ci-pipeline` |
 | 17 | CI workflow | `ci-pipeline` | none | nothing — the pipeline ends; see "End of the pipeline" |
@@ -101,6 +98,9 @@ scaffolded. They meet before the plan.
   without screens has no design branch: stage 6 offers stage 10 directly.
 - Stage 10 is a stage, not a gate, but it is skippable like one: B on its
   question goes on to `plan` and the skip is named in the report.
+- **A fix plan** (rows 13 and 14) goes through `plan-review` and `work`
+  like any plan; after its `work`, offer the check that sent it — the UI
+  run or the audit — so it re-runs over the fixes.
 
 `work`, the design writers (`db-schema-design`, `openapi-spec-generator`,
 `clean-architecture-design`), `ui-design`'s Figma builders and
@@ -126,83 +126,57 @@ missing. This file decides order, not whether an input is present.
 
 ## Service version
 
-The service has one number, `MAJOR.MINOR.PATCH`: the manifest's `version`,
-the name of `documentation/plans/<version>/` (the iteration's plan, reports,
-summary), the git tag `v<version>` that closes the iteration — the
-**baseline**, the documents and code of that release — and the prefix of
-the image tag `deploy-topology` writes. A document's `version` is the
-release it last changed in (`doc-versioning` → What a version is).
+One number, `MAJOR.MINOR.PATCH`, names the release: the manifest's
+`version`, the folder `documentation/plans/<version>/`, the branch
+`iteration/<version>`, and the tag `v<version>` that closes the iteration.
+MAJOR is the owner's call on a big new capability; MINOR and PATCH are
+computed from the iteration's typed changes. Levels, the re-check in
+`plan`, `plans/` out of git and the API's own version:
+`references/service-version.md` — read it when a stage opens an iteration.
 
-| Level | When | Who decides |
-|---|---|---|
-| MAJOR | a big new capability that really extends the service: a new functional area, a new kind of user, a new way of working with it | the owner. Propose it when the iteration adds a new capability group (a new area) to the SRS, or the owner called the change big; the owner confirms |
-| MINOR | new functionality inside existing areas: scenarios, screens, operations, fields | computed: at least one change typed «добавляет» or «ломает» in a versioned document |
-| PATCH | fixes only: behaviour brought to what the documents already say | computed: only «уточняет» changes and code fixes |
+**The iteration opens at its first stage that commits anything or writes
+into `plans/`** (`brainstorm` on its document, else usually `srs-writer`);
+an open `plans/<version>/` (no `summary.md`) is the current iteration and
+every later stage reuses it. Opening it: the number (greenfield `0.1.0`
+unasked, otherwise proposed with its level and one question), then
+`python3 "${CLAUDE_SKILL_DIR}/scripts/open_iteration.py" <version>` — it
+updates `main`, creates or switches to `iteration/<version>`, creates the
+folder and keeps `plans/` out of git. Its exit 2 or 3 is a question for
+the user (an earlier iteration not merged, another one open, no git
+repository yet), never something to work around. Then, for a product with screens, the one question who runs
+the design (`references/design-owner.md`).
 
-A «ломает» alone makes a MINOR, not a MAJOR. Before the first release
-versions are `0.x.y` (a manifest with no version → `0.1.0`); the owner says
-when the first release, `1.0.0`, is.
-
-**The iteration's version is fixed when the iteration opens**, by its first
-stage that changes a versioned document or writes into `plans/`: on
-greenfield `0.1.0`, without asking; on an increment usually `srs-writer`,
-else `docs-consistency` or `plan`. An open `plans/<version>/` (no
-`summary.md`) is the current iteration, and every later stage reuses it.
-Otherwise the stage proposes the number after the manifest's, with its
-level and a one-line reason («MINOR: новые UC-5, UC-6 в бронированиях»), as
-a question per "Asking before a transition" (`A. <версия> (Recommended)`,
-`B. Остановиться`, or another number), and creates the folder on the
-answer. Every stamp of the iteration writes that number. Right after it, a
-product with screens is asked once who runs the design
-(`references/design-owner.md`); the stages that follow build on it.
-
-**One branch per iteration.** Opening the iteration also creates
-`iteration/<version>` from `main` and switches to it (or switches to it when
-it exists). Before creating it, update `main` from `origin`; when the
-previous iteration's branch is not merged into it yet, say so and ask —
-the new iteration would start without it. Every stage of the iteration, by
-everyone who works on it
-(`references/team.md`), commits there; nothing is committed to `main`
-during the iteration. Only that branch is pushed — the plugin gives the
-command, the user runs it — and `main` receives the iteration once, at the
-end, when the user merges it on GitHub.
-
-`plan` re-checks the level once every change is known, from the
-iteration's typed changes: its changelog rows, plus any change not stamped
-yet, typed the same way from the diff since the last tag. A changed level is asked again; on a yes the session
-renames the open folder and replaces the old number in that iteration's
-`version` fields, rows and pins in one commit (`docs: итерация <old> →
-<new>`), and renames the branch to `iteration/<new>` (the push command
-removes the old remote name too) — it was never released, so nothing
-outside the iteration names
-it. The plan's last unit bumps the manifest's `version` to the folder's
-name; `summary.md` and the tag close the iteration (End of the pipeline).
-
-**Plans stay out of git.** `documentation/plans/` is in `.gitignore`: the
-plan, its review, progress files, stage reports and `summary.md` are working
-files on this machine; git keeps the code, the contract documents, a
-`Plan-Unit:` trailer per unit commit and the tag `v<version>`. The first
-stage that writes into `plans/` adds it to `.gitignore` if missing, or
-untracks it (`git rm -r --cached documentation/plans`, files stay) in its
-own commit. No stage stages a file under `plans/`.
-
-**The API's own version.** Called only by the project's own client, the API
-has no separate number: `info.version` is the service version. With
-external consumers (Full trigger "versioned partner API") it has its own
-SemVer and its major in the path — `openapi-spec-generator` → Contract version.
+**One branch per iteration.** Every stage of the iteration, by everyone who
+works on it (`references/team.md`), commits on `iteration/<version>`;
+nothing is committed to `main` during the iteration. Only that branch is
+pushed — the plugin gives the command, the user runs it — and `main`
+receives the iteration once, when the user merges it on GitHub.
 
 ## End of the pipeline
 
-The pipeline ends after stage 17, or after the last stage that ran when 14–17 were skipped. Say in
-the chat, in Russian, that the work is done and committed on `iteration/<version>`; give the command
-that pushes the branch and its tag (`git push origin iteration/<version> v<version>`), and say that
-the merge into `main` is the user's, on GitHub; offer no other stage. Before that line, rebuild the
-documentation site (`docs-site`) and commit it when it changed, then write the
-iteration's summary (on disk only, like the rest of `plans/`) and tag the current commit
-`v<version>` — the baseline the next iteration's pins and diffs read against. Do both also when the
-user asks «итог», «как отработал пайплайн», or «сводка» after `work`. They close the version: a
-`plans/<version>/` folder with `summary.md` is done. Then, before the last line, run `reflect`
-unasked, then clear the working files (`references/closing-cleanup.md`).
+The pipeline ends after stage 17, or after the last stage that ran when 14–17 were skipped. The
+stage that ran last hands over to this section; it does not end the sitting itself. In this order:
+
+1. **The last stamp.** First, what only a working file still holds moves into its owner document
+   through `references/decision-changes.md`: an accepted risk of `security-audit.md` missing from
+   architecture §1 «Принятые риски», a decision recorded only in a run report — those files are
+   removed in step 7, and the tag must carry what the project relies on. Then: a decision changed after
+   the plan, a fix after the UI run or the audit, sits in the contract documents unstamped; the tag
+   must carry its rows. Run the stamp over every contract document that differs from its last stamped
+   state (`doc-versioning` → `references/version-birth.md`, the iteration's close) — nothing differs,
+   nothing is committed.
+2. **The site.** Rebuild the documentation site (`docs-site`) and commit it when it changed.
+3. **The summary** — `references/summary.md`; on disk only, like the rest of `plans/`.
+4. **The tag** `v<version>` on the current commit — the baseline the next iteration's pins and
+   diffs read against. Steps 1–4 also run when the user asks «итог», «как отработал пайплайн» or
+   «сводка» after `work`. They close the version: a folder with `summary.md` is done.
+5. **`reflect`**, unasked.
+6. **The closing lines**, in Russian: the work is done and committed on `iteration/<version>`; the
+   command that pushes the branch and its tag (`git push origin iteration/<version> v<version>`); the
+   merge into `main` is the user's, on GitHub. Offer no other stage.
+7. **The working files** — `references/closing-cleanup.md`: one question, below the closing lines; it
+   ends the message with its own last line (`references/question-format.md`) and stops the servers.
+   With nothing to remove there is no question, and the closing lines end the message.
 
 ### The summary
 
@@ -217,90 +191,16 @@ GitHub.
 
 ## Where am I
 
-When asked "what is the next step" with no stage just closed in this
-sitting, read state before answering. Memory of an earlier session is not
-evidence; the files on disk are.
-
-1. Probe the canonical paths in `doc-versioning` → Registry, in chain
-   order. Note which exist, and the open `documentation/plans/<version>/`
-   (no `summary.md`, see "Service version"): it holds stages 10–14 so far.
-   `plans/` is not in git, so a fresh clone has none: then the tags
-   `v<version>` name the closed iterations, the `Plan-Unit:` trailers
-   since the last tag name the units already landed, and the state of
-   stages 10–14 is unknown — say so rather than guessing.
-2. For each versioned document found, compare its `sources:` pins
-   (`info.x-sources` in OpenAPI) with the sources' current `version`. A pin
-   behind with a «ломает» row after it is stale — say which, per
-   `doc-versioning` → Staleness and cascade; behind by «добавляет» only is
-   for stage 10, not a stale stage.
-3. A business-requirements document with no `grilled:` has an unrun
-   gate. An SRS's gates are in its last stamp commit (`grill: … ·
-   review: …`); none named, or changed since — the grill comes next. Any other
-   document whose row lists `doc-review`, with no `reviewed:`
-   (`info.x-reviewed` for OpenAPI), had its review skipped or never
-   run — offer it rather than assuming either. An open version folder
-   with `plan.md` and no `plan-review.md`, or one whose first line is not
-   `Verdict: PASS`, has an unrun `plan-review` gate. When both branches are
-   done (or the design branch does not apply), a `docs-consistency.md` in
-   the open folder that is missing, has a first line other than
-   `Verdict: PASS`, or lists a `checked:` hash that no longer matches
-   `git hash-object` of that path means stage 10 has not run for the
-   current set.
-   An unrun gate may have been skipped on purpose; the files cannot tell.
-   List unrun gates in one line and offer the earliest as an option of
-   the question below, never as the only way forward.
-4. Report both branches: the last stage present on each (for the design
-   branch `documentation/ui/frames-register.md`, `ui/screen-specs/` and
-   `ui/test-cases/`, read from `origin` when stages were handed to others —
-   `references/team.md`). The answer is the earliest
-   unfinished point: a stale document's stage, else the next stage of a
-   branch that is not done (both as options when both are open), else
-   stage 10, with the unrun gates from step 3 as options.
-   Ask it as one transition, per "Asking before a transition". Do not
-   list every remaining stage.
-
-Example — a fresh session, the user asks «что дальше?»:
-
-```text
-Найдено:
-  documentation/requirements/business-requirements/business-requirements.md  grilled: 2026-05-02
-  documentation/requirements/srs/srs.md  version: 1.3.0
-  documentation/db/schema.md  sources: …srs/srs.md@1.2.0, reviewed: 2026-05-06
-  documentation/api/openapi.yaml — нет
-  documentation/plans/ — 1.2.0 закрыт (summary.md), 1.3.0 открыт
-
-Шаг 2: схема закреплена за SRS 1.2.0, а в SRS 1.3.0 есть строка «ломает»
-(BR-3) — схема устарела.
-Шаг 4: самая ранняя незаконченная точка — схема, раньше непройденных гейтов
-и следующего оффера.
-
-Чат: в SRS 1.3.0 изменилось правило BR-3, а схема БД построена по 1.2.0.
-`db-schema-design` прочитает строки журнала SRS после 1.2.0 и обновит
-схему; без этого API будет строиться на старых таблицах.
-
-Ответьте сообщением: буква или свой текст.
-  A. Запустить db-schema-design (Recommended)
-  B. Остановиться
-```
-
-## Where each gate comes from, and why it is there
-
-Read `references/gates.md` before asking a gate question: why `grill-me`,
-`doc-review`, `docs-consistency` and `plan-review` sit where they do, and
-what each question says about the gate's cost.
-
-## Asymmetries, on purpose
-
-Each of these looks like an omission and is not. Do not "fix" one without
-changing this file:
-
-| Looks missing | Why it is not |
-|---|---|
-| No `doc-review` on business requirements | Stage 1's artifact is the least formal in the pipeline and every line of it is re-examined when `srs-writer` reads it. The grill is the stronger instrument there, and it runs. |
-| No `grill-me` on mockups | The user judges mockups by looking at them in Figma; a grill interrogates written decisions, and the decisions the frames embody are written down by `screen-spec`, whose `doc-review` checks them. |
-| No `grill-me` on architecture, DB, or API | Those decisions are technical, not product, and the user is not the one who settles them. `doc-review` already carries the right instruments: `adversarial-document-reviewer` challenges the premise and `security-lens-reviewer` the security decisions. |
-| No gate on the Figma file | Frames are not a document. `ui-design` checks the returned `nodeId`s and its completeness checklist; `screen-spec`'s sync check (frame ↔ action ↔ API) and `doc-review` cover the rest. |
-| No whole-codebase quality audit | Security has one — stage 14, once per iteration, because a hole anywhere in the application is a hole in the release. Quality does not: `code-review-full`'s `Drift` and `Superseded code` lenses cover the debt a plan introduced, and a standing audit of code no plan touched is a different activity on its own cadence that no stage depends on. |
+When asked «где я», «что дальше» or «на чём остановились» with no stage just
+closed in this sitting — a fresh session, after a compaction, `continue` —
+read the state before answering; memory of an earlier session is not
+evidence. Run `python3 "${CLAUDE_SKILL_DIR}/scripts/where_am_i.py"` from the
+project's root and answer from its output, by `references/where-am-i.md`:
+two open iterations are a question first; a `resume.md` is read first and
+its run continued; a progress file with unfinished rows is a stage not
+done; a stale document's stage comes before the next one; unrun gates are
+options, never the only way forward. Ask the answer as one transition
+("Asking before a transition"); do not list every remaining stage.
 
 ## Increments
 
@@ -346,7 +246,10 @@ Two rules keep this honest:
 
 **A decision changed after its stage closed** (in `work`, a later stage, the
 chat) goes straight into the documents that state it, committed at once with
-no version change, unasked: `references/decision-changes.md`.
+no version change, unasked: `references/decision-changes.md`. **A code
+change asked in the chat between stages** is not typed by the session: it
+goes through `work` → "A change asked in chat outside a run" (an executor,
+a review, the affected tests on the branch).
 
 The plan is the exception `doc-versioning` already names: every iteration
 gets a **new** `plans/<version>/` folder with its own plan and U-ids,
@@ -356,19 +259,21 @@ version's plan is never edited.
 ## Asking before a transition
 
 This is the only way a stage outside `work` starts its gate or the next
-stage. One transition per question. Follow `grill-me` → "How a question is
-shown".
+stage. One transition per question, shown as every question is —
+`references/question-format.md`: what the person gets in plain words with
+an example first, then the skill's real name and what it means, the
+options, the recommendation, «Ответьте сообщением». Before a gate
+question, `references/gates.md` says why that gate sits there and what it
+costs.
 
-In the chat, in Russian, name the skill and what it will do to the artifact
-just written. Keep the skill's real name. Explain it: `grill-me` is the
-interview that tries to knock down assumptions in the document; `doc-review`
-is a review of the written document by several checks, and it spends model
-calls; `docs-consistency` reads all the documents together and finds where
-they contradict each other or leave a requirement without a home; the next stage is the writer named in this
-table's offer cell, including a skip (no UI, no storage, no HTTP) — name
-the skill the skip selects and why the skipped ones do not apply.
-
-One question, then stop, answered by a message; no question card.
+Explain the skill in the user's terms: `grill-me` is the interview that
+tries to knock down assumptions in the document; `doc-review` is a review
+of the written document by several checks, and it spends model calls;
+`docs-consistency` reads all the documents together and finds where they
+contradict each other or leave a requirement without a home; the next
+stage is the writer named in this table's offer cell, including a skip (no
+UI, no storage, no HTTP) — name the skill the skip selects and why the
+skipped ones do not apply.
 
 **Commit before offering the next stage, or stopping.** A written document
 is committed without asking — by the stamp (`doc-versioning` →
@@ -376,29 +281,31 @@ is committed without asking — by the stamp (`doc-versioning` →
 cases — once its gates ran or were skipped, or when the user stops at a
 gate's or transition's question (the stop line names the gates not run).
 
-For a **gate**, three options:
+For a **gate**, three options, always these letters:
 
 - `A. Запустить <gate>`
 - `B. Пропустить и перейти к <the next transition>`
 - `C. Остановиться`
 
-Mark one `(Recommended)` and put it first, and say why in one line. Judge
-by what the stage just decided, not by habit: a new document, a security
-or money decision, or a reversal worth falsifying → recommend running the
-gate; a small, fully specified change (a field, a control, an edit the
-user already spelled out) → recommend skipping, and say the gate would
-have little to find.
+Mark the recommended one «(рекомендую)» where it stands — the letters do
+not move — and say why in one line. Judge by what the stage just decided,
+not by habit: a new document, a security or money decision, or a reversal
+worth falsifying → recommend running the gate; a small, fully specified
+change (a field, a control, an edit the user already spelled out) →
+recommend skipping, and say the gate would have little to find.
 
-For an **offer**, two options: `A. Запустить <skill> (Recommended)` and
+For an **offer**, two options: `A. Запустить <skill> (рекомендую)` and
 `B. Остановиться`.
 
 A runs that skill now and follows it. When it returns, ask the next
 unrun transition in the row: the next gate, then the offer. B on a gate
 records the skip (see "Two kinds of transition") and asks the next
-transition in the same way. C, or B on an offer, stops the sitting. Do
-not start a skill the user did not pick. Do not ask the following
-transition in the same turn as the one just answered, except after a
-skip, where the next question is the answer.
+transition in the same way. C, or B on an offer, stops the sitting. A
+message that answers neither is not a choice
+(`references/question-format.md` → Answers). Do not start a skill the user
+did not pick. Do not ask the following transition in the same turn as the
+one just answered, except after a skip, where the next question is the
+answer.
 
 No menu of every remaining stage; "ok" on a summary is not a yes.
 
@@ -406,32 +313,44 @@ Example — the SRS was just written and its grill closed; the next unrun
 transition in row 2 is `doc-review`:
 
 ```text
-Чат: Следующая проверка — `doc-review`. Несколько ревьюеров прочитают
-SRS и проверят его на противоречия, пробелы и выполнимость. Это
-отдельные вызовы моделей: две постоянные роли плюс условные, здесь
-ещё `security-lens-reviewer`, потому что в SRS есть оплата.
+**Проверить требования ревьюерами?**
+
+Несколько независимых проверяющих прочитают требования и найдут места,
+где они противоречат себе или их нельзя выполнить: например, бронь «на
+любой срок» рядом с лимитом в 4 часа. Это `doc-review`: две постоянные
+роли и условные — здесь ещё проверка безопасности, потому что в
+требованиях есть оплата; каждая роль — отдельный вызов модели.
+
+  A. Запустить doc-review (рекомендую)
+  B. Пропустить и перейти к выбору порядка веток
+  C. Остановиться
+
+Рекомендую A: документ новый, в нём деньги.
 
 Ответьте сообщением: буква или свой текст.
-  A. Запустить doc-review (Recommended)
-  B. Пропустить и перейти к выбору ветки
-  C. Остановиться
 ```
 
-Example — the SRS gates are done; both branches open:
+Example — the SRS gates are done; both branches open (options from
+`references/branch-order.md`):
 
 ```text
-Чат: SRS готова. Дальше две независимые ветки: бэкенд (схема БД → API →
-архитектура → каркас) и дизайн (макеты в Figma по SRS → ТЗ на экраны →
-тест-кейсы). ТЗ на экраны в любом порядке дождутся API. Рекомендую
-параллельно: правки макетов небольшие, и ветки не мешают друг другу.
+**Что делаем дальше: базу и API или макеты экранов**
 
-Ответьте сообщением: буква или свой текст.
-  A. Обе ветки параллельно, вопросы с пометкой [Бэкенд] / [Дизайн] (Recommended)
-  B. Последовательно: сначала бэкенд (db-schema-design), потом дизайн
-  C. Последовательно: сначала дизайн (ui-design), потом бэкенд
+Требования готовы. Дальше две независимые ветки: бэкенд — таблицы базы,
+API, устройство кода, каркас проекта; дизайн — макеты экранов в Figma,
+описание каждого экрана для вёрстки (ТЗ на экран), тест-кейсы. Описания
+экранов в любом порядке дождутся API.
+
+  A. Обе ветки параллельно; вопросы помечены [Бэкенд] / [Дизайн] (рекомендую)
+  B. Сначала бэкенд (db-schema-design), потом дизайн
+  C. Сначала дизайн (ui-design), потом бэкенд
   D. Только бэкенд — дизайн ведёт другой человек или позже
   E. Только дизайн — бэкенд позже
   F. Остановиться
+
+Рекомендую A: правки макетов небольшие, и ветки не мешают друг другу.
+
+Ответьте сообщением: буква или свой текст.
 ```
 
 When a gate produced findings the user chose not to apply, say which gate
@@ -444,29 +363,22 @@ contract document.
 that called them asks. When the user opened one of those gates directly,
 that gate asks the next transition itself, using this section.
 
-## Changing this file
-
-- **Reorder or insert a stage** — edit the chain table only. No stage skill
-  changes, because none of them names its successor.
-- **A new stage needs a row and a reason** — what it consumes, what it produces,
-  and which gates close it. A stage nobody offers is unreachable; a stage with
-  no gate has to say why none applies.
-- **A new gate is a cost decision.** Say what it costs per run in the same
-  sentence you add it, the way the `doc-review` note above does.
-- **Retiring a stage** — remove its row and re-point the neighbours' `Then
-  offer` cells in the same edit, otherwise the chain has a hole that reads as a
-  dead end.
-- **Do not encode content rules here.** What a document must contain belongs to
-  its stage; this file only says which stage runs when.
-
 ## References
 
+- `references/question-format.md` — how every question is shown and what
+  counts as an answer.
+- `references/service-version.md` — the number, opening an iteration
+  (`scripts/open_iteration.py`), the branch, the level re-check, `plans/`
+  out of git.
+- `references/where-am-i.md` — reading `scripts/where_am_i.py` and
+  building the answer.
 - `references/convergence.md` — fix-and-check cycles repeat until they
   pass; what keeps a round cheap and when lack of progress stops it.
 - `references/gates.md` — why each gate sits on its stage and what its
   question says about cost.
 - `references/progress-files.md` — which stages keep a progress file in
-  `plans/<version>/`, its shape, and the link posted before the first step.
+  `plans/<version>/`, its shape, and the chat line `scripts/progress_link.py`
+  prints for it.
 - `references/pause-and-resume.md` — the resume note a long run (`work`,
   `ui-test-cases` mode run, `security-audit`) keeps current, and what a
   session that picks up a stopped run reads first.
@@ -478,6 +390,8 @@ that gate asks the next transition itself, using this section.
 - `references/branch-order.md` — the order of the two branches after the
   SRS, and both branches in one session.
 - `references/design-owner.md` — who runs the design, asked at the start.
+- `references/maintaining.md` — changing the order, a gate or a stage, and
+  the asymmetries that are on purpose.
 - `doc-versioning` (skill) — the increment/greenfield decision, the canonical
   path per document type, the downstream verdict this file reads,
   the unversioned business-requirements draft, and document language

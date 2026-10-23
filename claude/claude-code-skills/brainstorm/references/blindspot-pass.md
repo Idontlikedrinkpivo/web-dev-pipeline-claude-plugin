@@ -23,7 +23,7 @@ Never silently switch into teaching. The offer is one chat question (Interaction
 
 ## Offer
 
-Follow `grill-me` → "How a question is shown". In the chat, in Russian, name the territory and explain both options. Mapping the territory means listing the decisions in that area, the realistic options, and the default you would take, so the user chooses rather than guesses. Proceeding with questions means the interview continues and gaps become written assumptions.
+Follow `pipeline` → `references/question-format.md`. In the chat, in Russian, name the territory and explain both options. Mapping the territory means listing the decisions in that area, the realistic options, and the default you would take, so the user chooses rather than guesses. Proceeding with questions means the interview continues and gaps become written assumptions.
 
 - **A. Сначала карта решений.**
 - **B. Продолжить вопросами.** Пробелы станут явными допущениями.

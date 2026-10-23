@@ -1,10 +1,9 @@
 ---
 name: ux-patterns
 description: >-
-  Checkable UI/UX rules UX-1 … UX-80 (B2B and B2C): actions, forms, feedback, navigation, dialogs, data screens, empty
-  and error states, accessibility, copy, plus the mockup completeness and hand-over checklists. Use whenever a screen,
-  form, table, dialog or flow is designed, drawn, built or reviewed — «сделай удобно», «по лучшим практикам UX». Not
-  palette or fonts (`ui-design`).
+  Checkable UX rules UX-1…UX-80 (B2B, B2C) and mockup checklists: forms, feedback, navigation, dialogs, states,
+  accessibility. Use whenever a screen is designed, built or reviewed, «проверь макеты», «сделай удобно». Code:
+  web-design-guidelines.
 ---
 
 # UX Patterns

@@ -1,10 +1,8 @@
 ---
 name: code-review-full
 description: >-
-  Reviews a finished plan's whole diff once, after every unit is committed: drift between units, invariants spanning
-  units, leftovers, security, code health and the plan's «Критерии готовности». Use when `work` closes a run or the
-  user asks to review a finished plan as a whole. Not one unit (`code-review-unit`); an ad-hoc PR goes to
-  /code-review.
+  Reviews a finished plan's whole diff once (drift between units, invariants, leftovers, security); run by work at the
+  close, or on «отревьюй весь план». One unit: code-review-unit; a PR: /code-review.
 ---
 
 # Full-Plan Review
@@ -48,7 +46,7 @@ shrink to zero with the plan.
 | Definition-of-done output | **yes** | the plan's §5 commands as `work` Step 7 ran them, with exit codes, as a file path — the reviewer reads it and does not re-run them |
 | Code health | **yes** | the «Здоровье кода» table from `work` Step 7 (`work/references/health.md`): duplicates, functions and files over the thresholds, surviving mutants — each at BASE and HEAD; a row worse at HEAD without a reason in the run report is a finding |
 | Dead-code report | **yes** | the stack's detector output (`knip` / `vulture`) from `work` Step 7, as a file path; "could not run" with the reason is a valid input, a missing one is not |
-| Prior full-plan findings | when resuming after a fix | so a closed finding is not re-opened |
+| Prior full-plan findings | on a re-review | the open findings with what each fix tried, and the closed ones, so a closed finding is not re-opened — the re-review packet (Step 5) |
 
 Without the plan and the run report this is a generic diff read that will
 invent its own idea of what the branch was supposed to do. Say so and stop.
@@ -57,14 +55,29 @@ invent its own idea of what the branch was supposed to do. Say so and stop.
 
 ### Step 1. Reconstruct the whole
 
-Read the plan's unit map and the run report's status column side by side.
-Confirm every unit marked committed actually has a commit in the diff range
-(its `Plan-Unit:` trailer in `BASE..HEAD`), and that no committed diff is
-missing from the unit map. A fix commit carrying a unit's trailer, a
-`review-fix-<n>` trailer, or the simplifier's `health-<n>` trailer
-(`work/references/health.md`) listed in the run report counts as mapped
-(`work` → A fix after a commit). A mismatch here means
-the run report is stale — fix that before reviewing anything else.
+Read the plan's unit map and this run's section of the run report side by
+side. Confirm every unit this run committed has a commit in the diff range
+(its `Plan-Unit: <version>/U<n>` trailer in `BASE..HEAD`), and that every
+commit in the range is mapped. Units an earlier run of the same iteration
+committed sit before BASE and are not this review's: a second run reviews its
+own range only. Mapped means a `Plan-Unit: <version>/<kind>` trailer the run
+report lists:
+
+| Trailer | Commit |
+|---|---|
+| `U<n>` | the unit, or a fix on top of it (`work` → A fix after a commit) |
+| `review-fix-<n>` | a fix that spans units |
+| `health-<n>` | the simplifier (`work/references/health.md`) |
+| `decision-<n>` | the documents of a decision changed during the run (`work` Step 6) |
+| `verify-skill` | the project's verify skill, written for the run's browser suite (`deploy-topology` → `references/verify-skill.md`) |
+| `stand` | the test stand made copyable (`ui-test-cases` → `references/parallel-stands.md`) |
+| `chat-<n>` | a change asked in chat (`work/references/chat-change.md`) |
+
+A commit with none of these is unmapped: name it, its subject and what it
+touches, and read its diff with the rest — it is not by itself a sign that
+the report is stale. A unit the report marks committed with no trailer in the
+range, or a trailer the report does not list, means the report is stale — fix
+that before reviewing anything else.
 
 ### Step 2. Cross-unit lenses
 
@@ -168,7 +181,13 @@ Exactly one:
 A re-review after every `FIX_THEN_CLOSE` or `RETURN_TO_UNIT` fix, until
 `PASS`. Each reads only that round's fix commits with the open findings
 attached and answers per finding — resolved or not — plus anything the fixes
-broke; it never re-reviews the whole run. The rounds go on while each makes
+broke; it never re-reviews the whole run. Build it from the re-review packet
+in `references/reviewer-prompt.md` (Re-review): the round's fix diff as a
+file, every open finding with what was tried for it, the closed ones, the
+re-opened units' specs, and the checks the orchestrator ran after the fixes.
+This re-review is the fix's one review: a fix of a finding here does not also
+pass `code-review-unit`, which would read the same lines against a narrower
+question. The rounds go on while each makes
 progress, and stop for the user when it does not (`pipeline` → `references/convergence.md`).
 
 Follow-up `Agent` calls (`mechanical-worker`, a unit's implementer) resolve their
@@ -231,8 +250,9 @@ mechanical follow-up even though #2 alone would be `FIX_THEN_CLOSE`.
 
 ## Before you finish
 
-- Every unit the run report marks committed has a matching commit in the diff
-  range, and vice versa — Step 1.
+- Every unit this run committed has a matching commit in the diff range, and
+  every commit in the range is mapped by its trailer or named as unmapped —
+  Step 1.
 - Every lens produced a finding, an explicit clean line, or a stated reason it
   has no surface in this plan — Step 2.
 - Every declared security requirement names where it is enforced, or is a P0;

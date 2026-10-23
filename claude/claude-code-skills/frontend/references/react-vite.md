@@ -13,7 +13,7 @@ src/
   features/<feature>/      api.ts (one hook per operationId), components, modals, messages, *.test.tsx
   shared/api/              generated types/client (never hand-edited) + client.ts (base URL, credentials)
   shared/ui/               primitives (Button, Dialog, Toast) — reuse before adding
-e2e/                       Playwright specs, one main path per S-n
+e2e/                       the user test suite — `ui-test-cases` owns it; screen units add no spec here
 ```
 
 Name the `S-n` in the page file's first comment line so a search for `S-1` finds it.
@@ -22,13 +22,13 @@ Name the `S-n` in the page file's first comment line so a search for `S-1` finds
 
 | Concern | Default | Note |
 |---|---|---|
-| Routing | React Router; TanStack Router if already in the repo | one route per `S-n`, lazy-loaded. React Router 8 dropped the `react-router-dom` package — import from `react-router` / `react-router/dom` and check the React version it requires; declarative routes with TanStack Query as the one source of server data |
+| Routing | React Router; TanStack Router if already in the repo | one route per `S-n`, lazy-loaded; declarative routes with TanStack Query as the one source of server data |
 | Server state | TanStack Query | query per read `operationId`, mutation per write; invalidate the list after a write |
 | API client | openapi-typescript types + openapi-fetch | @hey-api/openapi-ts or Orval if the repo already uses one |
 | Forms | React Hook Form + Zod via its resolver | schema typed against the generated request body |
 | Styling / UI kit | Tailwind CSS + shadcn/ui | Radix-based primitives bring dialog focus trap and keyboard handling |
 | Component tests | Vitest + Testing Library + jsdom, MSW at the network boundary | queries by role and accessible name |
-| E2E / a11y | Playwright (`playwright-cli`); eslint-plugin-jsx-a11y | `@axe-core/playwright` scan of each state; jsx-a11y has had no release since 2024-10 — check that it loads with the installed ESLint major before relying on it |
+| E2E / a11y | Playwright, the user test suite of `ui-test-cases`; eslint-plugin-jsx-a11y | `@axe-core/playwright` scan of each state; whether jsx-a11y loads with the installed ESLint major — Verify in current docs |
 
 ## Stack conventions
 
@@ -52,9 +52,15 @@ Name the `S-n` in the page file's first comment line so a search for `S-1` finds
 
 - TanStack Query: query-key and invalidation API, option names and defaults
   (stale time, retries) in the installed major.
-- Router: data-router vs component-router API, lazy routes, error elements.
+- Router: data-router vs component-router API, lazy routes, error elements;
+  which package the installed React Router major is imported from
+  (`react-router-dom` was folded into `react-router` in a recent major) and
+  the React version it requires.
 - openapi-fetch / generator: CLI flags, output file, how non-2xx bodies and
   `response.status` are typed.
 - Vite: which env variables reach client code and how they are typed; the
   test environment key in the Vitest config.
 - React Hook Form resolver: support for the installed Zod major.
+- eslint-plugin-jsx-a11y: that it loads with the installed ESLint major — it
+  has lagged ESLint releases; if it does not, say so in the report rather
+  than pinning ESLint back.

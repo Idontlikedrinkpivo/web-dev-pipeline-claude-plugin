@@ -123,6 +123,9 @@ Cell rules that are easy to get wrong:
   (`№8 отменить бронь · UC-2 Exc-1`), not by status. Follow the flow to the
   SRS named error and to the status whose error code the operation declares
   for it, and write the flow id beside the code so the reader can check it.
+- A text from a designer's file without annotation (**Слои по действиям:
+  нет**) is quoted with its layer: «Отменить бронь» (текст слоя `16:771`);
+  in «Метод и поля» a static one is `текст слоя` instead of `текст кадра`.
 - Empty Разрывы is a table with no rows plus the line «Разрывов нет.».
 
 ## Example — S-1 «Расписание» (room booking)

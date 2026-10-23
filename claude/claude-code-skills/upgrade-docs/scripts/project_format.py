@@ -1,6 +1,10 @@
 """Which of the plugin's format changes a project still lacks, and the project's stamp of the plugin version.
 
     python3 project_format.py hook  <project dir>        # the session-start line; prints nothing when the project is in line
+    python3 project_format.py next  <project dir> [--kind docs|code] [--after <id>]
+                                                         # only the next pending change (docs by default), with its
+                                                         # place in the queue; --after <id>: the one after that id —
+                                                         # how a change answered «позже» is passed over this time
     python3 project_format.py list  <project dir> [--kind docs|code]   # every pending change in full, of one kind
                                                          # or of both (--json for a machine)
     python3 project_format.py check <project dir> <id>   # exit 0 when this change is no longer pending
@@ -16,7 +20,7 @@ check that it applies to the project (`applies`) and a check that the project is
 folder, multiline), {"all": [...]}, {"any": [...]}, {"not": check}; paths are relative to the project.
 The stamp is documentation/.dev-pipeline.json — {"plugin": "<version>", "skipped": [ids]}, committed with the
 documents. Changes up to the stamped version count as done; a project without a stamp is checked against all.
-Read-only except skip and stamp. Standard library only.
+Read-only except skip and stamp. Standard library only. Adding a row: ../references/adding-a-change.md.
 """
 from __future__ import annotations
 
@@ -123,6 +127,21 @@ def main() -> None:
         print("Tell the user in one or two plain sentences and offer "
               + " and ".join(f"the {SKILL[k]} skill for the {WHAT[k]}" for k in groups)
               + "; change nothing without their answer.")
+        return
+    if cmd == "next":
+        only = sys.argv[sys.argv.index("--kind") + 1] if "--kind" in sys.argv else "docs"
+        if only not in SKILL:
+            sys.exit(f"--kind is docs or code, not {only}")
+        todo = pending(root, only)
+        order = [c["id"] for c in json.loads(CHANGES.read_text(encoding="utf-8"))]
+        after = sys.argv[sys.argv.index("--after") + 1] if "--after" in sys.argv else None
+        rest = [c for c in todo if after is None or after not in order or order.index(c["id"]) > order.index(after)]
+        if not rest:
+            print(f"nothing pending of kind {only}" + (f" after {after}" if after and todo else ""))
+            return
+        c = rest[0]
+        print(f"change {todo.index(c) + 1} of {len(todo)} pending ({only})")
+        print(f"[{c['id']}] {c['title']} — {c['version']}\n  Что: {c['what']}\n  Чем исправить: {c['fix']}")
         return
     if cmd == "list":
         only = sys.argv[sys.argv.index("--kind") + 1] if "--kind" in sys.argv else None

@@ -1,10 +1,8 @@
 ---
 name: ui-ux-pro-max
 description: >-
-  Design data for choosing a look: product types and their styles, palettes, font pairs checked for Cyrillic, landing
-  patterns, chart types, icons. Use whenever a palette, typeface, style or density is chosen or compared — «подбери
-  палитру», «какой шрифт», «стиль интерфейса». A new product look starts in `ui-design`; not the UX rules
-  (`ux-patterns`).
+  Design data: styles by product type, palettes, Cyrillic font pairs, landing patterns, charts. Use for «подбери
+  палитру», «какой шрифт»; a pick reaches the project via ui-design's visual direction. UX rules: ux-patterns.
 ---
 
 # UI UX Pro Max — design data
@@ -23,6 +21,14 @@ original licence; `VENDORED.md` lists every change against the original.
 Used directly, it also gives implementation notes for a stack (`--stack
 react`, `nextjs`, `shadcn`, `html-tailwind`; `--domain react`) and the short
 form of every rule with its `UX-n` (`references/quick-reference.md`).
+
+**A choice made here is not yet the project's.** Asked straight for a
+palette, a typeface or a style («подбери палитру», «какой шрифт»), give the
+options and then offer `ui-design` → Visual direction to take one: there it
+becomes a style tile the user picks, the frames register's «Визуальное
+направление» line and the `🎨 Tokens` page in Figma, from which the code's
+theme file is built. A palette chosen only in the chat reaches no frame
+and no code, and the next design run does not know it.
 
 The UX data here is the same rule set as `ux-patterns`. Every row of
 `data/ux-guidelines.csv` names its rule in the «UX Rule» column, and every
@@ -75,9 +81,13 @@ pipeline's two front-end stacks and their component and styling layer.
 
 ```bash
 python3 "${CLAUDE_SKILL_DIR}/scripts/search.py" "<product> <audience> <keywords>" \
-  --design-system -p "<Product>" -f markdown --density <1-10> [--variance <1-10>]
+  --design-system -p "<Product>" -f markdown --product-type <b2b|b2c> \
+  --density <1-10> [--variance <1-10>]
 ```
 
+- `--product-type` is the register's **Тип продукта**; the font pairing is
+  chosen for it (B2B: a sans body and no display heading). Without it the
+  density decides (6 and above counts as B2B).
 - `--density` sets the spacing scale: B2B 7–8 (compact rows, UX-10), B2C
   3–5.
 - `--variance` moves the style from calm and centred (1–3) to bold and
@@ -95,7 +105,7 @@ How the output maps onto the pipeline:
 |---|---|
 | Style | the direction's character and its name in the option |
 | Colors | tokens, by the table below; check every text pair for 4.5:1 and control boundaries for 3:1 (UX-7) before offering it |
-| Typography | the pairing is already checked for Cyrillic (every family has the `cyrillic` subset); a font outside the pairings comes from `--domain google-fonts` with `cyrillic` in the query, and is kept only when its Subsets list `cyrillic` — `cyrillic-ext` alone has no Russian alphabet |
+| Typography | a pairing whose every family has the `cyrillic` subset, picked for the product type (its «Picked for» line) — still read its Mood and Best For against the brief, because the data's words can miss; a font outside the pairings comes from `--domain google-fonts` with `cyrillic` in the query, and is kept only when its Subsets list `cyrillic` — `cyrillic-ext` alone has no Russian alphabet |
 | Landing Pattern | only when the SRS has a public page: offered to the user as the section order and the place of the main action |
 | Suggested Effects | proposals for the user, not rules; which ones to drop first (UX-61, UX-63, UX-47) and where an accepted one is written: `ui-design/references/visual-direction.md`, the step after the user picks a direction |
 | Avoid | added to the direction's «не делаем» line |

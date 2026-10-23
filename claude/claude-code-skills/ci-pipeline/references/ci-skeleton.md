@@ -67,6 +67,8 @@ jobs:
         run: <the exact command the migrate service in docker-compose.test.yml runs>
       - name: Test
         run: make test
+        env:
+          PYTEST_ADDOPTS: --cov=<the source folder>   # coverage on; the threshold is fail_under in pyproject.toml
 
   <frontend-toolchain>:                # delete if the project has one toolchain
     runs-on: ubuntu-latest
@@ -86,7 +88,7 @@ jobs:
       - name: Typecheck
         run: npm run typecheck
       - name: Test
-        run: npm test
+        run: npm test -- --coverage   # the threshold is coverage.thresholds in the Vitest config
 ```
 
 The compose command lists infra services only — never `backend` or `migrate`.
@@ -185,6 +187,8 @@ jobs:
         run: <the exact command the migrate service in docker-compose.test.yml runs>
       - name: Test
         run: make test
+        env:
+          PYTEST_ADDOPTS: --cov=<the source folder>   # coverage on; the threshold is fail_under in pyproject.toml
 
   # <frontend-toolchain>: copy the job from Variant A unchanged, or omit it
 ```

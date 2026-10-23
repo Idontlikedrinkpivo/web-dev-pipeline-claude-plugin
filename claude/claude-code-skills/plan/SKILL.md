@@ -1,9 +1,9 @@
 ---
 name: plan
 description: >-
-  Turns settled design documents, or existing code, into an implementation plan in documentation/plans/<version>/:
-  one-commit units, each with a complexity grade and a named executor. Use for «составь план», «разбей на задачи»,
-  tickets or an order of work. Not product decisions or code — `work` executes the plan.
+  Turns design documents or existing code into the implementation plan: one-commit units, each with a grade and an
+  executor; or a fix plan from a test or audit report. Use for «составь план», «разбей на задачи», «план исправлений»,
+  «исправь дефекты по отчёту».
 ---
 
 # Implementation Plan with Executor Routing
@@ -28,7 +28,7 @@ Template headings stay as this skill specifies.
 | Look of a screen | the Figma frame cited by `fileKey` / `nodeId` in the screen spec. A screen unit cites that id and does not restyle the product; a new look arrives only as the theme unit after a `ui-design` restyle |
 | Directory tree, lint config, composition root | `repo-scaffold` |
 | Compose topology · CI workflow | `deploy-topology` · `ci-pipeline` |
-| Document `version` fields and changelog rows | `doc-versioning`, invoked by the user. This skill does not call it. The service version is read from the open folder and its level re-checked here, per `pipeline` → Service version |
+| Document `version` fields and changelog rows | `doc-versioning`, whose stamp is written automatically when a design stage closes; this skill does not call it. The service version is read from the open folder and its level re-checked here, per `pipeline` → Service version |
 | Writing code, running tests, committing code | `work` |
 
 If a design gap surfaces while planning, it goes to this plan's **Open
@@ -40,6 +40,18 @@ plan is written or reviewed — goes into the design document first,
 committed with no version change, and the plan is written or revised
 against the fixed text (`pipeline` → `references/decision-changes.md`).
 
+## Modes
+
+| MODE | When | The writer |
+|---|---|---|
+| `greenfield` | the product's first plan: the code is what `repo-scaffold` made | slices everything the documents hold |
+| `increment` | a version over code that runs — its documents changed; also a brownfield repo whose code is the design (no documents) | slices only what this version added or changed, against the inventory of the code it reaches |
+| `fix` | a UI acceptance run returned `DEFECTS`, or a security audit `FIX`: the report rows the user chose to fix | appends fix units to this version's `plan.md`; no bump unit |
+| `revise` | `plan-review` returned `FIX_THEN_PROCEED` or `RETURN_TO_PLAN` | settles the blocking findings only |
+
+What each mode changes — scope, inventory, citations, coverage:
+`references/modes.md`. The writer reads its MODE's section before Step 1.
+
 ## Inputs
 
 | Input (path under `documentation/`) | Required | Read for |
@@ -47,10 +59,11 @@ against the fixed text (`pipeline` → `references/decision-changes.md`).
 | Architecture foundation `architecture/architecture.md` | **yes** | stack (§1), «Решения по NFR» (§1 — each row is applied by some unit), modules and areas (§2), ports and adapters and the configuration table (§4 — each variable is read and used by some unit), file tree (§5), lint and test plan (§6) |
 | Domain model `architecture/domain.md` | **yes** | entities, value objects, named errors, the invariant table (§4) — every rule a unit enforces is cited from here |
 | Scenarios of the areas in scope `architecture/scenarios/<area>/<group>.md` | **yes** | one unit per state-changing scenario; its steps, ports, transaction boundary and errors |
-| SRS `requirements/srs/srs.md` | **yes** | UC / AC / BR / NFR ids the units must cite |
-| OpenAPI `api/openapi.yaml` | when the surface is HTTP | one unit per operation group; `operationId` names the unit |
+| SRS `requirements/srs/srs.md` and every `areas/*.md` | **yes** | UC / AC / BR / NFR ids the units must cite |
+| OpenAPI `api/openapi.yaml` with `paths/` and `components/` | when the surface is HTTP | one unit per operation group; `operationId` names the unit |
 | DB schema `db/schema.md` + `db/migrations/` | when there is storage | migration units and their ordering: a schema change in scope is a unit that adds the next numbered file `db-schema-design` wrote to the app's migration run — never an edit of a committed file |
 | Screen specs `ui/screen-specs/` (+ `ui/frames-register.md`) | when there are screens | one unit per screen: its elements, states, response outcomes and the Figma `nodeId` the unit cites; after a restyle, the register's «Визуальное направление» line and the `🎨 Tokens` page for the theme unit |
+| A report — `plans/<version>/test-run.md` (`DEFECTS`) or `security-audit.md` (`FIX`) | `MODE fix` | the rows the user chose to fix, by id (`TC-n`, `F<n>`) |
 | Scaffold state (the repo itself) | always | what already exists — never plan a unit that recreates it |
 
 `docs-consistency.md` in the version folder is read for its first line and its
@@ -63,10 +76,10 @@ plan's §1 digest.
 **Missing a required input: stop and say which one.** A plan built on a
 guessed architecture routes work confidently in the wrong direction, which is
 worse than no plan. The one exception is a repo whose code *is* the design
-(brownfield, no docs): then the code stands in for the docs — inventoried by
-`code-explorer` in the orchestrator, not read into this session — and mark
-every unit's `Документы` cell `code:<path>` so execution knows the citation is
-inferred, not specified.
+(brownfield, no docs, `MODE increment`): then the code stands in for the
+docs — inventoried by `code-explorer` in the orchestrator, not read into
+this session — and every unit's `Документы` cell reads `code:<path>` so
+execution knows the citation is inferred, not specified.
 
 ## Orchestrator (session)
 
@@ -77,24 +90,38 @@ This skill does not call `doc-versioning`, does not stamp a document, and
 does not commit documentation. Pin `sources:` to the version already
 written in each source file.
 
-1. Stop when a greenfield plan has no architecture foundation, domain model,
-   or scenarios document for an area in scope. Brownfield
-   with no docs is allowed. Read the inputs far enough to run the grade
-   below: level, risk, and the counts in the cascade. Do not slice.
+1. Stop when a greenfield or increment plan has no architecture
+   foundation, domain model, or scenarios document for an area in scope.
+   Brownfield with no docs is allowed. Pick MODE (Modes). Read the inputs
+   far enough to run the grade below: level, risk, and the counts in the
+   cascade. Do not slice.
 2. **Read the iteration's version** from the open
-   `documentation/plans/<version>/` (no `summary.md`); none open — open it
-   per `pipeline` → Service version. Then **re-check the level** there
-   against the iteration's typed changes: the rows of this version, plus
-   unstamped changes typed from the diff since the last tag. A changed
-   level is asked again. VERSION in the packet: number, level, reason.
-3. **Brownfield only.** Resolve the `code-explorer` row and dispatch it
-   under `executor-catalog` → Dispatch contract. Read that section's
-   bullets and stop before its example. Ask for entry points, patterns a
-   new unit would mirror, the storage access shape, and the test
-   conventions. Take back paths and shapes only.
-4. Read `executor-catalog` and
+   `documentation/plans/<version>/` (no `summary.md`). None open — fix
+   the number per `pipeline` → Service version and open it:
+   `python3 "${CLAUDE_SKILL_DIR}/../pipeline/scripts/open_iteration.py" <version>`.
+   Then **re-check the level** against the iteration's typed changes: the
+   rows of this version, plus unstamped changes typed from the diff since
+   the last tag. A changed level is asked again. VERSION in the packet:
+   number, level, reason; MANIFEST: the manifest's current `version`.
+3. **Plugin code changes waiting** (greenfield and increment):
+   `python3 "${CLAUDE_SKILL_DIR}/../upgrade-docs/scripts/project_format.py" list . --kind code`.
+   A change `upgrade-code` left for «the first unit of the next iteration»
+   is lost unless this plan carries it. When the list is not empty, ask
+   one question (`pipeline/references/question-format.md`): put them into
+   this plan as its first units, or leave them for `upgrade-code`. A yes
+   fills DEFERRED in the packet — id, title and `fix` of each.
+4. **Increment and brownfield: the inventory.** Resolve the
+   `code-explorer` row and dispatch it under `executor-catalog` → Dispatch
+   contract. Read that section's bullets and stop before its example. Ask
+   for: the entry points; the files that implement each id this version
+   adds or changes; the patterns a new unit would mirror; the storage
+   access shape; the test conventions; and every use — code, tests, e2e,
+   CI, documents — of each symbol a change removes or renames. Take back
+   paths and shapes only; they go into INVENTORY.
+5. Read `executor-catalog` and
    `executor-catalog/references/plan-complexity.md`. The cascade there
-   grades the plan, not a unit. Before the `Agent` call, write
+   grades the plan, not a unit (`fix`: Grading a fix plan; `revise`:
+   Grading a revise). Before the `Agent` call, write
    `Grade | Executor | subagent_type` for the `plan-writer` row the
    grade picked (`plan-lite`, `plan-medium`, or `plan-hard`), and dispatch
    it without asking which model, with `executor-catalog/references/plan-writer-prompt.md`
@@ -103,21 +130,23 @@ written in each source file.
    agent is a stop per the Dispatch contract, a rejected alias per Slug
    hygiene. Do not write the plan on the session model. Do not dispatch
    `doc-typist`.
-5. Inspect the file. A model slug in the body, an `Исполнитель` outside
+6. Inspect the file. A model slug in the body, an `Исполнитель` outside
    `assignable-implementers.md`, or a report whose `DELEGATED` is not
-   `doc-typist` comes back, until it is right. `BLOCKED` /
-   `HARDER_THAN_EXPECTED` escalates one tier per failure (lite → medium →
-   hard), and that dispatch asks again; the rounds go on while each makes
-   progress (`pipeline` → `references/convergence.md`).
-6. Report the plan path and the writer's counts. Then run `plan-review` at
-   once, without asking: every product decision is already settled in the documents, so what the review finds is the pipeline's own work to fix (`pipeline` → `references/gates.md`).
+   `doc-typist` comes back, until it is right. A `BLOCKED` with a
+   question for the user is asked and sent back to the same row; any
+   other `BLOCKED` / `HARDER_THAN_EXPECTED` escalates one tier per failure
+   (lite → medium → hard), and that dispatch asks again; the rounds go on
+   while each makes progress (`pipeline` → `references/convergence.md`).
+7. Report the plan path and the writer's counts. Then run `plan-review` at
+   once, without asking — on `fix`, over the appended units (the report's
+   NEW UNITS): every product decision is already settled in the documents, so what the review finds is the pipeline's own work to fix (`pipeline` → `references/gates.md`).
    It returns without asking the next stage. Branch on its verdict:
    - `FIX_THEN_PROCEED` or `RETURN_TO_PLAN` — grade the revise on its
      own, not by the plan (`plan-complexity.md` → Grading a revise: the
-     `Fix kind` of the blocking rows). Before the `Agent` call write
+     «Вид правки» of the blocking rows). Before the `Agent` call write
      `Revise grade | Executor | subagent_type`. Dispatch that `plan-*`
      row with MODE `revise`, the revise grade in COMPLEXITY, and the
-     blocking rows pasted into FINDINGS, then re-run `plan-review` over
+     blocking row numbers in FINDINGS, then re-run `plan-review` over
      the changed units only. Revise and re-review repeat until the verdict
      passes, while each round makes progress; when progress stops, take it to
      the user (`pipeline` → `references/convergence.md`).
@@ -125,7 +154,10 @@ written in each source file.
      decision: it lands in its document (`pipeline` →
      `references/decision-changes.md`) before the revise round that follows.
    - `PASS` — only then ask, per `pipeline` → "Asking before a
-     transition", about the stage the table names after this one. Do not name a next step from memory.
+     transition", about the stage the table names after this one. Do not
+     name a next step from memory. A row of `open-questions.md` classed
+     `Блокирует старт` goes into that question, each with the units it
+     holds: `work` cannot start them until the user answers.
 
 ## Writer (dispatched)
 
@@ -137,7 +169,8 @@ correction, and do not paste the finished plan into the typist's prompt.
 Do not run `plan-review` or `pipeline`.
 
 Pin `sources:` to the version already written in each source file. Do
-not call `doc-versioning`.
+not call `doc-versioning`. Read your MODE's section of
+`references/modes.md` first.
 
 ### Step 1. Digest the inputs into a routing table
 
@@ -157,11 +190,11 @@ the packet's VERSION gives: `Версия 1.3.0 · MINOR — добавляет 
 §1 lists them one line each and §3 keeps each change's units together. Do
 not re-paste the architecture.
 
-**Brownfield inventory is already in the packet.** Paths and shapes only.
-Do not dispatch `code-explorer` and do not read the repo unit by unit. A
-brownfield packet with no inventory is `STATUS BLOCKED`. A greenfield
-packet says `none`: the design documents already say everything the
-digest needs. `Документы` cells in a brownfield plan read `code:<path>`.
+**The inventory is in the packet** (increment): paths and shapes only.
+Do not dispatch `code-explorer` and do not read the repo unit by unit; the
+one search allowed is for the uses of a symbol a unit changes
+(`references/modes.md` → increment). An increment packet with no
+inventory is `STATUS BLOCKED`. A greenfield packet says `none`.
 
 ### Step 2. Slice into atomic units
 
@@ -182,7 +215,8 @@ Slice along the architecture's own seams:
 | Screen | one unit per screen with all its states, citing its screen spec and the `nodeId` |
 | Theme (after a `ui-design` restyle) | one unit: the project's theme file — colours light and dark, radius, shadows, density, fonts with their Cyrillic subset — from the Figma variables, and the values screens hardcode moved into it; `Документы` cite the register's «Визуальное направление» line and the `🎨 Tokens` `nodeId`; `impl-ui`; screen units that fix the look depend on it |
 | Mechanical batch | one unit for a repo-wide rename, codemod, or config sweep |
-| Version bump | the last unit: sets the manifest's `version` to VERSION; grade 0, `mechanical-worker`, `Зависит от` every other unit |
+| Plugin code change (DEFERRED in the packet) | one unit per change, first in the plan: its `fix` is the approach, `Документы` cite `plugin change <id>`; graded by the cascade |
+| Version bump | only when MANIFEST differs from VERSION (a new repo's scaffold already wrote it; `fix` never adds one): the last unit, sets the manifest's `version` to VERSION; grade 0, `mechanical-worker`, `Зависит от` every other unit |
 
 Split a unit when it crosses a ring (domain **and** adapter), when it mixes a
 decision with mechanics, or when two halves would land in separate commits
@@ -193,23 +227,11 @@ layer batch ("all entities", "all adapters", "wire everything" — it cannot
 land as one reviewable green commit), a unit so vague the executor has to
 re-derive the design.
 
-**A path this version retired.** List every id this iteration marked
-`[deprecated in <version>]` or removed (a «ломает» row of this version,
-`удалён:`). Marks from older versions are not this plan's job. For each id whose code is still in the
-repo, add one unit. `Документы` cites the retired id and what replaced it. `Файлы`
-names the old path. The goal says that path is gone and the replacement covers
-it. A test says the old call is absent and the replacement scenario passes.
-The unit does not delete the specification row.
-
-Three exceptions, each one sentence in that unit:
-
-- A client still calls the HTTP operation. Remove this product's callers
-  and the screen. Leave the operation `deprecated: true`.
-- The code still serves a live requirement. Name that requirement.
-- The code cannot be found. Put «где живёт <id>» in `open-questions.md`,
-  class `Блокирует старт`. The plan is not done while that row is open.
-
-A repo with no such code skips this.
+**A path this version retired** (increment) — an id this iteration
+deprecated or removed whose code is still in the repo — gets one unit
+that removes the old path and proves the replacement covers it, or names
+one of three exceptions: `references/modes.md` → A path this version
+retired.
 
 ### Step 3. Order and mark parallelism
 
@@ -241,8 +263,10 @@ unused number. Deletion leaves a gap; gaps are fine.
 
 | | |
 |---|---|
-| **Документы** | scenarios/orders `<UseCase>` · domain §4 <rule row> · SRS UC-2 / AC-Exc-1 · BR-3 · api `POST /orders` |
-| **Файлы** | repo-relative paths, including the test file. A unit that removes or changes a field, a constant, an environment variable, a response shape or a public symbol searches the repository for every use first (code, tests, e2e, CI, documents) and lists each in `Файлы` or under «Не затрагивается» with the reason |
+| **Документы** | scenarios/orders/01-orders.md `<UseCase>` · domain §4 <rule row> · SRS UC-2 / AC-Exc-1 · BR-3 · api `createOrder` (fix: + `test-run.md TC-n` / `security-audit.md F<n>`; brownfield: `code:<path>`) |
+| **Файлы** | repo-relative paths, including the test file |
+| **Меняет символы** | each field, constant, environment variable, response shape or public symbol the unit removes or changes — or `—` |
+| **Не затрагивается** | each use of those symbols the unit leaves as it is, with the reason — or `—`. With «Меняет символы» filled, search the repository for every use (code, tests, e2e, CI, documents): each hit is in `Файлы` or here |
 | **Образец** | repo-relative path(s) whose conventions this unit mirrors (`path (U<n>)` when a unit in `Зависит от` creates it, or the arch section that fixes the shape), or `— first of its kind` |
 | **Зависит от** | U-ids, or `—` |
 | **Параллельно** | yes / no — and with what it contends when no |
@@ -283,10 +307,11 @@ exists, and it has to exist in the tree or be created by an earlier unit
 reachable via `Зависит от` (write `path (U<n>)`); an architecture section
 whose file tree / snippet fixes the shape counts too. `— first of its kind`
 puts signal 4 at the expensive end, and the anti-deflation gate keeps the unit
-at Mid or above. `work` pastes this field into the worker's `PATTERN TO
+at Mid or above unless the mechanical gate graded it 0. `work` pastes this field into the worker's `PATTERN TO
 MIRROR` verbatim, so a pattern left out here gets picked at execution time
-with nobody reviewing it. In a brownfield plan, take the paths from the
-`code-explorer` inventory.
+with nobody reviewing it. In an increment, take the paths from the
+inventory. `work` likewise passes «Меняет символы» and «Не затрагивается»
+to the worker, which then knows what it must leave alone.
 
 **Write each scenario so its test can be written before the code.** `work`
 executes units test-first: the scenarios are what the implementer turns into
@@ -310,8 +335,11 @@ error and integration rows, whether `Документы` fully specifies the out
 (rule 2) exists for work that is hard without being dangerous: an open
 mechanism, a first-of-its-kind cross-ring shape, an outcome that needs time
 control or a second worker to prove. A plan whose only High units touch auth or
-money is usually a plan where that gate was skipped, and its hardest unit was
-handed to the Mid implementer.
+money is usually a plan where that gate was skipped, and its hardest unit
+got the Mid packet («close local decisions») and one review pass instead
+of the High packet («design the missing part») with the adversarial
+review and its risk pass — the implementers share a model, the packet and
+the review are what the grade buys.
 
 Two rules override everything else in that file:
 
@@ -352,12 +380,13 @@ Nesting is never escalation: more horsepower is a higher `Исполнитель
 The file lands at `documentation/plans/<version>/plan.md`. Questions go in
 `open-questions.md` in the same folder. Repo-relative paths everywhere in the
 body — absolute paths do not survive a worktree. You do not write this file.
-The settlement is one line per unit field, not the template below filled in.
+The settlement is one line per unit field, not the template filled in.
 `doc-typist` renders that template.
 
 When the file already exists **for this same version** — a plan you are
 revising, or an open version a new change joins — edit it in place: keep the
-existing U-ids, append new units with unused numbers, keep the bump unit last,
+existing U-ids, append new units with unused numbers, keep a bump unit last
+(a fix appends after it: the version is already set),
 and update grades only with a reason in `Почему`. The plan carries no progress
 state — no checkboxes, no `status:` field. Progress lives in git, and the
 `work` skill reads it there.
@@ -369,15 +398,10 @@ namespace at U1 and never rewrites a closed version's plan (its folder has
 commits that came out of them. See the `doc-versioning` skill for the split.
 
 Pin what the plan was built from as `path@<version>`, the version already
-written in each source file. Do not mint a version to make the pin current:
-
-```yaml
-sources:
-  - documentation/architecture/architecture.md@1.1.0
-  - documentation/architecture/domain.md@1.3.0
-  - documentation/architecture/scenarios/invoices/invoices.md@1.3.0
-  - documentation/requirements/srs/srs.md@1.3.0
-```
+written in each source file — the architecture documents, the scenarios
+in scope, the screen specs, the SRS, and the OpenAPI root and the schema
+whenever they exist. Do not mint a version to make the pin current. The
+pins and the whole document template: `references/plan-template.md`.
 
 If a source's `version` is ahead of what an existing plan pinned and its
 rows after the pin hold a «ломает», say so before planning further: the
@@ -387,46 +411,10 @@ silently — name the gap in `open-questions.md` beside the plan.
 
 ## Output document template
 
-```markdown
----
-name: implementation plan <version>
-date: YYYY-MM-DD
-sources:
-  - documentation/architecture/architecture.md@<version>
-  - documentation/architecture/domain.md@<version>
-  - documentation/architecture/scenarios/<area>/<group>.md@<version>   # one per SRS group in scope
-  - documentation/ui/screen-specs/S-1-<screen>.md@<version>           # one per screen in scope
-  - documentation/requirements/srs/srs.md@<version>
-routing: executor-catalog
----
-
-# План реализации: <version>
-
-## 1. Кратко
-Version · level · reason (Step 1) · the changes, when several · architecture
-level and budget · stack · the unit spine this produced · what the scaffold
-already provides.
-
-## 2. Карта юнитов
-| U | Юнит | Сложность | Исполнитель | Вложенный | Зависит от | Параллельно |
-|---|---|---|---|---|---|---|
-
-Then, when useful, a D2 dependency graph of the same table
-(`diagrams/deps.d2` plus the rendered `.svg`).
-
-## 3. Юниты
-One `### U<n>.` block per unit, per Step 4.
-
-## 4. Волны
-Which units may run together, derived from «Зависит от» + «Параллельно». A wave
-is a claim about contention, so name the contention that keeps units apart.
-For each wave, also name which use case (UC id) first runs end-to-end after
-it, or `—`.
-
-## 5. Критерии готовности
-The plan-wide gate: lint contracts from the foundation §6 pass, the end-to-end path
-runs, every quoted invariant row has a test, every AC is covered.
-```
+`references/plan-template.md` → Template: the frontmatter with its pins,
+§1 Кратко (on `fix`, one line naming the report rows), §2 Карта юнитов
+with the D2 graph at DIAGRAM PATH, §3 Юниты (Step 4 blocks), §4 Волны,
+§5 Критерии готовности. No other section.
 
 ## Quality gate
 
@@ -434,11 +422,14 @@ runs, every quoted invariant row has a test, every AC is covered.
    reason, none recreates what the scaffold already has — Step 2, Inputs.
 2. Every `Документы` citation resolves to a real section or id; no unit invents a
    method, signature, status, or column the design never named — Step 4.
-3. Every quoted invariant row and every AC appears in some unit's
-   `Тестовые сценарии` — Step 4. Every foundation «Решения по NFR» row and
-   every §4 configuration variable belongs to a unit that applies it (a
-   body limit set, a pool sized from its variable, workers started from
-   theirs) — a decision that only lives in the document is not built.
+3. Every quoted invariant row and every AC in scope appears in some
+   unit's `Тестовые сценарии` — Step 4. Every foundation «Решения по NFR»
+   row and every §4 configuration variable in scope belongs to a unit
+   that applies it (a body limit set, a pool sized from its variable,
+   workers started from theirs) — a decision that only lives in the
+   document is not built. In scope: everything on greenfield; on an
+   increment, the ids this version added or changed; on fix, the report
+   rows (`references/modes.md`).
 4. Every unit has `Сложность`, a one-signal `Почему`, and an assignable
    `Исполнитель` — Steps 5–6.
 5. Risk floor and spec floor hold — Step 5.
@@ -447,17 +438,21 @@ runs, every quoted invariant row has a test, every AC is covered.
 7. `Зависит от` is a DAG; every `Параллельно: yes` pair is disjoint in
    files, contracts, *and* runtime resources — Step 3.
 8. Every `Образец` path exists or is created by a unit in its `Зависит от`
-   chain; every `— first of its kind` unit is Mid or above — Step 4.
+   chain; a `— first of its kind` unit is graded as `references/complexity.md`
+   → Anti-deflation gates says — Step 4.
 9. U-ids unique and never renumbered; no model slug and no progress state in
    the body — Steps 4, 6, 7.
 10. Rows in `open-questions.md` block named units instead of being absorbed as guesses.
 11. Every id this version retired has a unit whose test says the old path
     is gone, or that unit names one exception: a client still calls the
     operation, the code still serves a named live requirement, or the code
-    was not found and `open-questions.md` blocks the start — Step 2.
+    was not found and `open-questions.md` blocks the start — Step 2,
+    `references/modes.md`.
 12. §1 states the version, its level and reason, the level re-checked
-    against the iteration's typed changes; the last unit bumps the
-    manifest's `version` to it — Steps 1–2.
+    against the iteration's typed changes; when MANIFEST differs from it,
+    the last unit bumps the manifest's `version` to it — Steps 1–2.
+13. Every unit with «Меняет символы» lists each use of those symbols in
+    `Файлы` or «Не затрагивается» — Step 4.
 
 Fix failures in place. A failure that needs a design decision goes to
 `open-questions.md` and to the user — not into a unit.
@@ -471,6 +466,12 @@ questions. The writer does not ask the next stage.
 
 ## References
 
+- `references/modes.md` — what greenfield, increment, fix and revise
+  change; a path this version retired; brownfield without documents. The
+  writer reads its MODE's section.
+- `references/plan-template.md` — the document template and its pins
+  (Step 7).
+- `references/unit-example.md` — one filled unit, for calibration (Step 4).
 - `references/complexity.md` — the unit grading cascade, the six signals,
   the anti-inflation and anti-deflation gates, the split rule, and
   calibrated examples per grade. The writer runs this. The session does
@@ -481,9 +482,9 @@ questions. The writer does not ask the next stage.
 - `executor-catalog/references/assignable-implementers.md` — the only
   legal `Исполнитель` and `Вложенный` names.
 - `executor-catalog` (skill) — the `plan-writer` rows, the `code-explorer`
-  row for the brownfield inventory, and the Dispatch contract.
+  row for the inventory, and the Dispatch contract.
 - `plan-review` (skill) — the independent gate over this plan. The
-  session runs it at once, without asking, after the file exists (step 6).
+  session runs it at once, without asking, after the file exists (step 7).
   It reports; every fix it names is applied by a new dispatch of the
   writer, not by the session.
 - `pipeline` (skill) — where this stage sits, its gate, and what follows.

@@ -16,7 +16,7 @@ same id and fails on the primary key.
 sqlalchemy_session_persistence is left unset here, and the test or fixture awaits
 `db_session.flush()` itself after create(). Before setting it to "flush" / "commit",
 check whether the installed factory_boy awaits those calls on an AsyncSession
-(SKILL.md, "Check before relying on it").
+(references/version-checks.md, "factory_boy with AsyncSession").
 
 Session wiring goes in tests/integration/conftest.py, never the root conftest:
 

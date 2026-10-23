@@ -12,6 +12,5 @@ Use when the project already validates with Zod (`zod` in the manifest). Follow 
 - When the OpenAPI document is generated from the routes, wire the provider's schema transform
   into the swagger plugin; the spec stays the contract, so `operationId` equals the spec.
 
-Check before relying on it (see SKILL.md, Version-sensitive behaviour): the provider's package
-name and which Zod and Fastify majors it supports, the names of its compilers, error guard and
-swagger transforms, and how shared (`$ref`) schemas are registered and emitted.
+The provider's package name, compilers, error guard and swagger transforms change between releases:
+`version-checks.md` → «Zod type provider».

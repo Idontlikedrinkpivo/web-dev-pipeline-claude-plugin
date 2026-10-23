@@ -13,23 +13,39 @@ everywhere.
 Create:
 
 - `package.json` + lockfile
-- `tsconfig.json` — `rootDir` / `paths` follow the tree (`src/`)
+- `tsconfig.json` — `rootDir` / `paths` follow the tree (`src/`); the
+  compiler flags of `quality-gates.md` → By stack (`strict`,
+  `noUncheckedIndexedAccess` and the rest); the tests inside it or in a
+  test `tsconfig`, so `typecheck` covers them
 - `.dependency-cruiser.cjs` from the architecture sketch; `$1` for area
   capture, `tsPreCompilationDeps: true`, `tsConfig` pointing at the root
   `tsconfig.json` (so `paths` aliases resolve), the `not-to-unresolvable`
   rule, and `severity: 'error'` on every rule
-- `eslint.config.js` — ESLint with `typescript-eslint`, the rules and thresholds of `quality-gates.md`
+- `eslint.config.js` — ESLint 10.7 or later (the floor `quality-gates.md`
+  explains) with `typescript-eslint`, the rules and thresholds of `quality-gates.md`
 - `npm` / `pnpm` scripts `lint-boundaries` → `depcruise src --config .dependency-cruiser.cjs`; `lint` (runs `lint-boundaries` + ESLint + `knip` + `jscpd`), `typecheck` (`tsc --noEmit` over `src` and the tests), `test`
 - `bootstrap/server.ts` — health route only. Fastify: build the instance in a
-  `buildServer()` factory with the one type provider and the one global error
+  `buildServer()` factory with the one type provider, `@fastify/swagger` in
+  dynamic mode with that provider's schema transform
+  (`typescript-fastify/references/zod-type-provider.md`) so `app.swagger()`
+  gives the contract test the app's own OpenAPI, and the one global error
   handler the architecture names (problem+json per `documentation/api/openapi.yaml`), so
   `typescript-fastify` finds them; Express/Koa: the same factory shape; Nest:
   a module under `bootstrap/`
+- `tests/contract/openapi.contract.test.ts` from
+  `typescript-fastify/references/contract-test-template.ts`, its
+  placeholders pointed at the real `buildServer` and the fakes it needs;
+  `yaml` in devDependencies. Green on the scaffold: every contract
+  operation is listed as not served yet
+- the Vitest config with `coverage.thresholds` — the foundation §6 number,
+  otherwise 80% of lines — and the coverage provider of the installed
+  major (`vitest`)
 - `knip` config listing the entry points (`bootstrap/server.ts`, the migrate
   script, test globs),
   so the dead-code report starts clean
-- `docker-compose.yml` with Postgres + `.env.example` whenever the system
-  stores data (SKILL.md §4)
+- `docker-compose.yml` with the database `schema.md` «Решения по базе»
+  names (PostgreSQL or MySQL, at its major) + `.env.example` whenever the
+  system stores data (SKILL.md §4)
 - the migration runner over `documentation/db/migrations/` (SKILL.md §4):
   a plain runner script (`scripts/migrate.ts` → `npm run migrate`) unless §1
   names a tool that reads plain numbered SQL files as they are. Drizzle's
@@ -50,9 +66,11 @@ follow it, do not restate it here. Create:
   tests included), `test` (Vitest + Testing Library),
   `test:e2e` (Playwright), and `api:gen` — the OpenAPI client generator over
   `documentation/api/openapi.yaml`, writing to the folder the profile names
-- `tsconfig.json`, the bundler / framework config, ESLint config,
-  `playwright.config.ts` with `baseURL` and `webServer` pointing at the dev
-  server
+- `tsconfig.json` with the compiler flags of `quality-gates.md` → By
+  stack, the bundler / framework config, ESLint config (ESLint 10.7 or
+  later), the Vitest config with `coverage.thresholds` (as for the
+  backend), `playwright.config.ts` with `baseURL` and `webServer` pointing
+  at the dev server
 - the app shell from the profile (root layout or `main.tsx` + router) with
   one placeholder route; no screens, no API client yet — the first screen
   unit runs `api:gen` and builds the app-wide error handler (`frontend`)
@@ -62,7 +80,12 @@ follow it, do not restate it here. Create:
 
 Create:
 
-- `pyproject.toml` + lock (`uv.lock` or `poetry.lock`)
+- `pyproject.toml` + lock (`uv.lock` or `poetry.lock`); in it the type
+  checker of `quality-gates.md` → By stack (`mypy --strict` with
+  `enable_error_code = ["exhaustive-match"]`, or pyright `strict`) over
+  `src` and `tests/`, `[tool.coverage.report]` `fail_under` — the
+  foundation §6 number, otherwise 80 — and PyYAML and `pytest-cov` among the
+  dev dependencies
 - package named after the project, not `app` or `platform`
 - `[tool.importlinter]` contracts from the architecture sketch, one
   `layers` contract per area; `bootstrap` only in the forbidden contract;
@@ -73,8 +96,15 @@ Create:
 - `adapters/<area>/http/` may contain `health.py` as a router factory
 - Alembic (or the named tool) with one revision per file in
   `documentation/db/migrations/`, each executing its file; revision 1 runs
-  `0001_init.sql` (SKILL.md §4, `fastapi-sqlalchemy`); `make migrate` →
-  `alembic upgrade head`
+  `0001_init.sql` (SKILL.md §4, `fastapi-sqlalchemy`); `env.py` sets
+  `transaction_per_migration=True`; `make migrate` → `alembic upgrade head`
+- `tests/contract/test_openapi_contract.py` from
+  `fastapi/references/contract-test-template.py`, its placeholders pointed
+  at the real app factory. Green on the scaffold: every contract operation
+  is listed as not served yet
+- `tests/conftest.py` from `pytest-patterns/references/conftest-template.py`
+  when the system stores data: the test database gets its schema from the
+  migration command, never `create_all`
 
 Django: `models.py` is a one-line re-export; `migrations/` stay at the
 app root, one migration per file in `documentation/db/migrations/`, each a

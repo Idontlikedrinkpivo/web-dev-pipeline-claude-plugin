@@ -40,7 +40,8 @@ Verdict: идёт аудит
 | F4 | P2 | `bootstrap/error-handler.ts:12` | в ответе 500 — текст SQL-ошибки | в отчёт |
 
 Под таблицей — каждая P0/P1 подробно: как воспользоваться, что нарушает,
-как исправить.
+как исправить, и чем подтверждена: ответ стенда на запрос — или «запросом
+не проверено: стенда нет».
 
 ## Принятый риск
 
@@ -69,4 +70,10 @@ dispatched), `✅ готово`, `⛔ остановлено: не запуск�
 (Step 8): image, HIGH/CRITICAL count, what the base image update fixes.
 
 A re-audit after a fix plan rewrites the verdict line and the rows it
-re-ran, marks fixed findings `✅ готово: <commit>`, and keeps the rest.
+re-ran, marks fixed findings `✅ готово: <commit>`, and keeps the rest. This
+file is the one exception to `pipeline` → `references/progress-files.md`'s
+«a new run of the same stage rewrites the file»: it is the audit's result as
+well as its progress, and the accepted risks, the user's answers and the
+fixed findings are the record `deploy-topology` reads before the release.
+Finding numbers continue the sequence; a fixed or rejected number is never
+reused.

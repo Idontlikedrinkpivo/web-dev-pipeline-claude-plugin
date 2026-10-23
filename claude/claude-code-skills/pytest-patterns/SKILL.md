@@ -1,9 +1,7 @@
 ---
 name: pytest-patterns
 description: >-
-  pytest for FastAPI / SQLAlchemy async backends: tests per layer, a fake per port, real PostgreSQL with rollback,
-  conftest and factories, auth fixtures, error paths from openapi.yaml, coverage. Use for backend tests, conftest.py
-  or factories. Not TypeScript tests (`vitest`) or E2E.
+  pytest rules for FastAPI backends (layers, real PostgreSQL, fixtures); read before Python backend tests.
 compatibility: 'Python, pytest, pytest-asyncio, httpx, factory_boy; versions come from the project lockfile'
 metadata:
   version: '2.0.0'
@@ -15,8 +13,9 @@ metadata:
 ## Which layout governs — decide first
 
 - **An architecture document exists**: tests follow its layers and the foundation's §6 test plan (`documentation/architecture/architecture.md`, one row per test file). Import from the foundation §5 package names and the paths the headings of the domain model (`domain.md`) and the scenarios documents (`scenarios/<area>/<group>.md`) give.
+- **The level is Framework-first** (foundation §1 «Уровень»): no ports, so no fakes and no mapper tests — the one `domain/` module gets plain unit tests, everything else is tested through HTTP against the real database.
 - **No architecture document, existing repo**: follow the repo's existing `tests/` layout, fixtures and naming for the change at hand; do not reorganise the suite unasked. With no tests yet, use the unit / integration split below with the repo's own module names.
-- **Expected statuses and bodies** come from `documentation/api/openapi.yaml` when it exists, otherwise from what the endpoint returns today.
+- **Expected statuses and bodies** come from `documentation/api/openapi.yaml` when it exists — the statuses, error `code`s, the validation answer, the casing and the page shape are the contract's, never typed from memory; otherwise from what the endpoint returns today.
 
 ## Test layout
 
@@ -33,6 +32,7 @@ tests/
 │   ├── conftest.py        # factory session wiring (autouse) lives here, not at the root
 │   ├── <area>/            # repository and query adapters against the real DB
 │   └── test_<resource>_api.py   # HTTP through the app; one test drives the real wiring end to end
+├── contract/              # the app's OpenAPI against documentation/api/openapi.yaml (`fastapi` → The contract test)
 └── factories/             # storage-record factories, one module per table group
 ```
 
@@ -42,7 +42,7 @@ tests/
 - **Adapter tests** — the repository and query adapters against the real database: save and reload, filters, ordering, constraint violations mapped to the named error. With several tenants, one test proves tenant A never reads or writes B's rows.
 - **One end-to-end path** — at least one API test runs HTTP → use case → real repository for the primary action without overriding anything but the session, proving the `bootstrap/` wiring.
 - Name files `test_<module>.py`, classes `Test<Feature>` (no `__init__`), functions `test_<action>_<expected_outcome>`, fixtures as nouns (`db_session`, `authenticated_client`). A failure line should say what broke without opening the file.
-- Declare markers `unit`, `integration`, `slow` in `[tool.pytest.ini_options]` and run subsets with `-m`. Use `asyncio_mode = "auto"` so async tests need no per-test marker. With a session-scoped async engine also set `asyncio_default_test_loop_scope = "session"` and `asyncio_default_fixture_loop_scope = "session"` (pytest-asyncio 1.x runs each test in its own loop otherwise, and an unset fixture loop scope follows each fixture's own scope, so the engine breaks across loops); check the installed version. Build the test schema from the SQL migrations, not `create_all`, so their CHECK constraints are tested.
+- Declare markers `unit`, `integration`, `slow` in `[tool.pytest.ini_options]` and run subsets with `-m`. Use `asyncio_mode = "auto"` so async tests need no per-test marker. With a session-scoped async engine also set `asyncio_default_test_loop_scope = "session"` and `asyncio_default_fixture_loop_scope = "session"` (pytest-asyncio 1.x runs each test in its own loop otherwise, and an unset fixture loop scope follows each fixture's own scope, so the engine breaks across loops); check the installed version. The test database gets its schema from the project's migration command (`alembic upgrade head` over the SQL files), never `create_all`: the CHECK constraints, the project schema and every object the files create take part, and a model that disagrees with the files fails here. `references/conftest-template.py` does it once per session.
 - Put an autouse fixture that requests `db_session` only in `tests/integration/conftest.py`: autouse applies to every test under that directory, and at the root it would make each unit test connect to the database.
 
 ## Real database, not mocks
@@ -51,7 +51,8 @@ tests/
 - Isolate tests with one outer transaction per test that is rolled back at the end, with the session joined through a savepoint so the code under test may call `commit()` freely. Override the app's session dependency with that session so HTTP requests share it.
 - Mock only what leaves the process: HTTP APIs (`respx`), email/SMS, object storage, queues, time (`freezegun`), random/UUID. Do not mock the database, SQLAlchemy sessions, Pydantic validation, FastAPI dependency injection, or repositories in integration tests.
 - Never hand code a `MagicMock` / `AsyncMock` in place of an `AsyncSession`, in any test layer: it accepts every call, so a wrong query or a missing flush passes. Code that takes the session directly (a brownfield `service.py`, an adapter) is tested against the real database.
-- If the user explicitly requires SQLite (no Docker in CI), put the driver in the dev dependency group, work through the SQLite item of the checklist below, and say that these tests do not replace a PostgreSQL run.
+- If the user explicitly requires SQLite (no Docker in CI), put the driver in the dev dependency group, check the SQLite item of `references/version-checks.md`, and say that these tests do not replace a PostgreSQL run.
+- **No PostgreSQL reachable here** (a sandbox without Docker): write the integration tests as they would run, run the unit tests, and report the integration run as owed — in a `work` packet a line in `CONCERNS` with the command to run. Never swap the database for SQLite or a mocked session to get a green run: that run proves nothing about the queries.
 
 ## Fixtures
 
@@ -65,37 +66,32 @@ tests/
 ## API tests
 
 - Assert the status code first, then the body, so a wrong status fails with the code instead of a `KeyError`.
-- Each operation gets its success case plus one test per error response `documentation/api/openapi.yaml` declares for it — named errors with their `code`, 422 `VALIDATION_ERROR` with the failing `errors[].field`, 400 for a malformed body or cursor, 401 / 403 when secured, 404 when the path names an id. Assert the `application/problem+json` content type. A status the endpoint returns but the spec does not declare is a spec gap to report, not a test to write. Without a spec, cover the error statuses the endpoint actually returns. A happy-path-only suite passes while the error contract breaks.
-- Test pagination beyond the first page: the second page through `next_cursor`, `next_cursor` null on the last page, a tampered cursor rejected (brownfield: the repo's own page parameters and their bounds). Limit and cursor bugs show only there.
+- Each operation gets its success case plus one test per error response `documentation/api/openapi.yaml` declares for it — each named error with its `code`, the validation answer with the failing fields as the contract names them, the unparsable-request status for a malformed body or cursor, 401 / 403 when secured, 404 when the path names an id. The 500 and the 503 every write declares are the handler's, not the operation's: one test each for the whole app, through a dependency override that raises the failure. Assert the content type the contract gives errors. A status the endpoint returns but the spec does not declare is a spec gap to report, not a test to write. Without a spec, cover the error statuses the endpoint actually returns. A happy-path-only suite passes while the error contract breaks.
+- Test pagination beyond the first page: the second page through the contract's next-page cursor, the cursor's last-page value, a tampered cursor rejected (brownfield: the repo's own page parameters and their bounds). Limit and cursor bugs show only there.
 - Never assert exact timestamps or generated ids (`"id" in data`); they change every run.
 - Use `@pytest.mark.parametrize` with `pytest.param(..., id="member-forbidden")` for input or role matrices, with the expected result as a parameter, not a branch inside the test.
 
 ## Coverage
 
-Thresholds: the foundation §6 numbers when it sets them; otherwise 80% overall, 90% `domain/` and `application/` (business decisions and their orchestration), 70% `adapters/persistence/` (thin, proven by adapter tests), 80% `adapters/http/` (success plus declared error paths). Brownfield: the modules that hold business decisions (often `service.py`) take the 90% line.
+One threshold in one place: `fail_under` in `[tool.coverage.report]` — the foundation §6 number when it sets one,
+otherwise 80. The full suite runs with coverage in CI, so a total below it fails the build
+(`repo-scaffold/references/quality-gates.md`, the Coverage gate); a unit's focused run during `work` does not measure. No
+per-layer numbers: coverage.py checks one total, and a threshold nothing checks is not a rule. The modules that hold
+business decisions (`domain/`, `application/`, a brownfield `service.py`) are covered by the entity, use-case and
+error-path tests above, not by a percentage.
 
-- If the project has no `[tool.coverage.*]` section, read `references/coverage-config.md` for the house block (`source`, `omit`, `fail_under = 80`, `exclude_lines`). Keep the threshold in that one place.
-- Run `uv run pytest --cov=<package> --cov-report=term-missing`, or `scripts/check-test-coverage.sh` for a saved report (exit 1 tests failed, 2 coverage below threshold, 3 pytest could not run).
-- A coverage number that looks too low for async SQLAlchemy code is a configuration question before it is a testing gap; see the checklist below.
-
-## Version-sensitive behaviour
-
-This skill does not pin library facts that change between releases (signatures, defaults, generated-artifact paths, "since version X"). Before relying on one: read the installed version from the lockfile or manifest, then check current docs via the context7 MCP (`resolve-library-id`, then `query-docs`) or run a quick probe in the project. The checklist below names where the silent pitfalls usually are; it deliberately does not give the answer, because the answer depends on the version.
-
-### Check before relying on it
-
-- **Async fixtures used by sync tests** — whether the installed pytest-asyncio, in the configured mode, runs them, warns, or fails.
-- **Event-loop scope** — which options set the loop scope for fixtures and for tests, and whether the session-scoped async `engine` ends up on the same loop as the tests that use it.
-- **Other async plugins** — how the configured pytest-asyncio mode behaves when another plugin (anyio ships one with httpx/Starlette) is also installed.
-- **SQLite SAVEPOINT** — if a project tests on SQLite/aiosqlite instead of its real engine, what the driver needs on the running Python version for nested transactions to roll back correctly.
-- **Per-test rollback** — which session/transaction options in the installed SQLAlchemy let code under test `commit()` without escaping the outer transaction.
-- **Coverage of async SQLAlchemy paths** — which coverage.py `concurrency` settings the installed version needs to trace lines after async DB awaits; compare the report with and without them.
-- **factory_boy with `AsyncSession`** — whether `sqlalchemy_session_persistence` and `.create()` await anything, or leave an un-awaited coroutine.
-- **httpx against the ASGI app** — how the installed httpx attaches `AsyncClient` to the app and whether the app's lifespan runs.
+- If the project has no `[tool.coverage.*]` section, read `references/coverage-config.md` for the house block.
+- Run `uv run pytest --cov=<package> --cov-report=term-missing`, or `scripts/check-test-coverage.sh` for a saved
+  report (exit 1 tests failed, 2 coverage below threshold, 3 pytest could not run).
+- A coverage number that looks too low for async SQLAlchemy code is a configuration question before it is a testing
+  gap (`references/version-checks.md` → coverage of async paths).
 
 ## References
 
-- `references/conftest-template.py` — read when creating or rewriting `tests/conftest.py`: engine, transactional session, client, auth clients, sample data. Its imports are placeholders; point them at the project's real modules.
+- `references/version-checks.md` — the version-sensitive points. In a `work` packet their answers come in
+  `CURRENT LIB DOCS`; where it says `none`, probe the installed version in the project instead of fetching docs.
+  Outside `work`, read the file and check each point you rely on against the installed version.
+- `references/conftest-template.py` — read when creating or rewriting `tests/conftest.py`: the migrated test database, transactional session, client, auth clients, sample data. Its imports and constants are placeholders; point them at the project's real modules.
 - `references/factory-template.py` — read when adding factory_boy factories (traits, `SubFactory` parents, batches, session wiring).
 - `references/coverage-config.md` — read when the project has no coverage configuration yet.
 - `scripts/check-test-coverage.sh` — run for a coverage check with saved report and distinct exit codes.
@@ -107,3 +103,17 @@ This skill does not pin library facts that change between releases (signatures, 
 - Group tests by behaviour, never by plan unit; shared fixtures live in `conftest.py`, never copied.
 - When `work` asks for it, mutation-test the unit's modules with `mutmut` limited to those paths; a surviving mutant
   names the missing assertion.
+
+## The reviewer checks
+
+1. **No `MagicMock` / `AsyncMock` in place of an `AsyncSession` or a port** — an in-memory fake per port, the real
+   database for anything that holds a session.
+2. **Every error response the contract declares for a touched operation has its test**, asserting the status first,
+   then the `code` and the error content type.
+3. **A guard against a double action has a race test**: two calls through `asyncio.gather`, each with its own
+   session, counting the effect.
+4. **The test schema comes from the migrations**, on PostgreSQL; no `create_all`, no SQLite stand-in unless the
+   user required it.
+5. **No autouse fixture at the root `conftest.py` that touches the database**; mutable data is never
+   session-scoped.
+6. **A paged operation is tested past the first page**, the last page and a tampered cursor included.

@@ -1,12 +1,18 @@
 # Run report
 
-Read at Step 7, before writing the run report: its shape, filled for one run.
+Read at Step 1, when the file is started, and at Step 7, before the report is finished: its shape, filled for
+one run. A second run in the same iteration (units appended to the plan) adds its own section, «прогон 2», under
+its own BASE; the first run's section stays above it.
 
 ```markdown
-## Отчёт о прогоне — <plan path>
+## Отчёт о прогоне — <plan path> · прогон <n>
 
-**Base** — `BASE` recorded at Step 1; the start of every `BASE..HEAD` range.
-**Прогресс** — `<сделано> из <всего>`, the same numbers as the chat line.
+**Base** — `BASE` recorded at Step 1: the start of this run's diff (`BASE...HEAD`) for Step 7. Which units are
+done is never read from it — the trailers on the whole iteration branch decide (`plan_state.py`).
+**Прогресс** — `<сделано> из <всего>`, the same numbers as the progress line.
+**В работе** — each dispatch still out, `U7 → impl-medium (задача <id>)`, written before the `Agent` call and
+cleared when it returns; «нет» between dispatches. After a compaction a unit listed here is waited for, never
+dispatched again.
 
 | U | Статус | Исполнитель | Эскалация | Коммит |
 |---|---|---|---|---|
@@ -40,6 +46,7 @@ A filled excerpt, for calibration — match its density, not its domain:
 ```markdown
 **Base** — `a41c9e2`
 **Прогресс** — `3 из 12`
+**В работе** — U7 → impl-medium (задача a3f9)
 
 | U | Статус | Исполнитель | Эскалация | Коммит |
 |---|---|---|---|---|

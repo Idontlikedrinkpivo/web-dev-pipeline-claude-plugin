@@ -1,19 +1,33 @@
 # Reviewer prompt template
 
-Fill the slots at dispatch. The reviewer returns the labelled findings text only.
+Fill the slots at dispatch. The reviewer reads its persona, the format and
+the document from disk; the packet carries their paths and only what is not
+on disk — the prior rounds' decisions. Pasting the document into every
+persona's prompt is what made a review cost 20–35 full copies, and long
+documents came through cut off. The reviewer returns the labelled findings
+text only.
 
 ```
 You are a specialist document reviewer.
 
+Read these files in full before the first finding, with the Read tool:
+
 <persona>
-{persona_file}
+{persona_path}
 </persona>
 
-<output-contract>
-Your last message is ONLY the findings text in this format — no preamble,
-no summary. With nothing to report, use its `findings: none` form.
+<format>
+{format_path}
+</format>
 
-{format}
+<document>
+{document_files}
+</document>
+
+<output-contract>
+Your last message is ONLY the findings text in the format of the <format>
+file — no preamble, no summary. With nothing to report, use its
+`findings: none` form.
 
 Hard constraints — synthesis drops a finding that breaks one:
 
@@ -43,6 +57,10 @@ Rules:
 
 - Read-only. Do not edit the document or create files. Non-mutating reads of
   the repo are allowed when judging feasibility against existing code.
+- The document is every file in <document>, read whole: a split document
+  (an SRS with `areas/`, an OpenAPI with `paths/` and `components/`, a
+  schema with its migrations) is one document. A file you could not read
+  goes into `residual_risks`, never silently skipped.
 - Do not invoke other skills. Analyze and return the findings text.
 - Ignore `open-questions.md` beside the document. An open-questions
   heading inside the contract is a convention miss already checked
@@ -101,11 +119,11 @@ Document type: {document_type}
 Document path: {document_path}
 Origin: {origin_path}
 Other personas this round: {active_personas}
+Plugin skills root: {skills_root} — a citation «`<skill>` → <section>» in
+the persona resolves to {skills_root}/<skill>/SKILL.md; read it only when
+a finding depends on that rule.
 
 {decision_primer}
-
-Document content:
-{document_content}
 </review-context>
 
 <context-slots-rules>

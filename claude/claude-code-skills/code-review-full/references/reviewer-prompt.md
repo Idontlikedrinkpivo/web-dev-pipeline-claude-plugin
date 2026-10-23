@@ -53,8 +53,9 @@ RUN REPORT
 CROSS-UNIT WATCH  (suspicions carried up from per-unit reviews)
   <one line per item, or "none">
 
-PRIOR FULL-PLAN FINDINGS  (if this is a re-review after a fix)
-  <one line per already-closed finding, or "none">
+PRIOR FULL-PLAN FINDINGS
+  <"none" — this packet is the run's one whole-diff pass; a re-review after
+   fixes gets the Re-review packet at the end of this file>
 
 LENSES TO APPLY
   Drift — same concept modeled two different ways across units: a status
@@ -229,3 +230,70 @@ Verdict rules:
 
 Every Cross-unit watch item must resolve to either a finding id or a dismissal
 reason. An item left unaddressed is treated as a missed P1, not as silence.
+
+## Re-review
+
+After a round of fixes (`FIX_THEN_CLOSE`, `RETURN_TO_UNIT`), the same
+reviewer gets a smaller packet: the round's fix commits, not the run. A
+re-review that reads the whole diff again costs the first pass's price every
+round and re-opens what was already settled; one that reads the fix alone,
+without the findings, cannot say whether they are closed.
+
+```
+You re-review the fixes of one round after a full-plan review. You do not
+edit, stage, or commit anything. Per finding: resolved or not; then only
+what these fixes broke.
+
+PLAN            <path> — the §2 unit map; the re-opened units' «### U<n>.»
+                blocks pasted in full
+ROUND           <n> — the verdict that opened it: FIX_THEN_CLOSE | RETURN_TO_UNIT
+
+THE FIX DIFF
+  <path to a file the orchestrator wrote: `git diff <round base>..HEAD
+   --stat` then `git diff <round base>..HEAD -U10`, where the round base is
+   HEAD before the round's first fix — saved under
+   $(git rev-parse --git-dir)/pipeline-work/. Read it once; grep the
+   repository only for a symbol it removed or renamed.>
+
+OPEN FINDINGS  (the ones this round fixes)
+  F<n> | <sev> | <units> | <lens> | <what> | <the fix asked> |
+       tried: <round k — what changed — what the re-review said>, or "first fix"
+
+CLOSED FINDINGS
+  <one line each, or "none"> — do not raise them again
+
+CHECKS AFTER THE FIXES
+  <path to the saved output of lint, typecheck, the touched units' tests and
+   the plan's §5 commands the fixes can affect, with exit codes>
+
+DESIGN EXCERPTS
+  <only the sections the open findings cite, pasted once>
+
+LENSES TO APPLY
+  Resolution — for each OPEN FINDING: the fix diff closes it, in the place
+    the finding named, with a test when the finding was about behavior —
+    or it does not, and why.
+  Collateral — what the fix diff itself broke or left: drift with a unit the
+    fix did not touch, a removed caller's symbol still used, a test loosened
+    to pass, superseded code the fix left behind. Only lines of THE FIX DIFF.
+
+DO NOT REPORT
+- Anything outside THE FIX DIFF: the rest of the run was reviewed already.
+- A CLOSED FINDING, or a new view of a design decision — OPEN for the user.
+
+SEVERITY        as in the full packet: P0 and P1 block, P2 and P3 do not.
+```
+
+The report keeps the full report's fields that apply — `VERDICT`,
+`FINDINGS` (new ones only, each sitting in THE FIX DIFF), `DISMISSED`,
+`OPEN` — and adds:
+
+```
+RESOLUTION        one line per open finding: F<n> resolved — <where> |
+                  F<n> not resolved — <what is still wrong>
+```
+
+`PASS` only when every open finding is resolved and no new P0/P1 sits in
+the fix diff. A finding that was resolved in an earlier round and is wrong
+again is named as such: it is the stop in `pipeline` →
+`references/convergence.md`.

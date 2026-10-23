@@ -1,9 +1,8 @@
 ---
 name: plan-review
 description: >-
-  Reviews a finished implementation plan before any code: one commit per unit, dependencies, parallel safety, grades,
-  citations, coverage of rules and acceptance criteria; returns one verdict. Use after `plan`, or when asked to check
-  a task breakdown. Not design documents (`doc-review`) or code.
+  Reviews a finished implementation plan before code: commit per unit, dependencies, parallel safety, grades,
+  coverage; one verdict. Runs after plan, or for «проверь план», «ревью плана». Not documents or code.
 ---
 
 # Plan Review
@@ -39,16 +38,25 @@ author's own framing hid.
 | Input | Required | Read for |
 |---|---|---|
 | Plan document `documentation/plans/<version>/plan.md` | **yes** | §1 digest and its version line, the unit table, every unit's fields, §5 критерии готовности, `open-questions.md` beside the plan, version pins |
-| Cited design documents | **yes** | resolving every `Документы` citation to a real section or id — a citation nobody checked is the plan's most common silent defect |
+| Cited design documents | **yes** | resolving every `Документы` citation to a real section or id — a citation nobody checked is the plan's most common silent defect. Every part of a split document: `srs.md` and `areas/*.md`, `openapi.yaml` with `paths/` and `components/` |
+| The report a fix plan answers — `test-run.md` or `security-audit.md` beside the plan | on a fix plan | the rows its units cite and must cover |
 | `executor-catalog/references/assignable-implementers.md` | **yes** | the only legal `Исполнитель` / `Вложенный` names |
-| `plan/references/complexity.md` | **yes** | the cascade, the six signals, both floors, the anti-inflation and anti-deflation gates — the standard grades are checked against |
-| The iteration's changes | **yes** | the manifest's current `version`; the iteration's typed changes — changelog rows whose `Версия` is the folder's version (OpenAPI: `info.x-changelog`), plus changes not stamped yet, from the diff of the versioned documents since the last tag `v<version>`; whether the API has external consumers (the foundation's Full trigger "versioned partner API", a `/vN` path) — what the level is checked against |
-| Repo file tree | **yes** | whether a unit's `Файлы` paths are plausible and whether a unit recreates something the scaffold already produced |
+| `plan/references/complexity.md` | judgment half | the cascade, the six signals, both floors, the anti-inflation and anti-deflation gates — the standard grades are checked against |
+| The iteration's changes | **yes** | the manifest's current `version`; the iteration's typed changes — changelog rows whose `Версия` is the folder's version (OpenAPI: `info.x-changelog`), plus changes not stamped yet, from the diff of the versioned documents since the last tag `v<version>`; whether the API has external consumers (the foundation's Full trigger "versioned partner API", a `/vN` path) — what the level is checked against, and what the coverage ledger holds (Step 1) |
+| Repo file tree (`git ls-files`, run by the reviewer) | **yes** | whether a unit's `Файлы` paths are plausible and whether a unit recreates something the scaffold already produced |
 | Prior plan-review findings | when re-reviewing after a fix | so a closed finding is not re-opened |
+
+The plan's mode decides what is in scope: a **greenfield** plan answers for
+everything the documents hold; an **increment** for what this version
+added or changed; a **fix** plan (units appended after a `DEFECTS` or `FIX`
+report, `plan` → `references/modes.md`) for the report rows, and only its
+appended units are reviewed; a **brownfield** plan with no design
+documents cites `code:<path>` and answers for the request §1 names.
 
 Without the cited documents this degrades into proofreading: every coverage and
 citation lens needs the source it cites. Say so and stop rather than reviewing
-the plan against itself.
+the plan against itself. A brownfield plan is not that case: its sources are
+the files its `code:<path>` citations name, and they are in the repository.
 
 The tree and the cited documents are the whole context. Do not go reading the
 repo: a reviewer that explores produces findings about code no unit in this
@@ -75,17 +83,27 @@ file submitted as a plan still goes to `doc-review`.
 
 ### Step 1. Establish the standard before reading the units
 
-Read `complexity.md` and `executor-catalog/references/assignable-implementers.md` first. A reviewer that forms
+The judgment half reads `complexity.md` before the units (its packet's
+GRADING STANDARD); the executor names come from
+`executor-catalog/references/assignable-implementers.md`. A reviewer that forms
 an opinion about a grade before reading the cascade is applying taste, and taste
 is exactly what the cascade exists to replace. So every calibration finding
 cites the cascade rule or floor it rests on; "feels like Mid" is not a finding.
 
 Extract from the design documents, once, a coverage ledger in two parts:
-**covered by a test** — every invariant row and every acceptance criterion id;
-**covered by a unit** — every use case, every operation, every screen, every
-foundation §1 «Решения по NFR» row, and every §4 configuration variable. The
-units are checked against both. Build it even when the plan
-says it covered everything — that claim is what is being checked.
+**covered by a test** — invariant rows and acceptance criterion ids;
+**covered by a unit** — use cases, operations, screens, foundation §1
+«Решения по NFR» rows, and §4 configuration variables. Only the ids **in
+scope** go in: on an increment, the ones this version added or changed —
+named in the changelog rows whose «Версия» is this version, or in the
+unstamped diff since the last tag; a document whose only row of this
+version is «первый выпуск» brings all its ids (greenfield). An id an
+earlier version built is not this plan's to cover — demanding it buries
+every second iteration under P0s for work that shipped long ago. A fix
+plan's ledger is its report rows, a brownfield plan's the items of the
+request. The units are checked against both parts. Build the ledger even
+when the plan says it covered everything — that claim is what is being
+checked.
 
 ### Step 2. The lenses
 
@@ -94,14 +112,14 @@ says it covered everything — that claim is what is being checked.
 | **Commit atomicity** | does each unit land green **alone**? A unit that imports from a sibling that ships later, a unit whose test cannot pass until a second unit arrives, a unit that leaves a route registered against a missing handler — each is a split, not a preference. |
 | **Dependency graph** | does `Зависит от` form a DAG with no cycle, and does every unit's declared dependency actually exist? Is every unit reachable from the wave ordering? |
 | **Parallel safety** | for each `Параллельно: yes` pair: disjoint `Файлы` **and** no shared type, migration, registry, config, generated client, lockfile, or runtime resource (test database, port, dev server). Declared file disjointness is necessary, never sufficient — the unmarked shared contract is what a merge fight is made of. |
-| **Grade calibration** | run the cascade on the unit's own filled fields and compare to the stated grade. Check both floors — auth, authorization, money, migrations on existing data, secrets, external contracts never below Mid; a unit whose `Документы` do not determine the outcome never below Mid. Check the anti-deflation gate: a `— first of its kind` unit graded 0 or Low is miscalibrated. Check the compound gate was reachable: a plan whose only High units are risky ones usually skipped it. |
-| **Files completeness** | for each unit that removes or changes a field, a constant, an environment variable, a response shape or a public symbol: search the repository for the symbol and check that every hit is in the unit's `Файлы` or named under «Не затрагивается». A missing caller or test is P1: the executor finds it mid-run and the unit goes round again. |
-| **Citation integrity** | does every `Документы` entry resolve to a real section, id, `operationId`, table, or screen in the named document? A dangling citation is P0: the executor cannot see this session and will fill the gap by inventing. |
-| **Coverage** | does every invariant row and every AC appear in some unit's `Тестовые сценарии`, and does every use case, operation, screen, NFR decision and configuration variable belong to some unit (its `Документы` or `Файлы`)? An operation or screen needs a unit, not its own test line. Nothing silently dropped, nothing covered twice by two units that will both claim ownership. |
+| **Grade calibration** | run the cascade on the unit's own filled fields and compare to the stated grade. Check both floors — auth, authorization, money, migrations on existing data, secrets, external contracts never below Mid; a unit whose `Документы` do not determine the outcome never below Mid. Check the anti-deflation gate (`complexity.md`): a `— first of its kind` unit graded Low, or 0 outside the mechanical gate, is miscalibrated. Check the compound gate was reachable: a plan whose only High units are risky ones usually skipped it. |
+| **Files completeness** | for each unit with «Меняет символы» — and each unit that visibly removes or changes a field, a constant, an environment variable, a response shape or a public symbol without listing it there: search the repository for the symbol and check that every hit is in the unit's `Файлы` or named under «Не затрагивается» with a reason. A missing caller or test, or a changed symbol left out of «Меняет символы», is P1: the executor finds it mid-run and the unit goes round again. |
+| **Citation integrity** | does every `Документы` entry resolve to a real section, id, `operationId`, table, or screen in the named document? A report row (`test-run.md TC-n`, `security-audit.md F<n>`) resolves against that report; `code:<path>` in a brownfield plan to a file in the repository; `plugin change <id>` to that id in the plugin's `upgrade-docs/changes.json`. A dangling citation is P0: the executor cannot see this session and will fill the gap by inventing. |
+| **Coverage** | does every ledger line (Step 1 — in scope only) appear where it must: an invariant row or AC in some unit's `Тестовые сценарии`, a use case, operation, screen, NFR decision or configuration variable in some unit's `Документы` or `Файлы`, a report row in a fix unit's `Документы`? An operation or screen needs a unit, not its own test line. Nothing silently dropped, nothing covered twice by two units that will both claim ownership. |
 | **Test-first writability** | can each scenario's expected outcome be written before the implementation exists? A scenario whose expected value can only be filled in after reading the code has not been specified — the design already fixed the invariant, the status mapping, the constraint. |
 | **Executor validity** | does every `Исполнитель` sit on the assignable list (`mechanical-worker`, `impl-lite`, `impl-medium`, `impl-hard`, `impl-ui`), is `Вложенный` either `—` or `mechanical-worker`, and is no review / plan-review / doc-review / `code-explorer` / `impl-critical` name or model slug written into the plan? A unit whose `Документы` cite a screen spec and a Figma `nodeId` is `impl-ui` with `Вложенный: —`. Any other unit on `impl-ui` is a finding. |
 | **Existing work** | does a unit recreate what the scaffold or an earlier increment already produced? Does every `Образец` path exist in the tree, or is it written `path (U<n>)` and created by that earlier unit reachable via `Зависит от`, or does it name an architecture section whose file tree / snippet fixes the shape? Whether a `— first of its kind` grade is too low is Grade calibration's call, not this lens's — it needs the cascade. |
-| **Service version** | does §1 state a version, its level and reason, matching the folder name, and does the level match the iteration's typed changes (`pipeline` → Service version)? Any «добавляет» or «ломает» needs MINOR or above; PATCH only with none. MAJOR is the owner's call: check only that §1 states it, never whether the change is big enough. With a partner-versioned API, a «ломает» in OpenAPI inside the same API major (no new path prefix) is P1. Is the last unit the grade-0 `mechanical-worker` bump of the manifest's `version` to that number, depending on every other unit? |
+| **Service version** | does §1 state a version, its level and reason, matching the folder name, and does the level match the iteration's typed changes (`pipeline` → Service version)? Any «добавляет» or «ломает» needs MINOR or above; PATCH only with none. MAJOR is the owner's call: check only that §1 states it, never whether the change is big enough. With a partner-versioned API, a «ломает» in OpenAPI inside the same API major (no new path prefix) is P1. When the manifest's `version` differs from the folder's, is the last unit the grade-0 `mechanical-worker` bump to that number, depending on every other unit? When they are equal (a new repo's scaffold wrote it, or this plan's bump already landed), no bump unit is needed, and a fix plan adds none. |
 | **Plan hygiene** | U-ids unique and unrenumbered, no progress state (`status:`, checkboxes, "done"), repo-relative paths, version pins present, rows in `open-questions.md` blocking named units instead of absorbed as guesses. The plan body has no open-questions section. |
 
 ### Step 3. Dispatch
@@ -116,7 +134,12 @@ parallel, because the two halves fail differently:
 | `plan-review-medium` | the structural lenses — dependency graph, parallel safety, files completeness, citation integrity, coverage, executor validity, existing work, service version, plan hygiene. These are checkable against the text, the tree and a search for the changed symbols, and they are where volume lives. |
 | `plan-review-hard` | the judgment lenses — commit atomicity, grade calibration, test-first writability. Deciding that a unit *cannot* land alone, or that a Low unit is really Mid, is the same kind of reasoning that graded it, so it needs a tier that can hold the cascade and argue with it. |
 
-Build both from `references/reviewer-prompt.md`. Do not merge them into one
+Build both from `references/reviewer-prompt.md`. Each packet names its
+inputs by path and pastes only the ledger, which exists nowhere on disk
+(`executor-catalog` → Dispatch contract → Paths, not pasted documents);
+the grading standard goes only to the judgment half, which is the one that
+runs the cascade. On a fix plan or a re-review, UNITS names the units to
+review. Do not merge the halves into one
 dispatch to save a call: the structural half is mechanical and the judgment half
 is adversarial, and one packet holding both reliably produces a reviewer that
 skims the calibration it was supposed to challenge.
@@ -157,11 +180,12 @@ Exactly one:
 | `RETURN_TO_PLAN` | P0/P1 needing the planner's judgment — a dependency cycle, a unit that has to be split, a re-grade with knock-on executor changes, coverage that has no obvious home | `plan` re-opens with the findings attached; re-review after |
 | `STOP` | the finding is upstream: the design has a gap, a document contradicts another, or the plan cannot be fixed without a product decision | do not proceed to `work`; take it to the user, and the fix lands in the document, not the plan. A finding whose fix would reverse a decision a document made on purpose is `STOP` too, with the decision quoted, whatever its severity (`pipeline` → `references/decision-changes.md` → A finding against a settled decision) |
 
-Every P0/P1 row carries a **Fix kind**, so `plan` can pick the revise
+Every P0/P1 row carries a **Вид правки** (the one name of this field, in
+the report and in the reviewers' FINDINGS), so `plan` can pick the revise
 writer without re-reading the findings (`plan-complexity.md` → Grading a
 revise):
 
-| Fix kind | When |
+| Вид правки | When |
 |---|---|
 | `mechanical` | the Fix cell is the finished edit — a citation, a `Параллельно` value, an executor name, a grade a floor dictates, a scenario line spelled out |
 | `local` | a local decision is left: change a grade and its implementer, move units between waves, add `Файлы` after checking the code, write scenarios for a changed document, a service version the session re-asks the user |
@@ -179,11 +203,31 @@ better slicing in a finding's `Fix` is fine; rewriting the unit table is not.
 Write the report to `documentation/plans/<version>/plan-review.md`, beside
 the plan, overwriting any earlier one. Its first line is the verdict
 alone, e.g. `Verdict: PASS`; `work` and `pipeline` read that line as the
-gate. This file is the only thing this skill writes — the plan itself is
-never edited.
+gate. The second line is `checked: <sha256 of plan.md>` — the hex digest
+of the plan file as reviewed:
+
+```bash
+python3 -c 'import hashlib,sys;print(hashlib.sha256(open(sys.argv[1],"rb").read()).hexdigest())' documentation/plans/<version>/plan.md
+```
+
+`work` compares it with the plan on disk and sends a plan changed since —
+units appended by a fix, a hand edit — back here before running it: a
+verdict covers the text it read, not the file's name. This file is the
+only thing this skill writes — the plan itself is never edited.
+
+**Two reports, one file.** The session merges the halves' reports: one
+findings table, ordered P0 → P3, structural rows before judgment rows
+within a level, numbered once; the same units and lens raised by both
+halves is one row, the stricter level kept. The verdict is computed from
+the merged rows, not copied from either half: `STOP` if either half's
+finding is upstream; otherwise any P0/P1 → `FIX_THEN_PROCEED` when every
+blocking row's «Вид правки» is `mechanical`, else `RETURN_TO_PLAN`; none
+→ `PASS`. The coverage ledger comes from the structural half, the grade
+table from the judgment half; «Dismissed» and «Open» from both.
 
 ```markdown
 Verdict: <verdict>
+checked: <sha256 of plan.md>
 
 ## Ревью плана — <plan path> — <verdict>
 
@@ -203,16 +247,17 @@ A filled report, for calibration — match its density, not its domain:
 
 ```markdown
 Verdict: FIX_THEN_PROCEED
+checked: 3f5a0c9e1b7d4a62c8e0f1a2b3c4d5e6f708192a3b4c5d6e7f8091a2b3c4d5e6
 
 ## Ревью плана — documentation/plans/1.3.0/plan.md — FIX_THEN_PROCEED
 
 | # | Важность | Юниты | Аспект | Находка | Исправление | Вид правки |
 |---|---|---|---|---|---|---|
 | 1 | P0 | U6 | Citation integrity | `Документы` ссылается на `api POST /orders/{order_id}/refund`, в OpenAPI такой операции нет; возврат описан как `operationId refundPayment` | заменить цитату на `api refundPayment` | mechanical |
-| 2 | P1 | U4, U5 | Parallel safety | обе правят `src/domain/order/order.ts`, но U5 помечен `Параллельно: yes` и стоит в волне 2 вместе с U4 | U5: `Параллельно: no — U4`, перенести в волну 3 | mechanical |
-| 3 | P2 | U9 | Plan hygiene | `Почему` пересказывает цель, а не сигнал | «rule 5 — прецедент `src/adapters/invoice-repo.ts`» | — |
+| 2 | P1 | U4, U5 | Parallel safety | обе правят `src/orders/domain/order.ts`, но U5 помечен `Параллельно: yes` и стоит в волне 2 вместе с U4 | U5: `Параллельно: no — U4`, перенести в волну 3 | mechanical |
+| 3 | P2 | U9 | Plan hygiene | `Почему` пересказывает цель, а не сигнал | «rule 5 — прецедент `src/invoices/adapters/invoice-repository.ts`» | — |
 
-**Coverage ledger** — все инварианты и AC покрыты.
+**Coverage ledger** — все инварианты и AC версии 1.3.0 покрыты.
 **Grade table** — U8: заявлено Mid; если считать signal 6 дешёвым, каскад даёт Low (rule 5), но `Почему` называет rule 6 — сценарий ретрая требует управления временем. Каскад это допускает, не находка. Распределение: 0:1 Low:4 Mid:3 High:1.
 **Dismissed** — U3 правит 6 файлов, но foundation §5 кладёт репозиторий и маппер в один модуль (правило 1: решил дизайн).
 **Not blocking** — #3.
@@ -235,8 +280,11 @@ a wrong grade shows up only as cost.
 - Exactly one verdict, no P0/P1 left unclassified; a design defect is `STOP`,
   not a finding — Steps 4–5.
 - The plan file is byte-identical to how the review found it — Step 5.
+- The ledger held only the ids in scope — this version's, the report's,
+  or the request's — Step 1.
 - `plan-review.md` exists beside the plan with `Verdict: <verdict>` on its
-  first line — Report.
+  first line and `checked: <sha256>` of the reviewed `plan.md` on its
+  second; two halves merged into one table and one verdict — Report.
 
 ## References
 

@@ -14,7 +14,7 @@ app/
 features/<feature>/        api.ts (one function/hook per operationId), components, messages, *.test.tsx
 shared/api/                generated types/client (never hand-edited) + client.ts
 shared/ui/                 primitives — reuse before adding
-e2e/                       Playwright specs, one main path per S-n
+e2e/                       the user test suite — `ui-test-cases` owns it; screen units add no spec here
 ```
 
 Name the `S-n` in the page file's first comment line.
@@ -28,8 +28,8 @@ Name the `S-n` in the page file's first comment line.
 | API client | openapi-typescript types + openapi-fetch | @hey-api/openapi-ts or Orval if already used |
 | Forms | React Hook Form + Zod; Zod again in a Server Action | schema typed against the generated request body |
 | Styling / UI kit | Tailwind CSS + shadcn/ui | |
-| Component tests | Vitest + Testing Library + jsdom, MSW | async Server Components are covered by e2e instead |
-| E2E | Playwright (`playwright-cli`), app started by `webServer` | `@axe-core/playwright` per state |
+| Component tests | Vitest + Testing Library + jsdom, MSW | async Server Components are covered by the user test suite (`e2e/`) instead |
+| E2E | Playwright, the user test suite of `ui-test-cases`; the app runs as a stand started by the verify skill, not by `webServer` (`playwright-cli` → `references/test-config.md`) | `@axe-core/playwright` per state |
 
 ## Stack conventions
 

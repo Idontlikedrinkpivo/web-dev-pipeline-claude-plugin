@@ -1,9 +1,9 @@
 ---
 name: docs-consistency
 description: >-
-  Checks that the finished documents agree with each other — SRS, schema, OpenAPI, architecture, screen specs: every
-  requirement has a home, and every shared name, field, status, error and role means the same. Use before `plan` or
-  when asked whether the documents agree. Not one document (`doc-review`) or a plan.
+  Checks that the finished SRS, schema, OpenAPI, architecture and screen specs agree: every requirement has a home,
+  every shared name one meaning. Use before plan, or for «сходятся ли документы», «сверь ТЗ, схему и API». One
+  document: doc-review.
 ---
 
 # Docs Consistency
@@ -60,14 +60,17 @@ Registry says. Never pick one.
 
 ## Workflow
 
-### Step 0. The version folder
+### Step 0. The iteration
 
 The report lives in the open `documentation/plans/<version>/` (no
-`summary.md`). The iteration is normally already open — its first stage
-that changed a versioned document opened it. Only when no folder is open
-does this stage open it, per `pipeline` → Service version (the number with
-its level and reason, asked as a question; the folder created on the
-answer). `plan` then reuses it.
+`summary.md`), and this stage's commits go on `iteration/<version>`. The
+iteration is normally already open — its first stage that committed opened
+it; when the branch is not `iteration/<version>`, run the script below with
+that version (it only switches). Only when no folder is open does this
+stage open it (`pipeline` → Service version): the number with its level and
+reason, asked as a question, then
+`python3 "${CLAUDE_SKILL_DIR}/../pipeline/scripts/open_iteration.py" <version>`
+— its exit 2 or 3 is a question for the user. `plan` then reuses it.
 
 ### Step 1. Pins first
 
@@ -89,7 +92,7 @@ changelog rows after the pin (`doc-versioning` → Staleness and cascade):
 - **only «уточняет»** — nothing; the dependant's next stamp refreshes the pin.
 
 **Then the test cases' trace**, when the set has user test cases: run
-`python3 ${CLAUDE_SKILL_DIR}/../ui-test-cases/scripts/check_trace.py --docs documentation --quiet`
+`python3 "${CLAUDE_SKILL_DIR}/../ui-test-cases/scripts/check_trace.py" --docs documentation --quiet`
 and fix what it finds before the dispatch, without asking: dispatch
 `ui-test-writer` (`ui-test-cases` → its writer packet, `MODE increment`)
 with the broken cases, to rewrite each one's trace from the current spec,
@@ -124,7 +127,7 @@ document was skipped gets one line saying so.
 |---|---|
 | **SRS → downstream** | every FR / UC has an operation (HTTP), a scenario (scenarios of its area) and, when a human does it, a screen element (screen specs); every entity the SRS stores has a table; every BR has an invariant row (domain model) or a constraint; every NFR with a number or a security rule has a foundation §1 row or a schema / API mechanism |
 | **Downstream → SRS** | every table, operation, scenario and screen traces to an SRS id. An orphan is scope the SRS never asked for, or a requirement the SRS is missing — the finding says which is likelier |
-| **Schema ↔ OpenAPI** | field names, types, nullability vs `required`, enum values, lengths and ranges, uniqueness ↔ a 409, id format, money and time representation |
+| **Schema ↔ OpenAPI** | field names, types, nullability vs `required`, enum values, lengths and ranges, uniqueness ↔ a 409, id format, money and time representation; the keys by the schema's rule (`db-schema-design` → How the API names keys): a resource's `id` is its table's `public_id`, a reference `<thing>_id` keeps the column's name and carries the referenced row's `public_id` (uuid), a path parameter is `<resource>_id`, and no `bigint` key or reference appears in the API |
 | **OpenAPI ↔ screen specs** | every `operationId` a screen cites exists and fits the action; every field in «Метод и поля» exists in that operation's request or response; input rules ↔ request schema (required, limits, enum options); every declared status of every operation a screen calls has a row in «Ошибки ответов»; data a screen shows that no response returns is a P1 owned by the API or the design |
 | **Domain model ↔ the rest** | every invariant row cites an SRS BR and matches the schema constraint it names; named errors ↔ OpenAPI error codes; entities ↔ tables |
 | **Scenarios ↔ the rest** | every scenario cites an operation that exists and only ports the foundation declares; every rule it relies on is an invariant row (cited, not restated); its errors are named errors of the domain model; roles ↔ SRS actors ↔ OpenAPI `security`; tenancy ↔ schema columns and RLS |
@@ -178,9 +181,9 @@ Exactly one:
 
 | Verdict | When | Next move |
 |---|---|---|
-| `PASS` | no P0 / P1 | the next transition per `pipeline` |
+| `PASS` | no P0 / P1 | the offer of row 10 — `plan` — per `pipeline` → "Asking before a transition" |
 | `RETURN_TO_STAGE` | P0 / P1 whose fix is the owner stage's job, or a stale pin (Step 1) | name the **earliest** owner stage in chain order, with its findings — a later stage's fix may depend on it. Ask to run it per `pipeline` → "Asking before a transition"; after it, re-run this check |
-| `STOP` | a contradiction only a product decision closes: two readings of the SRS, both reasonable | one question to the user per `grill-me` → "How a question is shown"; the answer is a changed decision — it goes to the SRS and every document that states the other reading, committed at once with no version change (`pipeline` → `references/decision-changes.md`), then the check re-runs. A fix that would reverse a decision a document made on purpose is asked the same way, with that decision quoted, never applied as a fix (`pipeline` → `references/decision-changes.md` → A finding against a settled decision) |
+| `STOP` | a contradiction only a product decision closes: two readings of the SRS, both reasonable | one question to the user per `pipeline` → `references/question-format.md`; the answer is a changed decision — it goes to the SRS and every document that states the other reading, committed at once with no version change (`pipeline` → `references/decision-changes.md`), then the check re-runs. A fix that would reverse a decision a document made on purpose is asked the same way, with that decision quoted, never applied as a fix (`pipeline` → `references/decision-changes.md` → A finding against a settled decision) |
 
 A re-check reads the whole set again, not only the changed document: a fix
 in the schema can open a gap in the API.
@@ -189,19 +192,26 @@ in the schema can open a gap in the API.
 
 Write `documentation/plans/<version>/docs-consistency.md`, overwriting any
 earlier one of this version. The first line is the verdict alone;
-`pipeline` reads it as the gate. The `checked:` block pins each document
-path by its blob hash
-(`git hash-object <path>`), because contracts are edited in place and
+`pipeline` reads it as the gate. The `checked:` block pins **every file of
+the set** by its blob hash, because contracts are edited in place and
 several commits of one iteration share one version: a hash that no longer
-matches the file means the check is stale.
+matches means the check is stale. A split document is one document in
+several files — an edit in `areas/02-….md` or `paths/bookings.yaml`
+changes it as surely as one in the index — so the block is printed, not
+typed: `python3 "${CLAUDE_SKILL_DIR}/scripts/checked.py"` after this
+stage's own fixes are committed, pasted as it comes. `--verify <report>`
+says what moved since (`pipeline/scripts/where_am_i.py` runs it).
 
 ```markdown
 Verdict: RETURN_TO_STAGE
 
 checked:
 - documentation/requirements/srs/srs.md 3f2a91c
+- documentation/requirements/srs/areas/01-invoices.md 6b0c2d4
 - documentation/db/schema.md 8be0d14
+- documentation/db/migrations/0001_init.sql 2e91f0a
 - documentation/api/openapi.yaml 51c7e02
+- documentation/api/paths/invoices.yaml c17d9e3
 - documentation/architecture/architecture.md 0d4e6c8
 - documentation/architecture/domain.md 77a1c20
 - documentation/architecture/scenarios/invoices/invoices.md 4c9e118
@@ -233,14 +243,23 @@ skipped: none
 - Every finding has an owner, and the earliest owner is named — Steps 4–5.
 - Only P2 names were edited, only in the downstream document, and only
   broken test-case traces were rewritten — Steps 1 and 4.
+- This stage's own edits — aligned P2 names, rewritten test-case traces —
+  are committed on `iteration/<version>` before the report's block is
+  printed: `docs: сверка документов — <что выровнено>`, those files only
+  (and `documentation/_web-docs` after its rebuild, when the project has
+  the site). Nothing it changed is left uncommitted.
 - `documentation/plans/<version>/docs-consistency.md` exists with `Verdict:`
-  on line 1 and a hash per document path checked — Step 0, Report.
+  on line 1 and the `checked:` block `scripts/checked.py` printed — Step 0,
+  Report.
 
 ## References
 
 - `references/checker-prompt.md` — the packet and the reply format.
 - `executor-catalog` — the `docs-consistency-checker` row.
 - `doc-versioning` → Registry (paths), Staleness and cascade (pins).
-- `pipeline` — where this gate sits. When a stage invoked this check,
-  report and return; when the user opened it directly, ask the next
-  transition per `pipeline` → "Asking before a transition".
+- `pipeline` — this is stage 10, not a gate inside another stage: it
+  closes like any stage, with the commit and then one transition question
+  per `pipeline` → "Asking before a transition" — `plan` after `PASS`, the
+  earliest owner stage after `RETURN_TO_STAGE` — whether `pipeline` offered
+  it or the user opened it directly.
+- `scripts/checked.py` — the `checked:` block and `--verify`.

@@ -5,9 +5,16 @@ You run the product's user test cases through its interface. You write
 and fix Playwright tests; you never edit application code, the documents,
 or the cases.
 
-SKILL           <path to ui-test-cases/SKILL.md> — follow Mode run;
-                <path to playwright-cli/SKILL.md> for locators, test
-                generation, traces
+SKILLS ROOT     <absolute folder holding the plugin's skills
+                (executor-catalog → Dispatch contract); every
+                «<skill> → references/…» below resolves under it>
+SKILL           <SKILLS ROOT>/ui-test-cases/SKILL.md — follow Mode run;
+                <SKILLS ROOT>/ui-test-cases/references/run-report.md — the
+                report's shape, read before the first edit;
+                <SKILLS ROOT>/playwright-cli/SKILL.md for locators and traces;
+                its references/test-config.md for playwright.config.ts, and
+                of its references/test-generation.md only §0 and §3.1–3.3
+                under the «Inside dev-pipeline» block
 CASES           documentation/ui/test-cases/ — README.md (roles, data,
                 shared texts) and one file per section
                 (documentation/ui/<product>/test-cases/ with several UI products)
@@ -49,14 +56,30 @@ RULES
   does not drop the case: build every step it gives and mark only the
   missing one (`test.fixme` on a split-off part, or a skipped step with the
   reason), so the rest still checks.
-- Keep or add the `test:e2e` script.
-- Expected wording is the case's quoted text, copied from the «Тексты»
-  table on each screen's Аннотация frame. A case that names a state without
+- Keep or add the `test:e2e` script. A new playwright.config.ts follows
+  playwright-cli → references/test-config.md (one worker, baseURL from
+  E2E_BASE_URL, testDir the E2E FOLDER, no webServer); an existing one keeps
+  its settings unless it breaks a stand rule, which you name in the report.
+  Install Playwright non-interactively (`npm install -D @playwright/test`,
+  `npx playwright install chromium`); never `npm init playwright`, which
+  waits for answers nobody gives.
+- The case and the screen spec are right, the app is what is checked: a
+  test asserts what the case expects, never what the app happens to do. A
+  failing test for an app defect stays failing — no `test.fixme`, no
+  changed expectation — it is the check the fix plan must turn green. You
+  cannot ask the user: what playwright-cli tells a person to ask goes into
+  the triage and the report; never `show --annotate`, which waits forever.
+- Expected wording is the case's quoted text — the text the screen spec
+  quotes from the frame («Тексты» or «текст слоя»). A case that names a state without
   a quote checks the state only and never fills the wording in from the
   frame: the missing text is a spec gap the writer listed, not a defect.
-- Screenshot every case's screen and compare with the frame of its nodeId
-  for layout, texts and states — not pixels. No Figma access: skip the
-  comparison and say so.
+- Compare each frame once: get_screenshot per distinct nodeId, compared
+  with the app at the first case that reaches that screen and state, for
+  layout, texts and states — not pixels; later cases citing the same
+  nodeId reuse the result (a read per case is hundreds of Figma calls
+  against the seat's limit and as many images in your context). A
+  mismatch fails that first case and gets its line in «Сверка с макетом».
+  No Figma access: skip the comparison and say so.
 - On the same screens, check the `ux-patterns` → «Проверка экрана перед
   сдачей» items a browser can show: every width of the frames register
   with no sideways page scroll (UX-74), the case's path by keyboard with
@@ -76,18 +99,11 @@ RULES
   re-run those cases, go on.
 - Every re-run (a shared-break pause, a pass-2 round after test fixes —
   rounds go on while each turns a test green or changes its failure; a
-  test that fails the same way after a fix is ⛔) opens its own block the moment it starts, readable
-  by someone who never saw the run: heading «Перезапуск после починки
-  общего помощника» or «Перезапуск — круг N: проверка исправленных
-  тестов»; «Что исправлено перед перезапуском:» in plain words with how
-  many tests; «Что перезапускается:» which cases and from where; its own
-  bar; «Перезапущено: N из M · прошли … · снова не прошли …»; at the end
-  «Итог круга:» what the numbers mean, and «— завершён» on the heading.
-  While it runs, a «Сейчас: перезапуск, круг N — x из y. Основная полоса
-  двинется после него.» line sits under the pass's count. Re-run cases keep
-  their pass row until the new result is in; a case that passes on a
-  re-run turns «✅ прошёл после исправления теста» in the pass table and
-  counts on the main bar.
+  test that fails the same way after a fix is ⛔) opens its own block the
+  moment it starts, with its heading, «Что исправлено перед
+  перезапуском:», «Что перезапускается:», its own bar and «Итог круга:»;
+  while it runs, the «Сейчас: перезапуск …» line sits under the pass's
+  count (run-report.md → Every re-run gets its own block).
 - Run the cases one at a time on each stand (npx playwright test --grep
   "TC-<n>\b"), not the whole suite in one command, so each result lands as
   it happens; the stands in STANDS run their files side by side, one worker
@@ -97,20 +113,13 @@ RULES
   documentation/, and you alone fold each result into the report as it
   arrives — one bar over all stands and a line per stand under the count.
   A timeout under load is re-run alone before it counts as a failure.
-- Keep the report live with the Edit tool — one Edit per status change.
-  The same Edit updates the bars it touches (text code blocks: 100 cells,
-  one per percent, every case weighing the same, filled cells = the
-  percent shown after them). The main bar under the title is the share of
-  automated cases that pass, ⌊passed×100/(all − не автоматизированы)⌋ — it
-  grows in pass 1 and with every re-run that turns a case green, and shows
-  100% when nothing failed — with the count line, label included,
-  «Проверено: N из M · успешно … · не прошли … · заблокировано … · не
-  автоматизированы …»; «не прошли» counts only real failures. Pass 2's bar is the share
-  triaged, «Разобрано: N из M» with the results so far; a re-run block's
-  bar is the share of its cases re-run. Also the update time
-  on the Verdict line under the last table. Never write the report from
-  the shell (python, sed, cat >): the user's file pane redraws only on Edit
-  changes. Set the Verdict only after pass 2.
+- Keep the report live with the Edit tool — one Edit per status change,
+  the bars and the count line it touches in the same Edit, the update time
+  on the Verdict line (run-report.md → The bars, Statuses). The main bar is
+  the share of automated cases that pass, not the share checked. Never
+  write the report from the shell (python, sed, cat >): the plugin's hook
+  rebuilds the page the user watches only after an Edit or Write call, so a
+  shell write leaves that page stale. Set the Verdict only after pass 2.
 - Do not commit.
 ```
 
@@ -124,6 +133,7 @@ COUNTS        pass 1: N rows · passed · failed · blocked · not automated · 
 MANUAL        one line per not-automated case: TC | why | how to check by hand
 DEFECTS       one line per defect: TC | screen/unit | seen | expected
 SCREEN CHECK  one line per screen-check breach: screen | what | UX-n (or: none)
+FRAMES        frames compared: N nodeIds · get_screenshot calls N · mismatches N (or: not compared — why)
 FILES         spec files written, report path
 BLOCKER       only for BLOCKED: what is missing to start or sign in
 ```

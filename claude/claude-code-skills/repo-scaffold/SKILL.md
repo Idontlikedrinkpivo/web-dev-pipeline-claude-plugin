@@ -1,9 +1,9 @@
 ---
 name: repo-scaffold
 description: >-
-  Turns the architecture's file tree and stack into an empty runnable repository: folders, manifest, linters and
-  quality gates, .env.example, a migration runner, a health-only entry point, the project map. Use for «каркас
-  репозитория», «разверни структуру», «карта проекта». Not business code (`work`), compose files or CI.
+  Turns the architecture's file tree and stack into an empty runnable repo: folders, manifest, linters, quality gates,
+  migration runner, health endpoint, project map. Use for «каркас репозитория», «разверни структуру». Not business
+  code or CI.
 ---
 
 # Repository Scaffold
@@ -39,7 +39,8 @@ hold no folders or lint rules it needs.
 
 | Required | Source |
 |---|---|
-| Stack | Foundation §1 Стек — language, HTTP framework, database. Local run — §5. Boundary linter — §6 |
+| Stack | Foundation §1 Стек — language, HTTP framework. Local run — §5 «Локальный запуск». Boundary linter — §6 |
+| Database | `documentation/db/schema.md` «Решения по базе», first line — the DBMS and its major, when the system stores data |
 | File tree | Foundation §5 — real area and file names, not `<area>` |
 | Import-direction table + lint rule table | Foundation §6 |
 | Composition-root pattern | Foundation §4 Сборка, matching the chosen framework |
@@ -57,7 +58,7 @@ starter): the next stages build on exactly the tree architecture drew.
 **Already-a-repo gate.** If `src/`, `internal/`, or a lockfile already
 contains application modules (not just this skill's empty stubs), do
 **not** rewrite the tree. If the user asked for a project map, go to
-section 6 and stop. If a foundation changelog row's «Кого затрагивает»
+section 6, commit it (section 7) and stop. If a foundation changelog row's «Кого затрагивает»
 cell names `repo-scaffold`, go to "Increment mode". Otherwise stop:
 "This repo already has application code. Scaffold would overwrite it.
 Say which new service path to use, or stop." When the user names a path
@@ -81,16 +82,18 @@ would get neither folders nor a lint contract.
   `documentation/project-map/project-map.md`.
 - A §5 change that renames, moves, or deletes an existing folder is not
   scaffold work — it moves live code. Stop and name `plan`.
-- Run the Quality gate (lint with the canary, health), then Closing.
+- Run the Quality gate (lint with the canary, health), then 7. Commit and
+  Closing.
 
 ## Progress file
 
 Before section 1, create `documentation/plans/<version>/progress-scaffold.md`
-per `pipeline` → `references/progress-files.md` — sections 1–6 below as rows, `⏳ ждёт` — and
-post the link to its page `progress-scaffold.html` in the chat. Set each row `🔄 в работе` → `✅ готово` as you
-go, and after each section write the count with the link in the chat
-(«Каркас: 3 из 6 · [progress-scaffold.html](…)»); the line under the table
-carries the quality gate. Installing the
+per `pipeline` → `references/progress-files.md` — sections 1–7 below as rows, `⏳ ждёт`.
+Set each row `🔄 в работе` → `✅ готово` as you go; the line under the
+table carries the quality gate. Then, and after each section, paste in the
+chat the one line `python3 "${CLAUDE_SKILL_DIR}/../pipeline/scripts/progress_link.py" documentation/plans/<version>/progress-scaffold.md`
+prints (`--desktop` when the session has the built-in browser), as it is
+— never a link written by hand. Installing the
 tooling and running the first lint and tests take minutes.
 
 ## 1. Folders
@@ -110,8 +113,10 @@ Read `references/stack-files.md` for the chosen stack only. Install the
 minimum: language toolchain, HTTP framework, DB driver, test runner,
 boundary linter named in §6, the dead-code detector (`knip` /
 `vulture`), and the quality gates — the code linter with its thresholds,
-types over tests, duplicates, test hygiene (`references/quality-gates.md`) —
-for every part of the repository, the frontend included.
+types over tests, duplicates, test hygiene, the backend's contract test
+against `documentation/api/openapi.yaml`, and the coverage threshold in the
+test tool's config (`references/quality-gates.md`) — for every part of the
+repository, the frontend included.
 
 Pin versions in the lockfile. Install the majors §1 Стек names; a
 lockfile that resolves a different major is a stop, not a silent
@@ -125,8 +130,9 @@ version change, before the next section (`pipeline` →
 
 The manifest's own `version` is the service version: on a new repo the
 open iteration's, the name of `documentation/plans/<version>/` (`0.1.0`
-on greenfield). Increment mode leaves it alone; the plan's last unit
-moves it (`pipeline` → Service version).
+on greenfield) — so the first plan needs no bump unit. Increment mode
+leaves it alone; a later iteration's plan moves it with its bump unit
+(`pipeline` → Service version).
 
 ## 3. Boundary lint
 
@@ -161,7 +167,9 @@ reviews, progress files, reports and summaries are working files of this
 machine, not project history (`pipeline` → Plans stay out of git).
 
 `docker-compose.yml` whenever the system stores data (a schema exists): a
-Postgres service (and nothing else unless §1 Стек / §5 named it),
+database service of the DBMS and major `schema.md` «Решения по базе» names
+— PostgreSQL or MySQL, the image at that major — and nothing else unless
+§1 Стек / §5 «Локальный запуск» named it,
 documented port, variable names in `.env.example`; values in a gitignored
 `.env.dev.local`, read via `env_file` (the file `deploy-topology` keeps when
 it renames this compose to `docker-compose.dev.yml`). `work` runs the
@@ -295,9 +303,13 @@ SRS — `documentation/requirements/srs/srs.md`, OpenAPI —
 
 The one final check. Items 1–3 skip on a map-only run.
 
-1. Tree on disk equals foundation §5 — real names, a stub per empty
-   package, no extra top-level app folders (Step 1). Manifest and
-   lockfile hold only the minimum at the §1 majors (Step 2).
+1. Every folder foundation §5 names exists on disk under its real name,
+   each with its stub (Step 1); compare folders only — the files §5 lists
+   (ports, adapters, entities) arrive with business code, not here. No
+   top-level application folder exists that §5 does not name (tooling
+   output — `node_modules/`, `.venv/`, build folders — and
+   `documentation/` aside). Manifest and lockfile hold only the minimum
+   at the §1 majors (Step 2).
 2. `lint-boundaries` (or equivalent) exits 0 — and it can fail. On an
    empty tree every rule is green, so green alone proves nothing. Write
    one throwaway file in the first area's `domain/` that imports that
@@ -312,14 +324,19 @@ The one final check. Items 1–3 skip on a map-only run.
    2. `.env.example`, compose, and the migration runner match Step 4;
       the runner reads `documentation/db/migrations/` and nothing in the
       code tree holds a copy of a migration file.
-   3. When §5 said Compose and a migration file exists, start only the
-      database service and apply the files with the wired migrate command.
+   3. When §5 «Локальный запуск» says Compose and a migration file
+      exists, start only the database service and apply the files with
+      the wired migrate command.
    4. Expect `GET /health` to report `db: up`, and the tables to sit in
       the project schema, not `public`.
    5. With no Docker, skip 3–4 and say «миграция не применялась» in
       Closing.
 4. No entity, use-case, repository, or OpenAPI handler files were added
-   (Step 5).
+   (Step 5). `make test` is green, the contract test included — on the
+   scaffold it lists the contract's operations as not served yet and
+   passes. The coverage threshold sits once, in each part's test-tool
+   config (`references/quality-gates.md`, the Coverage gate); the scaffold's own
+   run is not measured against it.
 5. No stack was chosen or changed here.
 6. `documentation/project-map/project-map.md` exists. Every path in it is a real
    file or the explicit «нет» / «нет UI» / «пусто». The body does not
@@ -329,12 +346,24 @@ If health cannot be started in this environment (no Docker, no runtime),
 say what was created and what was not verified. Do not skip the lint run
 when the toolchain is present.
 
+## 7. Commit
+
+The next stages build on these files, and the tag that closes the
+iteration carries only what is committed. Check the branch first
+(`git branch --show-current`): it is `iteration/<version>`; on `main` or
+anything else, open the iteration before committing:
+`python3 "${CLAUDE_SKILL_DIR}/../pipeline/scripts/open_iteration.py" <version>`. Stage the files this run created or changed by path —
+never `documentation/plans/` — and commit:
+`chore(scaffold): каркас репозитория` (increment mode: `chore(scaffold):
+<what was added>`; a map-only run: `docs: карта проекта`). Nothing staged
+— nothing changed — means no commit, said in Closing.
+
 ## Closing
 
 List the paths created (manifest, lint config, compose, composition root,
-migration runner config or script, `documentation/project-map/project-map.md`). A map-only run names the map
-path and stops — it does not ask the next stage again if a plan already
-exists.
+migration runner config or script, `documentation/project-map/project-map.md`)
+and the commit. A map-only run names the map path and the commit and
+stops — it does not ask the next stage again if a plan already exists.
 
 Read `pipeline` and ask about the stage its table names after this one,
 per "Asking before a transition". Do not list the rest of the pipeline,

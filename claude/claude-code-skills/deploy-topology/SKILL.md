@@ -1,9 +1,8 @@
 ---
 name: deploy-topology
 description: >-
-  Packs a working app into Docker: an image per container, docker-compose for test, dev and prod, a deploy document,
-  and a script that builds the images into one tar for hand-over. Use for «докер», «окружения», «собери образ», a
-  Dockerfile or compose. Not CI, registries, Kubernetes or deploying.
+  Packs a working app into Docker: an image per container, compose for test, dev and prod, a deploy document, one tar
+  of the images for hand-over. Use for «докер», «окружения», «собери образ». Not CI or Kubernetes.
 ---
 
 # Deploy Topology
@@ -71,9 +70,11 @@ against each other to know what is active, are worth the duplication.
 ## Workflow
 
 Before Step 1, create `documentation/plans/<version>/progress-deploy.md` per
-`pipeline` → `references/progress-files.md` — Steps 1–8 and 7a as rows, `⏳ ждёт` — and post its link in
-the chat. Set each row `🔄 в работе` → `✅ готово` (or `⏭ пропущено: …`) as
-you go, and after each step write the count with the link in the chat; the
+`pipeline` → `references/progress-files.md` — one row per Step below, 1 to 9
+with 7a, `⏳ ждёт` — and post its progress line
+(`python3 "${CLAUDE_SKILL_DIR}/../pipeline/scripts/progress_link.py" documentation/plans/<version>/progress-deploy.md`,
+pasted as printed). Set each row `🔄 в работе` → `✅ готово` (or `⏭ пропущено: …`) as
+you go, and post the progress line after each step; the
 image build in Step 8 runs for minutes, and its row says so
 while it runs. The line under the table carries the compose-contract tests
 and the release folder.
@@ -153,8 +154,10 @@ invariants each file must hold. In outline:
   one-shot init/seed containers) + a one-shot `migrate` service + `backend`
   with the mock gate on (+ `frontend`, the frontend image, when the
   architecture has a client). Everything the test suite needs to run inside
-  Docker with zero external network access. Copyable: no
-  `container_name`, ports from variables with defaults, and
+  Docker with zero external network access. Copyable — no
+  `container_name`, host ports from variables with defaults, volumes
+  without a fixed `name:`, the application images named
+  (`references/compose-shape.md` says why each matters) — with
   `scripts/e2e-stands.sh up N` / `down` beside it (`down` removes the
   stands' containers, volumes and networks, never the images), so a long browser run
   takes several identical stands (`ui-test-cases` →
@@ -241,6 +244,9 @@ project's own test suite, not just as prose here:
 - `docker-compose.prod.yml` has no local database/storage service.
 - `migrate` in every file has no published port, and `backend` depends on it
   with `service_completed_successfully`.
+- `docker-compose.test.yml` is copyable: no `container_name`, no volume
+  `name:`, every published host port a `${VAR:-default}`, `image:` on the
+  application services.
 - Every Dockerfile's `CMD` has no hot-reload flag, `CMD`/`ENTRYPOINT` is
   exec form, and every `FROM` has an explicit tag other than `latest`.
 - With a client: `frontend`'s healthcheck reaches `:8081/_healthz`, its
@@ -251,8 +257,10 @@ project's own test suite, not just as prose here:
   `documentation/deploy/deploy.md` beside it as `DEPLOY.md`.
 - `documentation/deploy/deploy.md` agrees with `docker-compose.prod.yml`
   and `.env.example`: containers, every variable per container with its
-  required and secret marks, ports, health checks, volumes — "The sync test"
-  in `references/deploy-doc.md`.
+  required and secret marks, ports, health checks, volumes, the allowed
+  values of a variable that has a fixed set (`SECURE_MODE`: `plain` or
+  `secure`), and every file it names is one the release folder holds — "The
+  sync test" in `references/deploy-doc.md`.
 - `.dockerignore` exists and matches `.env.*.local` (a build context
   that can see `.env.prod.local` fails the test).
 - `backend` in every compose file has a `healthcheck` whose command reaches the
@@ -294,7 +302,9 @@ down.
    ports and health checks, variables per container (required, secret,
    format), external dependencies, volumes (or «томов нет»), the first start
    (the first admin or seed data — ask when the architecture and SRS do not
-   say), and how to update to a new version. Facts come from the prod
+   say), and how to update to a new version — naming only the files the
+   release folder holds. Beside it, `documentation/deploy/prod.env.example`,
+   the variables file the operators fill. Facts come from the prod
    compose file, the Dockerfiles and `.env.example`; Step 7's sync test holds
    them together.
 2. **Check the security audit first.** Read the first line of
@@ -311,7 +321,13 @@ down.
    `release/1.4.0/room-booking-1.4.0.tar`), and a copy of
    `documentation/deploy/deploy.md` as `release/<version>/DEPLOY.md` — and of
    `documentation/operations/operations.md` as `OPERATIONS.md` when it exists
-   (`operations-doc`, the next stage).
+   (`operations-doc`, the next stage), and of
+   `documentation/deploy/prod.env.example` as `<project>.env.example` — the
+   prod variables only, each marked required or not, secret or not, its
+   default and its containers (`references/deploy-doc.md` → The variables
+   file); leave it out only when the user says the operators keep variables
+   in their own store. The script ends by checking that every file
+   `DEPLOY.md` names is in the folder, and fails naming the one that is not.
    `release/` is in `.gitignore` and `.dockerignore`.
 4. **Run it once** and report the folder, the tar size and the image tags;
    if Docker or buildx is not available here, say so instead of claiming the
@@ -330,6 +346,25 @@ down.
 there can disappear with it. A folder per version keeps the previous release
 beside the new one for a rollback; a rebuild of the same version replaces
 its folder's contents.
+
+### Step 9. Commit
+
+Commit what this stage wrote on the iteration branch before the close: the
+version tag and the push at the end of the iteration carry only what is
+committed, and the next stage (`operations-doc`) and CI build on these
+files. `deploy.md` is a document under `documentation/`, so first wait for
+the site rebuild it started —
+`python3 "${CLAUDE_SKILL_DIR}/../docs-site/scripts/rebuild.py" . --wait` —
+and stage `documentation/_web-docs` with it (`docs-site` → Built at the first
+document). One commit, `build(deploy): контейнеры и комплект <version>`: the
+Dockerfiles and `.dockerignore`, the three compose files, `.env.example`, the
+scripts and task-runner targets, the compose-contract tests, the README
+section, `documentation/deploy/` and the project map's `compose:` line —
+staged by name, never `git add .`. Nothing under `release/` or
+`documentation/plans/`, and no `.env.*.local`. The verify skill already has
+its own commit (Step 7a); an architecture fix has its own (Guardrails). Then
+close: the report — the release folder, the tar size, the image tags, the
+scan — and the next stage, per `pipeline` → "Asking before a transition".
 
 ## Guardrails
 
@@ -362,6 +397,10 @@ its folder's contents.
 - Bootstrap and `up-<environment>` targets for all three — Step 6.
 - A passing compose-contract test for every Step 7 invariant — Step 7.
 - `.claude/skills/verify/` written and proven end to end — Step 7a.
+- `docker-compose.test.yml` copyable; `DEPLOY.md` names only files the
+  release folder holds — Steps 4, 7, 8.
+- Everything this stage wrote is committed on the iteration branch, after
+  the site rebuild — Step 9.
 
 ## References
 

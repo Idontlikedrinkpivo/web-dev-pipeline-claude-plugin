@@ -4,7 +4,8 @@ conftest-template.py — Production-grade root conftest for FastAPI + SQLAlchemy
 Place this file at: tests/conftest.py
 
 Provides:
-  - Async SQLAlchemy engine and session fixtures (PostgreSQL test database)
+  - A PostgreSQL test database migrated by the project's own migration command, and the
+    async SQLAlchemy engine and per-test session over it
   - httpx.AsyncClient fixture wired to the FastAPI app with DB override
   - Authentication helper fixtures (persisted standard user and admin user)
   - Sample data fixtures (built by factories, persisted through db_session)
@@ -19,27 +20,34 @@ Dependencies:
 Requires asyncio_mode = "auto", asyncio_default_test_loop_scope = "session" and
 asyncio_default_fixture_loop_scope = "session" in [tool.pytest.ini_options]. The session-scoped `engine`
 must share the event loop with the tests that use it; which options set fixture and test
-loop scope depends on the installed pytest-asyncio — check it (SKILL.md, "Check before
-relying on it") before copying this file.
+loop scope depends on the installed pytest-asyncio — check it (references/version-checks.md,
+"Event-loop scope") before copying this file.
 
 The session options in `db_session` and the ASGITransport wiring in `client` are
-version-sensitive too (same checklist): verify them against the installed SQLAlchemy and
+version-sensitive too (same file): verify them against the installed SQLAlchemy and
 httpx rather than trusting this template.
 
 Requires a reachable PostgreSQL test database (e.g. `docker run -e POSTGRES_PASSWORD=postgres
 -e POSTGRES_DB=app_test -p 5432:5432 postgres`), overridable with TEST_DATABASE_URL.
 House convention: test on the project's real engine, not SQLite.
 
-The engine fixture builds the schema with create_all (allowed in tests only). When the
-migration files in documentation/db/migrations/ carry objects the models do not (the project
-schema, triggers, extensions, data), run `alembic upgrade head` against the test database instead.
+The schema comes from the SQL files in documentation/db/migrations/, applied by the same
+command production uses (`alembic upgrade head`), never from `Base.metadata.create_all`: the
+CHECK constraints, the project schema and every object the files create take part in the tests,
+and a model that disagrees with the files fails here (fastapi-sqlalchemy → Migrations). The
+command runs as its own process because an async Alembic env.py calls asyncio.run, which cannot
+run inside the tests' event loop. Only a brownfield repo with no migration files at all keeps
+create_all — the commented fallback in `engine`.
 """
 
+import asyncio
 import os
+import subprocess
 
 import pytest
 import pytest_asyncio
 from httpx import ASGITransport, AsyncClient
+from sqlalchemy import text
 from sqlalchemy.ext.asyncio import AsyncSession, create_async_engine
 
 os.environ.setdefault("SECRET_KEY", "test-secret-not-for-production")  # before importing src.*
@@ -52,13 +60,17 @@ os.environ.setdefault("SECRET_KEY", "test-secret-not-for-production")  # before 
 #     create_access_token  the token adapter behind the TokenIssuer port
 #   brownfield, the repo's own modules (e.g. src.main, src.database, src.auth.service).
 from src.main import app  # noqa: E402
-from src.database import Base, get_db  # noqa: E402
+from src.database import get_db  # noqa: E402
 from src.auth.models import User  # noqa: E402
 from src.auth.service import create_access_token  # noqa: E402
 
 TEST_DATABASE_URL = os.environ.get(
     "TEST_DATABASE_URL", "postgresql+asyncpg://postgres:postgres@localhost:5432/app_test"
 )
+# The project schema the migrations create and set as search_path (db-schema-design §0) — placeholder.
+PROJECT_SCHEMA = "app"
+# The command `make migrate` runs; the project's env.py reads the database URL from DATABASE_URL.
+MIGRATE_COMMAND = ["uv", "run", "alembic", "upgrade", "head"]
 
 
 # ─── Engine & Session ────────────────────────────────────────────────────────────
@@ -66,17 +78,25 @@ TEST_DATABASE_URL = os.environ.get(
 # pytest-asyncio 1.x runs each test in a function-scoped loop by default; a session engine must live in the
 # session loop: `loop_scope="session"` here, and `asyncio_default_test_loop_scope = "session"` plus
 # `asyncio_default_fixture_loop_scope = "session"` in pytest config (unset, a fixture's loop follows its own scope).
-# With an architecture document the schema comes from the SQL migrations (documentation/db/migrations/) — apply
-# them instead of `create_all`, so the CHECK constraints the migrations hold take part in the tests.
 @pytest_asyncio.fixture(scope="session", loop_scope="session")
 async def engine():
-    """Create an async engine, create all tables once per session, drop them at the end."""
-    engine = create_async_engine(TEST_DATABASE_URL, echo=False)
-    async with engine.begin() as conn:
-        await conn.run_sync(Base.metadata.create_all)
+    """Migrate a clean project schema once per session with the project's command; drop it at the end."""
+    engine = create_async_engine(
+        TEST_DATABASE_URL,
+        echo=False,
+        connect_args={"server_settings": {"search_path": PROJECT_SCHEMA}},  # asyncpg; psycopg: options=-csearch_path=
+    )
+    async with engine.begin() as conn:  # a run that was killed may have left the schema behind
+        await conn.execute(text(f'DROP SCHEMA IF EXISTS "{PROJECT_SCHEMA}" CASCADE'))
+    await asyncio.to_thread(  # its own process, off the event loop (Ruff ASYNC221)
+        subprocess.run, MIGRATE_COMMAND, env={**os.environ, "DATABASE_URL": TEST_DATABASE_URL}, check=True
+    )
+    # Brownfield repo with no migration files at all — the only case for create_all:
+    #     async with engine.begin() as conn:
+    #         await conn.run_sync(Base.metadata.create_all)
     yield engine
     async with engine.begin() as conn:
-        await conn.run_sync(Base.metadata.drop_all)
+        await conn.execute(text(f'DROP SCHEMA IF EXISTS "{PROJECT_SCHEMA}" CASCADE'))
     await engine.dispose()
 
 

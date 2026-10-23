@@ -1,9 +1,9 @@
 ---
 name: work
 description: >-
-  Executes a finished implementation plan: sends each unit to the executor the plan named, checks the real diff, runs
-  the unit and whole-run reviews, lands one commit per unit; writes no production code itself. Use when a plan is
-  ready and the user says «выполни план», «запусти работу». Not planning, design, PRs or CI.
+  Executes a finished plan: each unit to its named executor, reviewed, a commit per unit. Use for «выполни план»,
+  «запусти работу», «продолжи прогон», or a code change asked in chat outside a run («поправь…», «сделай поле
+  необязательным»).
 ---
 
 # Execute an Implementation Plan
@@ -14,8 +14,8 @@ to implement the work itself.
 
 **The orchestrator writes no production code.** Every unit goes to the
 executor the plan named, and a review fix goes back to that executor or to
-`mechanical-worker`. The grade picks the packet and the review roster. An
-orchestrator that types the fix itself skips that loop.
+`mechanical-worker` — even a one-liner. The grade picks the packet and the
+review roster. An orchestrator that types the fix itself skips that loop.
 
 **Tests come from the documentation, before the code.** The design already
 fixed the signatures, the states, the error mapping, and the acceptance
@@ -65,7 +65,7 @@ Step 6, **A decision changed during the run**.
 | The design documents the plan cites | on demand | read the cited section when building a worker packet, not up front |
 | Context7 MCP (`resolve-library-id`, `query-docs`) | no | live library docs for the packet's `CURRENT LIB DOCS` (Step 2b). Missing MCP is a skip, not a stop |
 | Stack skills | yes | chosen per unit from §1 «Стек» and the unit's files — `typescript`, `react`, `python`, the library skills — plus any the user attached, forwarded as `STACK SKILLS` (`references/stack-skills.md`) |
-| `frontend` and `web-design-guidelines` skills | for frontend units | every `impl-ui` unit, and any unit whose `Файлы` are browser UI code, gets them in `STACK SKILLS` without being attached: the `frontend` `SKILL.md` in full plus the one `references/<profile>.md` that matches architecture §1 «Стек» (or the line `no profile — <stack>`), and the `web-design-guidelines` `SKILL.md` in full. Backend units never get them |
+| `frontend` and `web-design-guidelines` skills | for frontend units | every `impl-ui` unit, and any unit whose `Файлы` are browser UI code, gets them in `STACK SKILLS` without being attached: the `frontend` `SKILL.md` plus the one `references/<profile>.md` that matches architecture §1 «Стек» (or the line `no profile — <stack>`), and the `web-design-guidelines` `SKILL.md`, each by its absolute path. Backend units never get them |
 
 ### Readiness gate
 
@@ -82,16 +82,19 @@ economics quietly become the session model's economics. For the same reason,
 never override a named `Исполнитель` because the work "looks easy": the plan
 graded it with the fields in front of it; you have less context, not more.
 
-**Also confirm the plan passed `plan-review`** by reading
-`documentation/plans/<version>/plan-review.md` beside the plan. That gate is
-where a dependency cycle, an uncoverable invariant, a dangling citation, or a
-miscalibrated grade is supposed to be caught, and each of those defects is far
-more expensive once workers are running against it. A missing file, or a first
-line other than `Verdict: PASS`, means the gate did not pass: run it and its
-revise rounds now, the way `plan` runs them (`plan` step 6), without asking.
-Only a `STOP` there — the documents have a gap — or revise rounds that stop
-making progress end the run before its first unit, with the reason in the
-chat and the run report.
+**Also confirm `plan-review` passed the plan as it is now** — the `review`
+line of `plan_state.py` (Step 1). `plan-review.md` beside the plan opens with
+`Verdict: PASS` and a `checked:` line holding the sha256 of `plan.md`; a plan
+appended after its review (fix units, a forgotten unit) has another hash, and
+its new units would reach workers unchecked. That gate is where a dependency
+cycle, an uncoverable invariant, a dangling citation, or a miscalibrated grade
+is caught, and each of those defects is far more expensive once workers are
+running against it. Any `review` line but `PASS · checked … = plan.md` — no
+file, another verdict, `STALE`, no `checked:` — means the gate did not pass:
+run it and its revise rounds now, the way `plan` runs them (`plan` step 6),
+without asking. Only a `STOP` there — the documents have a gap — or revise
+rounds that stop making progress end the run before its first unit, with the
+reason in the chat and the run report.
 
 ## Workflow
 
@@ -99,64 +102,71 @@ chat and the run report.
 
 Read the plan's §1 digest, §2 unit map, §4 waves, and §5 критерии готовности.
 Read individual `### U<n>.` blocks lazily — one when you dispatch it, not all
-at the start. A plan from before plugin 1.2.152 names the same fields in English (`Files`, `Depends on`, `Implementer`…).
+at the start.
 
-Branch: the iteration's `iteration/<version>` (`pipeline` → Service
-version), never `main`. On another branch, switch to it first; on an
-auto-generated one (`worktree-happy-otter`), say so and switch.
+**Where the run stands comes from git, never from memory.** At the start,
+after any context compaction, and whenever you are unsure, run:
 
-Build a task list from the unit map: one task per unit, named from the unit's
-goal with the U-id appended (`Add order aggregate (U3)`). Do not edit the plan
-document — progress lives in commits, the task list, and the progress file
-next to the plan (below).
-
-**Say the count in the chat.** `<всего>` is the number of units in this
-run's scope, taken from the unit map. The default scope is every unit in
-the map. `<сделано>` is how many of those have a `Plan-Unit:` trailer in
-`BASE..HEAD`. A follow-up that is not in the plan does not change either
-number. After the committed set is known, and again after every Step 5
-commit, every stop and every fix of the final review, write one line with
-the progress file's link: `План: <сделано> из <всего> ·
-[progress.html](documentation/plans/<version>/progress.html)`, so the user who
-closed the file or stepped away reopens it from the last message. Take both
-numbers from the map and from git, not from the previous message. A resumed
-or compacted session writes the line before the next dispatch.
-
-**Record the run base and resume from git.** Before the first dispatch, record
-`BASE=$(git rev-parse HEAD)` in the run report. Every unit commit carries the
-trailer `Plan-Unit: <version>/U<n>` (Step 5.5). On start — and after any
-context compaction — read `resume.md` if the run left one (`pipeline` →
-`references/pause-and-resume.md`), then derive the committed set from
-`git log BASE..HEAD --format=%B | grep '^Plan-Unit: <version>/'`, not from
-memory: a unit listed there is done and is never re-dispatched. Re-dispatching
-finished units after losing your place is the single most expensive way a run
-fails. Keep the run report as a file at
-`$(git rev-parse --git-dir)/pipeline-work/<version>-run.md` — outside the
-tree, so the plan stays byte-identical and no unit's `Файлы` grows — append to
-it after every commit, and read it back after a compaction.
-
-**Keep the progress file.** The user follows the run in
-`documentation/plans/<version>/progress.md`, next to the plan: one row per
-unit with its executor, status and review path, and — when the final review
-finds problems — a section that lists every fix as its own task before the
-first fix starts. It is never committed: `documentation/plans/` is out of
-git (`pipeline` → Plans stay out of git). Shape and statuses:
-`references/progress-file.md`. It is a view of git, never a source of truth:
-the `Plan-Unit:` trailers decide what is done. Update it with the Edit tool the
-moment a status changes (dispatched, in review, committed), never from the
-shell: the user's file pane redraws only on edit-tool changes.
-
-**Show the link before the first dispatch.** Once the file is created (or
-rebuilt on a resumed run), and before any unit is dispatched, post it in the
-chat as a clickable Markdown link with its repo-relative path, so the user
-opens it with one click and watches the run live:
-
-```text
-Прогресс выполнения: [progress.html](documentation/plans/1.1.0/progress.html) — откройте, страница обновляется сама.
-План: 0 из 6 · [progress.html](documentation/plans/1.1.0/progress.html)
+```bash
+python3 "${CLAUDE_SKILL_DIR}/scripts/plan_state.py" documentation/plans/<version>/plan.md
 ```
 
-A resumed or compacted session posts the link again before its next dispatch.
+A unit is done when its `Plan-Unit: <version>/U<n>` trailer is anywhere on the
+iteration branch (`git log main..iteration/<version>`), so a second run in the
+same iteration — units appended to the plan, a fix plan — sees the first run's
+units as done. The run's scope is the `todo` line unless the user narrows it;
+`ready` is what may be dispatched; `count` gives both numbers of the progress
+line. A unit with a trailer is never dispatched again: re-dispatching finished
+units after losing your place is the single most expensive way a run fails.
+A follow-up that is not in the plan changes neither number.
+
+- **The `where` line.** A linked worktree (a session folder the app made,
+  `worktree-happy-otter`) has no `documentation/plans/` — it is out of git —
+  and the iteration branch is checked out in the main tree: stop and tell the
+  user to open the session in the main folder the line names. On another
+  branch, switch to `iteration/<version>` (`pipeline` → Service version);
+  never run on `main`.
+- **The run base.** Record `BASE=$(git rev-parse HEAD)` in the run report
+  before the first dispatch. It bounds this run's diff for Step 7 — the health
+  measures and the whole-run review — and nothing else.
+
+**The run report** (`references/run-report.md`) is a file at
+`$(git rev-parse --git-dir)/pipeline-work/<version>-run.md` — outside the
+tree, so the plan stays byte-identical and no unit's `Файлы` grows; a second
+run in the iteration adds its own section under its own BASE. Append to it
+after every commit and read it back after a compaction. Its «В работе» line
+lists each dispatch still out — `U7 → impl-medium (задача <id>)` — written
+before the `Agent` call and cleared when it returns. After a compaction a
+unit listed there is still running: wait for its result, or confirm its task
+ended, and never send it to a second executor.
+
+**The resume note.** On start read `documentation/plans/<version>/resume.md`
+when a run left one (`pipeline` → `references/pause-and-resume.md` → Picking
+up). Refresh it after every commit and every stop, and delete it when the run
+closes (Step 7): a note left behind sends the next session after a run that
+is over.
+
+**The task list** has one task per unit in scope, named from the unit's goal
+with the U-id appended (`Add order aggregate (U3)`). Do not edit the plan
+document — progress lives in commits, the task list, and the progress file.
+
+**The progress file and its line.** Create — on a resumed run, rebuild from
+git — `documentation/plans/<version>/progress.md` per
+`references/progress-file.md`; it is never committed (`pipeline` →
+`references/service-version.md` → Plans stay out of git). The chat gets it only as **the progress line**: with the file's
+count set from `plan_state.py`, run
+
+```bash
+python3 "${CLAUDE_SKILL_DIR}/../pipeline/scripts/progress_link.py" documentation/plans/<version>/progress.md
+```
+
+(add `--desktop` when this session has the built-in browser) and paste the
+one line it prints, as printed — never a link written by hand. Post it before
+the first dispatch, and again after a resume or a compaction before the next
+one: a run started without it is invisible until its first commit. Post it
+after every Step 5 commit, every stop and every fix of the final review, and
+as the run's last message, so a user who closed the page or stepped away
+reopens it from the last message.
 
 ### Step 2. Resolve the routing table
 
@@ -166,13 +176,16 @@ Read `executor-catalog` and build a small in-run table: for each distinct
 may append the model and effort read from that agent's file. Resolve once,
 reuse for the run. Print that table in this turn before the first `Agent`
 call. Every dispatch in this run — workers, reviewers, follow-ups — goes out
-under the catalog's Dispatch contract; read that section with the rows.
+under the catalog's Dispatch contract: no `model` (only a model the user names
+for one call, on their own), no permission-mode override, no question about
+models. Read that section with the rows.
 
 An agent the `Agent` call does not know is not installed: stop and tell the
-user to run `install.sh`, per the Dispatch contract. An alias the harness
-rejects inside an agent file is handled by the catalog's Slug hygiene: stop
-on that tier and report it with the tier name and the file. Neither is fixed
-by adding agents or executor setup to the project.
+user to install or update the `dev-pipeline` plugin and restart the session,
+per the Dispatch contract. An alias the harness rejects inside an agent file
+is handled by the catalog's Slug hygiene: stop on that tier and report it with
+the tier name and the file. Neither is fixed by adding agents or executor
+setup to the project.
 
 ### Step 2b. Refresh current library docs once
 
@@ -184,8 +197,8 @@ stop.
 
 ### Step 3. Pick the next unit or wave
 
-A unit is ready when every id in `Зависит от` is committed — that is, has a
-`Plan-Unit:` trailer in `BASE..HEAD` (Step 1). Among ready units:
+A unit is ready when every id in `Зависит от` is done — the `ready` line of
+`plan_state.py`. Among ready units:
 
 - **Serial** by default — one unit, one dispatch, one commit.
 - **Parallel** only when all four hold (cap a wave at three or four):
@@ -212,6 +225,13 @@ Re-verify the plan's parallel claim against the tree before dispatching, then
 decline parallelism under any remaining doubt. Speed is optional; a clean
 history is not.
 
+**The Low batch at a wave boundary.** When the last unit of a §4 wave is
+committed — and before Step 7 in any case — run `code-review-unit`'s Low
+batch over the Low units committed since the previous batch, before the next
+wave's first dispatch. Low units get no review of their own, so a run that
+skips this step commits them unreviewed. Its verdicts land as fix commits on
+top (Step 6, **A fix after a commit**).
+
 Do not re-scope the run into sessions ("phase 1 of 3 for today"). Context
 pressure is handled by dispatching units and resuming from git (Step 1), not
 by splitting the run.
@@ -221,8 +241,9 @@ by splitting the run.
 Build the packet from `executor-catalog/references/worker-prompt.md`. Fill
 every slot: paste the cited design excerpts rather than telling the worker to
 go read the architecture, list the exact files, carry the unit's `Подход`,
-`Тестовые сценарии` and `Проверка` verbatim, paste `STACK SKILLS` chosen by
-`references/stack-skills.md` (the `frontend` skill, its one
+`Тестовые сценарии` and `Проверка` verbatim — «Меняет символы» and «Не
+затрагивается» too, into `SYMBOLS CHANGED` and `NOT TOUCHED` — list in `STACK SKILLS` the absolute
+paths chosen by `references/stack-skills.md` (the `frontend` skill, its one
 profile and `web-design-guidelines` for a frontend unit too — see Inputs),
 paste `CURRENT LIB DOCS` from Step 2b, fill `FROM DEPENDENCIES` from the run
 report's `Decisions` of every `Зависит от` unit, and include the `DELEGATION`
@@ -232,15 +253,8 @@ reasoning is a recorded escalation (Step 6). `PATTERN TO MIRROR` is the unit's
 `Образец` field verbatim; do not pick a pattern yourself — a pattern chosen at
 execution time is a design decision nobody reviewed.
 
-The run's first dispatch — and the first after a resume or a compaction — waits until this turn's chat
-already shows the progress link (Step 1, «Show the link before the first dispatch»): the user watches the run
-from that page, and a run started without it is invisible until the first commit.
-Dispatch with the Step 2 row: `subagent_type` is `dev-pipeline:<name>`, and the
-call passes no `model`. Omit any permission-mode override so the user's
-own settings apply. This run does not ask which model to use. Only when the
-user, on their own, names a model for a dispatch does that one call pass it
-(`executor-catalog` → Dispatch contract → A model the user names); the next
-dispatch goes back to the agent file.
+Dispatch with the Step 2 row, after the unit is written into the run report's
+«В работе» line (Step 1) and its progress row reads `🔄 в работе`.
 
 Grade-specific expectations to state in the packet:
 
@@ -253,20 +267,18 @@ Grade-specific expectations to state in the packet:
 
 ### Step 4b. Name the unit's evidence strategy in the packet
 
-Pick one per unit and write it into the packet's `EVIDENCE STRATEGY` slot. The
-unit's `Тестовые сценарии` and the state of the code it touches decide this — not
-the grade alone:
+Write one into the packet's `EVIDENCE STRATEGY` slot; what each owes is in
+the packet itself (`worker-prompt.md`). The unit's `Тестовые сценарии` and the
+state of the code it touches decide it — not the grade alone:
 
-| Strategy | When | What the worker owes back |
-|---|---|---|
-| `test-first` | the unit adds or changes behavior and the surface is new | every scenario as a test, observed failing for the right reason, then the code |
-| `characterization-first` | the unit changes behavior that exists and is untested | the current behavior captured as passing tests first, then which assertion changed on purpose |
-| `smoke` | packaging, config, styling, wiring with no unit-level behavior | the runtime or install check it ran instead |
-| `none` | the plan's scenarios say `none — <reason>` (grade 0 and similar) | nothing; the reason carries |
-
-`test-first` is the default for any unit with real scenarios. Legacy code is
-the one honest exception: demanding a red first test where none exists rewards
-guessing at current behavior instead of pinning it.
+- `test-first` — the unit adds or changes behavior on a new surface; the
+  default for any unit with real scenarios.
+- `characterization-first` — it changes behavior that exists and is
+  untested. Legacy code is the one honest exception to test-first: demanding
+  a red first test where none exists rewards guessing at current behavior
+  instead of pinning it.
+- `smoke` — packaging, config, styling, wiring with no unit-level behavior.
+- `none` — the plan's scenarios say `none — <reason>` (grade 0 and similar).
 
 **Two-phase dispatch for High and risk-floor units.** For auth, authorization,
 money, migrations over live rows, secrets, or any High unit, witness the red
@@ -308,7 +320,8 @@ Per unit, in this order, and never skip to the next unit on a broken tree:
    2. Invoke `code-review-unit` with the unit spec, that diff path, the cited
       design excerpts, the stack skills' review sections, the worker report, and the findings already recorded
       this run. It sizes its own roster from the grade (0 needs no dispatch,
-      Low batches at the wave boundary) and returns findings plus one verdict.
+      Low waits for the batch of Step 3, an `impl-ui` unit gets its own pass
+      at any grade) and returns findings plus one verdict.
    3. Before acting on `RETURN_TO_EXECUTOR`, confirm each blocking finding's
       quoted line exists in the diff (for a missing scenario test, in the
       unit's `Тестовые сценарии`). Drop one that does not to the run report
@@ -321,29 +334,19 @@ Per unit, in this order, and never skip to the next unit on a broken tree:
       P2/P3 never hold up the commit; they land in the run report.
    5. Copy every `OPEN` cross-unit suspicion into the run report's
       **Cross-unit watch** for Step 7.
-5. **Коммит** one commit per unit (plus, for a Low unit, a possible fix commit
-   after its batch review — see **A fix after a commit** below), with the
-   unit's `Коммит` message plus the
-   trailer `Plan-Unit: <version>/U<n>`, staging only that unit's files —
+5. **Коммит** — the unit's own commit, with the unit's `Коммит` message plus
+   the trailer `Plan-Unit: <version>/U<n>`, staging only that unit's files —
    never `git add .`, which drags a sibling unit's half-work into this commit —
    then set the unit's row in the progress file to `✅ готово` with its
-   review verdict.
-   Never batch several units into one commit because it was faster. Do not
-   stage a contract document (SRS, OpenAPI, DB schema, architecture, UI
-   spec) with a unit: a document changes only in its own commit for a
-   changed decision (**A decision changed during the run**), and its
-   version and changelog belong to `doc-versioning`, which the user
-   invokes. `plan` does not call it.
-6. **Update the task list and the run report file** (the unit's row and the
-   worker's `DECISIONS`), write the `План:` line with the link in the chat
-   (Step 1), then move on. When the run stops on a unit instead (a
+   review verdict. Never batch several units into one commit because it was
+   faster. Do not stage a contract document (SRS, OpenAPI, DB schema,
+   architecture, UI spec) with a unit: a document changes only in its own
+   commit for a changed decision (**A decision changed during the run**).
+6. **Update the task list, the run report** (the unit's row, the worker's
+   `DECISIONS`, «В работе» cleared) **and the resume note**, post the progress
+   line (Step 1), then move on. When the run stops on a unit instead (a
    design gap, rounds that stopped making progress), set that row to
    `⛔ остановлено: <причина>`.
-
-Fixing a worker's output yourself is the one thing this loop forbids, even a
-one-liner. A failing test, a missed scenario, or a review finding goes back —
-to the same executor with the finding, or to `mechanical-worker` when the fix
-is purely mechanical.
 
 ### Step 6. Handle a bad return
 
@@ -355,23 +358,23 @@ is purely mechanical.
 | Scope breach | revert the out-of-scope part, re-dispatch the unit narrowed |
 | A red test made green by editing its assertion | treat as `BLOCKED`, not a pass — it hides a real conflict between the scenario and the design |
 
-**Repeat until it passes.** A unit is re-dispatched — `RETURN_TO_EXECUTOR`, an escalation,
-a corrected `Файлы` — round after round until its review says `COMMIT`, as long as each
-round makes progress (`pipeline` → `references/convergence.md`): the re-review reads only
-what the round changed, every re-dispatch carries the open findings and the previous
-reports, and a finding that survives a fix moves the unit one tier up. A `FIX_THEN_COMMIT`
-fix by `mechanical-worker` is confirmed by the orchestrator's own check. At
-`impl-critical`, when the premise check finds the approach itself false (or cannot tell),
-the next round is two approaches from one base, picked by the tests
-(`references/two-approaches.md`). When progress stops — a closed finding came back, a round
-closed nothing, a finding survived a fix at `impl-critical` — the unit or the design is
-wrong: stop and say so. The Ревью cell shows the rounds (`RETURN_TO_EXECUTOR ×2 → COMMIT`).
+**Repeat until it passes.** How many rounds a unit gets, what each round
+carries and when the rounds stop is `pipeline` → `references/convergence.md`,
+the one rule for every retry here — there is no separate attempt budget. What
+is particular to code: a `FIX_THEN_COMMIT` fix by `mechanical-worker` is
+confirmed by the orchestrator's own check; at `impl-critical`, when the
+premise check finds the approach itself false (or cannot tell), the next round
+is two approaches from one base, picked by the tests
+(`references/two-approaches.md`); the Ревью cell shows the rounds
+(`RETURN_TO_EXECUTOR ×2 → COMMIT`).
 
 **A fix after a commit** — from a Low batch review or from the final review —
 is a new commit on top, never a rewrite of history. It goes to the executor
 the verdict names (`mechanical-worker` for a mechanical finding, the unit's
-own implementer for `RETURN_TO_EXECUTOR` / `RETURN_TO_UNIT`), passes
-`code-review-unit` like any unit, and carries the trailer of the unit it fixes
+own implementer for `RETURN_TO_EXECUTOR` / `RETURN_TO_UNIT`), passes your
+Step 5.3 checks, and has one review per round — a Low-batch fix
+`code-review-unit` over its own diff (a mechanical one your own check), a
+final-review fix `code-review-full`'s re-review, never both. It carries the trailer of the unit it fixes
 (`Plan-Unit: <version>/U<n>`); a fix that spans units carries
 `Plan-Unit: <version>/review-fix-<n>`. List every such commit in the
 run report, so `code-review-full` counts it as mapped.
@@ -380,7 +383,8 @@ run report, so `code-review-full` counts it as mapped.
 their mind («давай по-другому»), or a fact overrules a document. Before
 the next dispatch, follow `pipeline` → `references/decision-changes.md`:
 a line under «Изменённые решения», every document that states the old
-decision fixed through its writer, one commit with no version change.
+decision fixed through its writer, one commit with no version change and the
+trailer `Plan-Unit: <version>/decision-<n>`, so `code-review-full` maps it.
 Later packets carry it as `CHANGED DECISIONS`; a committed unit built on
 the old decision gets a follow-up commit, as in **A fix after a commit**;
 a change that needs a new unit is a plan change — stop and ask. A run
@@ -395,11 +399,12 @@ unit, and a plan carrying scars stops being a decision artifact.
 When every unit in scope is committed, first run these checks yourself and save
 each output under `$(git rev-parse --git-dir)/pipeline-work/`:
 
-- **Критерии готовности** — every command in the plan's §5, with its exit code; a browser suite opens its e2e
-  section in `progress.md` and posts the link before it starts, runs after the verify skill's doctor
+- **Критерии готовности** — every command in the plan's §5, with its exit code. A browser suite first opens
+  its e2e section in `progress.md` and posts the progress line, then runs after the verify skill's doctor
   (`.claude/skills/verify/`) says READY — with none, write and prove it first (`deploy-topology` →
-  `references/verify-skill.md`) — on parallel stands, and cleans up per `ui-test-cases` →
-  `references/parallel-stands.md` (a stand not yet copyable is a question there, not a silent single stand).
+  `references/verify-skill.md`; its commit carries `Plan-Unit: <version>/verify-skill`) — on parallel stands,
+  and cleans up per `ui-test-cases` → `references/parallel-stands.md` (a stand not yet copyable is a question
+  there, not a silent single stand; making it copyable is its own commit with `Plan-Unit: <version>/stand`).
 - **Health and mutants** — `references/health.md`: duplicates, complexity and sizes against BASE, mutants over the
   run's diff; a simplifier pass lands what grew before the review, as its own commit with the trailer
   `Plan-Unit: <version>/health-<n>`. **Dead-code report** — `knip` for TypeScript, `vulture` for Python (another
@@ -426,75 +431,66 @@ is a changed decision, landed in the documents before the fix.
 
 Anything but `PASS`: before the first fix, add «Исправления по финальному
 ревью» to the progress file — every finding a row with who fixes it and
-`⏳ ждёт` (`references/progress-file.md` → Fixes after the final review),
-and post the link again before the first fix, pointing at the section:
-`Исправления по финальному ревью: [progress.html](documentation/plans/<version>/progress.html) — раздел внизу файла, обновляется по ходу работы.` Each fix then lands like a unit, updating its rows. After
-each round of fixes, run `code-review-full` again over that round's fix
-commits only — never a second time over the whole diff — until `PASS`, while
-each round makes progress (`pipeline` → `references/convergence.md`); when
-the rounds stop making progress, stop and take the open findings to the user.
+`⏳ ждёт` (`references/progress-file.md` → Fixes after the final review) —
+and post the progress line, saying the fixes are the section at the bottom of
+the page. Each fix then lands like a unit — your Step 5.3 checks, its own
+commit with its trailer, its rows — and its review is the re-review: after each
+round of fixes, run `code-review-full` again over that round's fix commits only,
+with its re-review packet — never a second time over the whole diff — until `PASS`,
+while each round makes progress (`pipeline` → `references/convergence.md`);
+when the rounds stop making progress, stop and take the open findings to the
+user.
 
-At the close write the verdict path into the `Финальное ревью:` line
-(`RETURN_TO_UNIT → исправлено → PASS`, or plain `PASS`).
+**Close.** Write the verdict path into the `Финальное ревью:` line
+(`RETURN_TO_UNIT → исправлено → PASS`, or plain `PASS`), write the run
+report (`references/run-report.md` — read it now), stop every watcher the run
+started, and delete `resume.md`. The run's last message is the progress line,
+then the question about the next stage: read `pipeline` → "Asking before a
+transition" now and ask it as that section says — stage 12's row offers
+`ui-test-cases` mode run when the product has screens, else
+`security-audit`. The reviews inside the run stayed automatic; this handoff
+is a question. No PR, no push, no CI watching: the branch stays local, and
+push and PR are the user's step after the whole pipeline.
 
-Stop there. The last chat line is the `План:` line with the link. No PR, no
-push, no CI watching. The branch stays local: the pipeline still has
-the UI acceptance run (`ui-test-cases`, when there are screens), `security-audit`, `deploy-topology`, `operations-doc` and `ci-pipeline` ahead, and push and PR are the user's
-step after the whole pipeline, not after this run.
+## A change asked in chat outside a run
 
-## Run report
-
-The report's shape, filled for one run: `references/run-report.md` — read it
-at Step 7, before writing the report.
+When no run is in progress and the user asks in the chat for a change to the
+built code — «сделай поле необязательным», «убери предупреждение» — it is not
+committed on the executor's word. The executor writes it, `code-review-unit`
+reviews it, the tests it can break run on the branch, and only then is it
+committed; the report line names both checks
+(«Ревью: … · тесты: …»). How to size it, the steps and the line:
+`references/chat-change.md` — read it before the first dispatch of such a
+change.
 
 ## Before you finish
 
-- Every attempted unit has one commit, mapped to it by its `Plan-Unit:`
-  trailer — Step 5.5.
-- No production code in the diff was written by the orchestrator — Step 5.
-- Every unit ran on the executor the plan named, or on recorded
-  escalations — Steps 2, 6.
+- Every unit in scope has its own commit with its `Plan-Unit:` trailer, plus
+  only the fix commits Step 6 allows, each with its trailer — Steps 5.5, 6.
+- No unit with a trailer was dispatched again; the «В работе» line was
+  checked after every compaction — Step 1.
+- No production code in the diff was written by the orchestrator; every unit
+  ran on the executor the plan named, or on recorded escalations — Steps 2, 5, 6.
 - Every unit has an evidence strategy and the evidence it owes, taken from the
-  worker's report, never reconstructed from the diff — Steps 4b, 5.3.
-- Every listed scenario exists as a test that would fail if the behavior
-  broke — Step 5.3.
-- Every High and risk-floor unit had its red witnessed in a `tests-only`
-  phase — Step 4b.
+  worker's report, never reconstructed from the diff; every High and
+  risk-floor unit had its red witnessed — Steps 4b, 5.3.
+- Every Low unit went through a batch review, every `impl-ui` unit through
+  its own — Steps 3, 5.4.
 - The plan document is byte-identical to how the run found it — Step 1.
-- The chat showed the progress link before the first dispatch, the `План:` line once the committed set was known
-  and after every commit and stop; a unit's row read `🔍 ревью` during its review — Steps 1, 5.4, 5.6.
-- The run report names grade corrections — Step 6.
+- The progress line came from `progress_link.py`: before the first dispatch,
+  after every commit and stop, and last — Step 1.
 - Every changed decision is under «Изменённые решения» and committed in
   its documents before the next dispatch — Step 6.
-- The progress file next to the plan matches the `Plan-Unit:` trailers, and
-  its `Финальное ревью:` line carries the final review verdict or the stop
-  reason — Step 1, Step 5.5, Step 7.
-- `code-review-full` ran once over the whole diff after every unit in scope
-  was committed, then over each round's fix commits while each round made
-  progress, never a second time over the whole diff; it checked the
-  критерии готовности, and every verdict is recorded — Step 7.
-- When the final review found problems, the progress file listed every fix
-  as a task before the first fix, and each row ends `✅ готово`,
-  `⏭ пропущено: в отчёт` or `⛔ остановлено` — Step 7.
+- `code-review-full` ran once over the whole diff, then over each round's fix
+  commits only, and every verdict is recorded; when it found problems, the
+  progress file listed every fix before the first one — Step 7.
+- `resume.md` is gone, the watchers are stopped, and the next stage was
+  offered as a question — Step 7.
 
 ## References
 
-- `executor-catalog` (skill) — name → agent, nesting, escalation, review
-  routing, and the dispatch contract.
-- `code-review-unit` (skill) — the per-unit review invoked at Step 5.4, and the
-  verdict that loop honors.
-- `code-review-full` (skill) — the whole-run review at Step 7, plus its re-reviews over the fix commits until `PASS`.
-- `references/progress-file.md` — the progress file: units table, the fixes section after the final review, statuses, commits.
-- `pipeline` → `references/decision-changes.md` — a decision that changes
-  during the run: the owner document, the cascade, the commit.
-- `executor-catalog/references/worker-prompt.md` — the packet and the report format, used verbatim per dispatch.
-- `references/context7.md` — the Step 2b library-docs procedure; read before
-  the first dispatch when a unit calls a public library API. Context7 is not a
-  stage and not a substitute for language skills.
-- `references/two-phase-dispatch.md` — the witnessed-red protocol; read before
-  dispatching a High or risk-floor unit.
-- `references/two-approaches.md` — two approaches at `impl-critical` when the approach is in doubt.
-- `pipeline` (skill) — read it after `code-review-full` closes the run.
-  The reviews inside this run stay automatic. The handoff to the next
-  stage is a question, per `pipeline` → "Asking before a transition".
-  Do not list the rest.
+Each is named where it is read: `scripts/plan_state.py` (Step 1), `references/progress-file.md` (Steps 1, 7),
+`references/context7.md` (2b), `references/two-phase-dispatch.md` (4b), `references/two-approaches.md` (6),
+`references/health.md` and `references/run-report.md` (7), `references/chat-change.md`; the skills
+`executor-catalog`, `code-review-unit`, `code-review-full`, and `pipeline` → `references/decision-changes.md`,
+`references/convergence.md`, `references/pause-and-resume.md`.

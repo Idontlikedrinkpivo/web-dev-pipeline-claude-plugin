@@ -1,10 +1,8 @@
 ---
 name: db-schema-design
 description: >-
-  Designs the relational schema from the SRS: DBML, numbered SQL migrations with constraints, an ER diagram and a page
-  per table in documentation/db/; extends it for the next slice. Use for a database schema, tables, keys, indexes or
-  migrations — «какие таблицы нужны». Not the API (`openapi-spec-generator`) or entities
-  (`clean-architecture-design`).
+  Designs the relational schema from the SRS, slice by slice: DBMS and version, tables, keys, constraints, indexes,
+  SQL migrations, ER diagram. Use for «схема БД», «какие таблицы нужны», «выбор СУБД». Not the API or entities.
 ---
 
 # Database Schema Design
@@ -14,18 +12,31 @@ description: >-
 The session writes no DBML, no migration file, and no ER `.d2`. The
 dispatched writer settles them and nests `doc-typist` to print them. A
 report whose `DELEGATED` is not `doc-typist` comes back until it is. The
-session does not dispatch the typist.
+session dispatches the typist only for a print defect (step 4).
 
 1. Stop if the SRS is missing — no actors, no use cases, no rules. Name
    `srs-writer`. Do not wait for
    `clean-architecture-design`: it runs after this stage, so the writer
    reads invariants from the SRS and decides each constraint itself (§4).
+   No `schema.md` but the repository already runs a database — another
+   tool's migrations (`alembic/`, `prisma/migrations/`, `drizzle/`, SQL
+   files outside `documentation/`) or ORM models: stop and ask whether to
+   document that schema as it is, in the namespace it lives in (`public`
+   included), or to design a new one beside it. The greenfield branch
+   would otherwise lay a second schema over a live one.
 2. When a schema document already exists, read `doc-versioning`.
    The writer runs as a subagent and cannot ask the user. Before dispatch,
-   settle the database engine when it is not already a fact, and the
-   classification of a field that looks sensitive when the SRS does not
-   say (§6). Ask once in chat and paste the answers into the packet's
-   INPUTS.
+   settle what only the user can: the DBMS and its major version when no
+   file states them (a manifest or compose in the repo, the SRS, an
+   existing `schema.md`) — this stage owns that decision, and the
+   architecture takes it from here — and the classification of a field
+   that looks sensitive when the SRS does not say (§6). One question per
+   message (`pipeline/references/question-format.md`); each answer goes
+   into the packet's ANSWERS. On an increment, fill POPULATED for every
+   existing table the slice changes: `rows: yes` when the migration that
+   created it is in a released tag (`git ls-tree -r --name-only
+   v<last version> documentation/db/migrations/`), `rows: no` when this
+   unreleased iteration created it; with no tag and a live database, ask.
 3. Read `executor-catalog` and
    `executor-catalog/references/design-complexity.md`. Dispatch
    exactly one writer with
@@ -36,15 +47,22 @@ session does not dispatch the typist.
    and the call passes no `model` (the agent file holds it) unless the
    user named one. A missing agent or a rejected alias is a stop.
 4. Inspect the files on disk. A DBML table without a table-level `Note`,
-   or a column without `note:`, is not done — send the writer back with
-   the missing names, until none is missing. A missing `documentation/db/diagrams/er.d2`, or a slice
-   whose tables have no new file in `documentation/db/migrations/`, is not done either.
-   A diff that edits a migration file already committed (`git diff HEAD --
-   documentation/db/migrations/`) sends the writer back: that change is a new file.
+   or a column without `note:`, is a print defect: dispatch `doc-typist`
+   `MODE revise` with one `SETTLEMENT` line per missing note, its text
+   taken from the SRS (`executor-catalog` → Nesting), until none is
+   missing. A missing `documentation/db/diagrams/er.d2`, or a slice
+   whose tables have no new file in `documentation/db/migrations/`, sends
+   the writer back. A diff that edits a migration file already committed
+   (`git diff HEAD -- documentation/db/migrations/`) sends the writer
+   back: that change is a new file.
    When that `.d2` exists and the `.svg` does not, run the render command
-   in `references/er-diagram.md` once. Do not edit the `.d2`. Escalate
-   one design row per `BLOCKED` / `HARDER_THAN_EXPECTED`; every round goes
-   on while it makes progress (`pipeline` → `references/convergence.md`).
+   in `references/er-diagram.md` once. Do not edit the `.d2`. Then
+   regenerate the table documents (Output, item 3):
+   `python3 "${CLAUDE_SKILL_DIR}/scripts/table_docs.py"`. A
+   `BLOCKED` with a question for the user is asked and sent back to the
+   same row; any other `BLOCKED` / `HARDER_THAN_EXPECTED` escalates one
+   design row (`executor-catalog` → Escalation); every round goes on while
+   it makes progress (`pipeline` → `references/convergence.md`).
 5. Close the stage by asking, per `pipeline` → "Asking before a
    transition". First ask about `doc-review`. Run: run it; it returns
    without asking the next stage. Skip: name it in the report. Stop:
@@ -75,18 +93,14 @@ code then have to honour.
 
 ## Scope
 
-**USE this skill when:**
-- Turning entities and rules from an SRS into tables for a new project or feature
-- Deciding primary keys, foreign keys, and `ON DELETE` behavior
-- Choosing which indexes a slice's declared queries need
-- Turning a domain rule into a `CHECK` constraint (or deciding it can't be)
+**Use for:** SRS entities and rules → tables for a new project or feature;
+primary and foreign keys, `ON DELETE`; the indexes a slice's declared
+queries need; a domain rule → a `CHECK` (or deciding it can't be).
 
-**NOT for:**
-- Multi-tenant row/schema/database isolation strategy (add `tenant_id` +
-  RLS only when the SRS calls for multi-tenancy)
-- Table partitioning (only relevant past ~100M rows — not a day-one decision)
-- Diagnosing slow queries on an existing database (use PostgreSQL's own
-  `EXPLAIN ANALYZE` workflow, that's a production-debugging task)
+**Not for:** a multi-tenant isolation strategy (`tenant_id` + RLS only
+when the SRS calls for multi-tenancy); table partitioning (past ~100M
+rows, not a day-one decision); diagnosing slow queries on a live database
+(`EXPLAIN ANALYZE`, a production-debugging task).
 
 ## Context Required
 
@@ -95,11 +109,13 @@ code then have to honour.
 | Entities, stored state, and the rules that must survive a restart | SRS actors, use cases, business rules |
 | What a use case accepts and returns, and whether a value may be absent, when that data is stored | SRS, that use case |
 | Which reads the use cases name | SRS |
-| Database engine (PostgreSQL / MySQL) | A fact in INPUTS, or the orchestrator's answer there |
-| PII / credential / secret classification, if any (§6) | SRS Security NFR rows, or the orchestrator's answer in INPUTS |
+| DBMS and its major version (PostgreSQL 18, MySQL 8.4) | A file the packet names, or the answer in ANSWERS. Recorded once, in «Решения по базе» (Output) |
+| PII / credential / secret classification, if any (§6) | SRS Security NFR rows, or the answer in ANSWERS |
+| Whether an existing table already holds rows | POPULATED — it picks the safe migration sequence |
 
 You cannot ask the user. If one of these is still unresolved, return
-`STATUS BLOCKED` with the question.
+`STATUS BLOCKED` with that one question; the session asks it and sends
+the answer back.
 
 Do not invent a layer, a port, or a file tree — those are architecture's
 decisions, made after this schema.
@@ -116,38 +132,12 @@ picking a different column name.
 
 ## Existing schema: increment, do not redesign
 
-When a schema document already exists for this system, read the
-`doc-versioning` skill and follow it. Edit the document in place. This
-invocation is not a version event: do not touch `version` and do not add a
-changelog row. The stamping commit (`doc-versioning`) writes the version
-and one typed row per changed table or column. Set `migration:` to the
-number of the last file in `documentation/db/migrations/` that the DBML
-now reflects: it describes the body, like the DBML, so the writer keeps it
-current. Two asymmetric rules govern here:
-
-- The schema **document** grows in place — new tables and columns appended,
-  existing definitions changed only when the feature changes them. The
-  report's DOWNSTREAM line names each change with the type it implies, so
-  the stamp can type its rows. A dropped or renamed column or table, a
-  changed type, a new `NOT NULL` column without a default on an existing
-  table, or a tightened constraint the code may violate is `ломает`; a new
-  table or a new nullable column is `добавляет`; a reworded note with the
-  same meaning is `уточняет`.
-- The **database** changes only by appending a migration: the next numbered
-  file in `documentation/db/migrations/` (`0002_add_room_capacity.sql`), and
-  the same write updates `schema.md` so it still shows the whole current
-  schema. A committed migration file is never edited — the database that
-  already ran it would never see the change. A file this iteration wrote
-  and nobody committed yet may still be rewritten. Name in the report
-  which file the increment adds, what it does, and whether it is
-  reversible; the stamp's changelog row carries it.
-
-A greenfield schema needs no zero-downtime sequence. Once rows exist, read
-`references/migration-safety.md` and use its safe sequence for every DDL on a
-populated table, because a one-step `ALTER` there can lock or rewrite the table
-under live traffic. Name the sequence and its reversibility in the report (the
-stamp's changelog row carries it); do not present a destructive or locking
-one-step DDL as routine.
+When a schema document already exists, read `references/increment.md`
+before editing: the document grows in place and is never re-versioned
+here, the database changes only by a new numbered migration, a committed
+migration is never edited, and a populated table (POPULATED) takes the
+safe sequence of `references/migration-safety.md`. A greenfield schema
+needs none of it.
 
 ---
 
@@ -184,6 +174,11 @@ schema explicitly. Point the application at it both ways:
 
 `deploy-topology` carries the same schema name into every environment's
 connection string; only the server changes per environment.
+
+A database that already lives in `public`, documented as it is (the
+user's answer in ANSWERS), stays there: moving it is a planned change of
+its own, not a side effect of documenting it. Its tables are described,
+not created — no `CREATE TABLE` for a table that exists.
 
 ## 1. From the SRS to tables
 
@@ -225,10 +220,20 @@ CREATE TABLE orders (
 );
 ```
 
-`uuidv7()` exists from PostgreSQL 18. On an older version `gen_random_uuid()`
+`uuidv7()` exists from PostgreSQL 18 — read the major from ANSWERS or the
+file that states it. On an older version `gen_random_uuid()`
 gives v4, which is not time-ordered: either the application generates the v7
 id and the column has no default, or v4 is a decision written in the column's
 note with the reason — never a silent swap.
+
+**How the API names keys.** The contract never shows the internal `bigint`
+key or a `bigint` reference. A table's `public_id` is the resource's `id`
+in the API; a reference column `<thing>_id` (the referenced table in the
+singular: `room_id` → `rooms`) keeps its name in the API and carries the
+referenced row's `public_id`; a path parameter is `<resource>_id`
+(`/bookings/{booking_id}`). `openapi-spec-generator` maps by this rule and
+`docs-consistency` checks it; name every reference column so the rule
+gives the API name.
 
 ### Columns and types
 
@@ -423,10 +428,11 @@ the table — pick one, not both.
    changelog in a migration file; `schema.md`'s changelog row names it.
 
 3. **Table documents** — one `documentation/db/tables/<table>.md` per table, generated from the DBML and
-   `## Закрытые наборы значений` by `python3 "${CLAUDE_SKILL_DIR}/scripts/table_docs.py"` (columns: Поле, Тип данных,
+   `## Закрытые наборы значений` by this skill's `scripts/table_docs.py` (columns: Поле, Тип данных,
    Свойства, Значение по умолчанию, Связь, Допустимые значения, Описание; then the incoming references with
-   what deleting a row does). Run it after the DBML is written; the plugin's hook reruns it after any later edit
-   under `documentation/db/`. Never edit those files — edit the DBML; they go into the same commit.
+   what deleting a row does). The orchestrator runs it after the files land (step 4), and the plugin's hook
+   reruns it after any edit under `documentation/db/`; the writer and the typist do not. Never edit those
+   files — edit the DBML; they go into the same commit.
 
 4. **ER** — `documentation/db/diagrams/er.d2` and `er.svg`, embedded under `## ER`. Follow `references/er-diagram.md`. The picture is a projection of this DBML: same tables, columns, and keys, nothing added. Render the SVG in the same write. Questions go in `documentation/db/open-questions.md`, not in a section of the schema.
 
@@ -445,12 +451,14 @@ current schema — after an increment, the DBML reads as if every migration
 so far had run.
 
 **`## Решения по базе`** — what holds for the whole schema, a short list, one
-line each with its reason: the namespace (`ai_portal`, not `public`) and who
-creates it; how migrations run (the tool, the order, what sets
-`search_path`); what makes keys (`gen_random_uuid()` — the DBMS version has
-no `uuidv7()`); collation or extensions the schema relies on. The DBMS and
-its version are the foundation's (§1 «Стек», «Хранилища»): name them once
-here with that pointer, never a second decision. Not here: which SRS
+line each with its reason. The first line is the DBMS and its major version
+(«СУБД: PostgreSQL 18 — …»): decided at this stage, the one home of that
+decision; the architecture's §1 «Стек» and `repo-scaffold` take it from
+here. Then the namespace (`ai_portal`, not `public`) and who creates it;
+how migrations run (the files in number order, each once, what sets
+`search_path` — the runner itself is the stack's, named by the
+architecture); what makes keys (`gen_random_uuid()` — the DBMS version has
+no `uuidv7()`); collation or extensions the schema relies on. Not here: which SRS
 requirements the tables serve (the column notes and the table documents
 carry them), what each migration changed (its changelog row and the header
 of its file), and how a release cuts over or rolls back (the deploy
@@ -466,7 +474,8 @@ and outputs — the API-contract step reads directly off these names.
 
 - [ ] Project schema, not `public`: `0001_init.sql` opens with `CREATE SCHEMA` and `SET search_path`, every later file with `SET search_path`; the connection's `search_path` and the migration tool's version table point at it — §0
 - [ ] This slice's DDL is a new numbered file in `documentation/db/migrations/`; no committed file edited; `schema.md` has no SQL block, shows the whole current schema, and its `migration:` names the last file — Output
-- [ ] One table per stored entity; PKs, FKs with `ON DELETE`, `NOT NULL`, timestamps, and types as §1 says
+- [ ] One table per stored entity; PKs, FKs with `ON DELETE`, `NOT NULL`, timestamps, and types as §1 says; reference columns named `<thing>_id` so the API names follow — §1
+- [ ] «Решения по базе» opens with the DBMS and its major version — Output
 - [ ] 3NF; any denormalization names its SRS id — §2
 - [ ] An index for every filter, join, and sort this slice declares, and nothing more — §3
 - [ ] Every SQL-expressible rule is a constraint; every other rule has none — §4

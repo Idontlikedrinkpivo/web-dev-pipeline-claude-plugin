@@ -128,14 +128,22 @@ Effort buys thinking where a row decides, not where it types:
 
 - `low` — nothing to decide: `mechanical-worker`, `doc-typist`, `code-explorer`;
 - `medium` — transcription and the structural passes: `impl-lite`,
-  `plan-review-medium`, `doc-review-low`, `figma-sonnet`; and `design-hard`
-  (below);
-- `high` — every row that closes decisions: the other implementers, the
-  writers, and the remaining reviewers, `review-full-plan` and
-  `docs-consistency-checker` included;
-- `xhigh` — only the single-shot adversarial judgments where a missed
-  finding is the expensive failure: `review-hard`, `plan-review-hard`;
+  `plan-review-medium`, `doc-review-low`, `figma-sonnet`, `ui-test-writer`,
+  `session-reviewer`;
+- `high` — every row that closes decisions: the other implementers
+  (`impl-medium`, `impl-hard`, `impl-critical`, `impl-ui`), the Low and Mid
+  writers (`design-lite`, `design-medium`, `plan-lite`, `plan-medium`),
+  `srs-author`, `screen-writer`, `ui-test-runner`, `figma-opus`, and the
+  remaining reviewers — `review-medium`, `review-full-plan`,
+  `doc-review-medium`, `doc-review-hard`, `docs-consistency-checker`,
+  `security-auditor`;
+- `xhigh` — the single-shot adversarial judgments where a missed finding is
+  the expensive failure, `review-hard` and `plan-review-hard`, and the High
+  writers `design-hard` and `plan-hard` (measured below);
 - `max` — not used.
+
+Checked against `_agents/*.md` on 2026-10-22; when an `effort:` line moves,
+move its name here in the same edit.
 
 What was measured, and what was not:
 

@@ -352,11 +352,9 @@ fields, as YAML frontmatter at the top of the file.
 
 - **`title`** — the artifact's descriptive name with a ` - Business
   Requirements` suffix (e.g., `Highlighter Tool - Business Requirements`),
-  matching the H1. Do not put a
-  conventional-commit prefix (`feat:`/`fix:`) in the title — the `type` field
-  carries that.
-- **`type`** — conventional-commit-prefix-aligned classification (`feat`,
-  `fix`, `refactor`, `docs`, etc.).
+  matching the H1. No conventional-commit prefix (`feat:`/`fix:`) and no
+  `type` field: the document describes a product, not a commit; a `type:`
+  line left by an older write is deleted on the next one.
 - **`date`** — creation date in ISO 8601 (`YYYY-MM-DD`), ASCII digits only.
   Not part of the path: the file is always
   `documentation/requirements/business-requirements/business-requirements.md`.

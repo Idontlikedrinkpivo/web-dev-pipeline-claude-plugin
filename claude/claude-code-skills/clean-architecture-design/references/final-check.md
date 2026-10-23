@@ -39,7 +39,8 @@ states the rule; fix the document there, not here.
   prototype — Step 2.
 - §1 Стек names the runtime with major versions; the file tree and lint
   table match it. The stack was already a fact, or the user picked it in
-  chat — Step 2b.
+  chat — Step 2b. The DBMS row copies `schema.md` «Решения по базе» (name
+  and major), never a second choice — `stack-proposal.md`.
 - The security table covers all eleven sub-items: a concrete decision,
   or `Не применимо` with a reason naming the absent surface. Every NFR-ID
   is the `NFR-<n>` from the SRS named in `sources`. Schema and OpenAPI
@@ -61,7 +62,9 @@ states the rule; fix the document there, not here.
   the domain model has an HTTP row — `configuration-and-http.md`.
 - §5 is real file names for what this document owns, with `domain/` and
   `application/` folders pointing at the document that names their files;
-  every port, adapter, mapper and storage model from §4 has a line.
+  every port, adapter, mapper and storage model from §4 has a line. Its
+  «Локальный запуск» says Compose or not, the processes, and how the
+  migrations run — `repo-scaffold` builds the local run from it.
 - §6: the lint rule table (not a pasted config) names every production
   layer of §5, exempts Host/bootstrap, forbids cycles and every
   cross-area import §2 does not name (and allows each one it names) when

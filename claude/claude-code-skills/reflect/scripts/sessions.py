@@ -9,19 +9,88 @@ usage:
                      resumed into a new file) is marked «# повтор <id>» and skipped
   sessions.py digest <session.jsonl> <out.md>             the session as a short chronological digest
 
-The transcripts live in ~/.claude/projects/<project dir with every non-alphanumeric character as '-'>/.
-Only this project's folder is read — never another project's sessions. Subagent transcripts (in
+The transcripts live in ~/.claude/projects/<project dir with every non-alphanumeric character as '-'>/. A path
+whose name runs past 200 characters is cut there and gets a short hash (-Users-…-run-1--4izqz2), and a session
+started in a worktree of the repository (the desktop app's, `git worktree add`, a folder nested in the project)
+sits under the worktree's own path. So the folders read are: the project's own name, its shortened-and-hashed
+form, the names of the repository's worktrees (`git worktree list`) and of folders nested in the project — each
+session of a candidate kept only when the `cwd` it recorded is the project, one of those worktrees, or a folder
+inside them. Only this project's sessions are read — never another project's. Subagent transcripts (in
 <session>/subagents/) are skipped: the main session already shows what each dispatch returned.
 """
 from __future__ import annotations
-import json, os, re, sys
+import json, os, re, subprocess, sys
 from pathlib import Path
 
 HOME = Path(os.environ.get("CLAUDE_CONFIG_DIR", Path.home() / ".claude"))
+MAX_NAME = 200  # a longer folder name is cut here and gets "-<hash>"
+
+
+def sanitized(path: str) -> str:
+    return re.sub(r"[^A-Za-z0-9]", "-", os.path.abspath(path))
 
 
 def project_dir(cwd: str) -> Path:
-    return HOME / "projects" / re.sub(r"[^A-Za-z0-9]", "-", os.path.abspath(cwd))
+    return HOME / "projects" / sanitized(cwd)
+
+
+def worktrees(cwd: str) -> list:
+    """The repository's working trees (the main one and every linked one), absolute paths."""
+    try:
+        out = subprocess.run(["git", "-C", cwd, "worktree", "list", "--porcelain"], capture_output=True, text=True,
+                             timeout=10).stdout
+    except (OSError, subprocess.TimeoutExpired):
+        return []
+    return [l[len("worktree "):] for l in out.splitlines() if l.startswith("worktree ")]
+
+
+def recorded_cwd(path: Path) -> str:
+    """The working folder the session recorded (its first «cwd» field), or ""."""
+    try:
+        with open(path, errors="ignore") as fh:
+            for i, line in enumerate(fh):
+                m = re.search(r'"cwd":"((?:[^"\\]|\\.)*)"', line)
+                if m:
+                    return json.loads('"' + m.group(1) + '"')
+                if i > 200:
+                    break
+    except OSError:
+        pass
+    return ""
+
+
+def session_dirs(cwd: str, also: list) -> tuple:
+    """(folders to read, the roots a session's recorded cwd must sit in)."""
+    roots = [os.path.abspath(p) for p in [cwd] + also]
+    trees = worktrees(cwd)
+    if trees:  # the project may be a folder inside the repository: the same folder inside each worktree
+        rel = os.path.relpath(os.path.realpath(cwd), os.path.realpath(trees[0]))
+        if not rel.startswith(".."):
+            for w in trees:
+                r = os.path.abspath(os.path.join(w, rel))
+                if r not in roots:
+                    roots.append(r)
+    names = {sanitized(r) for r in roots}
+    base = HOME / "projects"
+    found = []
+    for d in sorted(base.iterdir()) if base.is_dir() else []:
+        if not d.is_dir():
+            continue
+        n = d.name
+        for s in names:
+            if (n == s or n.startswith(s + "-")  # the folder itself, or one nested in it (s + "-" + rest)
+                    or (len(s) > MAX_NAME and n[:MAX_NAME] == s[:MAX_NAME])):  # shortened with a hash
+                found.append(d)
+                break
+    return found, roots
+
+
+def ours(path: Path, roots: list) -> bool:
+    c = recorded_cwd(path)
+    if not c:
+        return False
+    c = os.path.abspath(c)
+    return any(c == r or c.startswith(r.rstrip(os.sep) + os.sep) for r in roots)
 
 
 def text_of(content) -> str:
@@ -59,13 +128,16 @@ def typed(path: Path) -> list[str]:
 
 
 def cmd_list(cwd: str, since: str | None, also: list[str]) -> None:
-    dirs = [project_dir(cwd)] + [project_dir(a) for a in also]
-    if not any(d.is_dir() for d in dirs):
-        print(f"no sessions: {dirs[0]}", file=sys.stderr)
+    dirs, roots = session_dirs(cwd, also)
+    if not dirs:
+        print(f"no sessions: {project_dir(cwd)}", file=sys.stderr)
         sys.exit(1)
+    exact = {sanitized(r) for r in roots if len(sanitized(r)) <= MAX_NAME}
     seen: dict[str, Path] = {}
     for d in dirs:
-        for p in d.glob("*.jsonl") if d.is_dir() else []:
+        for p in d.glob("*.jsonl"):
+            if d.name not in exact and not ours(p, roots):  # a prefix match is confirmed by the recorded cwd
+                continue
             if p.stem not in seen or p.stat().st_size > seen[p.stem].stat().st_size:
                 seen[p.stem] = p
     rows = []

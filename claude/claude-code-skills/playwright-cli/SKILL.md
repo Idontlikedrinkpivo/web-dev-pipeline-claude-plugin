@@ -1,9 +1,8 @@
 ---
 name: playwright-cli
 description: >-
-  Drives a real browser with playwright-cli (snapshots, clicks by ref, mocks, traces) and writes, runs or heals
-  Playwright Test E2E specs and config. Use to reproduce UI behaviour, write or fix E2E tests, set up
-  playwright.config, attach screenshots to a PR. Not unit or API tests.
+  Drives a real browser with playwright-cli (snapshots, refs, mocks); writes or fixes one Playwright spec or config.
+  Use for a one-off browser check, a UI bug repro, a failing e2e test. Acceptance by test cases: ui-test-cases.
 ---
 
 # Browser Automation with playwright-cli
@@ -295,7 +294,7 @@ If global `playwright-cli` command is not available, try a local version via `np
 npx --no-install playwright --version
 ```
 
-The local `npx playwright cli` may lack commands this skill uses (`drop`, `highlight`, `generate-locator`, recording, `requests`). Check `npx playwright cli --help` for the command you need: use the local one when it has it — it matches the project's Playwright version and installed browsers — otherwise the global `playwright-cli`. When neither is installed, install the global command:
+The local `npx playwright cli` may lack commands this skill uses (`drop`, `highlight`, `generate-locator`, recording, `requests`). Check `npx playwright cli --help` for the command you need: use the local one when it has it — it matches the project's Playwright version and installed browsers — otherwise the global `playwright-cli`. When neither is installed, ask the user once before installing the global command — it changes their machine outside the project, so it is their call; with a no, or in a subagent nobody answers, use the local `npx playwright cli` for what it has and name the missing command in the report:
 
 ```bash
 npm install -g @playwright/cli@latest
@@ -303,16 +302,7 @@ npm install -g @playwright/cli@latest
 
 ## Version-sensitive behaviour
 
-This skill does not pin library facts that change between releases (signatures, defaults, generated-artifact paths, "since version X"). Before relying on one: read the installed version from the lockfile or manifest, then check current docs via the context7 MCP (`resolve-library-id`, then `query-docs`) or run a quick probe in the project. The checklist below names where the silent pitfalls usually are; it deliberately does not give the answer, because the answer depends on the version.
-
-### Check before relying on it
-
-- **Which binary you are driving and its command set.** The global `playwright-cli` (`@playwright/cli`) and the project's `npx playwright cli` ship different command lists and flags. Before using a command from this skill, confirm it in `playwright-cli --help` / `--help <command>`: an unknown command or flag fails, and a renamed one sends you to the wrong output.
-- **Where generated files land.** Snapshots, traces, videos, and auto-named screenshots or state files go to a default output folder; check where, and that it is gitignored before committing.
-- **Session daemon lifetime.** Idle timeout, what `close` / `delete-data` remove, and where a persistent profile lives.
-- **`gh --attach`.** The minimum `gh` version on the machine or runner, which token types the upload accepts, which GitHub hosts support it, and current size limits.
-- **Playwright Test options.** That each `use`, `webServer`, and `projects` key you write exists in the installed `@playwright/test`, where `test-results` / report artifacts land, and what the test-agent init command generates (plan / generate / heal).
-- **Video overlay APIs.** That `page.screencast` and its chapter / overlay methods exist in the installed Playwright before building a hero script on them.
+This skill does not pin library facts that change between releases (signatures, defaults, generated-artifact paths, "since version X"). The places where the silent pitfalls usually are — which binary and command set, where generated files land, the session daemon, `gh --attach`, Playwright Test options, the video overlay APIs — are in [references/version-checks.md](references/version-checks.md); it deliberately gives no answer, because the answer depends on the version. Before relying on one of them, read the installed version and check it there.
 
 ## Example: Debugging with DevTools
 
@@ -351,13 +341,13 @@ See [references/pr-attachments.md](references/pr-attachments.md) for alt text, i
 
 Read the reference only when the task matches its trigger:
 
-* **Playwright Test config, baseURL, webServer, auth setup project** [references/test-config.md](references/test-config.md) — read when creating or changing `playwright.config.ts`, or when tests need a running dev server or a logged-in state.
+* **Playwright Test config, baseURL, auth setup project** [references/test-config.md](references/test-config.md) — read when creating or changing `playwright.config.ts`, or when tests need a logged-in state. The config is written for the pipeline's parallel stands: one worker, the address from `E2E_BASE_URL`, no `webServer`.
 * **Running and Debugging Playwright tests** [references/playwright-tests.md](references/playwright-tests.md) — read before running `npx playwright test` or when a spec fails and you need to debug it.
 * **Request mocking** [references/request-mocking.md](references/request-mocking.md) — read when a flow depends on a backend response you must fake, delay, or block beyond a single `route`.
 * **Running Playwright code** [references/running-code.md](references/running-code.md) — read when no CLI command covers the action (permissions, geolocation, waiting on events) and you need `run-code`.
 * **Browser session management** [references/session-management.md](references/session-management.md) — read when running several browsers at once, reusing a named session, or attaching to a running browser.
 * **Storage state (cookies, localStorage)** [references/storage-state.md](references/storage-state.md) — read when reading, seeding, or clearing cookies, localStorage, or sessionStorage, or saving auth state.
-* **Test generation (plan / generate / heal)** [references/test-generation.md](references/test-generation.md) — read when asked to write new E2E specs from a scenario or to repair failing E2E tests. Repairing touches tests and specs, never app code: when the app itself looks wrong, stop and ask whether it is a regression.
+* **Test generation (plan / generate / heal)** [references/test-generation.md](references/test-generation.md) — read when asked to write new E2E specs from a scenario or to repair failing E2E tests. Repairing touches tests and specs, never app code: when the app itself looks wrong, stop and ask whether it is a regression. Inside the pipeline (the user test cases, a `work` unit) its «Inside dev-pipeline» block comes first and replaces the parts written for a person at the keyboard. Acceptance testing against the user test cases is `ui-test-cases` (mode run); this skill is a one-off check in the browser or a single test to write or fix.
 * **Tracing** [references/tracing.md](references/tracing.md) — read when a failure needs the DOM, network, and console history of every step.
 * **Video recording** [references/video-recording.md](references/video-recording.md) — read when the deliverable is a video: a demo, a bug reproduction, or a PR walkthrough.
 * **Attaching screenshots and videos to pull requests** [references/pr-attachments.md](references/pr-attachments.md) — read before attaching artifacts with `gh --attach` (see the section above).

@@ -18,7 +18,7 @@
 ```yaml
 components:
   schemas:
-    ResourcePage:            # the default page shape, same as SKILL.md Step 3
+    ResourcePage:            # the default page shape, same as base-schemas.md
       type: object
       required: [items, next_cursor]
       properties:
@@ -93,88 +93,10 @@ components:
 
 ## Problem Details (RFC 9457, obsoletes RFC 7807)
 
-Standard error body format, media type `application/problem+json` — use
-instead of ad-hoc error schemas. `SKILL.md` Step 3 defines the same `Problem`
-schema with the `code` member; this is the fuller variant:
-
-```yaml
-components:
-  schemas:
-    Problem:
-      type: object
-      properties:
-        type:
-          type: string
-          format: uri-reference
-          example: https://errors.example.invalid/not-found
-        title:
-          type: string
-          example: Resource Not Found
-        status:
-          type: integer
-          example: 404
-        detail:
-          type: string
-          example: User with id '123' does not exist.
-        instance:
-          type: string
-          format: uri-reference
-          example: /users/123
-        code:
-          type: string
-          description: SRS use-case exception name
-          example: USER_NOT_FOUND
-        errors:
-          type: object
-          additionalProperties:
-            type: array
-            items:
-              type: string
-          description: Field-level validation errors. Extension member (RFC 9457 §3.2)
-
-  responses:
-    BadRequest:
-      description: Validation error
-      content:
-        application/problem+json:
-          schema:
-            $ref: "#/components/schemas/Problem"
-    NotFound:
-      description: Resource not found
-      content:
-        application/problem+json:
-          schema:
-            $ref: "#/components/schemas/Problem"
-    Unauthorized:
-      description: Authentication required
-      content:
-        application/problem+json:
-          schema:
-            $ref: "#/components/schemas/Problem"
-    Forbidden:
-      description: Insufficient permissions
-      content:
-        application/problem+json:
-          schema:
-            $ref: "#/components/schemas/Problem"
-    TooManyRequests:
-      description: Rate limit exceeded
-      headers:
-        Retry-After:
-          schema:
-            type: integer
-          description: Seconds to wait before retrying
-      content:
-        application/problem+json:
-          schema:
-            $ref: "#/components/schemas/Problem"
-    InternalError:
-      description: Unexpected server error
-      content:
-        application/problem+json:
-          schema:
-            $ref: "#/components/schemas/Problem"
-```
+The `Problem` schema and the shared error responses live in
+`base-schemas.md` — one copy, the one every spec uses. Do not take a
+variant from elsewhere: a second error shape is a `ломает` change for
+every client (SKILL.md → Step 3).
 
 ---
 
@@ -220,11 +142,11 @@ paths:
 ### Binary upload (raw body)
 ```yaml
 paths:
-  /files/{fileId}/content:
+  /files/{file_id}/content:
     put:
       summary: Replace file content
       parameters:
-        - name: fileId
+        - name: file_id
           in: path
           required: true
           schema:

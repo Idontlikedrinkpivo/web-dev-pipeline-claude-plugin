@@ -35,8 +35,10 @@ decision is a stop for the user, never two approaches. A UI unit
    «оптимистичная проверка версии с повтором»). When a second approach
    that differs in kind cannot be named, there is only one: run the normal
    round.
-2. **Restore the base.** Save the current attempt's diff as a patch
-   (`pipeline` → `references/pause-and-resume.md` → Pausing) and reset the
+2. **Restore the base.** Save the current attempt as a patch, new files
+   included — `git add -N` them, `mkdir -p` the folder, then `git diff HEAD --binary >
+   "$(git rev-parse --git-dir)/pipeline-work/<version>/U<n>-attempt.patch"`
+   (`pipeline` → `references/pause-and-resume.md` → Pausing) — and reset the
    tree to the last commit: both attempts start from the same commit.
 3. **Dispatch two `impl-critical`** with the unit's packet, every previous
    report, and one more line under `APPROACH`: «Подход A: <sentence>.

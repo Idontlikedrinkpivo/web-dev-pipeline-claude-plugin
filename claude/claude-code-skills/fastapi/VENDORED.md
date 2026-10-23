@@ -11,5 +11,6 @@ Adapted for this plugin; parts of the text follow the original closely:
 - kept as short conventions: the `fastapi` CLI, `Annotated`, dependency aliases, no Ellipsis, no `RootModel`, the
   return type, self-contained routers, one function per operation, `def` unless sure, tooling and libraries;
 - version facts (streaming, serving a built frontend, CLI entrypoint config, `yield` dependencies) became the
-  «Check before relying on it» checklist — verify against the installed version;
-- the database layer, the error handler and auth are left to `fastapi-sqlalchemy`.
+  checklist in `references/version-checks.md` — verify against the installed version;
+- added from this plugin: the problem+json error handlers, auth and settings (`references/jwt-auth.md`), the
+  contract test, «The reviewer checks»; the database layer is left to `fastapi-sqlalchemy`.

@@ -1,4 +1,5 @@
 {
+  "description": "dev-pipeline hooks. SessionStart re-anchors a session on the pipeline. PreToolUse on AskUserQuestion refuses the choice card only in a project with documentation/.dev-pipeline.json: there every question is a chat message, and a card closed without a pick was read as the first option (hooks/ask-in-chat.sh says why). PostToolUse on edits rebuilds the progress pages and the documentation site.",
   "hooks": {
     "SessionStart": [
       {
@@ -7,6 +8,17 @@
           {
             "type": "command",
             "command": "sh \"${CLAUDE_PLUGIN_ROOT}/hooks/session-start.sh\""
+          }
+        ]
+      }
+    ],
+    "PreToolUse": [
+      {
+        "matcher": "AskUserQuestion",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "sh \"${CLAUDE_PLUGIN_ROOT}/hooks/ask-in-chat.sh\""
           }
         ]
       }

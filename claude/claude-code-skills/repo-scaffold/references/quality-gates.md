@@ -16,6 +16,8 @@ can check are gates, not prose in a prompt.
 | Dead code | an unused file, export or dependency | leftovers of a rewrite hide the live path |
 | Duplicates | duplication above the threshold | an agent copies sooner than it reuses; copies drift |
 | Test hygiene | a committed `.only` / `.skip` / `todo`; a test reading a `.css` or source file | a skipped test is a silent hole; a test of the stylesheet breaks on harmless edits |
+| Contract | an operation the backend serves that differs from `documentation/api/openapi.yaml` — method and path, `operationId`, statuses, request and success-response schemas | the route schemas (Zod, Pydantic) are a second copy of the contract; without a test they drift silently, and the screens and generated clients are built from the contract |
+| Coverage | the full suite's line coverage below the threshold — the foundation §6 number, otherwise 80% | one total, checked by the tool itself; a number nobody checks is not a rule |
 | Dependency audit | a high or critical vulnerability in a production dependency (development tools — a warning) | a known hole shipped with the release |
 
 ### Linter rules and thresholds
@@ -36,14 +38,21 @@ The numbers are the defaults; foundation §6 may tighten them, never loosen them
 
 ### By stack
 
-- **TypeScript (backend and frontend):** ESLint flat config with `typescript-eslint` `recommended-type-checked`
+- **TypeScript (backend and frontend):** `tsconfig` with `strict`, `noUncheckedIndexedAccess`,
+  `noImplicitOverride`, `noImplicitReturns`, `noFallthroughCasesInSwitch` and `verbatimModuleSyntax` (the
+  `typescript` skill's machine checks; `erasableSyntaxOnly` too where Node runs the `.ts` files directly). ESLint
+  10.7 or later, flat config, with `typescript-eslint` `recommended-type-checked`
   as the base (type-aware, `projectService`) plus `no-floating-promises`, `no-misused-promises`,
   `switch-exhaustiveness-check`, `only-throw-error`, `prefer-promise-reject-errors`, `no-unsafe-type-assertion`,
   `use-unknown-in-catch-callback-variable` (both outside `recommended-type-checked`), `no-non-null-assertion`,
-  `return-await` (`in-try-catch`), `no-unnecessary-condition`; core `preserve-caught-error` (ESLint 9.35 or later)
-  with `requireCatchParameter: true` and `errorClassNames` listing the project's own error classes (by default it
-  checks only the built-in `Error` types);
-  `no-restricted-syntax` against an empty error subclass and an empty `catch` block; on the frontend
+  `return-await` (`in-try-catch`), `no-unnecessary-condition`; core `preserve-caught-error` with
+  `requireCatchParameter: true` and `errorClassNames` listing the project's own error classes (by default it checks
+  only the built-in `Error` types; a plain name assumes the options object is the constructor's second argument —
+  `typescript` → «Every named error is its own type»). `errorClassNames` exists from ESLint 10.7: older versions
+  refuse the option and the whole lint fails, which is why 10.7 is the floor — pin it with every plugin's peer range
+  checked. An existing repo that cannot leave an older ESLint configures the rule without the option, and the
+  reviewer checks the cause on the project's own classes;
+  `no-restricted-syntax` against an empty error subclass, an empty `catch` block and `TSEnumDeclaration`; on the frontend
   `no-restricted-syntax` against a regex literal in components and `no-restricted-imports` / `no-restricted-globals`
   keeping `fetch` and the API client inside the data layer; `@eslint-community/eslint-comments`
   (`require-description`, `no-unlimited-disable`) so a rule is never silenced without a reason; the rule set the
@@ -53,14 +62,23 @@ The numbers are the defaults; foundation §6 may tighten them, never loosen them
   `@eslint-react/eslint-plugin` for `@eslint-react/no-array-index-key`;
   `eslint-plugin-testing-library` and `@vitest/eslint-plugin` (focused and disabled tests, tests without an
   assertion) for the tests; a `tsconfig` for tests (or
-  tests in the main one) so `typecheck` covers them; `dependency-cruiser` per part; `knip` per part; `jscpd` with
+  tests in the main one) so `typecheck` covers them; `dependency-cruiser` per part (its rules from the
+  architecture's sketch; `application/` and `domain/` import no framework, ORM or validation package — `zod`
+  included, `zod-skill`); `knip` per part; `jscpd` with
   `--threshold` (3 for production code, 8 for tests). The TypeScript major is a decision, not `latest`: pin the
   newest one `typescript-eslint` supports in its peer range (TypeScript 7 is not yet in it as of 2026-10), and
   record it in foundation §1 «Стек».
 - **Python:** Ruff with `C901` (max-complexity 15), `PLR0912`, `PLR0913`, `PLR0915`, `E722`, `BLE001`, `S110`, `B`
-  (including `B904`, `raise … from`), `TRY`, `ASYNC`, `RUF006`, `FAST`, `PT`, `DTZ`, `UP`; `mypy --strict` or pyright
-  `strict` over `src` and `tests/` (ty only beside them while it is in beta); `import-linter`; `vulture`; `jscpd`; pytest without committed `skip` marks except with a
-  reason.
+  (including `B904`, `raise … from`), `TRY`, `ASYNC`, `RUF006`, `FAST`, `PT`, `DTZ`, `UP`; `mypy --strict` with
+  `enable_error_code = ["exhaustive-match"]` (outside `--strict`), or pyright `strict` (it has
+  `reportMatchNotExhaustive`), over `src` and `tests/` — ty only beside them while it is in beta; `import-linter`;
+  `vulture`; `jscpd`; pytest without committed `skip` marks except with a reason.
+- **Contract test, both stacks:** one test file in the backend's suite, copied from the stack skill's template —
+  `typescript-fastify/references/contract-test-template.ts` or `fastapi/references/contract-test-template.py`. It
+  builds the app's own OpenAPI with no database, compares it with the contract per operation, and lists the contract
+  operations not served yet without failing, so it is green on the scaffold and turns red only when a route differs.
+- **Coverage, both stacks:** the threshold lives once, in the tool's config — `coverage.thresholds` in the Vitest
+  config, `fail_under` in `[tool.coverage.report]` — and applies only to a run with coverage on.
 - **Other stacks:** the linter the stack file names, configured to the same table.
 
 ## Tests that prove something
@@ -87,7 +105,9 @@ Turning every threshold into an error on an old codebase stops all work at once.
 - `lint` runs the linter, boundaries, dead code and duplicates; `typecheck` covers tests; `test` runs the suite —
   the same three commands in every part (`repo-scaffold`).
 - `work` runs `lint` and `typecheck` after every unit, before the review; an error in the unit's files is a return.
-- `ci-pipeline` runs the three commands for every part; a part without one of them is a stop, not a pass. The
+- `ci-pipeline` runs the three commands for every part; a part without one of them is a stop, not a pass. Its
+  `test` step runs the full suite with coverage on (`vitest run --coverage`, `pytest --cov`), so the threshold
+  fails the job; a unit's focused run in `work` is not measured. The contract test is part of `test` everywhere. The
   dependency audit runs in its advisory `security` job (production dependencies at high and critical fail that
   job, the rest warn) until the team makes it required.
 - At a run's close `work` measures duplicates, the longest and most complex functions and files against the run's

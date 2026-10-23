@@ -47,6 +47,8 @@ abstraction, an open algorithmic choice) to the Mid implementer.
 3. **Mechanical gate.** Signals 1, 2 and 5 all cheap, and the change has one
    repeatable shape (rename, move, config value, regenerate, apply a settled
    pattern to N sites) → **0**, regardless of how many files it touches.
+   Signal 4 does not count here: the unit states its whole shape, so a
+   repo with no earlier rename is not missing a pattern.
 4. **Spec floor.** Signal 2 expensive (the design does not determine the
    outcome) is **at least Mid**. Undecided work is expensive work even when it
    is small, because the executor is finishing the design.
@@ -89,7 +91,9 @@ latitude and a second review pass, and hides which units actually need care.
   ordering is Mid — wiring is where consequences get decided.
 - **A migration is never Low** once rows exist, even a one-column one.
 - **First of its kind** is at least Mid even when the docs are precise, because
-  there is no local pattern to check against. A unit has precedent when an
+  there is no local pattern to check against — unless the mechanical gate
+  (rule 3) graded it 0. This is the one rule for both: `plan`'s quality
+  gate and `plan-review` cite it. A unit has precedent when an
   earlier unit in this plan, reachable via `Зависит от`, establishes the
   pattern, or when the architecture's file tree / snippet fixes the shape —
   `Образец` then cites that unit's path or that section.
