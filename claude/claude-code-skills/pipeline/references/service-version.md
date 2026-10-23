@@ -27,10 +27,15 @@ when the first release, `1.0.0`, is.
 
 **The iteration opens at its first stage that commits anything or writes
 into `plans/`** — `brainstorm` writing the business requirements, else
-usually `srs-writer`, else `docs-consistency` or `plan`; a stage taken over
-from someone else reads the version from the branch name
-(`references/team.md`). An open `plans/<version>/` (no `summary.md`) is the
-current iteration, and every later stage reuses it — it opens nothing.
+usually `srs-writer`, else `docs-consistency` or `plan`. An open
+`plans/<version>/` (no `summary.md`) is the current iteration, and every
+later stage reuses it — it opens nothing. **No folder here but an iteration
+branch** — the current branch `iteration/<version>`, or one on `origin` not
+merged into `main`, whose version has no tag `v<version>` — is open as well:
+a fresh clone, or work another person pushed (`references/team.md`).
+`scripts/where_am_i.py` names it; `open_iteration.py <version>` only
+switches to it and creates the folder. No number is proposed, and steps 1
+and 3 below are skipped when the branch already has documents.
 
 1. **The number.** Greenfield: `0.1.0`, without asking. Otherwise propose
    the number after the manifest's, with its level and a one-line reason

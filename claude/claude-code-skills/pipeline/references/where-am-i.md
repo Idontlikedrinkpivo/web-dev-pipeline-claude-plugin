@@ -18,7 +18,10 @@ project's root and answer from its output. It prints, in this order:
    project before its first iteration): the tags `v<version>` name the
    closed iterations and the `Plan-Unit:` trailers since the last tag the
    units already landed; what stages 10–14 left is unknown — say so rather
-   than guessing.
+   than guessing. **An iteration branch the script names** («Итерация …
+   открыта по ветке») is the open iteration — a fresh clone, or work
+   another person pushed: entering it with the printed `open_iteration.py`
+   command comes first, and no version number is asked.
 3. **A resume note** — `resume.md` in the open folder means a long run
    (`work`, the UI test run, the security audit) stopped mid-way. Read it
    before anything else and check its claims against git, the tree and
@@ -42,7 +45,16 @@ project's root and answer from its output. It prints, in this order:
    - **pins**: a pin behind its source with a «ломает» row after it is
      **stale** — that stage comes back first (`doc-versioning` →
      Staleness and cascade); behind by «добавляет» only is for stage 10,
-     not a stale stage; «уточняет» only — the next stamp refreshes it.
+     not a stale stage; «уточняет» only — the next stamp refreshes it;
+   - **«написан в итерации …, этап не закрыт»** — the document was
+     committed on this iteration's branch and never stamped with its
+     version: its stage stopped after the writer (`SKILL.md` → Commit each
+     document as soon as it is written), here or on another person's
+     machine. That stage is open and resumes: the documents of its set not
+     written yet (the architecture's scenarios per area, a screen spec per
+     frame), then its gates, then its stamp. A document already committed
+     is not written again, and its old pins are refreshed by that stamp,
+     not by a rewrite.
 6. **The open iteration's checks**: the document-set check (its verdict,
    and whether any file of the set changed after it — then stage 10 has
    not run for the current set), the plan and `plan-review` (verdict, and
@@ -55,7 +67,8 @@ project's root and answer from its output. It prints, in this order:
 ## The answer
 
 The earliest unfinished point wins: a stopped run (resume note, then an
-unfinished progress file), else a stale document's stage, else the next
+unfinished progress file), else a stage left open after its writer
+(«этап не закрыт»), else a stale document's stage, else the next
 stage of a branch that is not done (for the design branch the frames
 register, `ui/screen-specs/` and `ui/test-cases/`, read from `origin` when
 stages were handed to others — `references/team.md`; both branches as

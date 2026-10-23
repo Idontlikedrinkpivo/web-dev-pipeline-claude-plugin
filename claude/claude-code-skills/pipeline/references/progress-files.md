@@ -35,8 +35,9 @@ document keeps none.
 - **Where.** In the iteration's open folder `documentation/plans/<version>/`,
   out of git like everything there. Creating the file writes into
   `plans/`, so a stage that finds no open folder fixes the iteration's
-  version first (`pipeline` → Service version) — for a person who took a
-  handed stage, from the branch name (`pipeline` → `references/team.md`).
+  version first (`pipeline` → Service version) — on a fresh clone or work
+  picked up from another person, from the iteration branch `where_am_i.py`
+  names (`pipeline` → `references/team.md`).
 - **Shape.** The title «Прогресс … — итерация <version>»; right under it
   the bar alone in a ```` ```text ```` block — a hundred cells, `█` done,
   `░` the rest, then the percent, ⌊done × 100 / total⌋ (`work` →

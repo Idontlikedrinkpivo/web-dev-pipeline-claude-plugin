@@ -126,6 +126,10 @@ These commits of a contract document need no request from the user and
 stamp nothing; each leaves `version`, `updated`, `info.version`, the
 changelog and the pins as they were:
 
+- a document committed the moment its writer returned it, and its gates'
+  fixes, before the stage's close — `docs: <документ> — написан, этап не
+  закрыт` (`pipeline` → Commit each document as soon as it is written), so
+  a stop or another person loses nothing;
 - the move of a single file into its split layout (the stage that splits
   it);
 - a decision changed after the document was finished (`pipeline` →
@@ -137,7 +141,7 @@ changelog and the pins as they were:
   document brought to a newer plugin's format.
 
 The next stamp compares each document with its last stamped state, not
-with `HEAD`, so the changes the first three carry get their rows then. An
+with `HEAD`, so the changes the first four carry get their rows then. An
 `upgrade-docs` commit is the exception: it changes form, never what a cited
 token means, so its hunks get no row. Type the diff without them — `git log
 -p <last stamp>..HEAD -- <files>` shows which hunks they brought — or the

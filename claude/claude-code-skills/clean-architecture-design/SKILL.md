@@ -48,11 +48,14 @@ dispatch the typist.
    run the named stage. Screens are not an input: the architecture
    places use cases, rules and ports, and none of those depends on how a
    screen looks. When any of the three documents already exists, read
-   `doc-versioning`, read every existing one and its diagrams (`.d2`,
-   `.puml`), and treat this as an increment. If the user edited a `.d2`
-   and asked to apply it, follow `references/architecture-diagram.md`
-   (diagram → architecture) in the foundation packet. If a `.d2` and its
-   document disagree and the user did not say which is newer, ask once.
+   `doc-versioning`, every existing one and its diagrams (`.d2`, `.puml`),
+   and treat this as an increment — unless it is this iteration's
+   greenfield left open after its writer (no `version` yet, «этап не
+   закрыт»): it resumes as greenfield with only the documents not written
+   yet, the written ones as inputs. A `.d2` the user edited and asked to
+   apply: `references/architecture-diagram.md` (diagram → architecture) in
+   the foundation packet; a `.d2` and its document that disagree with no
+   word on which is newer: ask once.
 2. **Pick the modes.** Greenfield runs all three in this stage, in
    order: `foundation` → `domain` → `scenarios:<area>` for every area
    the SRS groups name. An increment picks only the documents what

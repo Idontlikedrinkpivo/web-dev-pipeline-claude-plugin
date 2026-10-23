@@ -7,7 +7,10 @@ a resume note left by a stopped run (read it first); progress files with unfinis
 with its version, gates and pins (stale when a «ломает» row came after the pin); the plan's review, the
 document-set check, the UI run and the audit with their verdicts; and, last, the open points in chain order. On a
 fresh clone (no documentation/plans/) the closed iterations come from the tags v<version> and the units landed
-since the last tag from the Plan-Unit: trailers. Read-only. Python 3.9+, standard library only.
+since the last tag from the Plan-Unit: trailers; an iteration branch with no tag and no folder here (the current
+one, or one on origin not merged into main) is the open iteration, with the open_iteration.py command to enter it.
+A document committed on the iteration's branch but not stamped with its version marks its stage as still open
+(pipeline → Commit each document as soon as it is written). Read-only. Python 3.9+, standard library only.
 """
 from __future__ import annotations
 
@@ -42,6 +45,13 @@ def git(root: Path, *args: str) -> str:
     except (OSError, subprocess.TimeoutExpired):
         return ""
     return r.stdout.strip() if r.returncode == 0 else ""
+
+
+def git_ok(root: Path, *args: str) -> bool:
+    try:
+        return subprocess.run(["git", "-C", str(root), *args], capture_output=True, timeout=60).returncode == 0
+    except (OSError, subprocess.TimeoutExpired):
+        return False
 
 
 def vkey(v: str) -> tuple:
@@ -216,6 +226,47 @@ def iterations(plans: Path) -> tuple:
     return [p.name for p in vs if not (p / "summary.md").exists()], [p.name for p in vs if (p / "summary.md").exists()]
 
 
+def main_ref(root: Path) -> str | None:
+    return next((b for b in ("origin/main", "main", "origin/master", "master")
+                 if git_ok(root, "rev-parse", "-q", "--verify", b)), None)
+
+
+def branch_iterations(root: Path, branch: str, closed: list) -> list:
+    """Open iterations named only by a branch, with no plans/ folder here (a fresh clone, or another person's pushed
+    work): [(version, ref)] — the current branch alone when it is one, else every iteration branch here or on origin
+    whose version has no tag and is not merged into main."""
+    done = set(closed) | {t[1:] for t in git(root, "tag", "--list", "v*").split()}
+    m = re.match(r"iteration/(\d+\.\d+\.\d+)$", branch)
+    if m:
+        return [] if m.group(1) in done else [(m.group(1), branch)]
+    into = main_ref(root)
+    found: dict = {}
+    for ref in git(root, "for-each-ref", "--format=%(refname:short)", "refs/heads/iteration/",
+                   "refs/remotes/origin/iteration/").split():
+        v = ref.rsplit("/", 1)[-1]
+        if VERSION_RX.fullmatch(v) and v not in done and v not in found and not (
+                into and git_ok(root, "merge-base", "--is-ancestor", ref, into)):
+            found[v] = ref
+    return sorted(found.items(), key=lambda kv: vkey(kv[0]))
+
+
+DOC_FILES = {"documentation/requirements/srs/srs.md": "documentation/requirements/srs",
+             "documentation/db/schema.md": "documentation/db", "documentation/api/openapi.yaml": "documentation/api"}
+NOT_A_STAGE_COMMIT = re.compile(r"^docs: решение изменено|\(плагин \d")
+
+
+def unstamped(root: Path, doc: Doc, version: str | None) -> bool:
+    """Written or changed on this iteration's branch by its stage, and not stamped with the iteration's version yet:
+    the stage is still open (its gates and its stamp). Decision changes and plugin-format commits do not count."""
+    if not version or doc.meta.get("version") == version or not doc.path.is_file():
+        return False
+    into = main_ref(root)
+    base = git(root, "merge-base", "HEAD", into) if into else ""
+    span = f"{base}..HEAD" if base else "HEAD"
+    subjects = git(root, "log", "--format=%s", span, "--", DOC_FILES.get(doc.rel, doc.rel)).splitlines()
+    return any(s and not NOT_A_STAGE_COMMIT.search(s) for s in subjects)
+
+
 def plan_state(folder: Path) -> list:
     out, opens = [], []
     plan, review = folder / "plan.md", folder / "plan-review.md"
@@ -274,11 +325,24 @@ def main() -> None:
     opens: list = []
 
     open_, closed = iterations(plans)
+    by_branch = [] if open_ else branch_iterations(root, branch, closed)
     if open_:
         print(f"Итерации: открыта {', '.join(open_)}" + (f"; закрыты {', '.join(closed)}" if closed else ""))
         if len(open_) > 1:
             print(f"!! Открыто итераций: {len(open_)} ({', '.join(open_)}). Спросите пользователя, какую продолжаем, "
                   "прежде чем что-то штамповать или коммитить (одним вопросом).")
+    elif by_branch:
+        for v, ref in by_branch:
+            print(f"Итерация {v} открыта по ветке {ref}: папки documentation/plans/{v}/ здесь нет (свежий клон "
+                  "или работа другого человека)")
+        if len(by_branch) > 1:
+            print(f"!! Открытых веток итераций: {len(by_branch)}. Спросите пользователя, какую продолжаем (одним "
+                  "вопросом).")
+        v = by_branch[0][0]
+        print(f"  войти: python3 \"{HERE / 'open_iteration.py'}\" {v} — переключит на ветку и создаст папку; номер "
+              "версии не спрашивать")
+        print("  этапы 10–14 по файлам здесь не видны: их отчёты лежат в plans/ на машине, где шли (в git не хранятся)")
+        opens.append(f"войти в итерацию {v} (ветка {by_branch[0][1]}): open_iteration.py {v}")
     elif closed:
         print(f"Итерации: открытых нет; закрыты {', '.join(closed)} — следующая откроется первым этапом "
               "(open_iteration.py)")
@@ -291,10 +355,8 @@ def main() -> None:
         print(f"  теги: {', '.join(tags) if tags else 'нет'} · задач с Plan-Unit после "
               f"{tags[-1] if tags else 'начала'}: {len(set(units))}" + (f" ({', '.join(sorted(set(units))[:8])}"
                                                                          f"{' …' if len(set(units)) > 8 else ''})" if units else ""))
-        m = re.match(r"iteration/(\d+\.\d+\.\d+)$", branch)
-        if m:
-            print(f"  ветка называет итерацию {m.group(1)}; что с этапами 10–14 — по файлам не узнать, скажите об этом")
     cur = open_[-1] if open_ else None
+    it_version = cur or (by_branch[0][0] if by_branch else None)
     folder = plans / cur if cur else None
 
     if folder and (folder / "resume.md").is_file():
@@ -314,6 +376,7 @@ def main() -> None:
 
     docs = registry(root)
     by_path = {d.rel: d for d in docs}
+    open_stages: dict = {}
     print("Документы:")
     for d in docs:
         if not d.path.is_file():
@@ -349,11 +412,18 @@ def main() -> None:
                         opens.append(f"{gate}: {val}")
         elif d.gate == "review":
             bits.append(f"ревью: {meta['reviewed']}" if meta.get("reviewed") else "ревью: нет отметки (пропущено или не запускалось)")
+        draft = d.gate == "review" and unstamped(root, d, it_version)
         for p in pins(d, by_path):
             bits.append(p)
-            if p.startswith("устарел"):
+            if p.startswith("устарел") and not draft:  # a draft of this iteration gets its pins with the stamp
                 opens.append(f"устарел документ «{d.label}» — этап {d.stage} обновляет его по журналу источника")
+        if draft:
+            bits.append(f"написан в итерации {it_version}, этап не закрыт (нет отметки версии)")
+            open_stages.setdefault(d.stage, []).append(d.label)
         print(f"  {d.stage}. {d.label}: " + " · ".join(bits))
+    for stage, labels in open_stages.items():
+        opens.append(f"этап {stage} не закрыт: {', '.join(labels[:4])}{' …' if len(labels) > 4 else ''} — написаны и "
+                     "закоммичены, проверка и отметка версии не сделаны")
     ui = sorted(doc.glob("ui/frames-register.md")) + sorted(doc.glob("ui/*/frames-register.md"))
     for reg in ui:
         owner = re.search(r"Дизайн ведёт:?\**:?\s*([^\n|]+)", read(reg))

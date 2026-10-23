@@ -87,14 +87,16 @@ scaffolded. They meet before the plan.
   backend branch starts at its first applicable stage (`db-schema-design`
   when something must survive a restart, else `openapi-spec-generator`
   when there is HTTP, else `clean-architecture-design`); the design branch
-  at `ui-design` when a human faces a screen. A branch someone else takes
-  is handed over by `references/team.md`.
+  at `ui-design` when a human faces a screen. A stage or a branch someone
+  else takes is handed over by `references/team.md`: any stage of 1–9 can
+  be, since its documents travel on the branch.
 - **`screen-spec` needs the API.** When stage 7 ends and stage 4 has not
   run, offer the backend branch's next stage and say that the screen specs
   wait for the contract.
 - **The meeting point.** Stages 6 and 9 offer stage 10 when the other
-  branch is done (every handed stage reported done), else the other
-  branch's next unfinished stage. A product
+  branch is done (its documents on the branch — `git pull --rebase` first
+  when other people work on it), else the other branch's next unfinished
+  stage. A product
   without screens has no design branch: stage 6 offers stage 10 directly.
 - Stage 10 is a stage, not a gate, but it is skippable like one: B on its
   question goes on to `plan` and the skip is named in the report.
@@ -137,7 +139,10 @@ computed from the iteration's typed changes. Levels, the re-check in
 **The iteration opens at its first stage that commits anything or writes
 into `plans/`** (`brainstorm` on its document, else usually `srs-writer`);
 an open `plans/<version>/` (no `summary.md`) is the current iteration and
-every later stage reuses it. Opening it: the number (greenfield `0.1.0`
+every later stage reuses it. So is an iteration branch with no tag and no
+folder here — a fresh clone, or work another person pushed —
+`scripts/where_am_i.py` names it, and `open_iteration.py <version>` only
+switches to it and creates the folder: no number is proposed. Opening it: the number (greenfield `0.1.0`
 unasked, otherwise proposed with its level and one question), then
 `python3 "${CLAUDE_SKILL_DIR}/scripts/open_iteration.py" <version>` — it
 updates `main`, creates or switches to `iteration/<version>`, creates the
@@ -275,11 +280,23 @@ stage is the writer named in this table's offer cell, including a skip (no
 UI, no storage, no HTTP) — name the skill the skip selects and why the
 skipped ones do not apply.
 
-**Commit before offering the next stage, or stopping.** A written document
-is committed without asking — by the stamp (`doc-versioning` →
-`references/version-birth.md`), plainly for the frames register and test
-cases — once its gates ran or were skipped, or when the user stops at a
-gate's or transition's question (the stop line names the gates not run).
+**Commit each document as soon as it is written.** The moment a writer
+returns a document, the session commits it, before its gates and without
+asking: `docs: <документ> — написан, этап не закрыт`. A document of several
+files (the schema with its migration, the API's parts) is one commit; each
+architecture document, screen spec and test-case section is its own. Gate
+fixes are committed as they land. The stamp (`doc-versioning` →
+`references/version-birth.md`; the frames register and test cases plainly)
+follows at the stage's close — once its gates ran or were skipped, or when
+the user stops at a gate's or transition's question (the stop line names
+the gates not run). A stop, a compaction, or another person who picks the
+work up from git (`references/team.md`) then finds every finished document
+on the branch, and `scripts/where_am_i.py` reads from the commits what is
+written and which stage is still open. **When the project has a remote,**
+the message after such a commit carries the command that sends it — `git
+push -u origin iteration/<version>`, with `git pull --rebase` before it when
+other people work on the branch — above its question; the plugin never
+pushes.
 
 For a **gate**, three options, always these letters:
 
@@ -384,7 +401,8 @@ that gate asks the next transition itself, using this section.
   session that picks up a stopped run reads first.
 - `references/decision-changes.md` — a decision changed after its stage
   closed: the owner, the cascade, the commit, where it happens.
-- `references/team.md` — design stages handed to other people.
+- `references/team.md` — an iteration shared with other people: any stage of 1–9 handed over and picked up from
+  the branch.
 - `references/closing-cleanup.md` — the working files a closed iteration drops.
 - `reflect` (skill) — the plugin's own failures in the iteration's sessions.
 - `references/branch-order.md` — the order of the two branches after the

@@ -96,8 +96,10 @@ written in each source file.
    far enough to run the grade below: level, risk, and the counts in the
    cascade. Do not slice.
 2. **Read the iteration's version** from the open
-   `documentation/plans/<version>/` (no `summary.md`). None open — fix
-   the number per `pipeline` → Service version and open it:
+   `documentation/plans/<version>/` (no `summary.md`), or from the
+   iteration branch `where_am_i.py` names when the folder is not here (a
+   fresh clone: `open_iteration.py <version>` only creates it). None open —
+   fix the number per `pipeline` → Service version and open it:
    `python3 "${CLAUDE_SKILL_DIR}/../pipeline/scripts/open_iteration.py" <version>`.
    Then **re-check the level** against the iteration's typed changes: the
    rows of this version, plus unstamped changes typed from the diff since
