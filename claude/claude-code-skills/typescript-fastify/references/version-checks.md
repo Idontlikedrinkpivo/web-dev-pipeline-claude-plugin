@@ -24,6 +24,19 @@ a quick probe in the project.
 - **The app's OpenAPI** — how `@fastify/swagger` in dynamic mode emits a route's `response` content types, path
   parameters (`:id` → `{id}`) and shared schemas, which OpenAPI version it writes, and what `app.swagger()` returns
   when the app registered it in static mode.
+- **Request id, logger and shutdown** (`references/service-endpoints.md`) — `requestIdHeader` and `genReqId`
+  (the header is off by default in v5); whether the installed release exports `LogController` with
+  `requestIdLogLabel` or takes `requestIdLogLabel` as a top-level option (deprecated in later 5.x); the pino options
+  `timestamp`, `formatters.level` and `base` as the `logger` option passes them; where the matched route template
+  lives on the request (`request.routeOptions.url`) and the elapsed time on the reply (`reply.elapsedTime`); the
+  per-route `logLevel`; and what `close()` does — waits for in-flight requests, closes idle keep-alive connections
+  (`forceCloseConnections`), answers 503 while closing (`return503OnClosing`), runs `onClose` hooks.
+
+## prom-client
+
+- The current major and the Node versions it supports.
+- `Registry`, `collectDefaultMetrics({ register })`, the `Histogram` options (`labelNames`, `registers`, the default
+  buckets), `registry.metrics()` (a promise in current majors) and `registry.contentType`.
 
 ## Zod type provider
 

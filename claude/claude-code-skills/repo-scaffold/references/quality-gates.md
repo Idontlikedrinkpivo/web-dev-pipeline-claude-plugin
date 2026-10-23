@@ -57,7 +57,8 @@ The numbers are the defaults; foundation §6 may tighten them, never loosen them
   keeping `fetch` and the API client inside the data layer; `@eslint-community/eslint-comments`
   (`require-description`, `no-unlimited-disable`) so a rule is never silenced without a reason; the rule set the
   `typescript` and `react` skills name; core `complexity`, `max-lines`, `max-lines-per-function`,
-  `max-depth`, `max-params`, `no-empty`; `eslint-plugin-react-hooks` v7 with its `recommended` config on a React
+  `max-depth`, `max-params`, `no-empty`; core `no-console` over the backend's `src/` (it logs through the app's pino
+  logger, so stdout carries only JSON lines — SKILL.md §5); `eslint-plugin-react-hooks` v7 with its `recommended` config on a React
   frontend (it carries the compiler rules: purity, refs, set-state-in-effect, static components), with
   `@eslint-react/eslint-plugin` for `@eslint-react/no-array-index-key`;
   `eslint-plugin-testing-library` and `@vitest/eslint-plugin` (focused and disabled tests, tests without an
@@ -69,7 +70,8 @@ The numbers are the defaults; foundation §6 may tighten them, never loosen them
   newest one `typescript-eslint` supports in its peer range (TypeScript 7 is not yet in it as of 2026-10), and
   record it in foundation §1 «Стек».
 - **Python:** Ruff with `C901` (max-complexity 15), `PLR0912`, `PLR0913`, `PLR0915`, `E722`, `BLE001`, `S110`, `B`
-  (including `B904`, `raise … from`), `TRY`, `ASYNC`, `RUF006`, `FAST`, `PT`, `DTZ`, `UP`; `mypy --strict` with
+  (including `B904`, `raise … from`), `TRY`, `ASYNC`, `RUF006`, `FAST`, `PT`, `DTZ`, `UP`, `T20` (no `print`:
+  stdout carries only the JSON log lines — SKILL.md §5); `mypy --strict` with
   `enable_error_code = ["exhaustive-match"]` (outside `--strict`), or pyright `strict` (it has
   `reportMatchNotExhaustive`), over `src` and `tests/` — ty only beside them while it is in beta; `import-linter`;
   `vulture`; `jscpd`; pytest without committed `skip` marks except with a reason.

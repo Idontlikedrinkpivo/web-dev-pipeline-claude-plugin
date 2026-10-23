@@ -16,8 +16,9 @@ start when an environment's required config is missing or contradictory.
 ## Scope
 
 **USE when:**
-- The app has real routes/handlers and a health check (post-`work`, or
-  post-scaffold if the user only wants topology, not business code)
+- The app has real routes/handlers and its service endpoints
+  (`/health/live`, `/health/ready`, `/metrics`) — post-`work`, or
+  post-scaffold if the user only wants topology, not business code
 - The user asks to containerize the app, add `docker-compose`, or define
   test/dev/prod running modes
 - An existing single dev-only compose (from `repo-scaffold`) needs to grow
@@ -38,15 +39,20 @@ start when an environment's required config is missing or contradictory.
 
 | Input | Required | Source |
 |---|---|---|
-| A working app with a health endpoint | **yes** | `repo-scaffold` + `work` |
+| A working app with `/health/live`, `/health/ready`, `/metrics`, JSON logs on stdout and a graceful SIGTERM | **yes** | `repo-scaffold` + `work` |
+| The target cluster: ARM, or a rule against shells in images | when known | the user or their platform's requirements; Step 2 asks the shell question once |
 | External dependencies this app calls | **yes** | architecture's adapters (a database, an object store, third-party APIs) |
 | Which dependencies must be mockable | **yes** | ask if not obvious: anything the app calls over the network in a test run needs a mock/fake, or the test suite becomes an integration suite that needs live credentials |
 | Containers: backend, client (SPA or SSR), workers | **yes** | architecture foundation §1 (containers view) and §5 (folders) |
 | Upload size and request-time NFRs | for the SPA image | the SRS NFRs through foundation §1 «Решения по NFR» — they set nginx's limits (`references/images.md`) |
 | Existing compose/Dockerfile/`.env.example` | when present | read and extend in place — do not fork a parallel set of files |
 
-If the app has no health endpoint yet, that is a `repo-scaffold` gap — say
-so and stop rather than inventing one here.
+If the three service paths are missing, that is a `repo-scaffold` gap
+(`upgrade-code` for an older project): say so and stop rather than
+inventing them here — the images, probes and DEPLOY.md all point at them.
+A `/health` that is an operation of the API contract (an `operationId`, an
+FR) stays as it is: the service paths sit beside it, and removing a
+contract operation is a plan's decision, never this stage's.
 
 ## The three environments
 
@@ -56,7 +62,7 @@ so and stop rather than inventing one here.
 | Object storage / queue / cache | local (e.g. SeaweedFS for S3), in this compose file | local, in this compose file | **external**, no local service |
 | Third-party APIs (payment, mail, external HR/LLM/etc.) | **mocked** — fixture-backed, no network call | **real** — real credentials, real network calls | **real** |
 | Port publishing | loopback or none — dev-only convenience | loopback or none | **loopback only**, behind a reverse-proxy/TLS terminator the user runs separately |
-| Concurrency / worker count | matches prod's shape enough to exercise it (do not run test single-worker if prod is multi-worker, or the concurrent-path bugs only show up in prod) | same as test, for the same reason | whatever the architecture sized for real load |
+| Concurrency / worker count | one worker process per container, as in prod (a stack that still runs several keeps prod's count here, or its concurrency bugs show up only in prod) | same as test | one per container; the operators scale by replicas |
 | Secrets | fixture/dummy values, safe to commit as defaults | real values, **never committed** | real values, **never committed** |
 
 The asymmetry is the whole point: **test and dev share infrastructure
@@ -71,7 +77,7 @@ against each other to know what is active, are worth the duplication.
 
 Before Step 1, create `documentation/plans/<version>/progress-deploy.md` per
 `pipeline` → `references/progress-files.md` — one row per Step below, 1 to 9
-with 7a, `⏳ ждёт` — and post its progress line
+with 7a and 7b, `⏳ ждёт` — and post its progress line
 (`python3 "${CLAUDE_SKILL_DIR}/../pipeline/scripts/progress_link.py" documentation/plans/<version>/progress-deploy.md`,
 pasted as printed). Set each row `🔄 в работе` → `✅ готово` (or `⏭ пропущено: …`) as
 you go, and post the progress line after each step; the
@@ -104,27 +110,40 @@ One image per container, the same image in all three environments.
 Read `references/images.md` first: it holds the reference build the owner
 accepted — the backend image, the SPA image on `nginx-unprivileged` with
 the config copied from `assets/nginx/`, and what each takes from the
-environment. Match it; do not add users, labels or ports it does not
+environment. Match it; do not add labels or ports it does not
 have. No dev-only tooling baked in, no `--reload`/hot-reload flag in `CMD` (that belongs to a local
 non-Docker dev loop, not the container). The process reads its worker/
-concurrency count from the environment rather than a hardcoded flag, so
-raising it later is a compose edit, not an image rebuild.
+concurrency count from the environment (1 by default) rather than a
+hardcoded flag, so changing it later is a compose edit, not an image rebuild.
+
+Four project-level facts shape every Dockerfile (`references/images.md`):
+
+- **A numeric non-root `USER`** ends each final stage (1000 Node, 10001
+  Python, 101 nginx-unprivileged, 65532 shell-less): Kubernetes'
+  `runAsNonRoot` can verify only a number.
+- **Shell or not — asked once per project.** Reuse the card's «Образ» row,
+  the existing Dockerfiles' base or the progress file's Step 2 row; none —
+  ask the question in Shell or no shell and write the answer into that row.
+- **One platform**: `linux/amd64`, or `linux/arm64` when the user says the
+  cluster is ARM (Architecture).
+- **Base references checked against the registry** (Checking a tag), never
+  remembered. The compose healthcheck asks `/health/ready` through the
+  runtime (`node -e`, `python -c`), never `wget`/`curl`.
 
 `CMD` / `ENTRYPOINT` in exec form (`["python", "-m", "app"]`), never shell
 form — a shell-form process does not receive SIGTERM and is killed after
-the stop timeout. The app finishes in-flight requests on SIGTERM and exits,
-and it logs to stdout/stderr, never to a file inside the container. Pin the
-base image to an exact tag (a digest when the project already pins
-digests elsewhere); `latest` or a bare major makes two builds of the same
-commit differ. Use a multi-stage build when the toolchain is not needed at
-runtime.
+the stop timeout. The app drains in-flight requests on SIGTERM within
+`SHUTDOWN_TIMEOUT_SEC` and exits 0, and it logs JSON lines to
+stdout/stderr, never to a file inside the container. Pin the base image to
+an exact tag (a digest where the vendor publishes only moving tags, or the
+project already pins digests); `latest` or a bare major makes two builds
+of the same commit differ. Use a multi-stage build when the toolchain is
+not needed at runtime.
 
-Write or extend `.dockerignore` in the same step. It excludes every
-`.env.*.local`, `.env`, `.git`, local virtualenv / `node_modules`, test
-caches, and the compose files themselves. `.env.prod.local` sits in the
-build context; without this file a `COPY . .` bakes real prod secrets
-into an image that may later be pushed anywhere. `.env.example` may stay
-in the context — it holds no secrets.
+Write or extend `.dockerignore` in the same step: every `.env.*.local`,
+`.env`, `.git`, local virtualenv / `node_modules`, test caches and the
+compose files. Without it a `COPY . .` bakes `.env.prod.local`'s real
+secrets into the image; `.env.example` may stay — it holds no secrets.
 
 ### Step 3. The mock/live gate lives in the app, not in compose
 
@@ -174,6 +193,14 @@ invariants each file must hold. In outline:
   network); a reverse-proxy/TLS terminator in front is assumed and
   documented, never built into this compose file.
 
+App containers (`backend`, `migrate`, `frontend`) in the test and prod
+files run hardened — `read_only`, `tmpfs: [/tmp]`, `cap_drop: [ALL]`,
+`no-new-privileges`, no `user:` — as a restricted Kubernetes namespace will
+run them, so the operators' preflight finds nothing new. In test, `migrate`
+and `backend` connect as an ordinary schema owner and a rows-only account,
+never the image's superuser (`docker/db-init/roles.sql`) — the rights
+«Для DBA» asks of their DBA (`references/compose-shape.md`).
+
 `migrate` is a one-shot service in every file: it runs the project's
 migrate command over the SQL files in `documentation/db/migrations/`
 (carried in the backend image at that same path) to completion, `backend` depends on it with
@@ -215,7 +242,8 @@ file fixes the `DATABASE_URL` schema option for every environment.
 
 - `.env.example` is **documentation**, never read by compose directly —
   say so in a comment at its top. It lists every variable with a one-line
-  comment on what test/dev/prod each expect.
+  comment — its markers (`[required]`, `[secret]`, `[infra]` —
+  `references/env-and-config-contract.md`), then what test/dev/prod expect.
 - Compose reads `.env.<environment>.local` via `env_file`, `required: true`
   for dev and prod (the stack must not silently start with defaults),
   `required: false` for test (safe fixture defaults may live inline in the
@@ -248,24 +276,37 @@ project's own test suite, not just as prose here:
   `name:`, every published host port a `${VAR:-default}`, `image:` on the
   application services.
 - Every Dockerfile's `CMD` has no hot-reload flag, `CMD`/`ENTRYPOINT` is
-  exec form, and every `FROM` has an explicit tag other than `latest`.
-- With a client: `frontend`'s healthcheck reaches `:8081/_healthz`, its
-  environment sets `BACKEND_SERVICE`, `BACKEND_PROTOCOL` and
-  `SECURE_MODE`, and no `<<…>>` placeholder is left in `nginx/`.
-- `scripts/build-images.sh` passes `--platform linux/amd64`, saves to
-  `release/<APP_VERSION>/<project>-<APP_VERSION>.tar` and copies
-  `documentation/deploy/deploy.md` beside it as `DEPLOY.md`.
+  exec form, every `FROM` has an explicit tag other than `latest` or a
+  digest, and the final stage's `USER` is a number other than 0.
+- Every app service in the test and prod files has `read_only: true`,
+  `/tmp` in `tmpfs`, `ALL` in `cap_drop`, `no-new-privileges:true` in
+  `security_opt`, and no `user:`; in test `migrate` and `backend` have
+  different `DATABASE_URL`s, neither with the database image's superuser,
+  and prod's `migrate` also reads `.env.prod.migrate.local`.
+- With a client: no `<<…>>` placeholder is left in `nginx/`, and its only
+  uncommented `proxy_pass` is under `location /api/` (the backend's
+  `/health/*` and `/metrics` stay off the entry point). With a shell,
+  `frontend`'s healthcheck reaches `:8081/_healthz` and its environment
+  sets `BACKEND_SERVICE`, `BACKEND_PROTOCOL` and `SECURE_MODE`; without
+  one, it has neither and its Dockerfile renders the templates at build.
+- `scripts/build-images.sh` passes `--platform "$PLATFORM"`, saves to
+  `release/<APP_VERSION>/<project>-<APP_VERSION>.tar`, and puts
+  `DEPLOY.md`, `<project>.env.example` and `openapi.yaml` (bundled when
+  the contract is split) beside it.
 - `documentation/deploy/deploy.md` agrees with `docker-compose.prod.yml`
   and `.env.example`: containers, every variable per container with its
-  required and secret marks, ports, health checks, volumes, the allowed
+  required and secret marks, ports, probes, volumes, the allowed
   values of a variable that has a fixed set (`SECURE_MODE`: `plain` or
-  `secure`), and every file it names is one the release folder holds — "The
-  sync test" in `references/deploy-doc.md`.
+  `secure`), and every file it names is one the release folder holds; its
+  card, «Для DBA», «Остановка» and «Безопасность пода» agree with the
+  build script, the Dockerfiles, the migrations, `roles.sql` and the
+  config layer — "The sync test" in `references/deploy-doc.md`.
 - `.dockerignore` exists and matches `.env.*.local` (a build context
   that can see `.env.prod.local` fails the test).
-- `backend` in every compose file has a `healthcheck` whose command reaches the
-  health endpoint — it is what makes `up --wait` mean "the app answers",
-  not "the container started".
+- `backend` in every compose file has a `healthcheck` that asks
+  `/health/ready` through the runtime (`node`/`python`, not `wget`/`curl`) —
+  it is what makes `up --wait` mean "the app can serve", not "the container
+  started" — and a `stop_grace_period` of at least `SHUTDOWN_TIMEOUT_SEC` + 5 s.
 - `.env.example` contains every variable the config layer requires, and no
   variable the config layer does not recognize — the two drift silently
   otherwise, in either direction. Test pattern: "The `.env.example` sync
@@ -273,11 +314,9 @@ project's own test suite, not just as prose here:
 - Setting the mock gate with `APP_ENV` other than `test` makes config
   loading fail (a config-layer test, not a compose check).
 
-These are cheap, fast, and exist specifically so a future edit that
-reopens a closed hole (an all-interfaces port publish, a mock flag with a
-default) fails CI instead of shipping. Infra regressions are exactly the
-class of bug nobody notices locally and everybody notices in prod, so
-"it's just infra" is not a reason to skip them.
+These are cheap and exist so a future edit that reopens a closed hole (an
+all-interfaces port publish, a mock flag with a default) fails CI instead
+of shipping — nobody notices infra regressions locally, everybody in prod.
 
 ### Step 7a. The project's verify skill
 
@@ -290,22 +329,44 @@ stand. An existing one is refreshed, not rewritten: doctor, one drive per
 feature this iteration changed, the map extended, drift fixed
 (`references/verify-skill.md` → Keeping it honest).
 
+### Step 7b. The stand's proof: service contract and resources
+
+Needs the test stand (`up-test`), not the verify skill: after Step 7a on
+the stand its proof brought up, before the cleanup — or alone when the
+verify skill is absent or postponed (`references/deploy-doc.md` → The
+stand's proof).
+
+1. **The service contract in the container.** Stop `backend`, then run
+   `repo-scaffold`'s check against that container:
+   `python3 "${CLAUDE_SKILL_DIR}/../repo-scaffold/scripts/service_check.py" --port <APP_PORT> --expect-ready -- docker start -a <backend container>`
+   (`docker start -a` passes SIGTERM on and exits with the container's
+   code; `docker compose run` adds lines that are not JSON). It proves
+   probes, metrics, JSON logs and the SIGTERM exit under the read-only root
+   and the image's `USER`; then start `backend` again.
+2. **Resources.** Idle, typical at a fixed request rate, peak under the
+   fullest load, each app container's time to ready, on an image of this
+   machine's architecture (or marked as emulated) — DEPLOY.md's «Ресурсы»
+   with the date and how, and a startup probe when ready takes over 10 s.
+   No Docker here: say so; the section reads «Не замерено».
+
 ### Step 8. The release for hand-over
 
-The operators get one folder per release and nothing else: the image
-archive and `DEPLOY.md`. They do not get `docker-compose.prod.yml` — they
-run the images their own way, so they need the facts it holds, written
-down.
+The operators get one folder per release and nothing else — every file
+the plugin produces for them: the image archive, `DEPLOY.md`, the
+variables file and the API contract `openapi.yaml`. They do not get
+`docker-compose.prod.yml` — they run the images their own way, so they
+need the facts it holds, written down.
 
 1. **Write `documentation/deploy/deploy.md`** per `references/deploy-doc.md`:
-   containers with image and command, start order (migrations first, once),
-   ports and health checks, variables per container (required, secret,
-   format), external dependencies, volumes (or «томов нет»), the first start
-   (the first admin or seed data — ask when the architecture and SRS do not
-   say), and how to update to a new version — naming only the files the
-   release folder holds. Beside it, `documentation/deploy/prod.env.example`,
-   the variables file the operators fill. Facts come from the prod
-   compose file, the Dockerfiles and `.env.example`; Step 7's sync test holds
+   «Карточка сервиса» first, then every section of its template — probes
+   with their timings, the measured resources, dependencies with the
+   variable, port and direction of each, «Для DBA», logs, metrics,
+   shutdown, pod security, tracing, the first start (ask when the
+   architecture and SRS do not say how the first admin or seed data
+   appears) — naming only the files the release folder holds. Beside it,
+   `documentation/deploy/prod.env.example`, the variables file the
+   operators fill. Facts come from the prod compose file, the Dockerfiles,
+   `.env.example`, the schema and the measurement; Step 7's sync test holds
    them together.
 2. **Check the security audit first.** Read the first line of
    `documentation/plans/<version>/security-audit.md`. An open P0
@@ -315,37 +376,34 @@ down.
    say so in one line and go on — a skipped stage blocks nothing.
 3. **Write `scripts/build-images.sh`** and a `build-images` target per
    `references/images.md` → Hand-over: one tag `<version>-<YYYYMMDD-HHMM>`
-   for every image, `docker buildx build --platform linux/amd64 --load` per
+   for every image, `docker buildx build --platform "$PLATFORM" --load` per
    image, one `docker save` of all of them into
    `release/<version>/<project>-<version>.tar` (e.g.
-   `release/1.4.0/room-booking-1.4.0.tar`), and a copy of
-   `documentation/deploy/deploy.md` as `release/<version>/DEPLOY.md` — and of
-   `documentation/operations/operations.md` as `OPERATIONS.md` when it exists
-   (`operations-doc`, the next stage), and of
-   `documentation/deploy/prod.env.example` as `<project>.env.example` — the
-   prod variables only, each marked required or not, secret or not, its
-   default and its containers (`references/deploy-doc.md` → The variables
-   file); leave it out only when the user says the operators keep variables
-   in their own store. The script ends by checking that every file
-   `DEPLOY.md` names is in the folder, and fails naming the one that is not.
-   `release/` is in `.gitignore` and `.dockerignore`.
-4. **Run it once** and report the folder, the tar size and the image tags;
+   `release/1.4.0/room-booking-1.4.0.tar`), and beside it every other file
+   the operators get: `DEPLOY.md`; `<project>.env.example`, the prod
+   variables (`references/deploy-doc.md` → The variables file — left out
+   only when the user says the operators keep variables in their own
+   store); `openapi.yaml`, one file (a split contract bundled); and
+   `OPERATIONS.md` when the operations document exists (`operations-doc`,
+   the next stage). The script ends by checking that every file `DEPLOY.md`
+   names is in the folder, and fails naming the one that is not.
+   `release/` is in `.gitignore` and `.dockerignore`. Images leave as the
+   tar only — no push: the operators load them into their own registry.
+4. **Run it once** and report the folder, the tar size, the image tags and the platform;
    if Docker or buildx is not available here, say so instead of claiming the
    build. Add the «Сборка образов» section to the README.
 5. **Scan the images** with `trivy` over the tar (`security-audit` →
    `references/scanners.md` → Docker images, with its proxy, cache and
-   fallback rules), HIGH and CRITICAL only. A
-   CRITICAL with a fixed version in the base image is a stop with the same
-   question as step 2; the rest go into the closing report and under
-   «Образы» in `security-audit.md` when it exists. The
-   build itself does not run the scan, so an operator's rebuild does not
-   need it.
+   fallback rules), HIGH and CRITICAL only. A CRITICAL with a fixed
+   version in the base image stops the hand-over with one question —
+   `references/images.md` → A vulnerable base, the same inside
+   `upgrade-code`; the rest go into the closing report and under «Образы»
+   in `security-audit.md` when it exists. The build itself does not run
+   the scan, so an operator's rebuild does not need it.
 
-`release/`, not `dist/`: `dist/` is the compiler's output folder, which
-`clean` scripts and bundlers empty before a build — a hand-over archive kept
-there can disappear with it. A folder per version keeps the previous release
-beside the new one for a rollback; a rebuild of the same version replaces
-its folder's contents.
+`release/`, not `dist/`: `clean` scripts and bundlers empty `dist/` before a
+build, and the hand-over archive would go with it. A folder per version
+keeps the previous release for a rollback; a rebuild replaces its own.
 
 ### Step 9. Commit
 
@@ -357,7 +415,8 @@ the site rebuild it started —
 `python3 "${CLAUDE_SKILL_DIR}/../docs-site/scripts/rebuild.py" . --wait` —
 and stage `documentation/_web-docs` with it (`docs-site` → Built at the first
 document). One commit, `build(deploy): контейнеры и комплект <version>`: the
-Dockerfiles and `.dockerignore`, the three compose files, `.env.example`, the
+Dockerfiles and `.dockerignore`, the three compose files,
+`docker/db-init/roles.sql`, `.env.example`, the
 scripts and task-runner targets, the compose-contract tests, the README
 section, `documentation/deploy/` and the project map's `compose:` line —
 staged by name, never `git add .`. Nothing under `release/` or
@@ -385,12 +444,24 @@ scan — and the next stage, per `pipeline` → "Asking before a transition".
 ## Before you finish
 
 - Three compose files, each readable on its own — "The three environments".
-- One Dockerfile per container, matching `references/images.md`, plus
-  `.dockerignore` — Step 2.
-- `documentation/deploy/deploy.md` covers every section of
-  `references/deploy-doc.md` — Step 8.
-- `scripts/build-images.sh` ran: `release/<version>/` holds the tar with
-  every image under the `<version>-<date>` tag and `DEPLOY.md` — Step 8.
+- One Dockerfile per container, matching `references/images.md`: a
+  numeric non-root `USER`, the shell answer from the card (asked at most
+  once per project), every base reference checked against its registry,
+  plus `.dockerignore` — Step 2.
+- App containers in the test and prod files hardened (read-only root,
+  `/tmp` tmpfs, no capabilities, no new privileges), `backend`'s
+  healthcheck on `/health/ready` through the runtime, and the test stand's
+  two database accounts — Step 4.
+- The service check passed against the `backend` container, and «Ресурсы»
+  holds the stand's numbers with the date and how, or «Не замерено» — Step 7b.
+- `documentation/deploy/deploy.md` opens with «Карточка сервиса» and covers
+  every section of `references/deploy-doc.md` — probes, resources,
+  dependencies, «Для DBA», logs, metrics, shutdown, pod security,
+  tracing — Step 8.
+- `scripts/build-images.sh` ran for the card's platform: `release/<version>/`
+  holds the tar with every image under the `<version>-<date>` tag,
+  `DEPLOY.md`, `<project>.env.example` and `openapi.yaml` (one file) —
+  Step 8.
 - Mock gate enforced in application config — Steps 3 and 5.
 - Prod file has no local stateful service; `up-test` runs the suite with
   zero outbound network calls — Step 4.
@@ -404,17 +475,19 @@ scan — and the next stage, per `pipeline` → "Asking before a transition".
 
 ## References
 
-- `references/images.md` — the reference images (backend, SPA on nginx),
-  tag format and the tar hand-over (Steps 2 and 8).
+- `references/images.md` — the images with and without a shell, the shell
+  question, tag checks, healthchecks, platform, tag and release folder (Steps 2, 8).
 - `references/deploy-doc.md` — what `deploy.md` holds, where each fact comes
-  from, and its sync test (Steps 7 and 8).
+  from, the stand's proof, and its sync test (Steps 7, 7b and 8).
 - `assets/nginx/` — the SPA image's nginx config and templates, copied as
   they are with the `<<…>>` values filled (Step 2).
 - `references/compose-shape.md` — the concrete file-by-file compose
-  skeleton and the exact invariants each service must hold (Step 4).
+  skeleton, the hardening of app containers, the two database accounts,
+  and the exact invariants each service must hold (Step 4).
 - `references/verify-skill.md` — the project's verify skill: its sections,
   the doctor's checks, the proof run, how stages use and refresh it (Step 7a).
 - `references/env-and-config-contract.md` — the env-var categories, the
+  variables every backend has (`LOG_LEVEL`, `SHUTDOWN_TIMEOUT_SEC`), the
   fail-fast validation shape, and the `.env.example`-sync test pattern
   (Steps 5–7).
 - `repo-scaffold` (skill) — the empty-skeleton stage this one follows;

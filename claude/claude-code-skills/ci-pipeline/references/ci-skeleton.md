@@ -42,7 +42,7 @@ jobs:
     timeout-minutes: <a few times the normal run, e.g. 20>
     env:
       APP_ENV: test
-      DATABASE_URL: <compose fixture URL, host 127.0.0.1, same search_path>
+      DATABASE_URL: <the `migrate` service's URL in the test compose — the schema owner, since the job migrates and resets data — host 127.0.0.1, same search_path>
       <OBJECT_STORE_URL_VAR>: http://127.0.0.1:<store-port>
       <MOCK_GATE_VAR>: ${{ github.workspace }}/<mock-fixtures-dir>   # fixtures from the checkout: zero outbound calls
     steps:
@@ -152,13 +152,13 @@ jobs:
         ports:
           - <store-port>:<store-port>
         options: >-
-          --health-cmd "curl -fsS http://127.0.0.1:<store-port>/healthz"
+          --health-cmd "<the store's healthcheck command from docker-compose.test.yml — a binary the image has: SeaweedFS has wget, not curl>"
           --health-interval 5s
           --health-timeout 3s
           --health-retries 10
     env:
       APP_ENV: test
-      DATABASE_URL: <compose fixture URL, host 127.0.0.1, same search_path>
+      DATABASE_URL: <the `migrate` service's URL in the test compose — the schema owner, since the job migrates and resets data — host 127.0.0.1, same search_path>
       <OBJECT_STORE_URL_VAR>: http://127.0.0.1:<store-port>
       <MOCK_GATE_VAR>: ${{ github.workspace }}/<mock-fixtures-dir>
     steps:

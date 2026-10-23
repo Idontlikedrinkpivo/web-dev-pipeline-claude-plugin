@@ -2,7 +2,7 @@
 name: repo-scaffold
 description: >-
   Turns the architecture's file tree and stack into an empty runnable repo: folders, manifest, linters, quality gates,
-  migration runner, health endpoint, project map. Use for «каркас репозитория», «разверни структуру». Not business
+  migration runner, health and metrics endpoints, JSON logs, graceful stop, project map. Use for «каркас репозитория», «разверни структуру». Not business
   code or CI.
 ---
 
@@ -10,9 +10,10 @@ description: >-
 
 Turn the architecture foundation's **tree + stack** into files on disk
 and write `documentation/project-map/project-map.md` — one page that points at the
-docs and how to run. Stop when an empty app starts, `/health` answers,
-the boundary linter is green, and the map exists. Do not write domain or
-application logic.
+docs and how to run. Stop when an empty app starts, answers its service
+endpoints (`/health/live`, `/health/ready`, `/metrics`) and stops cleanly
+on SIGTERM, the boundary linter is green, and the map exists. Do not write
+domain or application logic.
 
 ## Not for
 
@@ -82,8 +83,8 @@ would get neither folders nor a lint contract.
   `documentation/project-map/project-map.md`.
 - A §5 change that renames, moves, or deletes an existing folder is not
   scaffold work — it moves live code. Stop and name `plan`.
-- Run the Quality gate (lint with the canary, health), then 7. Commit and
-  Closing.
+- Run the Quality gate (lint with the canary, the service check), then 7.
+  Commit and Closing.
 
 ## Progress file
 
@@ -160,7 +161,10 @@ in Make target names: `lint:boundaries` breaks Make.
 
 `.env.example` lists every variable of foundation §4 «Конфигурация»
 (names and a comment, never values). No `.env` committed, no values
-invented.
+invented. `LOG_LEVEL` and `SHUTDOWN_TIMEOUT_SEC` are always there —
+optional, their defaults (`info`, `25`) named in the comment — because
+every service reads them (Step 5); a §4 table without them gets the two
+rows as a changed decision (Step 2).
 
 `.gitignore` carries `documentation/plans/` from the first commit: plans,
 reviews, progress files, reports and summaries are working files of this
@@ -205,16 +209,43 @@ it either: name the gap for `db-schema-design` in the report. Point
 `DATABASE_URL`'s `search_path` (and the migration tool's own version-table
 config) at that same schema.
 
-## 5. Health-only composition root
+## 5. Composition root with the service endpoints only
 
 Follow the wiring pattern the architecture already named for this
-framework (router factory, `Program.cs`, `cmd/` + bootstrap). The
-process:
+framework (router factory, `Program.cs`, `cmd/` + bootstrap). The platform
+the service is handed to (Kubernetes) probes it, scrapes its metrics,
+collects its stdout and stops it with SIGTERM, so the empty app already
+does all four — the stack skill has the code (`typescript-fastify` /
+`fastapi` → `references/service-endpoints.md`). Its files take the names
+the architecture §5 tree gives (`bootstrap/` is only the default); on an
+existing project they are a changed architecture decision — §5 gains
+them, committed `docs: решение изменено — …` first (`pipeline` →
+`references/decision-changes.md`). The process:
 
-- reads config from the environment
-- connects to the database only if a URL is present (health may report
-  `db: down` only when no database URL is configured)
-- exposes `GET /health` → `200` with a small JSON body
+- reads config from the environment, `LOG_LEVEL` and
+  `SHUTDOWN_TIMEOUT_SEC` included
+- connects to the database only if a URL is present
+- serves on the app port, outside the OpenAPI contract (the contract
+  test's `NOT_IN_CONTRACT`) and outside auth:
+  - `GET /health/live` → 200 `{"status":"ok"}`, touching nothing — a
+    database outage must not restart every pod
+  - `GET /health/ready` → 200 `{"status":"ready"}` when the database
+    answers a ping within 2 s (and each other store the app cannot serve
+    without), else 503 `{"status":"not ready","checks":{"db":"down"}}` —
+    no database URL counts as down; never a third-party API; a system
+    without a database is ready once it listens
+  - `GET /metrics` → Prometheus text: the library's default process
+    metrics and the histogram `http_request_duration_seconds` labelled
+    `method`, `route` (the route template, never the raw path) and
+    `status_code`
+- logs JSON lines to stdout, one object per record: `time` (ISO-8601
+  UTC), `level`, `msg`, `logger`, `request_id` (from `X-Request-Id`, else
+  generated, echoed in the response header), and `err` with type,
+  message and stack for an error — never a secret, token or personal data
+- on SIGTERM and SIGINT stops accepting, finishes in-flight requests
+  within `SHUTDOWN_TIMEOUT_SEC` (default 25, under Kubernetes' 30 s grace
+  period), closes the database pool and exits 0
+- runs as one worker process — replicas scale it
 - does not construct a use case or a repository
 
 ## 6. Project map
@@ -269,7 +300,8 @@ sources:
 ## Как запустить
 
 - процесс: <команда из §5 / манифеста>
-- `GET /health` → 200
+- проверки: `GET /health/live` → 200; `GET /health/ready` → 200 (503, пока нет базы); метрики — `GET /metrics`
+- остановка: SIGTERM, не дольше `SHUTDOWN_TIMEOUT_SEC` (25 с)
 - compose: <файл или «нет»>
 - секреты: `.env.example` (имена, не значения)
 
@@ -320,15 +352,28 @@ The one final check. Items 1–3 skip on a map-only run.
    root package, a layer missing from the config, a rule left at
    warning severity).
 3. Local run (Steps 4–5):
-   1. The process starts and `GET /health` returns 200.
-   2. `.env.example`, compose, and the migration runner match Step 4;
-      the runner reads `documentation/db/migrations/` and nothing in the
-      code tree holds a copy of a migration file.
+   1. The service check passes, run on the server process itself — the
+      manifest's start command without its `npm` / `uv run` wrapper
+      (`node dist/src/index.js` after the build, or `node src/index.ts`
+      where Node runs the `.ts` files directly;
+      `.venv/bin/python -m <package>.bootstrap.serve`), because the
+      signal must reach the process that handles it:
+      `python3 "${CLAUDE_SKILL_DIR}/scripts/service_check.py" --port <port> -- <command>`.
+      It starts the process, checks the three service paths, the request
+      id echoed and logged, JSON on every log line, then sends SIGTERM and
+      expects exit 0 within `SHUTDOWN_TIMEOUT_SEC` + 5 s. Without a
+      database `/health/ready` answers 503 and passes. Each `FAIL` is a
+      Step 5 defect to fix, not an environment quirk.
+   2. `.env.example` (with `LOG_LEVEL` and `SHUTDOWN_TIMEOUT_SEC`),
+      compose, and the migration runner match Step 4; the runner reads
+      `documentation/db/migrations/` and nothing in the code tree holds a
+      copy of a migration file.
    3. When §5 «Локальный запуск» says Compose and a migration file
       exists, start only the database service and apply the files with
       the wired migrate command.
-   4. Expect `GET /health` to report `db: up`, and the tables to sit in
-      the project schema, not `public`.
+   4. Run the service check again with that database's `DATABASE_URL` in
+      the environment and `--expect-ready`: `/health/ready` is 200 now.
+      The tables sit in the project schema, not `public`.
    5. With no Docker, skip 3–4 and say «миграция не применялась» in
       Closing.
 4. No entity, use-case, repository, or OpenAPI handler files were added
@@ -342,9 +387,9 @@ The one final check. Items 1–3 skip on a map-only run.
    file or the explicit «нет» / «нет UI» / «пусто». The body does not
    paste foundation §5 or §2 (Step 6).
 
-If health cannot be started in this environment (no Docker, no runtime),
-say what was created and what was not verified. Do not skip the lint run
-when the toolchain is present.
+If the app cannot be started in this environment (no runtime), say what
+was created and what was not verified. Do not skip the lint run or the
+service check when the toolchain is present.
 
 ## 7. Commit
 

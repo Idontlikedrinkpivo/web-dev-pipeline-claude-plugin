@@ -49,8 +49,8 @@ elsewhere. Where a line was not run, it says «unverified».
   switch modes the app has (sign-in modes, feature flags), what the target
   leaves running and what it removes.
 - **Ready means usable** — the condition that makes the stand worth
-  driving: the readiness endpoint, migrations applied, the mode answered —
-  not «the container is healthy».
+  driving: `/health/ready` answers 200, migrations applied, the mode
+  answered — not «the container is healthy».
 - **Doctor** — how to run it and when: before the first drive, after
   anything surprising, after a failed drive.
 - **Drive** — the browser runner and how to select one case safely (the
@@ -79,7 +79,7 @@ exit code. It checks at least:
 |---|---|
 | each service of the test stand is up and healthy | the obvious one |
 | the stand's port is owned by this stand's container | another stand on the same port answers the tests |
-| liveness and readiness endpoints answer 200 | readiness covers migrations and storage |
+| `/health/live` and `/health/ready` answer 200 | readiness covers the database and storage |
 | the mode the app reports (sign-in mode, flags) | cases that need the other mode skip silently |
 | the database schema the app expects exists | the app does not create it; a renamed schema stops `migrate` |
 | every migration recorded in the database exists in this checkout | a database migrated from other code fails later with «already exists» |
@@ -94,8 +94,8 @@ frontend   Up 3 minutes (healthy)
 db schema  room_booking present
 migrations 5 recorded, all in this checkout
 port 8080  room-booking-test-frontend-1
-/healthz   200
-/readyz    200
+/health/live   200
+/health/ready  200
 build      backend image 2026-10-14T09:12 UTC, HEAD 2026-10-14T09:05 UTC
 READY
 ```
@@ -121,7 +121,10 @@ the project's use cases name first; a run that needs another adds it.
    apart from the owner's, then cleanup back to the recorded state. A
    skill that was never run end to end is a draft. A fault the proof meets
    becomes a Trap and, when it is a stand fault, a doctor check; a fix that
-   changes shared data waits for the owner's yes.
+   changes shared data waits for the owner's yes. In `deploy-topology`
+   the stand's proof (Step 7b: the service check in the container, the
+   resource measurement) runs on the stand this proof brought up, before
+   the cleanup (`deploy-doc.md` → The stand's proof).
 4. **Record the proof** in SKILL.md's opening lines: the date, the commit,
    what ran and what it produced.
 5. **Commit it alone** (`test(e2e): скилл запуска стенда`), only the

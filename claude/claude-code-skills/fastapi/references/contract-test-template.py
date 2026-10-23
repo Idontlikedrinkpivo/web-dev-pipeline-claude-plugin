@@ -40,8 +40,8 @@ from src.main import app
 
 REPO_ROOT = Path(__file__).resolve().parents[2]  # placeholder: tests/contract/ → the folder holding documentation/
 CONTRACT = REPO_ROOT / "documentation" / "api" / "openapi.yaml"
-# Routes the contract does not describe on purpose (health, metrics) — (method, path as the app serves it).
-NOT_IN_CONTRACT = {("get", "/health")}
+# The service routes the contract does not describe on purpose (`repo-scaffold` §5) — (method, path as served).
+NOT_IN_CONTRACT = {("get", "/health/live"), ("get", "/health/ready"), ("get", "/metrics")}
 
 METHODS = ("get", "put", "post", "delete", "patch")
 IGNORED_STATUSES = {"500", "503", "default"}

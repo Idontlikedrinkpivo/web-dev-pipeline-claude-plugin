@@ -35,7 +35,8 @@ Follow `upgrade-docs` → Steps — one change per message, no answer is «по�
    - Run the same checks again. A check that was red before stays as it was and goes into the report; a check this
      change turned red is the change's defect — fix it within the change, or undo the change and tell the user.
    - `project_format.py check . <id>` must print `done`.
-   - Commit it alone: `chore: <title of the change> (плагин <version>)`, only that change's files.
+   - Commit it alone: `chore: <title of the change> (плагин <version>)` — the installed plugin's version, as
+     `project_format.py` prints it — only that change's files.
 
 4. **Stamp.** As there: the stamp needs nothing of either kind pending, so document changes left for
    `upgrade-docs` keep it off — say so.

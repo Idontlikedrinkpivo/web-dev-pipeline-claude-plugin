@@ -36,8 +36,8 @@ import { testDependencies } from "../helpers/test-dependencies.js"
 
 const HERE = path.dirname(fileURLToPath(import.meta.url))
 const CONTRACT = path.resolve(HERE, "../../../documentation/api/openapi.yaml") // placeholder: repo root
-/** Routes the contract does not describe on purpose (health, metrics, docs) — `METHOD path` as the app serves it. */
-const NOT_IN_CONTRACT = new Set(["GET /health"])
+/** The service routes the contract does not describe on purpose (`repo-scaffold` §5) — `METHOD path` as served. */
+const NOT_IN_CONTRACT = new Set(["GET /health/live", "GET /health/ready", "GET /metrics"])
 
 const METHODS = ["get", "put", "post", "delete", "patch"] as const
 const IGNORED_STATUSES = new Set(["500", "503", "default"])

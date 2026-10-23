@@ -123,6 +123,22 @@ its removal is its own change, never part of the one that adds the new major. No
 query-parameter versioning unless the repo already does it. Both majors use the one global error
 handler; `Location` headers point into the major that created the resource.
 
+## Service endpoints, logs and shutdown
+
+The platform the service is handed to probes it, scrapes it, collects its stdout and stops it with SIGTERM. The code
+for all four is written once, in `bootstrap/` and the entry point, from
+[references/service-endpoints.md](./references/service-endpoints.md) — read it before touching them.
+
+- `GET /health/live` touches nothing; `GET /health/ready` checks the database (2 s) and each store the app cannot
+  serve without, never a partner's API; `GET /metrics` serves the app's own `prom-client` registry with
+  `http_request_duration_seconds` labelled by the route template. The three sit outside the contract
+  (`NOT_IN_CONTRACT`) and outside auth.
+- Logs are the built-in pino logger, one JSON object per line with `time`, `level`, `msg`, `logger`, `request_id`
+  and `err`; code logs through `request.log` or a child of `app.log`, never `console`. No secret, token or personal
+  data in a line.
+- The entry point owns SIGTERM and SIGINT: `app.close()` within `SHUTDOWN_TIMEOUT_SEC`, a resource closed in an
+  `onClose` hook, exit 0.
+
 ## The contract test
 
 `tests/contract/openapi.contract.test.ts` compares the OpenAPI the app builds (`@fastify/swagger` in dynamic mode,
@@ -151,3 +167,7 @@ of fetching docs. Outside `work`, read the file and check each point you rely on
 5. **Auth runs in a hook before validation, registered on the prefix it protects**; missing credentials 401, a
    missing permission 403.
 6. **A new or changed route carries the contract's `operationId` and `tags`**, and the contract test passes.
+7. **`/health/live` touches nothing; `/health/ready` checks only stores the app cannot serve without**, each bounded,
+   never a partner's API — a partner outage must not take every pod out of rotation.
+8. **No metric label or log field comes from raw input**: `route` is the template (`request.routeOptions.url`),
+   never `request.url`; no user id, email, token or body in a label or a log line.

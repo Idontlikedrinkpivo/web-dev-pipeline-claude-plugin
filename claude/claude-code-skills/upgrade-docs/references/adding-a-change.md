@@ -38,8 +38,9 @@ themselves.
 `{"exists": path}`, `{"missing": path}` (a path with `*` is a glob — `*/skills/verify/SKILL.md` finds the
 project skill under `.claude/` and `.agents/` alike), `{"grep": {"path": file or folder, "pattern": regex}}`,
 `{"all": [...]}`, `{"any": [...]}`, `{"not": check}`. Paths are relative to the project's root. A grep reads
-text files (`.md .yaml .yml .json .txt .sql .dbml .html`) under a folder; the pattern is a Python regex in
-multiline mode. Prefer a sign that only the old format has — a heading it used, a word the new rule forbids —
+text files (`.md .yaml .yml .json .txt .sql .dbml .html`) under a folder, or every file a glob path names, whatever
+its type (`*/Dockerfile`, `*/src/bootstrap/*` — keep globs to fixed depths: `**` walks `node_modules`); the pattern is
+a Python regex in multiline mode. Prefer a sign that only the old format has — a heading it used, a word the new rule forbids —
 over a sign of the new one; and keep it away from text where the old word is legitimate (a changelog, a quote).
 
 Check by hand: `python3 upgrade-docs/scripts/project_format.py list <project>` on both projects.

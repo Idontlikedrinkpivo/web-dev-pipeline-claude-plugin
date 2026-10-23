@@ -62,7 +62,7 @@ S3-compatible image works; verify it pulls.
         ports:
           - 8333:8333
         options: >-
-          --health-cmd "curl -fsS http://127.0.0.1:8333/healthz"
+          --health-cmd "wget -qO- http://127.0.0.1:8333/healthz"   # the image has wget, not curl — the same command as the compose healthcheck
           --health-interval 5s
           --health-timeout 3s
           --health-retries 10

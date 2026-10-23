@@ -85,26 +85,28 @@ SELECT (SELECT count(*) FROM room_booking.bookings WHERE ends_at < now() - inter
 ## Логи
 
 Контейнер `backend` пишет JSON по строке в stdout; любой сборщик логов их принимает.
-У каждой строки есть `reqId` — по нему собираются все строки одного запроса.
-ФИО и email в логи не пишутся.
+У каждой строки есть `time`, `level`, `msg`, `logger`; у строк запроса — `request_id`: он приходит
+в заголовке `X-Request-Id` (или создаётся) и возвращается в ответе, по нему собираются все строки
+одного запроса. ФИО и email в логи не пишутся.
 
 | Событие (`event`) | Когда | Поля | Тревога | Где в системе |
 |---|---|---|---|---|
-| `booking_rejected` | бронь отклонена | `code` (`BOOKING_OVERLAP`, …), `reqId` | нет; дашборд считает по `code` | `src/bootstrap/error-handler.ts` |
+| `booking_rejected` | бронь отклонена | `code` (`BOOKING_OVERLAP`, …), `request_id` | нет; дашборд считает по `code` | `src/bootstrap/error-handler.ts` |
 | `cancellation_email_overdue` | письмо не ушло за 24 ч | `bookingId`, `attempts` | да — см. «Тревоги» | `cancellation-email-relay.ts` |
 
 Отфильтровать по событию (строки stdout в файле или потоке):
 
 ```bash
-jq -cR 'fromjson? | select(.event == "booking_rejected") | {time, code, reqId}' backend.log
+jq -cR 'fromjson? | select(.event == "booking_rejected") | {time, code, request_id}' backend.log
 ```
 
 ## Проверки и метрики
 
 | Что | Как | Норма | Где в системе |
 |---|---|---|---|
-| Жив ли процесс | `GET /healthz` (без токена) | 200 | `src/bootstrap/server.ts` |
-| Доступна ли БД | проверки нет — только по ошибкам 500 в логах; запрос готовности в системе нет | — | — |
+| Жив ли процесс | `GET /health/live` на порту приложения, без токена; базу не трогает | 200 `{"status":"ok"}` | `src/bootstrap/service-routes.ts` |
+| Готов ли принимать запросы | `GET /health/ready`, без токена; пингует БД с таймаутом 2 с | 200 `{"status":"ready"}`; 503 `{"status":"not ready","checks":{"db":"down"}}` — БД не ответила | `src/bootstrap/service-routes.ts` |
+| Время ответа и ошибки | `GET /metrics` — формат Prometheus; гистограмма `http_request_duration_seconds` по `method`, `route` (шаблон маршрута), `status_code` | 95 % ответов быстрее 1 с; ответов 5xx нет | `src/bootstrap/service-routes.ts` |
 
 ## Фоновые процессы
 
@@ -118,7 +120,8 @@ jq -cR 'fromjson? | select(.event == "booking_rejected") | {time, code, reqId}' 
 | Сигнал | Что значит | Что делать |
 |---|---|---|
 | `cancellation_email_overdue` в логах | почтовый сервис не принимает письма больше суток | проверить доступность почтового сервиса и `MAIL_API_KEY` (DEPLOY.md → Переменные); после восстановления письма уйдут сами — проверить З-2 |
-| `/healthz` не отвечает | процесс упал или завис | перезапустить контейнер (DEPLOY.md → Порядок запуска); причину искать в последних строках лога |
+| `/health/live` не отвечает | процесс упал или завис | платформа перезапускает контейнер сама (DEPLOY.md → Сеть и проверки); если перезапуски повторяются — причину искать в последних строках лога перед перезапуском |
+| `/health/ready` отвечает 503 | БД не отвечает (`checks.db = "down"`) | контейнер выведен из балансировки, но не перезапущен; проверить доступность БД и `DATABASE_URL` (DEPLOY.md → Переменные); после восстановления БД он вернётся сам |
 
 ## Типовые операции
 

@@ -233,7 +233,7 @@ A filled report, for calibration — match its density, not its domain:
 | # | Важность | Юниты | Аспект | Находка | Исправление |
 |---|---|---|---|---|---|
 | 1 | P0 | U5, U8 | Security | `GET /invoices/{invoice_id}` (U8) передаёт `invoice_id` из пути в `GetInvoice` (U5), который не сверяет владельца; arch «Безопасность» D-4 требует проверку владельца | U5: принимать `requesterId`, отказывать `NotAuthorized`, тест на чужой счёт |
-| 2 | P1 | U6 (+ scaffold) | Superseded code | scaffold-заглушка `src/app/health-stub.ts` осталась смонтированной рядом с `GET /health` из U6 | удалить заглушку и её регистрацию в `src/http/routes.ts` |
+| 2 | P1 | U6 (+ scaffold) | Superseded code | scaffold-заглушка `src/app/health-stub.ts` осталась смонтированной рядом с `GET /health/live` из U6 | удалить заглушку и её регистрацию в `src/http/routes.ts` |
 
 **Cross-unit watch resolved** — U4 «`OrderStatus` union vs enum»: dismissed, U4 выводит union из enum U2 (`keyof typeof OrderStatus`), модель одна.
 **Security baseline** — D-4 владелец ресурса: не enforced (#1). NFR-Sec-2 хэш токенов: enforced в `src/adapters/token-repo.ts:hashToken`.

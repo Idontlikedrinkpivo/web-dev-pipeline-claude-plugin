@@ -20,6 +20,7 @@ The same rules as `typescript`, in Python's words. A machine-checked rule is one
 | an `asyncio.create_task` result is kept; no blocking call inside `async def` | Ruff `RUF006`, `ASYNC` |
 | datetimes carry a time zone | Ruff `DTZ` |
 | raise idioms, pytest style, FastAPI dependencies with `Annotated` | Ruff `TRY`, `PT`, `FAST`, `UP` |
+| output goes through `logging`, never `print` — stdout carries only the JSON lines the formatter in `bootstrap/` writes (`fastapi` → Service endpoints, logs and shutdown) | Ruff `T20` |
 
 ## The reviewer checks
 

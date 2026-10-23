@@ -12,28 +12,37 @@ variable) mentioned anywhere in the three architecture documents:
 | Переменная | Тип | Обязательна | Если нет |
 |---|---|---|---|
 | `SESSION_SECRET` | string | да | процесс не стартует |
+| `LOG_LEVEL` | string | нет | `info` |
+| `SHUTDOWN_TIMEOUT_SEC` | integer | нет | `25` |
 
 The security table keeps the decision («секрет только в env»). This
 table is the inventory. A missing required variable means the process
 does not start. An environment variable mentioned in prose and missing here
-is a defect: the inventory is only useful if it is complete.
+is a defect: the inventory is only useful if it is complete. Every HTTP
+service has the `LOG_LEVEL` and `SHUTDOWN_TIMEOUT_SEC` rows: `repo-scaffold`
+wires them (the log level; how long a stop may finish in-flight requests).
 
 ## Служебные каналы
 
-One row per служебный path from §1. No scenario in any scenarios
-document. If the channel touches a store, an existing port gains the
-method (`ready() -> bool`), and §5 has a line for the file that mounts
-the probe. Response shape
-stays in OpenAPI.
+The paths the platform calls — its probes and its metrics scraper. Every
+HTTP service has the same three, on the app port, outside the OpenAPI
+contract and outside auth; the frontend's proxy never forwards them.
+`repo-scaffold` builds them and fixes their answers (its SKILL.md §5), so
+neither OpenAPI nor a scenario describes them. One row each, plus one per
+other служебный path §1 names:
 
 | Путь | Владелец | Что вызывает |
 |---|---|---|
-| `GET /healthz` | `bootstrap/` | ничего |
-| `GET /readyz` | `bootstrap/` | проверка хранилища, `ready()` порта |
+| `GET /health/live` | `bootstrap/` | ничего — ни базы, ни партнёров: отказ базы не должен перезапускать каждый под |
+| `GET /health/ready` | `bootstrap/` | пинг базы с таймаутом 2 с; `ready()` порта каждого другого хранилища, без которого приложение не обслуживает; никогда сторонний API |
+| `GET /metrics` | `bootstrap/` | ничего — метрики процесса и гистограмма `http_request_duration_seconds` по шаблону маршрута |
 
-A `/healthz`-class path in §1 with no row here, or a readiness check that
-touches a store and adds no port method, is a service path without an
-owner.
+The database ping runs on the pool `bootstrap/` already owns; another
+store the readiness check needs (object storage, a queue) gives its
+existing port the method `ready() -> bool`. §5 has a line for the file
+that mounts the three. A service path in §1 with no row here, or a
+readiness check that touches a store other than the database and adds no
+port method, is a service path without an owner.
 
 ## HTTP
 

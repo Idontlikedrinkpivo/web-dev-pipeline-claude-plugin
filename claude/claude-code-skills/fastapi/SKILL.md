@@ -20,7 +20,9 @@ Alembic) belongs to `fastapi-sqlalchemy`.
 
 ## Use the `fastapi` CLI
 
-Start the app with `fastapi dev` locally and `fastapi run` in production (through `uv run`), not by calling uvicorn directly, so every environment starts the app the same way. Prefer declaring the entrypoint (the app object the §5 tree places in `bootstrap/`, or the repo's existing one such as `src.main:app`) in `pyproject.toml` over passing a file path on every call; pass the path only when the config cannot be added or the user asks not to.
+Start the app with `fastapi dev` locally (through `uv run`). Prefer declaring the entrypoint (the app object the §5 tree places in `bootstrap/`, or the repo's existing one such as `src.main:app`) in `pyproject.toml` over passing a file path on every call; pass the path only when the config cannot be added or the user asks not to.
+
+The container, and any run the platform stops, starts through the production entry in `bootstrap/` (`python -m <package>.bootstrap.serve`), not `fastapi run`: the entry configures the JSON logs before uvicorn starts and passes it `log_config=None` and the graceful-shutdown timeout, which `fastapi run` does not (`references/service-endpoints.md`).
 
 ## Conventions
 
@@ -63,6 +65,14 @@ Start the app with `fastapi dev` locally and `fastapi run` in production (throug
 - Token kind, lifetime, hashing and roles come from architecture §1 «Решения по безопасности»; brownfield: from the existing code or the user. Implementing registration, password login with JWT or the current-user dependencies: read [references/jwt-auth.md](references/jwt-auth.md) — libraries, the timing-safe check, `algorithms=[...]`, 401 with `WWW-Authenticate`, roles read from the database.
 - Settings via `pydantic-settings`, built in `bootstrap/`. A secret (a signing key, an API token, a password) has no default, so a missing one stops the start; `.env.example` lists every variable. Touch only the settings the task needs: in an existing repo, keep the defaults of settings the task is not about (removing `DATABASE_URL`'s default breaks every command run without `.env`). CORS lists exact origins, never `*` with credentials.
 
+## Service endpoints, logs and shutdown
+
+The platform the service is handed to probes it, scrapes it, collects its stdout and stops it with SIGTERM. The code for all four is written once, in `bootstrap/`, from [references/service-endpoints.md](references/service-endpoints.md) — read it before touching them.
+
+- `GET /health/live` touches nothing; `GET /health/ready` checks the database (2 s) and each store the app cannot serve without, never a partner's API; `GET /metrics` serves `prometheus-client`'s registry with `http_request_duration_seconds`, which one pure ASGI middleware fills, labelled by the route template. The three sit outside the contract (`NOT_IN_CONTRACT`, `include_in_schema=False`) and outside auth.
+- Logs are stdlib `logging` with the JSON formatter from `bootstrap/`, configured before the server starts; uvicorn's loggers go through the same handler. One object per line with `time`, `level`, `msg`, `logger`, `request_id` (a contextvar the middleware sets from `X-Request-Id`) and `err`. Code logs through `logging.getLogger(__name__)`, never `print`. No secret, token or personal data in a line.
+- Shutdown: uvicorn's `timeout_graceful_shutdown` from `SHUTDOWN_TIMEOUT_SEC`, the lifespan's shutdown disposes the engine, exit 0. One worker process per container; several workers need `prometheus_client`'s multiprocess mode.
+
 ## The contract test
 
 `tests/contract/test_openapi_contract.py` compares the OpenAPI the app builds from its routes (`get_openapi`) with
@@ -98,3 +108,7 @@ Outside `work`, read the file and check each point you rely on against the insta
 5. **No blocking call inside `async def`** (a sync driver, `requests`, file IO, a password hash) — `def`, a thread,
    or an async library.
 6. **A new or changed operation matches the contract** — the contract test covers it and passes.
+7. **`/health/live` touches nothing; `/health/ready` checks only stores the app cannot serve without**, each bounded,
+   never a partner's API — a partner outage must not take every pod out of rotation.
+8. **No metric label or log field comes from raw input**: `route` is the template (`scope["route"].path`), never
+   the request path; no user id, email, token or body in a label or a log line.

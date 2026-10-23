@@ -112,15 +112,21 @@ Do not invent `BearerAuth` / JWT / `securitySchemes` to fill the gap.
 
 ## Public endpoint (override global security)
 
+An operation the SRS opens to anyone, under a document whose root `security` requires a token:
+
 ```yaml
 paths:
-  /health:
+  /rooms:
     get:
-      summary: Health check
+      operationId: listRooms
+      summary: List rooms (public)
       security: []
       responses:
         "200":
           description: OK
 ```
+
+The service paths (`/health/live`, `/health/ready`, `/metrics`) are not in the contract at all — `repo-scaffold`
+builds them and the contract test skips them — so they need no override and get no operation.
 
 Do not emit: API key in query string, HTTP Basic, OAuth password flow, OAuth implicit flow.

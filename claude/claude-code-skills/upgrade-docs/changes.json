@@ -518,5 +518,258 @@
       ]
     },
     "fix": "repo-scaffold → references/quality-gates.md (Contract test) и references/stack-files.md: в тестах бэкенда — файл из шаблона стека. Fastify: typescript-fastify/references/contract-test-template.ts → tests/contract/openapi.contract.test.ts, пакет yaml в devDependencies, @fastify/swagger в динамическом режиме с преобразованием схем type provider в buildServer. FastAPI: fastapi/references/contract-test-template.py → tests/contract/test_openapi_contract.py, PyYAML в dev-зависимостях. Заглушки шаблона — на настоящую фабрику приложения и подделки, которые уже есть в тестах. Тест красный на существующем коде — это расхождения маршрутов с контрактом, которые уже есть: изменение откатить, список расхождений показать пользователю; их исправление — задача плана (plan), после неё повторить это изменение. Сравнение не ослаблять и операции в NOT_IN_CONTRACT не добавлять. Другой стек (не Fastify и не FastAPI) или репозиторий без бэкенда — сказать и не делать."
+  },
+  {
+    "id": "devops-ready",
+    "version": "1.2.183",
+    "title": "Готовность к передаче в эксплуатацию (Kubernetes)",
+    "kind": "code",
+    "what": "Сервис готов к требованиям DevOps: служебные пути /health/live (процесс жив, базу не трогает), /health/ready (база доступна, иначе 503) и /metrics в формате Prometheus; логи — JSON-строками в stdout с request_id; по SIGTERM сервис дорабатывает текущие запросы за SHUTDOWN_TIMEOUT_SEC и выходит с кодом 0. Образы — под числовым непривилегированным пользователем, на стенде контейнеры работают с ограничениями привилегий и двумя учётными записями БД; DEPLOY.md открывается карточкой сервиса и описывает проверки, ресурсы по замеру, зависимости, права для DBA, логи, метрики и остановку; openapi.yaml лежит в папке выпуска.",
+    "applies": {
+      "any": [
+        {
+          "any": [
+            {
+              "grep": {
+                "path": "package.json",
+                "pattern": "\"(fastify|express|koa|hono|@nestjs/core)\""
+              }
+            },
+            {
+              "grep": {
+                "path": "*/package.json",
+                "pattern": "\"(fastify|express|koa|hono|@nestjs/core)\""
+              }
+            },
+            {
+              "grep": {
+                "path": "pyproject.toml",
+                "pattern": "\\b(fastapi|flask|django|starlette|litestar)\\b"
+              }
+            },
+            {
+              "grep": {
+                "path": "*/pyproject.toml",
+                "pattern": "\\b(fastapi|flask|django|starlette|litestar)\\b"
+              }
+            }
+          ]
+        },
+        {
+          "any": [
+            {
+              "exists": "Dockerfile"
+            },
+            {
+              "exists": "*/Dockerfile"
+            },
+            {
+              "exists": "*.Dockerfile"
+            },
+            {
+              "exists": "*/*.Dockerfile"
+            },
+            {
+              "exists": "docker/*Dockerfile*"
+            }
+          ]
+        },
+        {
+          "exists": "docker-compose.test.yml"
+        }
+      ]
+    },
+    "behind": {
+      "any": [
+        {
+          "all": [
+            {
+              "any": [
+                {
+                  "grep": {
+                    "path": "package.json",
+                    "pattern": "\"(fastify|express|koa|hono|@nestjs/core)\""
+                  }
+                },
+                {
+                  "grep": {
+                    "path": "*/package.json",
+                    "pattern": "\"(fastify|express|koa|hono|@nestjs/core)\""
+                  }
+                },
+                {
+                  "grep": {
+                    "path": "pyproject.toml",
+                    "pattern": "\\b(fastapi|flask|django|starlette|litestar)\\b"
+                  }
+                },
+                {
+                  "grep": {
+                    "path": "*/pyproject.toml",
+                    "pattern": "\\b(fastapi|flask|django|starlette|litestar)\\b"
+                  }
+                }
+              ]
+            },
+            {
+              "not": {
+                "any": [
+                  {
+                    "grep": {
+                      "path": "src/*",
+                      "pattern": "/health/ready"
+                    }
+                  },
+                  {
+                    "grep": {
+                      "path": "src/*/*",
+                      "pattern": "/health/ready"
+                    }
+                  },
+                  {
+                    "grep": {
+                      "path": "src/*/*/*",
+                      "pattern": "/health/ready"
+                    }
+                  },
+                  {
+                    "grep": {
+                      "path": "*/src/*",
+                      "pattern": "/health/ready"
+                    }
+                  },
+                  {
+                    "grep": {
+                      "path": "*/src/*/*",
+                      "pattern": "/health/ready"
+                    }
+                  },
+                  {
+                    "grep": {
+                      "path": "*/src/*/*/*",
+                      "pattern": "/health/ready"
+                    }
+                  },
+                  {
+                    "grep": {
+                      "path": "*/bootstrap/*",
+                      "pattern": "/health/ready"
+                    }
+                  },
+                  {
+                    "grep": {
+                      "path": "*/*/bootstrap/*",
+                      "pattern": "/health/ready"
+                    }
+                  },
+                  {
+                    "grep": {
+                      "path": "*/*.py",
+                      "pattern": "/health/ready"
+                    }
+                  },
+                  {
+                    "grep": {
+                      "path": "*/*/*.py",
+                      "pattern": "/health/ready"
+                    }
+                  }
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "all": [
+            {
+              "any": [
+                {
+                  "exists": "Dockerfile"
+                },
+                {
+                  "exists": "*/Dockerfile"
+                },
+                {
+                  "exists": "*.Dockerfile"
+                },
+                {
+                  "exists": "*/*.Dockerfile"
+                },
+                {
+                  "exists": "docker/*Dockerfile*"
+                }
+              ]
+            },
+            {
+              "not": {
+                "any": [
+                  {
+                    "grep": {
+                      "path": "Dockerfile",
+                      "pattern": "^USER\\s+[1-9][0-9]*\\s*$"
+                    }
+                  },
+                  {
+                    "grep": {
+                      "path": "*/Dockerfile",
+                      "pattern": "^USER\\s+[1-9][0-9]*\\s*$"
+                    }
+                  },
+                  {
+                    "grep": {
+                      "path": "*.Dockerfile",
+                      "pattern": "^USER\\s+[1-9][0-9]*\\s*$"
+                    }
+                  },
+                  {
+                    "grep": {
+                      "path": "*/*.Dockerfile",
+                      "pattern": "^USER\\s+[1-9][0-9]*\\s*$"
+                    }
+                  },
+                  {
+                    "grep": {
+                      "path": "docker/*Dockerfile*",
+                      "pattern": "^USER\\s+[1-9][0-9]*\\s*$"
+                    }
+                  }
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "all": [
+            {
+              "exists": "docker-compose.test.yml"
+            },
+            {
+              "not": {
+                "grep": {
+                  "path": "docker-compose.test.yml",
+                  "pattern": "cap_drop"
+                }
+              }
+            }
+          ]
+        },
+        {
+          "all": [
+            {
+              "exists": "documentation/deploy/deploy.md"
+            },
+            {
+              "not": {
+                "grep": {
+                  "path": "documentation/deploy/deploy.md",
+                  "pattern": "Карточка сервиса"
+                }
+              }
+            }
+          ]
+        }
+      ]
+    },
+    "fix": "Это изменение кода и настроек: сначала спросить — сделать сейчас отдельной веткой или первым юнитом ближайшей итерации. Код — repo-scaffold §5 и правила стека (typescript-fastify или fastapi → references/service-endpoints.md): /health/live, /health/ready, /metrics в корне композиции, который называет дерево §5 архитектуры (bootstrap/ — только по умолчанию; переносить существующий код ради этого не нужно); JSON-логи с request_id, остановка по SIGTERM/SIGINT, LOG_LEVEL и SHUTDOWN_TIMEOUT_SEC в .env.example и конфиге, no-console / Ruff T20 в линтере. Новые файлы, библиотеки и переменные — изменённое решение архитектуры: сначала отдельный коммит «docs: решение изменено — …» по pipeline → references/decision-changes.md. Маршрут /health, который есть в контракте API, остаётся — служебные пути добавляются рядом. Три служебных пути в NOT_IN_CONTRACT — если тест контракта уже есть (иначе он придёт с изменением contract-test). Проверка: repo-scaffold/scripts/service_check.py на запущенном процессе. Если в проекте уже есть образы — deploy-topology шаги 2, 4, 6, 7, 7b (проверка сервиса в контейнере и замер ресурсов) и 8; шаг 7a — скил verify — отдельное изменение verify-skill: числовой USER в Dockerfile, вопрос про образ без оболочки (один раз; критичная уязвимость базового образа — deploy-topology → references/images.md → A vulnerable base), защита app-контейнеров в docker-compose.test.yml и docker-compose.prod.yml, healthcheck на /health/ready, stop_grace_period, две обычные учётные записи БД — migrate (владелец схемы, право CREATE на базу) и backend (только данные) — в roles.sql, суперпользователь стенда только выполняет roles.sql, отдельный env-файл для prod-migrate; пометки [required] / [secret] / [infra] в .env.example, замер ресурсов, новые разделы DEPLOY.md и правила его теста, openapi.yaml в build-images.sh; scripts/e2e-stands.sh — только если есть экраны. Имена томов в существующем dev-файле не менять. Остальные шаги этапа не повторять. Поведение API не меняется; тесты зелёные до и после. Другой стек (не Fastify и не FastAPI) — только части про образы и DEPLOY.md, про код — сказать пользователю."
   }
 ]

@@ -13,4 +13,6 @@ Adapted for this plugin; parts of the text follow the original closely:
 - version facts (streaming, serving a built frontend, CLI entrypoint config, `yield` dependencies) became the
   checklist in `references/version-checks.md` — verify against the installed version;
 - added from this plugin: the problem+json error handlers, auth and settings (`references/jwt-auth.md`), the
-  contract test, «The reviewer checks»; the database layer is left to `fastapi-sqlalchemy`.
+  contract test, the service endpoints, JSON logs and shutdown (`references/service-endpoints.md` — the container
+  starts through `bootstrap/serve.py` instead of the original's `fastapi run`), «The reviewer checks»; the database
+  layer is left to `fastapi-sqlalchemy`.

@@ -17,7 +17,7 @@ The changes are ../changes.json: each names the plugin version that brought it, 
 project's code and settings, brought in by the upgrade-code skill; no kind — documents, the upgrade-docs skill), a
 check that it applies to the project (`applies`) and a check that the project is still behind (`behind`). A check is one of
 {"exists": path}, {"missing": path} (a path with * is a glob), {"grep": {"path": file or folder, "pattern": regex}} (text files under a
-folder, multiline), {"all": [...]}, {"any": [...]}, {"not": check}; paths are relative to the project.
+folder, multiline; a path with * is a glob of files read whatever their type — `*/Dockerfile`, `*/src/bootstrap/*`), {"all": [...]}, {"any": [...]}, {"not": check}; paths are relative to the project.
 The stamp is documentation/.dev-pipeline.json — {"plugin": "<version>", "skipped": [ids]}, committed with the
 documents. Changes up to the stamped version count as done; a project without a stamp is checked against all.
 Read-only except skip and stamp. Standard library only. Adding a row: ../references/adding-a-change.md.
@@ -60,7 +60,10 @@ def stamp_of(root: Path) -> dict:
 def grep(root: Path, path: str, pattern: str) -> bool:
     rx = re.compile(pattern, re.M)
     p = root / path
-    files = [p] if p.is_file() else [f for f in p.rglob("*") if f.is_file() and f.suffix in TEXT] if p.is_dir() else []
+    if "*" in path:  # a glob names its files exactly (a Dockerfile, a source folder), so their type is not filtered
+        files = [f for f in root.glob(path) if f.is_file()]
+    else:
+        files = [p] if p.is_file() else [f for f in p.rglob("*") if f.is_file() and f.suffix in TEXT] if p.is_dir() else []
     for f in files:
         try:
             if rx.search(f.read_text(encoding="utf-8", errors="replace")):

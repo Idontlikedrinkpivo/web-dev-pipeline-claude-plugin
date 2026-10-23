@@ -36,7 +36,7 @@ This — the decision in the cell, the mechanism below, every fact kept:
 
 #### Аутентификация (NFR-3)
 
-- **Где проверяется** — хук на каждом запросе (`src/shared/providers/auth/sso-auth.ts`), на всех маршрутах, кроме `/healthz`.
+- **Где проверяется** — хук на каждом запросе (`src/shared/providers/auth/sso-auth.ts`), на всех маршрутах, кроме служебных `/health/live`, `/health/ready` и `/metrics`.
 - **Что проверяется** — Bearer JWT библиотекой `jose` по ключам издателя (`OIDC_ISSUER_URL`, discovery): подпись, `iss`, `aud` = `OIDC_AUDIENCE`, `exp`.
 - **Роль** — claim `role=admin` → администратор, иначе резидент.
 - **Сессии** — своих нет, и refresh тоже: их держит SSO.

@@ -35,3 +35,13 @@ a quick probe in the project.
 - **Auth libraries** — the current PyJWT and pwdlib releases (`pip index versions <pkg>`), the signatures of
   `jwt.encode` / `jwt.decode` and `PasswordHash.recommended()` / `hash` / `verify`, and which extra installs the
   Argon2 backend.
+- **uvicorn and the production entry** (`references/service-endpoints.md`) — `uvicorn.run`'s `log_config`,
+  `access_log`, `timeout_graceful_shutdown` and `workers`; whether it still re-raises the captured signal after a
+  graceful shutdown (it does from 0.29: under the default SIGTERM handler the process then ends with 143, hence the
+  no-op handlers); whether the installed `fastapi run` has gained a shutdown-timeout option and leaves logging to the
+  app (fastapi-cli 0.0.32 has neither) — only then may the container start through it.
+- **The route template** — that the matched route sits on the ASGI scope after the call (`scope["route"]`, an
+  `APIRoute` whose `path` is the template with the router's prefix), so a middleware can label by it.
+- **prometheus-client** — the current release; `Histogram`'s signature, `generate_latest` and
+  `CONTENT_TYPE_LATEST` (its `version=` follows the text format); the multiprocess mode (`PROMETHEUS_MULTIPROC_DIR`,
+  `MultiProcessCollector`, `mark_process_dead`).
