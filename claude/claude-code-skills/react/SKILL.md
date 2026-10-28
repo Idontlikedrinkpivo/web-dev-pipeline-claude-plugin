@@ -22,6 +22,7 @@ components, a dictionary loaded four ways. Examples «так / не так»: `r
 | a list key is a stable id from the data, not the index | `@eslint-react/no-array-index-key` |
 | no `fetch` or API client outside the data layer (`shared/api`, `features/*/api.ts`) | `no-restricted-imports`, `no-restricted-globals` |
 | no regex literal in a component — a format comes from the rules module | `no-restricted-syntax` |
+| no `dangerouslySetInnerHTML` outside the one sanitizer module | the `@eslint-react` DOM rule against it (its name per the installed version), switched off only in that module |
 | a function over 80 lines, a file over 500 — split | `max-lines-per-function`, `max-lines` |
 | tests query by role and label, use `userEvent`, `findBy*` instead of `waitFor`, no `container` or node access | `testing-library/*` |
 
@@ -51,7 +52,13 @@ components, a dictionary loaded four ways. Examples «так / не так»: `r
     never re-derived on the screen.
 13. **Variants by composition** (`children`, a separate component), not by yet another boolean prop. Context holds
     what rarely changes (session, theme), never server data.
-14. **Tests**: Testing Library through `renderWithProviders` from the shared test folder, the network mocked by
+14. **The browser keeps no secret and no session token.** Text a user typed, or another user wrote, never reaches
+    `dangerouslySetInnerHTML`; rich text the product must show goes through one sanitizer (DOMPurify) in one
+    module, and a link built from such text gets its scheme checked (`https:` / `mailto:` only). A `VITE_*` or
+    `NEXT_PUBLIC_*` variable is shipped to every visitor — an API key or a secret never goes there; a call that
+    needs one goes through the backend. The session is the API's `HttpOnly` cookie, never a token in
+    `localStorage` or `sessionStorage`.
+15. **Tests**: Testing Library through `renderWithProviders` from the shared test folder, the network mocked by
     MSW, the component's own hooks and modules never mocked, one behaviour per test (`vitest`).
 
 React 19: `ref` is an ordinary prop (no `forwardRef`), `<Context>` is its own provider. Check the installed

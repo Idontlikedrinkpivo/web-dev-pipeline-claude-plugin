@@ -249,7 +249,10 @@ one teaches everyone to ignore red. YAML: `references/ci-skeleton.md`
 command per toolchain).
 
 - **Shape.** One `security` job beside the toolchain jobs, so its result
-  never hides theirs: a secret scan, then one dependency audit step per
+  never hides theirs: a secret scan, a code-pattern scan (semgrep — SQL
+  built from strings, user text rendered as HTML, the packs `security-audit`
+  runs, so a pattern is caught on the pull request, not first at release),
+  then one dependency audit step per
   part of the repository (a backend and a frontend: two steps). No dependency install, no infra, no cache. Every step after
   the first runs `if: ${{ !cancelled() }}` so one run reports all of them.
 - **Threshold.** Dependency audit fails on a high or critical hole in a
@@ -259,7 +262,10 @@ command per toolchain).
   advisory ID and a one-line reason next to the command. The secret scan
   fails on any finding; false positives — including the fixture values in
   `docker-compose.test.yml`, test values in the clear by design — go in
-  the scanner's committed allowlist by path, never a blanket disable.
+  the scanner's committed allowlist by path, never a blanket disable. The
+  pattern scan fails on any finding too (`--error`); a false positive is a
+  `nosemgrep` comment on its line with the rule and the reason, never a
+  dropped pack.
 - **Scope of the secret scan.** Full history of the checkout, not the final
   tree: a key added in one commit of a PR and deleted in the next is still
   leaked. Redact findings in the log — the log is public on a public repo.

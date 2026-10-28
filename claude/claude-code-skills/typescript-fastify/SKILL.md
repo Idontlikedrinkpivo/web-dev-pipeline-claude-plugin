@@ -171,3 +171,10 @@ of fetching docs. Outside `work`, read the file and check each point you rely on
    never a partner's API — a partner outage must not take every pod out of rotation.
 8. **No metric label or log field comes from raw input**: `route` is the template (`request.routeOptions.url`),
    never `request.url`; no user id, email, token or body in a label or a log line.
+9. **A password is hashed with Argon2id** (`@node-rs/argon2` or `argon2`), never a bare `crypto` digest or a
+   hand-rolled salt; an unknown email still verifies against a dummy hash, so it costs the time a wrong password
+   does. Login and registration are rate-limited by address and by account where architecture §1 puts it — in the
+   app, `@fastify/rate-limit` on those routes, answering the contract's 429 with `Retry-After`.
+10. **A write takes the contract's fields by name**: the body is never spread into an insert or an update, and a
+    field the client may not set — the owner, a role, a status, a price — is not in the request schema
+    (`additionalProperties: false`), so a sent one is refused, not stored.

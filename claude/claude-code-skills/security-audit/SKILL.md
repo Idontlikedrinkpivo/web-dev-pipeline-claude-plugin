@@ -115,7 +115,9 @@ matrix rows, the code paths from the project map, the SRS security rows
 and rules on rights, the architecture's security decisions. One more
 dispatch takes the application-wide lenses — authentication wiring,
 sessions and cookies, CORS, CSRF, headers, configuration defaults, rate
-limits, logging — and the scanner findings to triage.
+limits, logging, password storage and the account rules, the frontend
+(raw HTML from user text, secrets in the bundle, where the session token
+lives) — and the scanner findings to triage.
 
 Each auditor follows every operation from the route to the data and back,
 and returns findings with `file:line`, the concrete request that exploits

@@ -92,6 +92,16 @@ secret-scan:
   script:
     - gitleaks git --redact --verbose .   # subcommand/flags: verify against the pinned version
 
+code-patterns:
+  image:
+    name: <semgrep-image>@sha256:<digest>
+    entrypoint: [""]
+  allow_failure: true
+  interruptible: true
+  timeout: 10m
+  script:
+    - semgrep scan --config p/owasp-top-ten --config p/<stack> --error --exclude node_modules --exclude documentation .
+
 audit-<toolchain>:                     # one per toolchain the project has
   image: <toolchain image>@sha256:<digest>
   allow_failure: true

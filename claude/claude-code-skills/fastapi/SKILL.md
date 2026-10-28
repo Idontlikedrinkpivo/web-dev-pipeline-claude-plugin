@@ -103,7 +103,8 @@ Outside `work`, read the file and check each point you rely on against the insta
 3. **Login is timing-safe and strict**: tokens through PyJWT and passwords through `pwdlib` (Argon2) — not
    `python-jose`, `passlib` or a bare `hashlib`; an unknown email still verifies against a dummy hash; decoding passes
    `algorithms=[...]`; a bad token is 401 with `WWW-Authenticate: Bearer`; a role is read from the database on each
-   request, never from a token claim.
+   request, never from a token claim; login and registration are rate-limited by address and by account where
+   architecture §1 puts it, answering the contract's 429 with `Retry-After`.
 4. **Secrets have no default and no literal anywhere**; CORS names exact origins.
 5. **No blocking call inside `async def`** (a sync driver, `requests`, file IO, a password hash) — `def`, a thread,
    or an async library.
@@ -112,3 +113,6 @@ Outside `work`, read the file and check each point you rely on against the insta
    never a partner's API — a partner outage must not take every pod out of rotation.
 8. **No metric label or log field comes from raw input**: `route` is the template (`scope["route"].path`), never
    the request path; no user id, email, token or body in a label or a log line.
+9. **A write takes the request model's fields by name**: no `**body.model_dump()` into a record or an update, and
+   a field the client may not set — the owner, a role, a status, a price — is not in the request model; request
+   models forbid extra fields (`extra="forbid"`), so a sent one is refused, not stored.

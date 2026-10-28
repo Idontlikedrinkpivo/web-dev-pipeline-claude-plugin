@@ -25,5 +25,7 @@ Read this only when the task implements registration, login or protected routes.
 - Decoding passes `algorithms=[...]` as an explicit list. An invalid, expired or `sub`-less token, or a user that no longer exists, is 401 with `WWW-Authenticate: Bearer`.
 - Admin and role checks load the user from the database on each request and read the stored flag or role, so a role change applies on the next request, not when the token expires. No token → 401, authenticated without the role → 403.
 - A role that may complete a named transition is a domain rule: the entity method takes the typed actor (domain model). The route guard is the second, separate question (who may call the endpoint at all).
+- Login and registration are rate-limited by address and by account where architecture §1 «Решения по безопасности» puts it (the app or the proxy in front); the app's limit answers the contract's 429 with `Retry-After`. The SRS names the limit (its security checklist, «Rate limiting / abuse resistance»).
+- Registration takes the password rule the SRS states — a minimum length and a check against known breached passwords, not composition rules — and, when the SRS says so, leaves the account unconfirmed until the emailed link is followed.
 - Duplicate registration: rely on the unique constraint on email as the last line and map its violation to the contract's 409 error; a pre-check only makes the common case cheaper.
 - 401 / 403 / 409 bodies follow the contract: problem+json per `documentation/api/openapi.yaml`, or the repo's existing error format when there is no spec.

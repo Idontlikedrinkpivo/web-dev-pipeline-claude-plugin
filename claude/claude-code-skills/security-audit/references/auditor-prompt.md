@@ -50,7 +50,9 @@ Follow every operation of the area from its route to the data and back.
 4. **Input** — parsed and validated at the boundary against the contract's
    schema; lengths, enums and formats enforced; no unvalidated value
    reaches a query, a file path, a shell, a template, or an outbound URL
-   (SSRF).
+   (SSRF). A write stores only fields the contract lets the caller set: a
+   body spread into an insert or an update, or an owner, role, status or
+   price accepted from the client, is a finding (mass assignment).
 5. **Output** — the response carries the contract's fields and no more: no
    password hashes, tokens, other users' personal data, internal ids the
    contract does not show.
@@ -68,7 +70,14 @@ Authentication wiring and token or session validation; cookie flags
 origins; security headers; rate limits the NFRs name; configuration
 defaults (debug off in prod, no default secrets, fail-fast on a missing
 variable); logging without secrets or personal data; file upload limits
-and types. Then triage every scanner finding: real or not, reachable or
+and types. Accounts: passwords hashed with Argon2id or bcrypt, never a
+plain digest; login, registration and password reset limited against
+brute force; the SRS's password rule and email confirmation enforced on
+the server. The frontend: no user text reaches `dangerouslySetInnerHTML`
+(or `innerHTML`, `v-html`) unsanitized, no link built from it without a
+scheme check; no secret in a `VITE_*` / `NEXT_PUBLIC_*` variable or
+anywhere in the built bundle; no session token in `localStorage` or
+`sessionStorage`. Then triage every scanner finding: real or not, reachable or
 not, with the reason.
 
 ### `MODE verify`

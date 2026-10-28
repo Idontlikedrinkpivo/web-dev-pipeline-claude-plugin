@@ -219,6 +219,13 @@ shape are in `references/providers-and-stacks.md`.
           docker run --rm -v "$PWD:/repo" -w /repo \
             <gitleaks-image>@sha256:<digest> \
             git --redact --verbose /repo
+      - name: Code patterns             # SQL built from strings, raw HTML from input, and the like
+        if: ${{ !cancelled() }}
+        run: |
+          docker run --rm -v "$PWD:/src" -w /src \
+            <semgrep-image>@sha256:<digest> \
+            semgrep scan --config p/owasp-top-ten --config p/<stack> --error \
+            --exclude node_modules --exclude documentation --exclude '<generated client folder>' /src
       - uses: actions/setup-node@<sha> # v7
         if: ${{ !cancelled() }}
         with:
@@ -246,6 +253,12 @@ shape are in `references/providers-and-stacks.md`.
   reports a "dubious ownership" error on the mounted checkout, fix it the
   way the image's docs say for that version — do not drop to a tree-only
   scan.
+- `p/<stack>`: the packs `security-audit` uses (`security-audit/references/scanners.md`
+  → Patterns) — `p/typescript` and `p/react` for TypeScript, `p/python` for Python, one
+  `--config` each. A false positive is silenced on its line with a `nosemgrep` comment
+  that names the rule and the reason, never by dropping a pack. The packs are fetched
+  from `semgrep.dev` on each run; a runner without that network leaves the step out
+  and says so in the report.
 - Scanner allowlist (e.g. `.gitleaks.toml` / `.gitleaksignore`) is a
   committed file in the repo: allow the paths that carry
   `docker-compose.test.yml`'s fixture values, never whole rules.

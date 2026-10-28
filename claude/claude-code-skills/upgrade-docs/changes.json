@@ -814,5 +814,49 @@
       }
     },
     "fix": "db-schema-design, только заголовок: в frontmatter schema.md добавить migrations: <папка миграций проекта> (upgrade-docs/references/as-is.md §4), затем пересобрать страницы таблиц (db-schema-design/scripts/table_docs.py). Текст схемы не менять."
+  },
+  {
+    "id": "ci-code-patterns",
+    "version": "1.2.188",
+    "title": "CI ищет опасные шаблоны кода (semgrep)",
+    "kind": "code",
+    "what": "В задаче безопасности CI, рядом с поиском ключей и проверкой зависимостей, есть шаг semgrep с теми же наборами правил, что у аудита безопасности (OWASP Top 10 и правила стека): SQL, собранный склейкой строк, текст пользователя, вставленный как HTML, и подобное ловятся на каждом push, а не впервые перед выпуском. Шаг, как и вся задача, сначала только предупреждает.",
+    "applies": {
+      "any": [
+        {
+          "grep": {
+            "path": ".github/workflows/*",
+            "pattern": "gitleaks"
+          }
+        },
+        {
+          "grep": {
+            "path": ".gitlab-ci.yml",
+            "pattern": "gitleaks"
+          }
+        }
+      ]
+    },
+    "behind": {
+      "all": [
+        {
+          "not": {
+            "grep": {
+              "path": ".github/workflows/*",
+              "pattern": "semgrep"
+            }
+          }
+        },
+        {
+          "not": {
+            "grep": {
+              "path": ".gitlab-ci.yml",
+              "pattern": "semgrep"
+            }
+          }
+        }
+      ]
+    },
+    "fix": "ci-pipeline → SKILL.md Step 7 и references/ci-skeleton.md (GitLab — references/providers-and-stacks.md): это изменение кода, поэтому сначала спросить пользователя — сделать сейчас (в ветке открытой итерации, если она идёт, иначе отдельной веткой chore/plugin-<версия>) или первым юнитом ближайшей итерации. В задачу security после поиска ключей — шаг «Code patterns»: образ semgrep, закреплённый по digest, --config p/owasp-top-ten и наборы стека, --error, исключения node_modules, documentation и сгенерированного клиента. Перед коммитом прогнать semgrep локально тем же образом: каждую найденную строку исправить или пометить nosemgrep с правилом и причиной — по одной, с ответом пользователя на каждую, не скопом. Задача остаётся рекомендательной."
   }
 ]
