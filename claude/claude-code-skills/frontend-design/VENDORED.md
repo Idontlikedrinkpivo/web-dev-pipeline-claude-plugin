@@ -27,9 +27,12 @@
   screen opens with the work.
 - Typefaces: only families with the Cyrillic alphabet.
 - Line length under 80 characters → 50–75 (Р17, UX-4).
+- Clusters: a sixth — the assistant's palette and props — restated from
+  Impeccable (pbakaus/impeccable, Apache-2.0) and Taste Skill
+  (Leonxlnx/taste-skill, MIT); no text copied.
 - Motion: one orchestrated moment only on a B2C first screen, none in B2B
   (Р1, UX-61).
-- The template tells and the five clusters cite UX-60; numbers use
+- The template tells and the six clusters cite UX-60; numbers use
   `tabular-nums` of the body face rather than a monospace face (UX-59).
 - The quality floor points to `ux-patterns` → «Проверка экрана перед
   сдачей».

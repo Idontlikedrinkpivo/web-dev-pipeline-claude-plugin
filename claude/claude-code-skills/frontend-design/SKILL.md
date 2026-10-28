@@ -85,7 +85,7 @@ below.
 
 ## Process: plan, check against the brief, build, critique
 
-For calibration, generated design currently clusters around these traits:
+For calibration, generated design currently clusters around these traits (6 after Impeccable and Taste Skill, restated):
 
 1. a warm cream background (near #F4F1EA) with a high-contrast serif and a
    terracotta or clay accent (near #D97757 — Anthropic's own accent, so on
@@ -101,7 +101,14 @@ For calibration, generated design currently clusters around these traits:
    labels built as «СЛОВО — фрагмент»; tinted near-black (#0B0B0B, #111)
    instead of the foreground token; a monospace face for small data labels
    (numbers use the body face's `tabular-nums`, UX-59); «→» in link and
-   button text.
+   button text;
+6. the assistant's own palette and props: purple-to-indigo as the accent,
+   gradient-filled headline text; cards nested in cards; a coloured stripe
+   thicker than 1 px down the left of a card, an alert or a list row; a
+   card with a border and a wide soft shadow at once (pick one); a «Новое»
+   or «Бета» pill above the main heading, a pulsing «live» dot as
+   decoration; a product shot faked from grey bars instead of the real
+   screen.
 
 Each trait is legitimate for some brief, but they are defaults rather than
 choices. Where the brief pins a look down — the SRS, a brand book, the

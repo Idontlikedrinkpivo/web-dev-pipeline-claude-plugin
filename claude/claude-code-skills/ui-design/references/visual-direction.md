@@ -36,8 +36,10 @@ is there too:
 Load `dev-pipeline:frontend-design` and shape each option as its «Process»
 plans it:
 
-- **Имя:** two or three Russian words that say the character («Спокойный
-  синий», «Тёплый графит»).
+- **Имя:** two or three Russian words that say the character («Хвойный
+  тихий», «Тёплый графит»). The examples in this file show the shape, not a
+  look to reuse: Tailwind's blue `#2563EB`, Inter, purple-to-indigo are the
+  defaults every generated screen reaches for (`frontend-design`).
 - **Палитра:** 4–6 named hex values, then the full token list the Figma
   packet's VISUAL DIRECTION needs: every token of the mapping table
   (`ui-ux-pro-max` → palette roles), with `chart-1` … `chart-5` taken from
@@ -56,7 +58,7 @@ plans it:
 
 Fix or drop an option that:
 
-- falls into one of the five clusters of `frontend-design` or another tell
+- falls into one of the six clusters of `frontend-design` or another tell
   of UX-60, unless the brief asks for it;
 - has a family without the `cyrillic` subset;
 - has a text pair below 4.5:1 or a control boundary below 3:1 in any of its
@@ -92,8 +94,8 @@ One question, per `grill-me` → "How a question is shown". Link each tile:
 плотность. Его увидят на каждом макете, а потом в коде. Образцы — на
 странице «🎨 Направления» в Figma.
 
-  A. «Спокойный синий» — светло-серый фон, синий акцент #2563EB, шрифт
-     Inter, компактные строки таблиц; смелость только в акценте.
+  A. «Хвойный тихий» — тёплый светлый фон, хвойно-зелёный акцент #1F6F5C,
+     шрифт Onest, компактные строки таблиц; смелость только в акценте.
      Образец: <ссылка>. (рекомендую)
   B. «Тёплый графит» — графитовый акцент #334155 на тёплом сером, шрифт
      IBM Plex Sans, скругления крупнее. Образец: <ссылка>.
@@ -120,7 +122,7 @@ main action sits.
 Then offer the chosen option's suggested effects (`ui-ux-pro-max` →
 Suggested Effects) as a list, not a question that blocks. Leave out first
 what `ux-patterns` rules out — UX-61 (decorative entrances, staggers,
-springs, scale on press, animated screen transitions, parallax outside a
+springs, animated screen transitions, parallax outside a
 B2C first screen), UX-63 (hover slower than 150 ms, hover on
 non-interactive cards), UX-47 (gauges, pies) — so the user is never
 offered what the builder would then refuse. Each one the user picks becomes a line
@@ -132,7 +134,7 @@ in `ui-wishes.md` («Подсветка строки при наведении �
 Write the register header line:
 
 ```markdown
-- **Визуальное направление:** «Спокойный синий» — primary #2563EB, Inter,
+- **Визуальное направление:** «Хвойный тихий» — primary #1F6F5C, Onest,
   плотность компактная, тема светлая; токены — страница `🎨 Tokens`;
   выбрано 2026-10-06; отклонены: «Тёплый графит»
 ```

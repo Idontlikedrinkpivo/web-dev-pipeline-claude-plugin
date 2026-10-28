@@ -71,7 +71,8 @@ finding.
   ≈ 70ch); page content has a max width.
 - **UX-5 Hierarchy reads top to bottom:** title → content → actions. Related
   items grouped by spacing, unrelated separated; the most important
-  content gets the most space and contrast, top-left.
+  content gets the most space and contrast, top-left; a heading has more
+  space above it than below, so it belongs to what follows.
 - **UX-6 Colour never carries meaning alone** (WCAG 1.4.1): an error, a
   status, a required mark also has text or an icon.
 - **UX-7 Contrast:** text 4.5:1, large text 3:1, control boundaries,
@@ -101,17 +102,23 @@ finding.
   decoration; content is not chopped into identical cards with one shadow;
   a gradient only when it carries meaning; a big number with a small label
   and a gradient on the first screen only when it is truly the best option.
-  The five generated-look clusters are in `frontend-design`.
+  The six generated-look clusters are in `frontend-design`.
 - **UX-61 Motion** only answers an action or shows what changed (opened,
   saved, moved): no decorative entrances, staggered reveals or animated
-  hover on non-interactive cards, no spring curves, no scale on press, no
-  animated transitions between screens; a B2C first screen may have one
-  orchestrated moment (parallax only there). Animate `transform` and `opacity` only, never
-  `transition: all`; durations and easing from shared tokens; an animation
-  is interruptible and never blocks input; endless motion only in loading
-  indicators; anything that moves on its own for more than 5 s (carousel,
-  video) has a pause. `prefers-reduced-motion` removes motion, smooth
-  scrolling included; smooth scrolling is only for anchors on long pages.
+  hover on non-interactive cards, no spring curves, no animated transitions
+  between screens; a B2C first screen may have one orchestrated moment
+  (parallax only there). What people do a hundred times a day, and every
+  keyboard action (a shortcut, the command palette), is not animated; a
+  pressed button may shrink to `scale(0.97)`. Animate `transform` and
+  `opacity` only, never `transition: all`; durations and easing are the
+  motion tokens of `web-design-guidelines` → Motion — exit faster than
+  entry, ease-out in and out, never ease-in; an animation is interruptible
+  and never blocks input; endless motion only in loading indicators;
+  anything that moves on its own for more than 5 s (carousel, video) has a
+  pause. `prefers-reduced-motion` removes movement — slides, scaling,
+  parallax, smooth scrolling — and keeps fades and colour changes, so a
+  change of state is still seen; smooth scrolling is only for anchors on
+  long pages.
 - **UX-62 Dark theme** (when the SRS has one) is designed together with the
   light one, and contrast is checked in each separately; `color-scheme`,
   `theme-color` and the native `<select>` colours are set.
@@ -283,7 +290,10 @@ finding.
 - **UX-40 Columns:** numbers right-aligned, text left; long headers wrap to
   two lines then truncate with the full text in a tooltip; sticky header on
   long tables; a visible cue for horizontal scroll; a sortable column shows
-  its direction (`aria-sort`).
+  its direction (`aria-sort`); money and percentages keep a fixed number
+  of decimals (2 and 1–2); the header is sentence case on the table's own
+  background, rows without zebra stripes; a total equals the sum of the
+  rows as shown, rounding included.
 - **UX-41 Row and bulk actions:** checkboxes plus a bulk bar above the table
   (≤5 actions, rest in a menu); per row a menu, or up to two inline
   icon buttons.
@@ -309,7 +319,10 @@ finding.
 - **UX-47 Dashboards:** few metrics, the key one largest and first; bars and
   lines, not pies, donuts, gauges or 3D — parts of a whole are a 100 %
   stacked bar or horizontal bars with values; the same series keeps its
-  colour everywhere; a KPI shows its comparison window.
+  colour everywhere; a KPI shows its comparison window. A change is
+  coloured by good or bad for the user, not by up or down (fewer
+  complaints is green), a zero change is neutral grey; a real zero prints
+  «0», a missing value «—».
 - **UX-71 Long content:** long words, links and ids wrap
   (`overflow-wrap: anywhere`, `min-w-0` on flex children) instead of
   breaking the layout; what matters — actions, errors, names, headings — is
@@ -325,7 +338,9 @@ finding.
   units; exact values on hover and from the keyboard; series differ by more
   than colour; a text summary or a table for screen readers; their own
   Loading, Empty and Error states (UX-25, UX-44, UX-45); thousands of points
-  are aggregated; numbers and dates through `Intl` (UX-77).
+  are aggregated; numbers and dates through `Intl` (UX-77); 4–7 ticks on
+  the value axis; category labels are never rotated (shorten them or turn
+  the bars horizontal); one series needs no legend.
 
 ## 7. B2C additions
 
@@ -400,7 +415,9 @@ anti-patterns to flag — is in `web-design-guidelines`, marked with these ids.
   are never vague (UX-21, UX-45); an empty screen invites the next action
   (UX-44); the user is «вы» in lower case; sections are named without
   pronouns («Проекты», not «Мои проекты»), «мои» only next to someone
-  else's.
+  else's. No selling words in an interface: «бесшовный», «раскройте
+  потенциал», «всё в одном», «не просто X, а Y», «революционный»; no
+  invented figures, reviews or customer logos (UX-49).
 
 ## Полнота макета
 
@@ -457,8 +474,8 @@ compares a screen with its frame. An item that cannot apply is skipped.
    always visible and never covered (UX-63, UX-64, UX-65).
 3. **Contrast** of text and controls in every theme the product has (UX-7,
    UX-62).
-4. **Reduced motion:** with `prefers-reduced-motion` nothing moves but
-   loading indicators (UX-61).
+4. **Reduced motion:** with `prefers-reduced-motion` nothing slides or
+   scales; only fades, colour changes and loading indicators remain (UX-61).
 5. **Zoom:** at 200 % and at the narrow width nothing is lost (UX-71).
 6. **Value lengths:** short, average and very long values keep the layout
    (UX-71).

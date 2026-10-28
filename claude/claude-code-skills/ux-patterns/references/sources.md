@@ -58,7 +58,7 @@ confirmed through secondary sources.
 | UX-57, UX-58 | UI UX Pro Max (icon and elevation consistency, blur purpose); Material 3 elevation; Apple HIG materials |
 | UX-59 | UI UX Pro Max (line height, 16 px on mobile, tabular figures); Vercel Web Interface Guidelines (typography); frontend-design (no monospace labels) |
 | UX-60 | Anthropic frontend-design (generated-look clusters and typographic tells) |
-| UX-61 | frontend-design (motion only with meaning); Vercel (transform/opacity, no `transition: all`, interruptible, autoplay pause); UI UX Pro Max (reduced motion, continuous animation, auto-rotation); WCAG 2.2 SC 2.2.2, 2.3.3 |
+| UX-61 | frontend-design (motion only with meaning); Vercel (transform/opacity, no `transition: all`, interruptible, autoplay pause); UI UX Pro Max (reduced motion, continuous animation, auto-rotation); WCAG 2.2 SC 2.2.2, 2.3.3; Emil Kowalski's animation skill (durations, easing, frequency, origin — restated) |
 | UX-62 | UI UX Pro Max (dark-mode pairing); Vercel (dark mode and theming) |
 | UX-63 | Vercel (focus states, hover); UI UX Pro Max (state clarity, read-only vs disabled); WCAG 2.4.7 |
 | UX-64 | Vercel (semantics, links, skip link); UI UX Pro Max (keyboard navigation, focus on route change); WCAG 2.1.1, 2.4.1, 2.4.3 |
@@ -97,7 +97,7 @@ confirmed through secondary sources.
 | Icon-only | never (NN/g) / toolbar with tooltip (Carbon) | toolbar with tooltip only |
 | Target size | 24 px AA / 44 px | 24 px floor; 44 px for B2C and touch |
 | Destructive styling | only in the confirmation (NN/g) / red at every step (UI UX Pro Max, Material, Apple HIG) | red at every step: secondary-weight danger control on the page, filled red in the confirmation (UX-37) |
-| Motion | smooth transitions everywhere, staggers, springs (UI UX Pro Max) / sparing, meaningful motion (frontend-design) | motion only answers an action or shows a change; no staggers, springs or press-scaling (UX-61) |
+| Motion | smooth transitions everywhere, staggers, springs (UI UX Pro Max) / sparing, meaningful motion (frontend-design) | motion only answers an action or shows a change; no staggers or springs; a press may shrink to 0.97; reduced motion keeps fades (UX-61, after Emil Kowalski's animation skill, Impeccable and Taste Skill) |
 | Hover timing | 150–300 ms transitions (UI UX Pro Max) / no animated hover on every card (frontend-design) | instant or within 150 ms on interactive elements; none on non-interactive cards (UX-63) |
 | Placeholder | an example value ending with «…» (Vercel) / avoid (GOV.UK) | only in search fields; a format example lives in the hint (UX-17, UX-19) |
 | Hint position | under the field (Material) / between label and field (GOV.UK) | between label and field (UX-19) |

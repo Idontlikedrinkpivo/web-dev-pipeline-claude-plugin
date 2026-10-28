@@ -85,13 +85,33 @@ quotes, focus after a failed submit).
 
 ### Motion
 
-- `prefers-reduced-motion` removes motion, smooth scrolling included; only loading indicators keep moving → UX-61
+The motion tokens — one set for every product, defined once in the theme (CSS variables) and used everywhere:
+
+| Token | Value | For |
+|---|---|---|
+| `--dur-press` | 120 ms | a press, a toggle, a checkbox |
+| `--dur-tooltip` | 150 ms | a tooltip, a small popover |
+| `--dur-menu` | 200 ms | a dropdown, a menu, a select |
+| `--dur-dialog` | 250 ms | a dialog, a toast; a side panel up to 350 ms |
+| exit | about two thirds of the entry | every closing |
+| `--ease-out` | `cubic-bezier(0.23, 1, 0.32, 1)` | entering and leaving |
+| `--ease-in-out` | `cubic-bezier(0.77, 0, 0.175, 1)` | moving on screen |
+| `linear` | — | loading indicators only |
+
+- A duration or a curve written in place of a token; `ease-in` anywhere; a UI animation over 350 ms → UX-61
+- `prefers-reduced-motion` removes movement — translate, scale, parallax, smooth scrolling — and keeps opacity and colour transitions; loading indicators keep moving → UX-61
+- Not animated: what the user does many times a minute (list navigation, typing feedback) and every keyboard action (a shortcut, the command palette) → UX-61
+- A pressed button may use `scale(0.97)` for `--dur-press`; nothing appears from `scale(0)` — start at `scale(0.95)` with opacity 0 → UX-61
 - Animate `transform` and `opacity` only → UX-61
 - Never `transition: all`; list the properties → UX-61
-- A correct `transform-origin`; in SVG, transforms on a `<g>` with `transform-box: fill-box; transform-origin: center` → UX-61
+- A popover grows from the control that opened it (`transform-origin` at its trigger); a dialog from the centre; in SVG, transforms on a `<g>` with `transform-box: fill-box; transform-origin: center` → UX-61
+- Tooltips: a delay before the first; while one is open, the next appears at once → UX-61
+- What is triggered often and interrupted (a toast, a switch) uses CSS transitions, not keyframes, so it reverses from where it is → UX-61
+- Hover effects only inside `@media (hover: hover) and (pointer: fine)` → UX-63
 - Animations stop or reverse when the user acts; they never block input → UX-61
 - Anything that moves on its own for more than 5 s has pause, stop or hide → UX-61
 - Muted decorative loops stop under `prefers-reduced-motion` → UX-61
+- An overlay inside an `overflow: hidden` container escapes it through `<dialog>`, the popover API or a portal → UX-61
 
 ### Typography
 

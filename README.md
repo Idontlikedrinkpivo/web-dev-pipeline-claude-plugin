@@ -19,7 +19,7 @@
 
 Вы принимаете решения — плагин делает работу и спрашивает на каждом шаге.
 
-Версия плагина: **1.2.188**
+Версия плагина: **1.2.189**
 
 ---
 
@@ -1818,6 +1818,9 @@ claude plugin update dev-pipeline@dev-pipeline-marketplace
 | `brainstorm`, `doc-review` | [Compound Engineering](https://github.com/EveryInc/compound-engineering-plugin) | Every | MIT |
 | `grill-me` | [grill-me](https://github.com/mattpocock/skills) | Matt Pocock | MIT |
 | `reflect` — замер расхода по журналам сессий; `pipeline` — правило о ключах и паролях в чате | [autopilot](https://github.com/nick-vels/skills) | Nick Vels | MIT |
+| `ux-patterns`, `web-design-guidelines` — длительности и плавность анимации, что не анимировать | [skill](https://github.com/emilkowalski/skill) | Emil Kowalski | MIT |
+| `frontend-design` — шестой набор признаков «сгенерированного» вида | [Impeccable](https://github.com/pbakaus/impeccable) | Paul Bakaus | Apache 2.0 |
+| `frontend-design` — шестой набор признаков; `ux-patterns` — правила дашбордов и таблиц | [Taste Skill](https://github.com/Leonxlnx/taste-skill) | Leonxlnx | MIT |
 
 </details><!-- /раздел -->
 
