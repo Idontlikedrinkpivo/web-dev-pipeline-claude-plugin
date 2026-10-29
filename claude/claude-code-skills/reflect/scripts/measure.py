@@ -9,8 +9,10 @@ usage:
 v2.1.2..HEAD) add «Принятие задач»: how many plan units passed their review the first time, how many went back,
 and what one accepted unit cost — executors and code review together, divided by the units accepted. From the
 progress file's Ревью column (`COMMIT` alone is the first time; `RETURN_…`, `FIX_THEN_COMMIT`, `×2`, `→` mean
-rounds); without one, from git — a unit with more than one commit carrying its Plan-Unit line was fixed after
-its commit.
+rounds). Each progress file read is also saved outside the project — ~/.claude/dev-pipeline-feedback/.acceptance/
+<project>/<version>.txt — because reflect runs at the iteration's close before the cleanup removes the file; a
+later run reads the saved numbers for a version whose file is gone. Without either, from git — a unit with more
+than one commit carrying its Plan-Unit line was fixed after its commit.
 
 Reads the project's main sessions (found as `sessions.py list` finds them) and every subagent transcript beside
 them (<session>/subagents/agent-*.jsonl with its .meta.json, which names the agent: `dev-pipeline:impl-medium`).
@@ -130,16 +132,26 @@ def fmt(n: float) -> str:
     return f"{n / 1e6:.1f} млн" if n >= 1e6 else f"{n / 1e3:.0f} тыс."
 
 
+STORE = Path.home() / ".claude" / "dev-pipeline-feedback" / ".acceptance"  # outside every project
+
+
 def acceptance(progress: list, rng: str, cwd: str) -> tuple[int, int, int, str]:
     """(accepted, first time, sent back, source) over the plan units of the progress files, else of git."""
     import re
     import subprocess
     accepted = first = back = 0
     for path in progress:
+        saved = STORE / Path(cwd).resolve().name / f"{Path(path).parent.name}.txt"
         try:
             text = Path(path).read_text(encoding="utf-8")
         except OSError:
+            try:  # removed by the close's cleanup: the numbers this script saved while the file was there
+                a, f, b = (int(x) for x in saved.read_text().split()[:3])
+            except (OSError, ValueError):
+                continue
+            accepted, first, back = accepted + a, first + f, back + b
             continue
+        a0, f0, b0 = accepted, first, back
         for line in text.splitlines():
             cells = [c.strip() for c in line.strip().strip("|").split("|")]
             if len(cells) < 5 or not re.fullmatch(r"U\d+", cells[0]) or "✅" not in line:
@@ -150,6 +162,11 @@ def acceptance(progress: list, rng: str, cwd: str) -> tuple[int, int, int, str]:
                 back += 1
             else:
                 first += 1
+        try:
+            saved.parent.mkdir(parents=True, exist_ok=True)
+            saved.write_text(f"{accepted - a0} {first - f0} {back - b0}\n")
+        except OSError:
+            pass
     if accepted:
         return accepted, first, back, "файлы прогресса"
     if not rng:
@@ -280,7 +297,7 @@ def main() -> None:
         print("\n#### Принятие задач\n")
         if accepted:
             cost = (by_group.get("Исполнители", [0.0])[0] + by_group.get("Ревью кода", [0.0])[0]) / accepted
-            label = "с первого ревью" if source == "файлы прогресса" else "без исправлений после коммита"
+            label = "с первого ревью" if source.startswith("файлы прогресса") else "без исправлений после коммита"
             print(f"Задач принято: {accepted} · {label}: {first} ({first / accepted:.0%}) · возвращались: "
                   f"{back} · одна принятая задача (исполнители и ревью кода): **{fmt(cost)}** единиц · источник: {source}")
             print("Стоимость одной задачи считается по всему окну: работа других итераций в том же окне её завышает.")
