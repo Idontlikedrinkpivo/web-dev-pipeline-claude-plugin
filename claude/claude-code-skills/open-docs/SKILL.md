@@ -21,12 +21,16 @@ From the project's root:
    `python3 "${CLAUDE_SKILL_DIR}/../docs-site/scripts/rebuild.py" . --api --force`, then
    `python3 "${CLAUDE_SKILL_DIR}/../docs-site/scripts/rebuild.py" . --wait`. Say in one line that it was built now and
    goes into git with the next documents' commit. No `documentation/` at all: say there
-   is nothing to show yet and stop.
+   is nothing to show yet and stop. **A site another plugin version built** —
+   `documentation/_web-docs/assets/plugin-version.txt` missing, or not what
+   `python3 "${CLAUDE_SKILL_DIR}/../docs-site/scripts/build_site.py" --plugin-version` prints: rebuild it the same way (`rebuild.py . --api
+   --force`, then `--wait`) and say in one line that it was rebuilt for plugin <version> — a new plugin's site
+   features (a back button, a new page) appear only after a rebuild.
 3. **Serve and open**: `python3 "${CLAUDE_SKILL_DIR}/../docs-site/scripts/site_server.py"` prints
    `http://127.0.0.1:<port>/index.html` and reuses a server already running for this site. Open that address in
    the built-in browser yourself — the built-in browser shows a page given as a file without its menu and
-   search, so never open the file — and give the address as a link in the chat: the user's one click back. A
-   page that was open before may show an older copy: reload it.
+   search, so never open the file — and give the address as a link in the chat: the user's one click back. The
+   server forbids caching, so a page already open shows the current site on its next load.
 4. Without a built-in browser (a terminal): open the file in the user's own browser yourself — `open
    documentation/_web-docs/index.html` on macOS, `xdg-open documentation/_web-docs/index.html` on Linux (`uname`
    tells which) — and give its full path as the link; where neither command exists, the full path alone. Any

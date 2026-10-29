@@ -162,6 +162,18 @@ def rel(target: str, frm: str) -> str:
     return os.path.relpath(target, os.path.dirname(frm) or ".").replace(os.sep, "/")
 
 
+
+def plugin_version() -> str:
+    """The installed plugin's version, written into the site: open-docs rebuilds a site another version built."""
+    root = Path(__file__).resolve().parents[2]
+    for manifest in (root / ".claude-plugin" / "plugin.json", root / ".codex-plugin" / "plugin.json",
+                     root / "plugin.json"):
+        try:
+            return str(json.loads(manifest.read_text(encoding="utf-8")).get("version", ""))
+        except (OSError, ValueError):
+            continue
+    return ""
+
 class Site:
     def __init__(self, docs: Path, out: Path, title: str | None, api: bool):
         self.docs, self.api_on = docs, api
@@ -622,6 +634,7 @@ class Site:
         (self.out / "assets" / "search-index.js").write_text(
             "window.DOCS=" + json.dumps(search, ensure_ascii=False) + ";window.IDS=" + json.dumps(ids, ensure_ascii=False) + ";",
             encoding="utf-8")
+        (self.out / "assets" / "plugin-version.txt").write_text(plugin_version() + "\n", encoding="utf-8")
         self.home()
         old = self.final.parent / f".{self.final.name}.old"
         if old.exists():
@@ -659,6 +672,9 @@ class Site:
 
 
 def main() -> None:
+    if sys.argv[1:] == ["--plugin-version"]:  # open-docs compares it with the site's assets/plugin-version.txt
+        print(plugin_version())
+        return
     o = args()
     docs = Path(o["docs"])
     if not docs.is_dir():

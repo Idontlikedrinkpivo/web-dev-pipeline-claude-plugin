@@ -105,6 +105,45 @@ in the same Edit as the row; the line under the table carries the run's
 state and the update time. The fixes section has its own bar, in the same
 shape, over its blocking findings (`✅ готово` of the rows that block).
 
+## The e2e section
+
+A browser suite in Step 7 (the критерии готовности) runs for an hour or more;
+the user follows it in the same file. **Before the suite starts**, add the
+section with nothing checked yet and post the progress line; while it runs,
+`pipeline/scripts/progress_e2e.py` keeps it current from the Playwright log —
+the one writer of a progress file allowed outside Edit/Write, since hundreds of
+tests cannot be followed one Edit at a time; it redraws the page itself.
+
+```bash
+npx playwright test --list | tail -1          # «Total: 616 tests in 28 files» → --total
+npx playwright test --reporter=list > "$(git rev-parse --git-dir)/pipeline-work/e2e.log" 2>&1   # in the background
+python3 "${CLAUDE_SKILL_DIR}/../pipeline/scripts/progress_e2e.py" <that log> documentation/plans/<version>/progress.md \
+  --total 616 --stand "<режим входа · образы · стенд>"   # every minute or two; once more with --done
+```
+
+````markdown
+## e2e
+
+```text
+████████████████████████████████████████░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░ 40%
+```
+
+Проверено: 250 из 616 · успешно 247 · не прошли 2 · пропущено 1
+
+| Файл | Успешно | Не прошли | Пропущено | Статус |
+|---|---|---|---|---|
+| `e2e/booking.spec.ts` | 31 | 0 | 0 | ✅ прошёл |
+| `e2e/admin.spec.ts` | 12 | 2 | 1 | ⛔ есть падения |
+
+Стенд: e2e-стенд, вход по паролю, образы HEAD · прогон идёт · обновлено 2026-10-23 19:20
+````
+
+The bar is the share of the suite that passed; a retried test counts once, by
+its last result. The progress line after the suite carries its numbers
+(`--count "e2e: 610 из 616 успешно"`). Read the script's last line against
+Playwright's own summary at the end: a mismatch means the log format changed —
+say so and fill the section from the summary.
+
 ## Fixes after the final review
 
 When `code-review-full` returns anything but `PASS`, the fixes are planned in

@@ -38,6 +38,7 @@ def serve(port: int, folder: str) -> None:
     class Handler(SimpleHTTPRequestHandler):
         def end_headers(self) -> None:
             self.send_header(HEADER, tag)
+            self.send_header("Cache-Control", "no-store")  # a rebuilt site shows at once, without a forced reload
             super().end_headers()
 
         def log_message(self, *args) -> None:

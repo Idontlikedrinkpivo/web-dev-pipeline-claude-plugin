@@ -60,7 +60,9 @@ every row `⏳ ждёт` — one per scanner, one per area, the verification pas
 then post its progress line, and again after each row: run
 `python3 "${CLAUDE_SKILL_DIR}/../pipeline/scripts/progress_link.py" documentation/plans/<version>/security-audit.md`
 (`--desktop` when this session has the built-in browser) and paste the line it
-prints, never a link written by hand. Keeping the run moving applies: every
+prints, never a link written by hand. Change the file with Edit only — never
+from the shell, also after a compaction: the page redraws on Edit and Write
+alone. Keeping the run moving applies: every
 turn ends with the next scanner or auditor running. Its shape:
 `references/report.md`.
 

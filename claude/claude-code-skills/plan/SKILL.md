@@ -267,7 +267,7 @@ unused number. Deletion leaves a gap; gaps are fine.
 | | |
 |---|---|
 | **Документы** | scenarios/orders/01-orders.md `<UseCase>` · domain §4 <rule row> · SRS UC-2 / AC-Exc-1 · BR-3 · api `createOrder` (fix: + `test-run.md TC-n` / `security-audit.md F<n>` / `code-audit-<date>.md A<n>`; brownfield: `code:<path>`) |
-| **Файлы** | repo-relative paths, including the test file |
+| **Файлы** | repo-relative paths, including the test file — the five cases of `references/files-field.md` |
 | **Меняет символы** | each field, constant, environment variable, response shape or public symbol the unit removes or changes — or `—` |
 | **Не затрагивается** | each use of those symbols the unit leaves as it is, with the reason — or `—`. With «Меняет символы» filled, search the repository for every use (code, tests, e2e, CI, documents): each hit is in `Файлы` or here |
 | **Образец** | repo-relative path(s) whose conventions this unit mirrors (`path (U<n>)` when a unit in `Зависит от` creates it, or the arch section that fixes the shape), or `— first of its kind` |

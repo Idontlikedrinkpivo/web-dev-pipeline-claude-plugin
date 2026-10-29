@@ -114,8 +114,15 @@ Every citation finding names the document and the id that did not resolve.
     search the repository (grep) for the symbol — code, tests, e2e, CI,
     documents — and check that every hit is in the unit's «Файлы» or named
     under «Не затрагивается» with a reason. A missing caller or test, or a
-    changed symbol missing from «Меняет символы», is P1. This is the one
-    lens that reads the repository, and only the hits.
+    changed symbol missing from «Меняет символы», is P1. Then, from the plan
+    alone: a later unit naming a path an earlier unit splits, moves or
+    renames, without the new path or «по итогам U<K>»; a new test file the
+    unit's evidence strategy needs; the configs of a tool or a dependency a
+    unit changes (vite, vitest, dependency-cruiser, knip, eslint, tsconfig);
+    sites a unit defers «до U<N>» missing from U<N>'s «Файлы» — each P1
+    (plan/references/files-field.md). This is the one lens that reads the
+    repository, and only the hits — plus the config file names of the tool
+    a unit changes.
   Citation integrity — every «Документы» entry resolves to a real section, id,
     operationId, table, or screen in the documents read; a report row
     (test-run.md TC-n, security-audit.md F<n>) to that row of the report;

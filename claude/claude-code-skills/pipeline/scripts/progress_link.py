@@ -13,6 +13,11 @@ The link is always the page beside the file (progress.md -> progress.html), neve
   (progress_server.py, started or reused): a page opened as a file is not reloaded there, a served one is;
 - without it, the same server's address when one already runs for this folder, else the page's path from the
   repository root, which the user's own browser reloads by itself.
+--desktop is remembered beside the file (.progress-desktop): a later call without it — after a context compaction
+dropped the flag — still starts or reuses the server, so the link never falls back to a file path.
+
+A bar that disagrees with the count line (a file edited from the shell, so the page and the bar were not redrawn)
+is named on stderr; the line on stdout stays as it is.
 
 The count is the file's count line (the line under its bar, «Сделано: 3 из 6»), without its label; the label is
 the stage's name. Paste the line as printed — never write the link by hand. Standard library only.
@@ -60,6 +65,21 @@ def count_of(md: Path) -> str:
     return re.sub(r"^[^:·|]{1,40}:\s*", "", line).strip()  # «Сделано: 3 из 6» -> «3 из 6»
 
 
+def bar_mismatch(md: Path, count: str) -> str:
+    """A warning when the bar's percent is not the count's, else ""."""
+    text = md.read_text(encoding="utf-8", errors="replace")
+    b = re.search(r"([█░]{20,})\s*(\d+)\s*%", text)
+    c = re.search(r"(\d+)\s*из\s*(\d+)", count)
+    if not b or not c or int(c[2]) == 0 or "успешно" in count:  # a test run's bar is the share that passes
+        return ""
+    want = int(c[1]) * 100 // int(c[2])
+    shown = b[1].count("█")
+    if abs(shown - want) > 1 or abs(int(b[2]) - want) > 1:
+        return (f"progress_link: the bar shows {b[2]}% but the count says {c[1]} из {c[2]} ({want}%) — fix the bar "
+                f"with Edit (a file changed from the shell is not redrawn)")
+    return ""
+
+
 def running(folder: Path) -> str | None:
     """The address of a progress server already serving this folder, or None. Starts nothing."""
     try:
@@ -103,7 +123,17 @@ def main() -> None:
     count = args[args.index("--count") + 1] if "--count" in args else count_of(md)
     rebuild(md)
     page = md.with_suffix(".html")
-    base = start(md.parent) if "--desktop" in args else running(md.parent)
+    marker = md.parent / ".progress-desktop"
+    desktop = "--desktop" in args or marker.exists()
+    if "--desktop" in args and not marker.exists():
+        try:
+            marker.write_text("1\n")
+        except OSError:
+            pass
+    base = start(md.parent) if desktop else running(md.parent)
+    warn = bar_mismatch(md, count)
+    if warn:
+        print(warn, file=sys.stderr)
     if base:
         url = base + page.name
     else:

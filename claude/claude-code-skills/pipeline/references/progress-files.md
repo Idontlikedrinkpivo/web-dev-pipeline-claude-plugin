@@ -100,7 +100,11 @@ document keeps none.
   `cat >`), and never by a script that rewrites the file on a timer: the
   page is rebuilt by the plugin's hook on Edit and Write only, so a file
   changed any other way is fresh on disk and stale on the page the user
-  watches. A script may compute the numbers; the agent writes them. The bar is printed, not counted by
+  watches. The one exception is `progress_e2e.py`, which redraws the page
+  itself (`work` → `references/progress-file.md` → The e2e section). After a
+  compaction this rule is the first one lost: re-read it before the next
+  change of the file; `progress_link.py` names a bar that disagrees with the
+  count, and remembers `--desktop` beside the file. A script may compute the numbers; the agent writes them. The bar is printed, not counted by
   hand: `python3 -c "d,t=<done>,<total>;p=d*100//t;print('█'*p+'░'*(100-p),f'{p}%')"`.
 - **A subagent's rows are watched, not trusted.** A subagent deep in its
   task forgets the progress file, and then the user sees a hang. So while

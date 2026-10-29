@@ -50,6 +50,16 @@ orchestrator, the executors and the reviewers, and nothing else keeps them apart
   the run's first commit check it once:
   `git log -1 --format='%(trailers:key=Plan-Unit,valueonly)'` prints the id.
 
+## Files the plan did not list
+
+When an earlier unit split, moved or renamed a file that a later unit's `Файлы`
+names, or left sites for it («отложено до U<N>», a Cross-unit watch line naming
+U<N>), correct U<N>'s file list **in its packet** before the dispatch — no
+`BLOCKED` round for it — and write one line in the run report: «Поправка
+«Файлов» U<N>: <old> → <new> (по U<K>)». The plan stays byte-identical; the review
+reads the run report. Only a file whose need nothing in the run explains still
+goes the Step 6 way (re-dispatch with the corrected list, or a scope question).
+
 ## The orchestrator's own commits
 
 A commit no unit made — a stand made copyable (`stand`), the verify skill
