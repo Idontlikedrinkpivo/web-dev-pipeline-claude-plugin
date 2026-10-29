@@ -47,6 +47,12 @@ def git(root: Path, *args: str) -> str:
     return r.stdout.strip() if r.returncode == 0 else ""
 
 
+def plan_units(root: Path, rng: str) -> list[str]:
+    """Plan-Unit ids of the commits in rng, read from the message body: a Plan-Unit line that a blank line
+    keeps out of git's trailer block still counts (work → references/run-hygiene.md → Commits)."""
+    return re.findall(r"^Plan-Unit:\s*(\S+)\s*$", git(root, "log", rng, "--format=%B"), re.M)
+
+
 def git_ok(root: Path, *args: str) -> bool:
     try:
         return subprocess.run(["git", "-C", str(root), *args], capture_output=True, timeout=60).returncode == 0
@@ -350,7 +356,7 @@ def main() -> None:
         tags = sorted((t for t in git(root, "tag", "--list", "v*").split() if VERSION_RX.fullmatch(t[1:])),
                       key=lambda t: vkey(t[1:]))
         since = f"{tags[-1]}..HEAD" if tags else "HEAD"
-        units = [u for u in git(root, "log", since, "--format=%(trailers:key=Plan-Unit,valueonly)").split() if u]
+        units = plan_units(root, since)
         print("Итерации: documentation/plans/ нет (свежий клон или проект до первой итерации)")
         print(f"  теги: {', '.join(tags) if tags else 'нет'} · задач с Plan-Unit после "
               f"{tags[-1] if tags else 'начала'}: {len(set(units))}" + (f" ({', '.join(sorted(set(units))[:8])}"
@@ -451,7 +457,7 @@ def main() -> None:
             print(f"  11. {l}")
         opens += plan_opens
         base = "main" if git(root, "rev-parse", "-q", "--verify", "main") else "master"
-        units = [u for u in git(root, "log", f"{base}..HEAD", "--format=%(trailers:key=Plan-Unit,valueonly)").split() if u]
+        units = plan_units(root, f"{base}..HEAD")
         if units:
             print(f"  12. задач с Plan-Unit на ветке: {len(set(units))}")
         for name, label, n in (("test-run.md", "проверка через интерфейс", 13), ("security-audit.md", "аудит безопасности", 14)):

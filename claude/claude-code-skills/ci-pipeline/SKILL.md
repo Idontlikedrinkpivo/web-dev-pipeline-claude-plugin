@@ -135,6 +135,7 @@ from the language job:
 | `APP_ENV=test` | Fail-fast config; mock gate only legal in test |
 | Mock-gate variable | `${{ github.workspace }}/<mock-fixtures-dir>` — the runner's checkout of the fixtures, so tests make zero outbound calls |
 | `DATABASE_URL` (and object-store URL) | **Host** `127.0.0.1`, not the compose service hostname; same `search_path` / schema as compose |
+| `TEST_DATABASE_URL` | the same URL: the tests' database helper requires it and has no default address (`work` → `references/run-hygiene.md`) |
 
 A URL that still says `@postgres:5432` will fail on the runner. Do not
 re-decide the schema name here.

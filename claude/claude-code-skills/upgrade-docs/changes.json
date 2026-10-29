@@ -858,5 +858,81 @@
       ]
     },
     "fix": "ci-pipeline → SKILL.md Step 7 и references/ci-skeleton.md (GitLab — references/providers-and-stacks.md): это изменение кода, поэтому сначала спросить пользователя — сделать сейчас (в ветке открытой итерации, если она идёт, иначе отдельной веткой chore/plugin-<версия>) или первым юнитом ближайшей итерации. В задачу security после поиска ключей — шаг «Code patterns»: образ semgrep, закреплённый по digest, --config p/owasp-top-ten и наборы стека, --error, исключения node_modules, documentation и сгенерированного клиента. Перед коммитом прогнать semgrep локально тем же образом: каждую найденную строку исправить или пометить nosemgrep с правилом и причиной — по одной, с ответом пользователя на каждую, не скопом. Задача остаётся рекомендательной."
+  },
+  {
+    "id": "test-db-guard",
+    "version": "1.2.190",
+    "title": "Тесты не могут попасть в базу стенда",
+    "kind": "code",
+    "what": "Помощник тестов с базой берёт адрес только из TEST_DATABASE_URL и падает, если переменная не задана, если в имени базы нет «test» или если вне CI она совпадает с DATABASE_URL. Адреса «по умолчанию» больше нет: раньше тесты, пересоздающие схему, уходили в базу работающего стенда и стирали его данные. Локально у тестов своя база, отдельная от стенда; в CI переменная равна DATABASE_URL.",
+    "applies": {
+      "any": [
+        {
+          "exists": "tests/conftest.py"
+        },
+        {
+          "exists": "*/tests/conftest.py"
+        },
+        {
+          "grep": {
+            "path": "package.json",
+            "pattern": "\"vitest\""
+          }
+        },
+        {
+          "grep": {
+            "path": "*/package.json",
+            "pattern": "\"vitest\""
+          }
+        }
+      ]
+    },
+    "behind": {
+      "any": [
+        {
+          "grep": {
+            "path": "tests/conftest.py",
+            "pattern": "TEST_DATABASE_URL[\"']\\s*,\\s*[\"'][^\"']"
+          }
+        },
+        {
+          "grep": {
+            "path": "*/tests/conftest.py",
+            "pattern": "TEST_DATABASE_URL[\"']\\s*,\\s*[\"'][^\"']"
+          }
+        },
+        {
+          "grep": {
+            "path": "tests/*",
+            "pattern": "TEST_DATABASE_URL\\s*(\\?\\?|\\|\\|)"
+          }
+        },
+        {
+          "grep": {
+            "path": "tests/*/*",
+            "pattern": "TEST_DATABASE_URL\\s*(\\?\\?|\\|\\|)"
+          }
+        },
+        {
+          "grep": {
+            "path": "*/tests/*",
+            "pattern": "TEST_DATABASE_URL\\s*(\\?\\?|\\|\\|)"
+          }
+        },
+        {
+          "grep": {
+            "path": "*/tests/*/*",
+            "pattern": "TEST_DATABASE_URL\\s*(\\?\\?|\\|\\|)"
+          }
+        },
+        {
+          "grep": {
+            "path": "*/src/test/*",
+            "pattern": "TEST_DATABASE_URL\\s*(\\?\\?|\\|\\|)"
+          }
+        }
+      ]
+    },
+    "fix": "pytest-patterns → references/conftest-template.py (_refuse_unsafe_test_database) и vitest → правило 11; ci-pipeline → TEST_DATABASE_URL в задачах тестов; repo-scaffold → TEST_DATABASE_URL в .env.example; deploy-topology → references/verify-skill.md (строка doctor «test db … ≠ stand …»). Это изменение кода, поэтому сначала спросить пользователя — сделать сейчас (в ветке открытой итерации, если она идёт, иначе отдельной веткой chore/plugin-<версия>) или первым юнитом ближайшей итерации. Создать отдельную тестовую базу на тестовом сервере (<project>_test_host), прописать её в локальных настройках тестов и в CI; убрать адрес по умолчанию из помощника; прогнать тесты с базой. Данные стенда не трогать."
   }
 ]

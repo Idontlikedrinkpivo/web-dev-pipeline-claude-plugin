@@ -128,6 +128,19 @@ RULES
   unit's focused tests.
 - Do not edit the plan document.
 - Do not fix unrelated problems you notice. Report them.
+- A unit that splits, moves or renames code «без изменения поведения» keeps
+  the behaviour exactly — an unreachable branch, an odd default, a cast
+  included. Drop a check or a cast only when the result is the same for every
+  input; any difference you see goes to CONCERNS, never fixed on the way.
+- In the shared working tree: no `git stash`, `git reset`, `git checkout --`
+  or `git clean`; link installed dependencies (`ln -s …/node_modules`) only
+  inside your own worktree, and only where no folder of that name exists; a
+  shared list or config that parallel units would all edit (the lint ratchet,
+  a barrel file) is not edited — put your lines in the report. Run the test
+  suite on the test database only, never on the stand's
+  (`work/references/run-hygiene.md`).
+- Stop every background task you started (a watch, a background command)
+  before your report: an executor left running holds the run for hours.
 - If this unit writes or edits a document under `documentation/` or an
   OpenAPI `description` / `summary` / `example`, that prose is Russian.
   Do not translate cited tokens. Template headings and frontmatter keys

@@ -26,6 +26,7 @@ Exit 1: the plan cannot be read. Standard library only.
 from __future__ import annotations
 
 import hashlib
+import os
 import re
 import subprocess
 import sys
@@ -89,20 +90,24 @@ def main() -> int:
     if not args or args[0] in ("-h", "--help"):
         print(__doc__)
         return 0 if args else 1
-    plan = Path(args[0]).resolve()
+    plan = Path(os.path.abspath(args[0]))  # not resolved: a plans folder linked into a worktree stays the worktree's
     base = args[args.index("--base") + 1] if "--base" in args and args.index("--base") + 1 < len(args) else ""
     version = plan.parent.name
-    cwd = plan.parent if plan.parent.exists() else Path.cwd()
+    cwd = plan.parent
+    while cwd.is_symlink():  # git runs in the tree that holds the link, not in the tree it points to
+        cwd = cwd.parent
+    if not cwd.exists():
+        cwd = Path.cwd()
 
-    gitdir = git(Path.cwd(), "rev-parse", "--absolute-git-dir")
-    common = git(Path.cwd(), "rev-parse", "--path-format=absolute", "--git-common-dir")  # git ≥ 2.31
+    gitdir = git(cwd, "rev-parse", "--absolute-git-dir")
+    common = git(cwd, "rev-parse", "--path-format=absolute", "--git-common-dir")  # git ≥ 2.31
     if not common and gitdir:
-        rel = git(Path.cwd(), "rev-parse", "--git-common-dir")
-        common = str((Path.cwd() / rel).resolve()) if rel else gitdir
+        rel = git(cwd, "rev-parse", "--git-common-dir")
+        common = str((cwd / rel).resolve()) if rel else gitdir
     linked = bool(gitdir and common and Path(gitdir).resolve() != Path(common).resolve())
     main_tree = ""
     if linked:
-        wl = git(Path.cwd(), "worktree", "list", "--porcelain").splitlines()
+        wl = git(cwd, "worktree", "list", "--porcelain").splitlines()
         main_tree = wl[0][len("worktree "):] if wl and wl[0].startswith("worktree ") else str(Path(common).parent)
 
     if not plan.exists():
@@ -127,9 +132,12 @@ def main() -> int:
         base = next((b for b in ("main", "master", "origin/main", "origin/master") if has_ref(cwd, b)), "")
     rng = f"{base}..{ref}" if base and git(cwd, "rev-parse", base) != git(cwd, "rev-parse", ref) else ref
     where = f"where     done read from {rng}"
-    if linked:
-        where += (f" · this session runs in a linked worktree; the iteration's files live in {main_tree} — "
-                  "stop and open the session there")
+    if linked and head == branch:
+        where += (" · a linked worktree with the plans folder linked in — finishing an older iteration "
+                  "(work → references/run-hygiene.md); one stand per machine")
+    elif linked:
+        where += (f" · this session runs in a linked worktree on {head or '?'}, not {branch}; the iteration's files "
+                  f"live in {main_tree} — stop and open the session there")
         problems += 1
     elif head != branch:
         where += f" · HEAD is on {head or '?'}, not {branch} — switch to it before the first dispatch"

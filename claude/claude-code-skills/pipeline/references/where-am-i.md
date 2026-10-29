@@ -14,7 +14,10 @@ project's root and answer from its output. It prints, in this order:
 2. **The iterations.** The open one (`plans/<version>/` with no
    `summary.md`) and the closed ones. **Two open** — the first thing to do
    is one question: which iteration is current; nothing is stamped or
-   committed before the answer. **No `plans/`** (a fresh clone, or a
+   committed before the answer. When the older one still has work and the
+   newer one is under way in this folder, offer to finish the older one in a
+   worktree of its own (`work` → `references/run-hygiene.md` → Finishing an
+   older iteration) — never by switching this folder's branch back and forth. **No `plans/`** (a fresh clone, or a
    project before its first iteration): the tags `v<version>` name the
    closed iterations and the `Plan-Unit:` trailers since the last tag the
    units already landed; what stages 10–14 left is unknown — say so rather

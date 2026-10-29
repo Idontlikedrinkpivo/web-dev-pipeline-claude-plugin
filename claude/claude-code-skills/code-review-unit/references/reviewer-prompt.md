@@ -52,6 +52,10 @@ WORKER REPORT
 ALREADY RECORDED THIS RUN
   <one line per prior finding, or "none">
 
+TESTS YOU MAY RUN
+  <the unit's focused tests — or: none that use the database: a suite is
+   running on the shared test database now (`work/references/run-hygiene.md`)>
+
 LENSES TO APPLY  (only these)
   <the fired lenses with their questions>
 

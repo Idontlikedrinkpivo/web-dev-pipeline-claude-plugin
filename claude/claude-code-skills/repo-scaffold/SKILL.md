@@ -160,7 +160,9 @@ in Make target names: `lint:boundaries` breaks Make.
 ## 4. Local run and schema
 
 `.env.example` lists every variable of foundation §4 «Конфигурация»
-(names and a comment, never values). No `.env` committed, no values
+(names and a comment, never values), plus `TEST_DATABASE_URL` when the
+system stores data — the host tests' own database, required, no default
+(`work` → `references/run-hygiene.md`). No `.env` committed, no values
 invented. `LOG_LEVEL` and `SHUTDOWN_TIMEOUT_SEC` are always there —
 optional, their defaults (`info`, `25`) named in the comment — because
 every service reads them (Step 5); a §4 table without them gets the two

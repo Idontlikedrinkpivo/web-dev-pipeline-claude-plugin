@@ -291,7 +291,8 @@ error maps to which status. No code, no imports, no signatures invented here.
 must agree on) gets a property scenario («для любых … верно …») beside its examples. One per line, each naming input, action, expected
 outcome. Cover every invariant row this unit enforces (`covers BR-3`), the
 AC of each flow it serves, its error paths, and its boundary crossings.
-A unit with no behavior writes `none — <reason>` instead.
+A unit with no behavior writes `none — <reason>` instead. A unit that splits, moves or renames code «без
+изменения поведения» first pins what the code does now — a characterization scenario that stays green.
 
 **Проверка** — the observable outcome that proves the unit done, as an
 outcome, not a shell recipe.

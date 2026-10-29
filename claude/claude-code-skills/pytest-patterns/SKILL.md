@@ -47,7 +47,7 @@ tests/
 
 ## Real database, not mocks
 
-- Run integration tests against the project's real engine (PostgreSQL, e.g. in Docker or testcontainers, URL overridable by `TEST_DATABASE_URL`). A mocked session or `execute()` hides the query bugs these tests exist to catch.
+- Run integration tests against the project's real engine (PostgreSQL, e.g. in Docker or testcontainers, URL in `TEST_DATABASE_URL` — required, a database whose name contains «test», outside CI never `DATABASE_URL` (locally a database of its own, not the one a running stand serves); the conftest fails the database tests otherwise and has no default address, so a run never drops the schema of a stand). A mocked session or `execute()` hides the query bugs these tests exist to catch.
 - Isolate tests with one outer transaction per test that is rolled back at the end, with the session joined through a savepoint so the code under test may call `commit()` freely. Override the app's session dependency with that session so HTTP requests share it.
 - Mock only what leaves the process: HTTP APIs (`respx`), email/SMS, object storage, queues, time (`freezegun`), random/UUID. Do not mock the database, SQLAlchemy sessions, Pydantic validation, FastAPI dependency injection, or repositories in integration tests.
 - Never hand code a `MagicMock` / `AsyncMock` in place of an `AsyncSession`, in any test layer: it accepts every call, so a wrong query or a missing flush passes. Code that takes the session directly (a brownfield `service.py`, an adapter) is tested against the real database.

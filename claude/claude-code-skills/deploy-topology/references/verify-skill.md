@@ -66,9 +66,15 @@ elsewhere. Where a line was not run, it says «unverified».
   stand (dev, demo); stop every watcher; evidence stays. End by comparing
   the end state with the start.
 - **Traps** — every environment fault met so far, each with its symptom,
-  its cause and its fix, and which fixes need the owner's yes (anything that
-  changes shared data). This section grows: a run that meets a new trap adds
-  it before it finishes.
+  its cause, its fix, which fixes need the owner's yes (anything that
+  changes shared data), and **the live command that shows whether it is
+  there now** (`docker pull alpine:3.20`, `curl -sI <source>`, `lsof -i :<port>`);
+  a trap that can be checked automatically is also a doctor line. A trap is a
+  hypothesis until its command fails: a run checks it before stopping or
+  deferring a unit for it, and a trap whose command passes is removed in the
+  same run (`work` → `references/run-hygiene.md` → The environment). This
+  section grows: a run that meets a new trap adds it, with its command, before
+  it finishes.
 
 ## The doctor
 
@@ -84,6 +90,7 @@ exit code. It checks at least:
 | the database schema the app expects exists | the app does not create it; a renamed schema stops `migrate` |
 | every migration recorded in the database exists in this checkout | a database migrated from other code fails later with «already exists» |
 | the running **image** is not older than `HEAD` | a container recreated from an old image looks fresh; check the image |
+| the host tests' database (`TEST_DATABASE_URL`) is not the stand's database | host tests drop and rebuild their schema; on the stand's database they wipe its data |
 
 Room-booking, for shape only:
 
@@ -97,6 +104,7 @@ port 8080  room-booking-test-frontend-1
 /health/live   200
 /health/ready  200
 build      backend image 2026-10-14T09:12 UTC, HEAD 2026-10-14T09:05 UTC
+test db    room_booking_test_host ≠ stand room_booking_test
 READY
 ```
 

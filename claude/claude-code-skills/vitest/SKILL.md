@@ -22,7 +22,10 @@ description: >-
    race test against the real database: `Promise.all` of two calls, each with its own connection from the pool
    (never one transaction shared), then count the effect — exactly one — and assert what the second caller got.
 10. When `work` asks for it, mutation-test the unit's files with Stryker in incremental mode; a surviving mutant names the missing assertion.
-11. **No database reachable here** (a sandbox without Docker): write the repository, race and HTTP tests as they would run, run the rest, and report the database run as owed — in a `work` packet a line in `CONCERNS` with the command. Never replace the database with a mocked client to get a green run.
+11. **The test database is named, never defaulted**: the database helper reads `TEST_DATABASE_URL` and throws
+   when it is unset, when its database name has no «test», or, outside CI (`CI` unset), when it equals `DATABASE_URL`
+   — locally it is a database of its own, not the one a running stand serves; a fallback address
+   once sent these tests to a running stand and wiped its data. **No database reachable here** (a sandbox without Docker): write the repository, race and HTTP tests as they would run, run the rest, and report the database run as owed — in a `work` packet a line in `CONCERNS` with the command. Never replace the database with a mocked client to get a green run.
 12. Coverage has one threshold, in `coverage.thresholds` of the Vitest config (the foundation §6 number, otherwise 80% of lines); the full suite measures it in CI (`repo-scaffold/references/quality-gates.md`, the Coverage gate), a unit's focused run does not.
 
 A whole-application browser flow (log in, open a page, type, click, see the result) is Playwright, not Vitest:

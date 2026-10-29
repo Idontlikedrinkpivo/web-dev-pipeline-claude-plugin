@@ -43,6 +43,7 @@ jobs:
     env:
       APP_ENV: test
       DATABASE_URL: <the `migrate` service's URL in the test compose — the schema owner, since the job migrates and resets data — host 127.0.0.1, same search_path>
+      TEST_DATABASE_URL: <the same URL — the tests' database helper requires it and has no default>
       <OBJECT_STORE_URL_VAR>: http://127.0.0.1:<store-port>
       <MOCK_GATE_VAR>: ${{ github.workspace }}/<mock-fixtures-dir>   # fixtures from the checkout: zero outbound calls
     steps:
@@ -159,6 +160,7 @@ jobs:
     env:
       APP_ENV: test
       DATABASE_URL: <the `migrate` service's URL in the test compose — the schema owner, since the job migrates and resets data — host 127.0.0.1, same search_path>
+      TEST_DATABASE_URL: <the same URL — the tests' database helper requires it and has no default>
       <OBJECT_STORE_URL_VAR>: http://127.0.0.1:<store-port>
       <MOCK_GATE_VAR>: ${{ github.workspace }}/<mock-fixtures-dir>
     steps:

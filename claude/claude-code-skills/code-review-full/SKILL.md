@@ -57,10 +57,13 @@ invent its own idea of what the branch was supposed to do. Say so and stop.
 
 Read the plan's unit map and this run's section of the run report side by
 side. Confirm every unit this run committed has a commit in the diff range
-(its `Plan-Unit: <version>/U<n>` trailer in `BASE..HEAD`), and that every
-commit in the range is mapped. Units an earlier run of the same iteration
-committed sit before BASE and are not this review's: a second run reviews its
-own range only. Mapped means a `Plan-Unit: <version>/<kind>` trailer the run
+(its `Plan-Unit: <version>/U<n>` trailer in `BASE..HEAD` — read from the
+message body, `git log --format=%B`, since a blank line before
+`Co-Authored-By:` keeps it out of git's own trailer list), and that every
+commit in the range is mapped. BASE is the HEAD the last whole review covered
+(`work` → `references/run-hygiene.md` → The review range), so commits made
+between two runs — a stand, the e2e suite, decision documents — are in this
+range; units reviewed by an earlier whole review sit before it. Mapped means a `Plan-Unit: <version>/<kind>` trailer the run
 report lists:
 
 | Trailer | Commit |

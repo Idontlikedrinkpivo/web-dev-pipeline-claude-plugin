@@ -120,15 +120,16 @@ line. A unit with a trailer is never dispatched again: re-dispatching finished
 units after losing your place is the single most expensive way a run fails.
 A follow-up that is not in the plan changes neither number.
 
-- **The `where` line.** A linked worktree (a session folder the app made,
-  `worktree-happy-otter`) has no `documentation/plans/` — it is out of git —
-  and the iteration branch is checked out in the main tree: stop and tell the
-  user to open the session in the main folder the line names. On another
-  branch, switch to `iteration/<version>` (`pipeline` → Service version);
-  never run on `main`.
-- **The run base.** Record `BASE=$(git rev-parse HEAD)` in the run report
-  before the first dispatch. It bounds this run's diff for Step 7 — the health
-  measures and the whole-run review — and nothing else.
+- **The `where` line.** A linked worktree with no `documentation/plans/` (out
+  of git): stop and tell the user to open the session in the main folder the
+  line names. One with the plans folder linked in is an older iteration being
+  finished (`references/run-hygiene.md`). On another branch, switch to
+  `iteration/<version>` (`pipeline` → Service version); never run on `main`.
+- **Hygiene and the run base.** Read `references/run-hygiene.md` now — the test
+  database, commits, the orchestrator's own commits, executors in the shared
+  tree. `BASE` is the HEAD the last whole review covered (this run's start on a
+  first run); record it in the run report before the first dispatch. It bounds
+  Step 7's diff and nothing else.
 
 **The run report** (`references/run-report.md`) is a file at
 `$(git rev-parse --git-dir)/pipeline-work/<version>-run.md` — outside the
@@ -334,8 +335,9 @@ Per unit, in this order, and never skip to the next unit on a broken tree:
       P2/P3 never hold up the commit; they land in the run report.
    5. Copy every `OPEN` cross-unit suspicion into the run report's
       **Cross-unit watch** for Step 7.
-5. **Коммит** — the unit's own commit, with the unit's `Коммит` message plus
-   the trailer `Plan-Unit: <version>/U<n>`, staging only that unit's files —
+5. **Коммит** — its own call, after 5.3's output was read green; the unit's
+   `Коммит` message with `Plan-Unit: <version>/U<n>` in the last paragraph
+   beside `Co-Authored-By:` (`references/run-hygiene.md` → Commits), staging only that unit's files —
    never `git add .`, which drags a sibling unit's half-work into this commit —
    then set the unit's row in the progress file to `✅ готово` with its
    review verdict. Never batch several units into one commit because it was
@@ -399,7 +401,7 @@ unit, and a plan carrying scars stops being a decision artifact.
 When every unit in scope is committed, first run these checks yourself and save
 each output under `$(git rev-parse --git-dir)/pipeline-work/`:
 
-- **Критерии готовности** — every command in the plan's §5, with its exit code. A browser suite first opens
+- **Критерии готовности** — every command in the plan's §5, with its exit code, on HEAD after the last commit. A browser suite first opens
   its e2e section in `progress.md` and posts the progress line, then runs after the verify skill's doctor
   (`.claude/skills/verify/`) says READY — with none, write and prove it first (`deploy-topology` →
   `references/verify-skill.md`; its commit carries `Plan-Unit: <version>/verify-skill`) — on parallel stands,

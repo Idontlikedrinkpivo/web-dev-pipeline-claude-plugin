@@ -29,7 +29,7 @@ message beside branch protection: the skill cannot set it, so the user has
 to.
 
 On GitLab, native `services:` are reached by alias, so `DATABASE_URL`'s
-host is that alias, not `127.0.0.1`. The fixture user, password, db name,
+host is that alias, not `127.0.0.1`; `TEST_DATABASE_URL` is the same URL. The fixture user, password, db name,
 and `search_path` still copy from `docker-compose.test.yml` unchanged.
 
 ## Toolchain: the setup step and its cache

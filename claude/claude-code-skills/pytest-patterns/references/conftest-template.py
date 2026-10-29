@@ -28,7 +28,10 @@ version-sensitive too (same file): verify them against the installed SQLAlchemy 
 httpx rather than trusting this template.
 
 Requires a reachable PostgreSQL test database (e.g. `docker run -e POSTGRES_PASSWORD=postgres
--e POSTGRES_DB=app_test -p 5432:5432 postgres`), overridable with TEST_DATABASE_URL.
+-e POSTGRES_DB=app_test -p 5433:5432 postgres`), named by TEST_DATABASE_URL. The schema is dropped and
+rebuilt here, so the URL is required, its database name contains «test», and outside CI it differs from
+DATABASE_URL (locally a database of its own, not the one a running stand serves): a default address once
+pointed these tests at a running stand and wiped its data.
 House convention: test on the project's real engine, not SQLite.
 
 The schema comes from the SQL files in documentation/db/migrations/, applied by the same
@@ -64,9 +67,20 @@ from src.database import get_db  # noqa: E402
 from src.auth.models import User  # noqa: E402
 from src.auth.service import create_access_token  # noqa: E402
 
-TEST_DATABASE_URL = os.environ.get(
-    "TEST_DATABASE_URL", "postgresql+asyncpg://postgres:postgres@localhost:5432/app_test"
-)
+TEST_DATABASE_URL = os.environ.get("TEST_DATABASE_URL", "")
+
+
+def _refuse_unsafe_test_database() -> None:
+    """No default address: fail the database tests rather than drop a schema a stand or a person uses."""
+    name = TEST_DATABASE_URL.rsplit("/", 1)[-1].split("?", 1)[0]
+    same_as_app = TEST_DATABASE_URL == os.environ.get("DATABASE_URL") and not os.environ.get("CI")
+    if not TEST_DATABASE_URL or "test" not in name or same_as_app:
+        pytest.fail(
+            "TEST_DATABASE_URL must name a separate test database (its name contains «test»; outside CI "
+            "not DATABASE_URL): these tests drop and rebuild its schema",
+            pytrace=False,
+        )
+
 # The project schema the migrations create and set as search_path (db-schema-design §0) — placeholder.
 PROJECT_SCHEMA = "app"
 # The command `make migrate` runs; the project's env.py reads the database URL from DATABASE_URL.
@@ -81,6 +95,7 @@ MIGRATE_COMMAND = ["uv", "run", "alembic", "upgrade", "head"]
 @pytest_asyncio.fixture(scope="session", loop_scope="session")
 async def engine():
     """Migrate a clean project schema once per session with the project's command; drop it at the end."""
+    _refuse_unsafe_test_database()
     engine = create_async_engine(
         TEST_DATABASE_URL,
         echo=False,
