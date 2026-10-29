@@ -72,8 +72,10 @@ rules (check them — the session may have run an older version).
    нарушено» rather than proposed again.
 5. **Measure.**
    `python3 "${CLAUDE_SKILL_DIR}/scripts/measure.py" "$PWD" --since <the same date>` (and the same `--also`)
-   — what the iteration's sessions and agents spent, from Claude Code's own logs: by group and by agent, the
-   models, the context each agent reached, and the flags it raises. Its output goes into the section unchanged,
+   plus `--progress documentation/plans/<version>/progress.md` for each iteration of the window whose file is
+   still there and `--units <previous tag>..HEAD` — what the iteration's sessions and agents spent, from Claude
+   Code's own logs: by group and by agent, the models, the context each agent reached, «Принятие задач» (units
+   accepted at the first review, units sent back, the cost of one accepted unit), and the flags it raises. Its output goes into the section unchanged,
    under «### Расход»: the maintainer tunes unit size, reviews and packets from these numbers, and a paraphrase
    loses them. A flag becomes a finding only when a skill caused it (a stage pasting whole documents, a
    session kept for days on a huge context).

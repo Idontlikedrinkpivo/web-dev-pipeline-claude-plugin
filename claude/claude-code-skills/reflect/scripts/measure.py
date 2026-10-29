@@ -3,6 +3,14 @@
 
 usage:
   measure.py <project-dir> [--since YYYY-MM-DD[THH:MM]] [--also <old-project-dir> ...]
+             [--progress <plans/<version>/progress.md> ...] [--units <git range>]
+
+--progress (one per iteration whose progress file is still there) and --units (the iterations' git range, e.g.
+v2.1.2..HEAD) add «Принятие задач»: how many plan units passed their review the first time, how many went back,
+and what one accepted unit cost — executors and code review together, divided by the units accepted. From the
+progress file's Ревью column (`COMMIT` alone is the first time; `RETURN_…`, `FIX_THEN_COMMIT`, `×2`, `→` mean
+rounds); without one, from git — a unit with more than one commit carrying its Plan-Unit line was fixed after
+its commit.
 
 Reads the project's main sessions (found as `sessions.py list` finds them) and every subagent transcript beside
 them (<session>/subagents/agent-*.jsonl with its .meta.json, which names the agent: `dev-pipeline:impl-medium`).
@@ -122,6 +130,40 @@ def fmt(n: float) -> str:
     return f"{n / 1e6:.1f} млн" if n >= 1e6 else f"{n / 1e3:.0f} тыс."
 
 
+def acceptance(progress: list, rng: str, cwd: str) -> tuple[int, int, int, str]:
+    """(accepted, first time, sent back, source) over the plan units of the progress files, else of git."""
+    import re
+    import subprocess
+    accepted = first = back = 0
+    for path in progress:
+        try:
+            text = Path(path).read_text(encoding="utf-8")
+        except OSError:
+            continue
+        for line in text.splitlines():
+            cells = [c.strip() for c in line.strip().strip("|").split("|")]
+            if len(cells) < 5 or not re.fullmatch(r"U\d+", cells[0]) or "✅" not in line:
+                continue
+            accepted += 1
+            review = cells[-1]
+            if re.search(r"RETURN|FIX_THEN|→|×\s*[2-9]|возвращ|эскалац", review + " " + line, re.I):
+                back += 1
+            else:
+                first += 1
+    if accepted:
+        return accepted, first, back, "файлы прогресса"
+    if not rng:
+        return 0, 0, 0, ""
+    log = subprocess.run(["git", "-C", cwd, "log", rng, "--format=%B"], capture_output=True, text=True).stdout
+    ids = re.findall(r"^Plan-Unit:\s*(\S+/U\d+)\s*$", log, re.M)
+    count: dict = defaultdict(int)
+    for u in ids:
+        count[u] += 1
+    accepted = len(count)
+    back = sum(1 for n in count.values() if n > 1)
+    return accepted, accepted - back, back, f"git {rng} (возвраты до коммита не видны)"
+
+
 def main() -> None:
     args = sys.argv[1:]
     if not args or args[0].startswith("-"):
@@ -231,6 +273,22 @@ def main() -> None:
     if session.units / total > 0.4:
         flags.append(f"сама сессия — {session.units / total:.0%} расхода: оркестратор держит большой контекст "
                      f"(пик {fmt(session.peak)})")
+    progress = [args[i + 1] for i, a in enumerate(args) if a == "--progress" and i + 1 < len(args)]
+    rng = args[args.index("--units") + 1] if "--units" in args and args.index("--units") + 1 < len(args) else ""
+    if progress or rng:
+        accepted, first, back, source = acceptance(progress, rng, cwd)
+        print("\n#### Принятие задач\n")
+        if accepted:
+            cost = (by_group.get("Исполнители", [0.0])[0] + by_group.get("Ревью кода", [0.0])[0]) / accepted
+            label = "с первого ревью" if source == "файлы прогресса" else "без исправлений после коммита"
+            print(f"Задач принято: {accepted} · {label}: {first} ({first / accepted:.0%}) · возвращались: "
+                  f"{back} · одна принятая задача (исполнители и ревью кода): **{fmt(cost)}** единиц · источник: {source}")
+            print("Стоимость одной задачи считается по всему окну: работа других итераций в том же окне её завышает.")
+            if first / accepted < 0.5:
+                flags.append(f"с первого ревью прошло меньше половины задач ({first / accepted:.0%}) — переделки "
+                             "стоят больше, чем экономят проверки; смотреть пакеты и границы задач")
+        else:
+            print("нет данных: файлов прогресса нет, коммитов с Plan-Unit в диапазоне нет")
     print("\n#### На что посмотреть\n")
     print("\n".join(f"- {f}" for f in flags) if flags else "- ничего необычного по порогам скрипта")
 

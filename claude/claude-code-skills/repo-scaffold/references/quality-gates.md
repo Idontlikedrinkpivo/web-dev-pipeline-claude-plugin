@@ -87,10 +87,10 @@ The numbers are the defaults; foundation §6 may tighten them, never loosen them
 
 - **Property tests** — `fast-check` (TypeScript) or `hypothesis` (Python) installed from the start; the plan gives an
   invariant over many values a property scenario.
-- **Mutation testing** — Stryker (TypeScript, incremental mode) or `mutmut` (Python) installed; `work` runs it only
-  on the files of units that enforce an invariant row or are graded High, and once at the run's close over the
-  run's diff. A surviving mutant is a review finding, not a hard threshold — mutation runs are slow, so they stay
-  narrow.
+- **Mutation testing** — Stryker (TypeScript, incremental mode, the default sandbox — never `inPlace`) or `mutmut`
+  (Python) installed; `work` runs it once, at the run's close, only on the lines of units that enforce an invariant
+  row or are graded High (`work/references/health.md` → Mutation runs). A surviving mutant is a review finding, not a
+  hard threshold — mutation runs are slow, so they stay narrow.
 
 ## A project that already has code — the ratchet
 

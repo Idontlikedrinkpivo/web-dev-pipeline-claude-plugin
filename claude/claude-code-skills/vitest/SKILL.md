@@ -21,7 +21,7 @@ description: >-
 9. A guard against a double action (a row lock, a conditional update, a unique key, an idempotency key) gets a
    race test against the real database: `Promise.all` of two calls, each with its own connection from the pool
    (never one transaction shared), then count the effect — exactly one — and assert what the second caller got.
-10. When `work` asks for it, mutation-test the unit's files with Stryker in incremental mode; a surviving mutant names the missing assertion.
+10. A surviving mutant named in a review finding points to the missing assertion: add one that fails on that mutant; never change the mutated code or weaken a test to kill it. Mutation runs are `work`'s, at the run's close (`work/references/health.md` → Mutation runs), never a unit's.
 11. **The test database is named, never defaulted**: the database helper reads `TEST_DATABASE_URL` and throws
    when it is unset, when its database name has no «test», or, outside CI (`CI` unset), when it equals `DATABASE_URL`
    — locally it is a database of its own, not the one a running stand serves; a fallback address

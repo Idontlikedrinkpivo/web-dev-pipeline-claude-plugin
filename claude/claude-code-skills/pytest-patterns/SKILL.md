@@ -101,8 +101,9 @@ error-path tests above, not by a percentage.
 - An invariant over many values (a format, a range, a round trip, «whoever edits can see») gets a property test
   with `hypothesis` beside its examples.
 - Group tests by behaviour, never by plan unit; shared fixtures live in `conftest.py`, never copied.
-- When `work` asks for it, mutation-test the unit's modules with `mutmut` limited to those paths; a surviving mutant
-  names the missing assertion.
+- A surviving mutant named in a review finding points to the missing assertion: add one that fails on that mutant;
+  never change the mutated code or weaken a test to kill it. Mutation runs are `work`'s, at the run's close
+  (`work/references/health.md` → Mutation runs), never a unit's.
 
 ## The reviewer checks
 
