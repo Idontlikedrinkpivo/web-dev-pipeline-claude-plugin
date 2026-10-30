@@ -82,7 +82,7 @@ where="$root/pipeline/scripts/where_am_i.py"
 echo "For «где я», «что дальше» or before resuming a stage, run python3 \"$where\" \"$dir\" and take the state from its output (pipeline → Where am I)."
 link="$root/pipeline/scripts/progress_link.py"
 [ -f "$link" ] || link="$root/skills/pipeline/scripts/progress_link.py"   # the Codex layout
-echo "Most often lost: give a stage's progress only as the line python3 \"$link\" <progress file .md> prints, pasted as printed — never a link written by hand, never the .md; commit a finished document before asking about the next stage or stopping; end a turn only with the next step already running, unless the turn ends on a question to the user; stop every Monitor or background wait you started when its work ends."
+echo "Most often lost: give a stage's progress only as the line python3 \"$link\" <progress file .md> prints, pasted as printed — never a link written by hand, never the .md; commit a finished document before asking about the next stage or stopping, and before work push it with python3 \"$root/pipeline/scripts/push_branch.py\"; end a turn only with the next step already running, unless the turn ends on a question to the user; stop every Monitor or background wait you started when its work ends."
 [ -f "$plans/$v/resume.md" ] && echo "A run left documentation/plans/$v/resume.md: read it first and check each claim against git, the tree and docker before continuing (pipeline → references/pause-and-resume.md)."
 [ -f "$dir/.claude/skills/verify/SKILL.md" ] && echo "This project has .claude/skills/verify: run its doctor before driving the app."
 exit 0

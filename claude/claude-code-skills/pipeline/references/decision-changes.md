@@ -84,7 +84,8 @@ the template's shape and the ids that other documents cite.
    (`doc-versioning`) types these changes, because it compares each
    document with its last stamped state, not with `HEAD`. Edits of this
    iteration still uncommitted in the same file go into this commit too;
-   the stamp types them all the same way.
+   the stamp types them all the same way. Before `work`, the commit is
+   pushed (`scripts/push_branch.py`, `SKILL.md` → Commit each document).
 6. **Then go on.** What runs next reads the new text.
 
 ## Work already built on the old decision
