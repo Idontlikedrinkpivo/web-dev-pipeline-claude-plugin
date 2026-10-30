@@ -26,6 +26,9 @@ the stages itself, as before, and hands over by asking the user (`references/con
   decides the next stage by the chain, opens a nested session for it, and waits. It answers «где я», «что дальше»
   itself, from the script and the nested sessions' states. A request for work — «поправь поле», «нарисуй экран
   настроек» — becomes a nested session too.
+- **Its own id first.** Every prompt names the parent by its session id, the one address a nested session can
+  write to (`mcp__ccd_session_mgmt__get_session` with `self` gives it; a nested session that opens the next stage
+  passes the same id on). A name such as «parent» reaches nobody.
 - **Opening a nested session** — in a turn the user began (their request in this session, their click): locally,
   in this folder, a fresh context, no worktree, `wake_when_done: true` (a note comes back when its turn ends); the title «<version> ·
   <stage>» («2.3.0 · ТЗ», «2.3.0 · макеты», «2.3.0 · прогон, часть 2»); the prompt below. One line to the user:
@@ -50,7 +53,7 @@ the stages itself, as before, and hands over by asking the user (`references/con
 - **The reserve — waiting sessions opened ahead.** In every turn the user begins in this session (the iteration's
   start, a question, any message), after answering, top the reserve up: waiting nested sessions not tied to a stage,
   titled «<version> · резерв <n>», each with the prompt «Ты — резервная подсессия итерации <version> плагина
-  dev-pipeline; родительская сессия — «<title>». Жди: не начинай ничего, пока родитель не напишет «начинай» с
+  dev-pipeline; родительская сессия — «<title>», id <its session id> (SendMessage на этот id). Жди: не начинай ничего, пока родитель не напишет «начинай» с
   заданием. Сейчас ответь одним словом «жду» и закончи ход.» Keep as many as the rest of the iteration may need with
   nobody there to click: the stages left in the chain plus one per ~4 plan units left (hand-overs), at most 12 — an
   idle one costs only its start. A message wakes a session even in an automated turn, so when a stage has to start
@@ -65,7 +68,8 @@ the stages itself, as before, and hands over by asking the user (`references/con
 **The prompt of a nested session** (Russian, as the user reads it):
 
 ```text
-Ты — подсессия итерации <version> плагина dev-pipeline. Родительская сессия — «<parent's title>».
+Ты — подсессия итерации <version> плагина dev-pipeline. Родительская сессия — «<parent's title>», id <parent's
+session id> — пиши ей через SendMessage на этот id.
 Этап: <stage> — запусти /dev-pipeline:<skill> <arguments, or «продолжи», or nothing>.
 <For a continuation: продолжай с <item>; состояние — в documentation/plans/<version>/resume.md и git.>
 Работай с пользователем здесь, как обычно. Когда этап закрыт и пользователь ответил на вопрос о следующем этапе,
