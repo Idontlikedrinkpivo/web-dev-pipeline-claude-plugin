@@ -319,8 +319,8 @@ written and which stage is still open. **A finished document is sent,
 not a draft.** A document is final when the gates of its stage that apply to
 it ran or the user skipped them and their fixes are committed; only then run
 `python3 "${CLAUDE_SKILL_DIR}/scripts/push_branch.py"`: at the stage's close,
-after the stamp — and in the architecture stage also after each document's
-own `doc-review` and fixes; a changed decision is final at its own commit;
+after the stamp, all its documents at once (the architecture's three too); a
+changed decision is final at its own commit;
 `docs-consistency`, when its fixes are committed. Drafts stay committed on
 this machine until then. Only the stages before `work` push this way. The
 script pushes `iteration/<version>` to `origin` when the project has one,
