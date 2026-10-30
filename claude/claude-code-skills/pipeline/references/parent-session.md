@@ -10,7 +10,8 @@ only in a turn **the user** began — their message, or their click on a proposa
 message or an automated note began, it refuses and offers a card instead (`"own_initiative"`): nothing runs until
 the user clicks it. This is the app's safety rule, on purpose — a session must never open sessions on another
 session's word — and the plugin works inside it, never around it: the session in which the user answered opens the
-next one, and work left for the night uses sessions the user asked for in advance.
+next one, and for the turns without the user the parent keeps a reserve of waiting sessions, opened in the user's
+own turns and woken by message later.
 
 **Which one am I.** A session whose first message names a parent («родительская сессия — …», «ты — подсессия») is a
 nested session: follow «The nested session» below. Any other session in a project with `documentation/` or
@@ -34,10 +35,10 @@ the stages itself, as before, and hands over by asking the user (`references/con
 - **What comes back**, one line each from a nested session (`SendMessage` to the parent):
   - «ЭТАП <stage> ЗАКРЫТ · следующий открыт: <title>» — the nested session opened the next stage itself, on the
     user's answer (below): note it and wait; «… · остановиться» — say where the iteration stands;
-  - «ЭТАП <stage> ЗАКРЫТ · следующий: <stage>, не открыт» — the user's answer came in a turn that could not open it:
-    wake a waiting session for it (Night runs, below), else offer it as a card (`initiation: "own_initiative"`)
-    and tell the user one click opens it;
-  - «<stage> ПЕРЕДАН · после <item> · контекст <N> тыс. · продолжать с <item>» → wake a waiting session with
+  - «ЭТАП <stage> ЗАКРЫТ · следующий: <stage>, не открыт» — no user turn could open it: wake a reserve session
+    for it (The reserve, below); with the reserve empty, offer it as a card (`initiation: "own_initiative"`) and
+    tell the user one click opens it;
+  - «<stage> ПЕРЕДАН · после <item> · контекст <N> тыс. · продолжать с <item>» → wake a reserve session with
     «продолжи <stage>», else a card «<version> · <stage>, часть <n+1>»;
   - «ОСТАНОВЛЕНА · <причина>» → tell the user, with the session's link;
   - «ВОПРОС · …» — only when a nested session runs without the user (a chain left for the night,
@@ -46,13 +47,18 @@ the stages itself, as before, and hands over by asking the user (`references/con
   `reflect`, the closing lines, the cleanup question) runs in its own nested session «<version> · закрытие». The
   parent then reports the iteration closed, and may open the next iteration's first stage when the user asks — its
   context is small enough to carry several iterations.
-- **Night runs — sessions asked for in advance.** When the user leaves the work to run without them, they say so in
-  this session («открой заранее этапы до закрытия итерации», «на ночь: прогон и UI-тесты»): in that turn — theirs —
-  open one waiting session per stage or part ahead, with the prompt «Ты — подсессия этапа <stage> итерации
-  <version>; родительская сессия — «<title>». Жди: не начинай, пока родитель не напишет «начинай» с заданием. Сейчас
-  ответь одним словом «жду» и закончи ход.» A message may wake a session even in an automated turn: on «ЗАКРЫТ» or
-  «ПЕРЕДАН», send the next waiting one «начинай: <the nested-session prompt below>». Out of waiting sessions — a
-  card, and the chain waits for the user. Collect the standing answers first (`references/unattended.md`).
+- **The reserve — waiting sessions opened ahead.** In every turn the user begins in this session (the iteration's
+  start, a question, any message), after answering, top the reserve up: waiting nested sessions not tied to a stage,
+  titled «<version> · резерв <n>», each with the prompt «Ты — резервная подсессия итерации <version> плагина
+  dev-pipeline; родительская сессия — «<title>». Жди: не начинай ничего, пока родитель не напишет «начинай» с
+  заданием. Сейчас ответь одним словом «жду» и закончи ход.» Keep as many as the rest of the iteration may need with
+  nobody there to click: the stages left in the chain plus one per ~4 plan units left (hand-overs), at most 12 — an
+  idle one costs only its start. A message wakes a session even in an automated turn, so when a stage has to start
+  and no user turn opened it (a «… не открыт» report, a hand-over), take the oldest reserve session: rename it
+  «<version> · <stage>» (`mcp__ccd_session_mgmt__set_session_title`, when the host has it) and send it «начинай: <the
+  nested-session prompt below>». Only an empty reserve falls back to a card. At the iteration's close, archive the
+  reserve left unused (`mcp__ccd_session_mgmt__archive_session`). Before the user leaves the work to run alone,
+  collect the standing answers (`references/unattended.md`).
 - **Before saying anything about a nested session's state**, check it (its status, the progress file,
   `resume.md`, git) — never from memory.
 
@@ -77,7 +83,7 @@ It runs its stage as the stage's skill says, with the user, in this session. Wha
   prompt below and the same parent named (two, for the branches after the SRS), and does not run that stage here.
   Then it sends the parent «ЭТАП <stage> ЗАКРЫТ · следующий открыт: <title>» and ends with one line to the user:
   continue in that session (its link). When it was woken by the parent rather than the user (a night run), it does
-  not open anything: «ЭТАП <stage> ЗАКРЫТ · следующий: <stage>, не открыт».
+  not open anything: «ЭТАП <stage> ЗАКРЫТ · следующий: <stage>, не открыт» — the parent wakes a reserve session.
 - **What the next session must know is on disk before the close**: every decision made in this chat is in its
   document (`references/decision-changes.md`) or in the stage's report — the next nested session starts from the
   files and git, not from this chat.

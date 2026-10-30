@@ -32,7 +32,8 @@ each stage in a **nested session** with a fresh context (`mcp__ccd_session__star
 load it with ToolSearch first), and opens the next one when a nested session reports its stage closed or
 handed over. A session whose first message names a parent is a nested one: it runs its stage and, on the
 user's answer to the transition question, opens the next stage's nested session itself (the app lets a
-session open one only in a turn the user began) and reports to the parent. Without that tool the
+session open one only in a turn the user began) and reports to the parent. For the turns without the user,
+the parent keeps a reserve of waiting sessions, opened in the user's turns and woken by message. Without that tool the
 session runs the stages itself. All of it: `references/parent-session.md`.
 
 ## Two kinds of transition
