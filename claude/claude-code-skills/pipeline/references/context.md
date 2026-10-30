@@ -30,7 +30,9 @@ section of test cases, an audited area, a unit committed) — run
 2. **Run by a parent session:** send it «<этап> <version> ПЕРЕДАН · после <item> · контекст <N> тыс. · продолжать
    с <item>» and stop (`references/parent-session.md`).
 3. **No parent, and the host can start a session** (Claude Desktop: `mcp__ccd_session__start_session`, often
-   deferred — load it with ToolSearch `select:mcp__ccd_session__start_session` first): start one locally, in this
+   deferred — load it with ToolSearch `select:mcp__ccd_session__start_session` first). In a turn the user began it
+   starts at once; in an automated turn the host only offers a card (`references/parent-session.md` → The host's
+   rule) — offer it, tell the user one click continues, and stop. Start it locally, in this
    folder, with a fresh context and no worktree, titled «<version> · <stage> · часть <n>», prompt «продолжи
    <stage> <version>; родительская сессия — <this session>; по закрытии, остановке или передаче пиши ей». This
    session becomes its parent (`references/parent-session.md`).

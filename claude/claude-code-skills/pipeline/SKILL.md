@@ -30,8 +30,9 @@ architecture change»). A working note to yourself is not printed.
 In Claude Desktop the session the user opens is the iteration's **parent**: it runs no stage itself, opens
 each stage in a **nested session** with a fresh context (`mcp__ccd_session__start_session`, often deferred —
 load it with ToolSearch first), and opens the next one when a nested session reports its stage closed or
-handed over. A session whose first message names a parent is a nested one: it runs its stage and, after
-the transition question, reports to the parent instead of starting the next stage. Without that tool the
+handed over. A session whose first message names a parent is a nested one: it runs its stage and, on the
+user's answer to the transition question, opens the next stage's nested session itself (the app lets a
+session open one only in a turn the user began) and reports to the parent. Without that tool the
 session runs the stages itself. All of it: `references/parent-session.md`.
 
 ## Two kinds of transition
