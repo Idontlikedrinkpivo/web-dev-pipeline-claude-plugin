@@ -57,8 +57,15 @@ RULES
   spec gaps.
 - Preconditions name the data, so a runner can seed it.
 - README.md holds what every section shares, the «Разделы» table and,
-  at its end, the coverage table: AC → TC ids, or «Без интерфейса» +
-  reason. A section file holds only its cases. TC ids run across the set.
+  at its end, the coverage table, one row per AC (`UC-1 AC-Exc-1` →
+  TC ids, or «Без интерфейса» + reason). A section file holds only its
+  cases. TC ids run across the set.
+- Before the report, run both checks from the repository root and fix
+  what they print:
+  python3 <SKILLS ROOT>/ui-test-cases/scripts/check_trace.py --docs documentation --quiet
+  python3 <SKILLS ROOT>/ui-test-cases/scripts/check_coverage.py --docs documentation
+  A line you cannot fix (the documents lack the element, frame,
+  operation or criterion) goes to GAPS. The session runs both again.
 - Russian prose; ids, operationIds, paths untranslated.
 - Readable (<SKILLS ROOT>/doc-versioning/references/readable.md): a precondition or an
   expected result is one fact per line; README's shared parts are short
@@ -72,6 +79,7 @@ Report — last message, exactly:
 STATUS        DONE | DONE_WITH_CONCERNS | BLOCKED
 FILES WRITTEN README.md and each section file written or changed | none
 COUNTS        N cases · M AC covered of K · L «Без интерфейса»
+CHECKS        check_trace: exit <code>, errors <n> · check_coverage: exit <code>, errors <n>
 GAPS          one line per behaviour the spec did not decide, or none
 PROGRESS      each section's row set before and after it: yes | no — which not
 BLOCKER       only for BLOCKED: the one question only the user can answer,

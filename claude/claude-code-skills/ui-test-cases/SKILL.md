@@ -144,12 +144,13 @@ runner needs goes into one «Трассировка» line under it.
   (`mock` before the status for a forced outcome) · any ARIA expectation.
   A case without it is not done: the runner builds its locators, mocks and
   frame comparison from it.
-- **The trace is checked at two points, never trusted.**
+- **The trace is checked at three points, never trusted.**
   `scripts/check_trace.py` resolves every reference against the current
   documents — the step exists in the table, the element in the screen spec,
   the frame in the spec or the register, the operation and its status in
-  the OpenAPI. It runs at the start of `screen-spec` (when cases already
-  exist) and in `docs-consistency` before the plan; both send what it finds
+  the OpenAPI. It runs at this stage's close (below), at the start of
+  `screen-spec` (when cases already exist) and in `docs-consistency` before
+  the plan; each sends what it finds
   to `ui-test-writer`, which rewrites that case's trace from the current
   spec — never patches a number.
 
@@ -208,9 +209,29 @@ documentation/ui/test-cases/
 <sub>Трассировка: кадр 12:160 · состояние «Уже началась» (M2) · шаг 2 → эл. 11; шаг 3 → эл. 3 (12:160) · `cancelBooking` → 409 BOOKING_STARTED</sub>
 ```
 
-`README.md` ends with the coverage table: every AC id → its `TC-` ids, or
-the «Без интерфейса» line. An AC with neither is the writer's failure, not
-the reader's.
+`README.md` ends with the coverage table, one row per AC: `UC-n AC-…` →
+its `TC-` ids, or «Без интерфейса» with the reason. An AC with neither is
+the writer's failure, not the reader's.
+
+**Two scripts close the stage, never trusted to the writer's word.** When
+the writer returns, the session runs, from the repository root:
+
+- `python3 "${CLAUDE_SKILL_DIR}/scripts/check_trace.py" --docs documentation --quiet`
+  — every «Трассировка» resolves: the step, the element, the frame, the
+  operation and its status;
+- `python3 "${CLAUDE_SKILL_DIR}/scripts/check_coverage.py" --docs documentation`
+  — every AC of the SRS has a row naming an existing `TC-` or «Без
+  интерфейса», and no row or «Проверяет» line names an AC the SRS lacks
+  (a repository without the SRS is not checked).
+
+What either prints goes back to `ui-test-writer` (`MODE increment`, only
+those lines), then both run again — round after round while each round
+fixes something (`pipeline` → `references/convergence.md`). A line no round
+can fix — the case needs an element, a frame or an operation the documents
+do not have — is a spec gap in `README.md` and a row in `open-questions.md`,
+named at the close. Only with both scripts at exit 0, or every remaining
+line written down this way, is the set final: its commit, then the push
+(`pipeline` → Commit each document).
 
 ## Mode run
 
@@ -378,7 +399,9 @@ fix plan must turn green.
 
 ## Before you finish
 
-- write: every AC has a `TC-` or a «Без интерфейса» line; every state row,
+- write: `check_trace.py` and `check_coverage.py` exit 0, or each line
+  they still print is a spec gap with its `open-questions.md` row; every
+  AC has a `TC-` or a «Без интерфейса» line; every state row,
   user-causable response outcome and «Поля ввода» rule has a case; steps name actions, not widgets; expected texts are
   the ones the screen spec quotes, and each text it lacks is a spec gap for
   `screen-spec`, not a case marker.

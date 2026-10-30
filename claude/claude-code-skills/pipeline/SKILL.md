@@ -83,7 +83,7 @@ scaffolded. They meet before the plan.
 | 6 | Repository skeleton | `repo-scaffold` | none — also writes `documentation/project-map/project-map.md` | the meeting point — see "Two branches" |
 | 7 | Mockups | `ui-design` | none — frames are not a document | `screen-spec` once the API exists, else the backend branch's next stage; after a restyle of screens already built, `plan`; after a redraw on a new page, `screen-spec` for every screen |
 | 8 | Screen specs (ТЗ на экран) | `screen-spec` | `doc-review` | `ui-test-cases` (write) |
-| 9 | UI test cases | `ui-test-cases` — mode write | none | the meeting point — see "Two branches" |
+| 9 | UI test cases | `ui-test-cases` — mode write | no reviewer — two scripts at its close: `check_trace.py`, `check_coverage.py` | the meeting point — see "Two branches" |
 | 10 | Document set check | `docs-consistency` | none — it is the check | `plan` |
 | 11 | Implementation plan | `plan` | `plan-review` — **automatic, do not ask**; its findings are fixed round by round until it passes | `work` |
 | 12 | Execution | `work` | `code-review-unit` per unit → `code-review-full` once — **automatic, do not ask** | `ui-test-cases` (run) when the product has screens, else `security-audit` |
