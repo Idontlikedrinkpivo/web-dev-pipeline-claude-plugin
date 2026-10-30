@@ -36,7 +36,6 @@ from collections import defaultdict
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
-from sessions import MAX_NAME, ours, sanitized, session_dirs  # noqa: E402  same discovery as `sessions.py list`
 
 W_IN, W_WRITE, W_WRITE_1H, W_READ, W_OUT = 1.0, 1.25, 2.0, 0.1, 5.0
 IDLE = 300            # a gap longer than this between two calls of the session is a pause, not work
@@ -82,10 +81,14 @@ def add_call(a: Agent, usage: dict, model: str, ts: str) -> float:
     cc = usage.get("cache_creation") or {}
     w1h = int(cc.get("ephemeral_1h_input_tokens") or 0)
     write = int(usage.get("cache_creation_input_tokens") or 0)
-    w5 = max(write - w1h, 0)
     tin, read, out = (int(usage.get(k) or 0) for k in ("input_tokens", "cache_read_input_tokens", "output_tokens"))
+    return add_counts(a, tin, max(write - w1h, 0), w1h, read, out, model, ts)
+
+
+def add_counts(a: Agent, tin: int, w5: int, w1h: int, read: int, out: int, model: str, ts: str) -> float:
+    """One model call: uncached input, cache writes (5-minute, one-hour), cache reads, output."""
     units = W_IN * tin + W_WRITE * w5 + W_WRITE_1H * w1h + W_READ * read + W_OUT * out
-    ctx = tin + write + read
+    ctx = tin + w5 + w1h + read
     a.calls += 1
     for k, v in (("in", tin), ("write", w5), ("write1h", w1h), ("read", read), ("out", out)):
         a.tokens[k] += v
@@ -135,7 +138,8 @@ def fmt(n: float) -> str:
     return f"{n / 1e6:.1f} млн" if n >= 1e6 else f"{n / 1e3:.0f} тыс."
 
 
-STORE = Path.home() / ".claude" / "dev-pipeline-feedback" / ".acceptance"  # outside every project
+STORE = (Path.home() / (".codex" if (Path(__file__).resolve().parent / "codex_logs.py").exists() else ".claude")
+         / "dev-pipeline-feedback" / ".acceptance")  # outside every project; the Codex build keeps its own
 
 
 def acceptance(progress: list, rng: str, cwd: str) -> tuple[int, int, int, str]:
@@ -191,6 +195,17 @@ def main() -> None:
     cwd = args[0]
     since = args[args.index("--since") + 1] if "--since" in args else None
     also = [args[i + 1] for i, a in enumerate(args) if a == "--also" and i + 1 < len(args)]
+    try:  # the Codex build ships codex_logs.py beside this file: Codex rollouts instead of Claude Code's logs
+        import codex_logs
+        session, agents, active, beats = codex_logs.collect(cwd, since, also, Agent, add_counts, SESSION)
+    except ImportError:
+        session, agents, active, beats = collect_claude(cwd, since, also)
+    report(args, cwd, since, session, agents, active, beats)
+
+
+def collect_claude(cwd: str, since: str | None, also: list) -> tuple:
+    """(the session, its agents, how many sessions were active, the session's call times) from Claude Code's logs."""
+    from sessions import MAX_NAME, ours, sanitized, session_dirs  # same discovery as `sessions.py list`
     dirs, roots = session_dirs(cwd, also)
     exact = {sanitized(r) for r in roots if len(sanitized(r)) <= MAX_NAME}
     mains = [p for d in dirs for p in d.glob("*.jsonl") if d.name in exact or ours(p, roots)]
@@ -215,7 +230,10 @@ def main() -> None:
             if a.calls:
                 agents.append(a)
         active += session.calls > before
+    return session, agents, active, beats
 
+
+def report(args: list, cwd: str, since: str | None, session, agents: list, active: int, beats: list) -> None:
     every = [session] + agents
     total = sum(a.units for a in every)
     if not total:
