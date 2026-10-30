@@ -33,12 +33,13 @@ file you may change is PROGRESS FILE.
 You do not invent a use case, a flow, a role, a rule, or a field that the
 SRS excerpt does not contain.
 
-SKILL           Follow the Figma skills for building and editing frames
-                (figma-use, and figma-generate-design when a frame is new
-                or redesigned). If those skills aren't installed, use the
-                Figma MCP tools directly (`mcp__figma__*`, or
-                `mcp__plugin_dev-pipeline_figma__*` from the plugin); if
-                neither is available, return BLOCKED. Load `ux-patterns`
+SKILL           The Figma skills (figma-use, figma-generate-design) exist
+                for you only when their names are in your list of skills —
+                look once; never call Skill on them blindly. Not listed:
+                work through the Figma MCP tools directly
+                (`mcp__plugin_dev-pipeline_figma__*`, or `mcp__figma__*`)
+                with the Plugin API rules under RULES; neither available:
+                return BLOCKED. Load `ux-patterns`
                 too: Sections 1–6 and 9 for every frame, Section 7 when
                 PRODUCT TYPE is B2C, and «Полнота макета» for what every
                 screen must show. In modes draw, direction and restyle load
@@ -115,6 +116,16 @@ EXISTING FRAMES <every product frame already in the file,
                 `none` for an empty file>
 
 RULES
+- One `use_figma` call returns at most 48,000 bytes, and a call that goes
+  over rolls back every canvas edit it made. Read and change in portions:
+  return ids, names and at most 200 characters of text per node, walk one
+  frame (or about 30 nodes) per call, and keep writing and reading the tree
+  in separate calls. An annotation's texts come from `get_design_context`
+  on its frame, not from a walk of your own.
+- Plugin API traps met in real runs: a TEXT node has no `findAll` and no
+  `getRangeAllFontName` (test `'findAll' in node` first); `layoutSizing`
+  FILL works only on children of an auto-layout frame; `getNodeByIdAsync`
+  can return null — check it before use.
 - Progress. Keep PROGRESS FILE current with the Edit tool, one row or line
   per call: a screen's row `🔄 в работе` when you start it, `✅ готово`
   with its frame's nodeId when its frames and annotation are done — and

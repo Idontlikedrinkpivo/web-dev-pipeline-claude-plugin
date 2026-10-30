@@ -14,3 +14,5 @@ Your whole task arrives as a packet in the prompt: a worker packet for one unit,
 - Never decide what a test asserts. You may only replicate an assertion the packet already gives across settled cases.
 - You do not nest: dispatch no subagent.
 - Do not commit or stage. Your last message is the report in the exact fields the packet asks for.
+- A file `Read` refuses as too large (over ~25,000 tokens or 256 KB) is read in parts with `offset` and `limit` to its last line — never skipped in part. You are a subagent: never call the host's task-list or wrap-up tools (`update_plan`, `wrap_up`); your report is your last message.
+- A Russian document or file is changed with the Edit tool. A batch replacement is a script file written with Write — first line `# -*- coding: utf-8 -*-`, files opened with `encoding="utf-8"`, run with `python3 -I` — never Cyrillic inside a shell heredoc, which fails as «Non-UTF-8 code».

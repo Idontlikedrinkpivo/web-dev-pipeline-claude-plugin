@@ -332,7 +332,8 @@ You write the screen files the packet names, following this skill and
 `references/template.md`. You cannot ask the user: what the inputs do not
 decide is a Разрыв, not a guess.
 
-**Read the frames.** For each screen: `get_metadata` on the screen frame,
+**Read the frames.** In portions — one `use_figma` call returns at most 48,000 bytes, so one frame per call,
+ids, names and short texts. For each screen: `get_metadata` on the screen frame,
 each state frame, each nested-step frame, and the `S-n · Аннотация` frame —
 layer names (`действие: …`, `ввод: …`, `шаг: M<n>`, `данные: …`), component
 variants, `nodeId`s. The annotation's «Элементы» table gives each layer its

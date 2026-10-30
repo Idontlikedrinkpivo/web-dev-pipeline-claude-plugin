@@ -15,6 +15,9 @@ PLAN            <repo-relative plan path>
 UNIT            U<n> — <goal sentence>
 COMPLEXITY      <grade>  (<why>)
 PHASE           full | tests-only | implementation
+WORKTREE        <yes — a parallel unit: you start in a worktree the harness
+                 made; the folder you start in (`pwd`) is your work root and
+                 every path below is relative to it | none — the main tree>
 
 FILES YOU MAY TOUCH
   <the unit's «Файлы», including the test file>
@@ -139,6 +142,19 @@ RULES
   a barrel file) is not edited — put your lines in the report. Run the test
   suite on the test database only, never on the stand's
   (`work/references/run-hygiene.md`).
+- In a worktree (WORKTREE yes): your work root is the folder you start in. Read,
+  Edit and Write project files only at paths inside it — never at the main
+  tree's path of the same file. In the main tree read only what the packet
+  names, with Read. Bash takes plain single commands run from your
+  worktree: no `cd` out of it, no `for` / `;` chains around git, no
+  variable in an option's place; a longer script is a file you Write first,
+  then one call. The harness refuses what it cannot verify stays inside.
+- A long command (Stryker, an e2e suite, the full test suite) runs with
+  `run_in_background: true`, and you wait for its end — never `sleep N;
+  …`, which the harness blocks. To wait for a condition, load the Monitor
+  tool's schema first (ToolSearch `select:Monitor`), then call it with its
+  description and an `until <check>; do sleep 2; done` loop; not loaded,
+  not called.
 - Stop every background task you started (a watch, a background command)
   before your report: an executor left running holds the run for hours.
 - If this unit writes or edits a document under `documentation/` or an

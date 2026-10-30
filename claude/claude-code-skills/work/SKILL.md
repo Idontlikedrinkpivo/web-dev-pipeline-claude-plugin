@@ -206,7 +206,8 @@ A unit is ready when every id in `Зависит от` is done — the `ready` l
   - the plan marks the peers `Параллельно: yes`;
   - their `Файлы` are genuinely disjoint in the current tree;
   - the harness gives each worker an isolated workspace — in Claude Code,
-    pass `isolation: "worktree"` on each parallel `Agent` call;
+    pass `isolation: "worktree"` on each parallel `Agent` call, its packet's
+    `WORKTREE yes` and every path in it, and in files it reads, relative;
   - their focused tests share no runtime resource (one compose database, a
     fixed port, a dev server) — isolation of files is not isolation of the
     database.

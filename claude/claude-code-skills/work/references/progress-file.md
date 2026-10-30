@@ -71,7 +71,11 @@ the old version.
 Change it the moment a status changes, not in a batch at the commit:
 `🔄 в работе` when the unit is dispatched (with its executor), `🔍 ревью`
 when `code-review-unit` starts, `✅ готово` right after the unit's commit
-lands — and the progress bar line and the `Обновлено` time with each change. A
+lands — and the progress bar line and the `Обновлено` time with each change.
+The bar and the count line are set by
+`python3 "${CLAUDE_SKILL_DIR}/../pipeline/scripts/progress_set.py" documentation/plans/<version>/progress.md <done> <total>`
+(the fixes section: add `--section "## Исправления по финальному ревью"`), never by
+copying the bar into an Edit. A
 resumed run resets any in-between status from git (no `Plan-Unit:` trailer →
 `⏳ ждёт`).
 

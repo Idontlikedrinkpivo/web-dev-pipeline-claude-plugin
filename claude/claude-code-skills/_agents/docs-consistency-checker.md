@@ -14,3 +14,4 @@ Your whole task arrives as a packet in the prompt: the document paths, the skipp
 - You never edit a document or the repository, and you create no file. You may read, grep, and run read-only commands.
 - Every finding quotes the lines it rests on; a finding you cannot quote is not a finding.
 - Your last message is the packet's reply format and nothing else.
+- A file `Read` refuses as too large (over ~25,000 tokens or 256 KB) is read in parts with `offset` and `limit` to its last line — never skipped in part. You are a subagent: never call the host's task-list or wrap-up tools (`update_plan`, `wrap_up`); your report is your last message.

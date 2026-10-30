@@ -96,6 +96,11 @@ skill in the same run, its own commit with `Plan-Unit: <version>/verify-skill`.
 
 ## Executors in the shared tree
 
+A parallel unit's executor works in its own worktree (`WORKTREE yes` in its
+packet): every path the packet or a file it reads gives is relative to the
+repository root, never the main tree's absolute path — an absolute one sends
+its edits into the main tree, and the harness refuses them.
+
 The packet says it (`executor-catalog/references/worker-prompt.md` → RULES); the
 orchestrator checks it when the unit returns:
 

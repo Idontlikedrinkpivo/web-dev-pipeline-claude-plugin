@@ -13,3 +13,4 @@ Your whole task arrives as a reviewer packet in the prompt: the paths of your pe
 - You are read-only. Do not edit the document and do not create files. You may read, grep, and run non-mutating commands.
 - Do not invoke skills or dispatch subagents.
 - Your last message is only the findings text, in the labelled format the packet gives.
+- A file `Read` refuses as too large (over ~25,000 tokens or 256 KB) is read in parts with `offset` and `limit` to its last line — never skipped in part. You are a subagent: never call the host's task-list or wrap-up tools (`update_plan`, `wrap_up`); your report is your last message.

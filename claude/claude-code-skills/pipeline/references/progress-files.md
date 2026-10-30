@@ -100,8 +100,12 @@ document keeps none.
   `cat >`), and never by a script that rewrites the file on a timer: the
   page is rebuilt by the plugin's hook on Edit and Write only, so a file
   changed any other way is fresh on disk and stale on the page the user
-  watches. The one exception is `progress_e2e.py`, which redraws the page
-  itself (`work` → `references/progress-file.md` → The e2e section). After a
+  watches. Two scripts are the exception, and both redraw the page
+  themselves: `progress_e2e.py` (`work` → `references/progress-file.md` →
+  The e2e section) and `progress_set.py <file> <done> <total> [--section
+  "<heading>"]`, which sets the bar and the count line — never copy a
+  hundred-cell bar into an Edit by hand: one cell off and the Edit fails.
+  Rows still change with Edit, after a fresh Read of the file. After a
   compaction this rule is the first one lost: re-read it before the next
   change of the file; `progress_link.py` names a bar that disagrees with the
   count, and remembers `--desktop` beside the file. A script may compute the numbers; the agent writes them. The bar is printed, not counted by
