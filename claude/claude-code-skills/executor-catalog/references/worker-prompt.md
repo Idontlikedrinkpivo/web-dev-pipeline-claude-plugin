@@ -34,7 +34,10 @@ BLOCKED with the path: the plan said it does not.
 DESIGN YOU MUST FOLLOW (do not re-decide these)
   <the cited excerpts: entity method signatures, port signatures, invariant
    rows, endpoint contract, column definitions, screen states — pasted, not
-   linked, so the worker does not have to hunt>
+   linked, so the worker does not have to hunt. A unit for part of a screen
+   (`S-<n> эл. <from>–<to>`): its element rows, the states and response
+   errors they show, and the screen's «Экран» and «Загрузка и вызовы» — not
+   the whole spec>
 
 CHANGED DECISIONS
   <each decision changed during this run that touches this unit — было →
@@ -179,7 +182,9 @@ RED OBSERVED      the failing test name and the failure message you saw before
 VERIFICATION      what you ran and what it returned
 SCREEN CHECK      UI units only: each item of `ux-patterns` → «Проверка
                   экрана перед сдачей» — ok | defect: what | not checked:
-                  why — and the Figma comparison result; `n/a` otherwise
+                  why — and the Figma comparison result; `n/a` otherwise.
+                  A part of a screen checks its own elements; the last
+                  part checks the whole screen
 DECISIONS         each local decision you made that the design did not fix
                   (public name, signature, error type, file placement), one per
                   line — or none. Dependent units receive these verbatim.

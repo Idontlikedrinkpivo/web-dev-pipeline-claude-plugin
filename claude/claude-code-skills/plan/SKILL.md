@@ -62,7 +62,7 @@ What each mode changes — scope, inventory, citations, coverage:
 | SRS `requirements/srs/srs.md` and every `areas/*.md` | **yes** | UC / AC / BR / NFR ids the units must cite |
 | OpenAPI `api/openapi.yaml` with `paths/` and `components/` | when the surface is HTTP | one unit per operation group; `operationId` names the unit |
 | DB schema `db/schema.md` + `db/migrations/` | when there is storage | migration units and their ordering: a schema change in scope is a unit that adds the next numbered file `db-schema-design` wrote to the app's migration run — never an edit of a committed file |
-| Screen specs `ui/screen-specs/` (+ `ui/frames-register.md`) | when there are screens | one unit per screen: its elements, states, response outcomes and the Figma `nodeId` the unit cites; after a restyle, the register's «Визуальное направление» line and the `🎨 Tokens` page for the theme unit |
+| Screen specs `ui/screen-specs/` (+ `ui/frames-register.md`) | when there are screens | one unit per screen (a large screen: one per part, see Screen below): its elements, states, response outcomes and the Figma `nodeId` the unit cites; after a restyle, the register's «Визуальное направление» line and the `🎨 Tokens` page for the theme unit |
 | A report — `plans/<version>/test-run.md` (`DEFECTS`), `security-audit.md` (`FIX`) or `plans/code-audit-<date>.md` | `MODE fix` | the rows the user chose to fix, by id (`TC-n`, `F<n>`, `A<n>`) |
 | Scaffold state (the repo itself) | always | what already exists — never plan a unit that recreates it |
 
@@ -215,7 +215,7 @@ Slice along the architecture's own seams:
 | Query / read model | one unit per audience-shaped read |
 | HTTP surface | one unit per operation group sharing a controller |
 | Migration | one unit per new file in `documentation/db/migrations/`, ordered before its adapter |
-| Screen | one unit per screen with all its states, citing its screen spec and the `nodeId` |
+| Screen | one unit per screen with all its states, citing its screen spec and the `nodeId`. A screen of more than ~40 elements, or a spec over ~100 KB, is split by its parts — a form, a block, a dialog, a panel, as the annotation groups them: each unit cites `S-<n> эл. <from>–<to>` with the states and response errors those elements show; the first sets up the screen (route, data hook, layout) and the rest depend on it in order; together they cover every element once, and the last runs the whole screen's check |
 | Theme (after a `ui-design` restyle) | one unit: the project's theme file — colours light and dark, radius, shadows, density, fonts with their Cyrillic subset — from the Figma variables, and the values screens hardcode moved into it; `Документы` cite the register's «Визуальное направление» line and the `🎨 Tokens` `nodeId`; `impl-ui`; screen units that fix the look depend on it |
 | Mechanical batch | one unit for a repo-wide rename, codemod, or config sweep |
 | Plugin code change (DEFERRED in the packet) | one unit per change, first in the plan: its `fix` is the approach, `Документы` cite `plugin change <id>`; graded by the cascade |

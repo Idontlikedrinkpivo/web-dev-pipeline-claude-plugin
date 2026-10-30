@@ -80,7 +80,9 @@ the project is used as is, whether or not it meets the criterion.
    — then the generated files are in its `Файлы`. Generated files are never
    hand-edited. One data function or hook per `operationId`, named after it,
    in `features/<feature>/`.
-2. **Map every row.** Walk the screen spec's «Элементы» table row by row:
+2. **Map every row.** Walk the screen spec's «Элементы» table row by row — a unit for part of a screen
+   (`S-<n> эл. <from>–<to>`) walks its own rows and builds on what the earlier parts set up, reading the rest of the
+   spec only where its elements point:
    the row says what the element does in each condition and which operation
    and fields it uses; the frame (its nodeId / variant) says what it looks
    like. «Загрузка и вызовы» says which call loads the screen in which

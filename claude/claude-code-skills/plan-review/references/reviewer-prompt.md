@@ -133,6 +133,9 @@ Every citation finding names the document and the id that did not resolve.
     unit's «Документы» or «Файлы» (it needs no test line of its own). Name anything with no unit, and
     anything two units both claim. The ledger is already scoped: an id
     outside it — built by an earlier version — is not a finding.
+    A screen split into part units (`S-<n> эл. <from>–<to>`): the ranges
+    cover every element of its spec exactly once, the first part sets the
+    screen up and the last one checks it whole — a gap or an overlap is P1.
   Executor validity — every «Исполнитель» and «Вложенный» name is one of
     LEGAL EXECUTOR NAMES; no model slug anywhere in the plan; «Вложенный»
     filled only where «Что делает вложенный» describes separable mechanics.
