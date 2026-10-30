@@ -1,6 +1,6 @@
 #!/bin/sh
 # dev-pipeline: re-anchor a session on the pipeline's rules after a start, a resume, /clear or a context
-# compaction. Prints a few lines into the session's context when the project has an open iteration
+# compaction; in a pipeline project, tell a fresh session it is the iteration's parent session. Prints a few lines into the session's context when the project has an open iteration
 # (documentation/plans/<version>/ without summary.md), and a line when the project lacks format changes of the
 # installed plugin (upgrade-docs and upgrade-code skills); prints nothing otherwise. Read-only.
 set -u
@@ -14,6 +14,16 @@ fmt="$root/upgrade-docs/scripts/project_format.py"
 [ -f "$fmt" ] || fmt="$root/skills/upgrade-docs/scripts/project_format.py"   # the Codex layout
 if [ "$src" != compact ] && [ "$src" != resume ] && [ -f "$fmt" ] && command -v python3 >/dev/null 2>&1; then
   python3 "$fmt" hook "$dir" </dev/null 2>/dev/null
+fi
+
+# The parent session (pipeline → references/parent-session.md): in a pipeline project, a fresh session is the
+# iteration's parent when the host can start sessions — said on a start or /clear; a compaction or a resume keeps
+# whatever role the session already had.
+if { [ -f "$dir/documentation/.dev-pipeline.json" ] || [ -d "$dir/documentation/plans" ]; } && [ "$src" != compact ] && [ "$src" != resume ]; then
+  echo "dev-pipeline: unless your first message names a parent session («ты — подсессия», «родительская сессия — …»), this session is the iteration's PARENT when the host can start sessions (Claude Desktop: mcp__ccd_session__start_session — often deferred, load it with ToolSearch first): run no stage here; open each stage in a nested session with a fresh context and open the next one when it reports (read dev-pipeline:pipeline → references/parent-session.md before the first step). Without that tool, run the stages here as usual."
+fi
+if [ "$src" = compact ]; then
+  echo "dev-pipeline: if this session is an iteration's parent (it opened nested sessions) or a nested one (its first message named a parent), it keeps that role after the compaction (pipeline → references/parent-session.md)."
 fi
 
 plans="$dir/documentation/plans"

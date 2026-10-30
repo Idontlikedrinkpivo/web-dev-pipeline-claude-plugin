@@ -92,7 +92,7 @@ host compact the session, which loses rules:
    as at any stop. The run report says where the next session starts («продолжать с U18»).
 2. **Run by a parent session** (its first message named one): send the parent «ПРОГОН <version> ПЕРЕДАН ·
    после U<n> · контекст <N> тыс. · продолжать с U<m>» and stop. The parent opens the next nested session
-   (`pipeline` → `references/unattended.md` → Parent and nested sessions).
+   (`pipeline` → `references/parent-session.md`).
 3. **No parent, and the host can start a session** (Claude Desktop: `mcp__ccd_session__start_session` — often a
    deferred tool: load it with ToolSearch `select:mcp__ccd_session__start_session` before deciding it is absent):
    start one locally, in this folder, with a fresh context, no worktree, the title «<version> · часть <n+1>» and the prompt «продолжи прогон <version>;

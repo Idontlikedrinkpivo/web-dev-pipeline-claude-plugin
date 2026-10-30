@@ -28,12 +28,12 @@ section of test cases, an audited area, a unit committed) — run
 1. Save where the stage stands: its progress file and `resume.md` (`references/pause-and-resume.md`), the next
    item named («продолжать с S-7»), anything decided in the chat that no document holds yet.
 2. **Run by a parent session:** send it «<этап> <version> ПЕРЕДАН · после <item> · контекст <N> тыс. · продолжать
-   с <item>» and stop (`references/unattended.md` → Parent and nested sessions).
+   с <item>» and stop (`references/parent-session.md`).
 3. **No parent, and the host can start a session** (Claude Desktop: `mcp__ccd_session__start_session`, often
    deferred — load it with ToolSearch `select:mcp__ccd_session__start_session` first): start one locally, in this
    folder, with a fresh context and no worktree, titled «<version> · <stage> · часть <n>», prompt «продолжи
    <stage> <version>; родительская сессия — <this session>; по закрытии, остановке или передаче пиши ей». This
-   session becomes its parent.
+   session becomes its parent (`references/parent-session.md`).
 4. **Neither:** one line to the user — open a new session in this folder and write «продолжи» — and stop.
 
 The new session finds its place from git, the progress file and `resume.md` (`references/where-am-i.md`). Two

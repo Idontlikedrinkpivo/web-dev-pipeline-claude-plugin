@@ -25,6 +25,15 @@ Everything the user sees is in the user's language — the answers and the short
 lines between tool calls too («Коммичу архитектуру», not «Commit the
 architecture change»). A working note to yourself is not printed.
 
+## Parent session and nested sessions
+
+In Claude Desktop the session the user opens is the iteration's **parent**: it runs no stage itself, opens
+each stage in a **nested session** with a fresh context (`mcp__ccd_session__start_session`, often deferred —
+load it with ToolSearch first), and opens the next one when a nested session reports its stage closed or
+handed over. A session whose first message names a parent is a nested one: it runs its stage and, after
+the transition question, reports to the parent instead of starting the next stage. Without that tool the
+session runs the stages itself. All of it: `references/parent-session.md`.
+
 ## Two kinds of transition
 
 The distinction is load-bearing. Outside `work`, both kinds are questions.
@@ -273,8 +282,10 @@ stage. One transition per question, shown as every question is —
 an example first, then the skill's real name and what it means, the
 options, the recommendation, «Ответьте сообщением». Before a gate
 question, `references/gates.md` says why that gate sits there and what it
-costs. Before a transition, check the context (`references/context.md`): a session over the limit hands
-the next stage to a fresh one instead of starting it here. When the user wants the next iterations to run without them, the
+costs. In a nested session the answer goes to the parent, which opens the next stage
+(`references/parent-session.md`); otherwise, before a transition, check the context
+(`references/context.md`): a session over the limit hands the next stage to a fresh one instead of
+starting it here. When the user wants the next iterations to run without them, the
 questions are asked once, before the first (`references/unattended.md`).
 
 Explain the skill in the user's terms: `grill-me` is the interview that
