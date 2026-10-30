@@ -11,6 +11,11 @@ stage — reuses it instead of starting another. Ports 8790-8799.
 Several projects run their own servers side by side, so a server is never taken on trust: each one answers with
 the folder it serves (header X-Dev-Pipeline-Folder), and a server is reused or stopped only when that header names
 this folder. A port is taken by binding it; a port another program holds is skipped.
+
+A server keeps the code it was started with for as long as it runs, so it also answers with a fingerprint of that
+code (header X-Dev-Pipeline-Code). A server the plugin started before an update is stopped and started again on the
+same port when the progress line is next printed — the page's link keeps working, and the new rules (a page redrawn
+when its file is newer) take effect without the user doing anything.
 """
 from __future__ import annotations
 
@@ -26,6 +31,28 @@ from pathlib import Path
 
 PORTS = range(8790, 8800)
 HEADER = "X-Dev-Pipeline-Folder"
+CODE_HEADER = "X-Dev-Pipeline-Code"
+
+
+def code_id() -> str:
+    """A fingerprint of this file and of the page builder it calls: changes whenever the plugin changes them."""
+    import hashlib
+    h = hashlib.sha1()
+    for f in (Path(__file__), Path(__file__).with_name("progress_page.py")):
+        try:
+            h.update(f.read_bytes())
+        except OSError:
+            pass
+    return h.hexdigest()[:12]
+
+
+def code_of(port: int) -> str:
+    try:
+        req = urllib.request.Request(f"http://127.0.0.1:{port}/", method="HEAD")
+        with urllib.request.urlopen(req, timeout=1) as r:
+            return r.headers.get(CODE_HEADER) or ""
+    except Exception as e:
+        return (getattr(e, "headers", None) and e.headers.get(CODE_HEADER)) or ""
 
 
 def serve(port: int, folder: str) -> None:
@@ -34,6 +61,7 @@ def serve(port: int, folder: str) -> None:
     from http.server import SimpleHTTPRequestHandler, ThreadingHTTPServer
 
     tag = urllib.parse.quote(folder)
+    code = code_id()
 
     class Handler(SimpleHTTPRequestHandler):
         def do_GET(self) -> None:  # noqa: N802 — http.server's name
@@ -53,6 +81,7 @@ def serve(port: int, folder: str) -> None:
 
         def end_headers(self) -> None:
             self.send_header(HEADER, tag)
+            self.send_header(CODE_HEADER, code)
             self.send_header("Cache-Control", "no-store")
             super().end_headers()
 
@@ -125,10 +154,19 @@ def main() -> None:
         state.unlink(missing_ok=True) if sys.version_info >= (3, 8) else None
         print("stopped")
         return
+    if ours and pid and code_of(port) != code_id():  # started by an earlier plugin version: restart, same port
+        try:
+            os.kill(pid, signal.SIGTERM)
+            for _ in range(30):
+                os.kill(pid, 0)
+                time.sleep(0.1)
+        except OSError:
+            pass
+        ours = False
     if ours:
         print(f"http://127.0.0.1:{port}/")
         return
-    for p in (p for p in PORTS if free(p)):
+    for p in sorted((p for p in PORTS if free(p)), key=lambda x: x != port):  # the old port first
         proc = subprocess.Popen([sys.executable, __file__, "--serve", str(p), str(folder)], stdout=subprocess.DEVNULL,
                                 stderr=subprocess.DEVNULL, stdin=subprocess.DEVNULL, start_new_session=True)
         for _ in range(30):
