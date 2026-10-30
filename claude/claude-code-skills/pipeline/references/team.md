@@ -48,8 +48,8 @@ stage 10 and everything after it.
    design owner is a designer with the plugin
    (`references/design-owner.md`), `ui-design` is theirs without asking.
 2. Make sure everything those stages read is committed on the iteration
-   branch and pushed (`scripts/push_branch.py`, as after every document
-   commit).
+   branch and pushed (`scripts/push_branch.py`) — finished documents only,
+   their reviews and fixes done.
 3. Write the hand-off text in the chat, ready to forward, one per person:
    clone the repository (or pull), install the plugin (README → Установка),
    `git switch iteration/<version>`, the Figma file link when the stage
@@ -70,8 +70,9 @@ each finished document so the others can pull it.
   starts; when an input the table names is not there yet, say what is
   missing and from whom, and stop — nothing here can replace it.
 - **The stage runs as usual** — its gates and its stamp included, with this
-  person answering. Each finished document is committed at once and pushed
-  (`scripts/push_branch.py` takes the others' commits first).
+  person answering. Each document is committed at once, and pushed once it
+  is final — its reviews and their fixes done (`SKILL.md` → Commit each
+  document; `scripts/push_branch.py` takes the others' commits first).
 - **A changed decision** in a document whose stage another person runs right
   now is not edited here: write it in the chat as a request to that person,
   ready to forward («Нужно решение: …»), mark the item `⛔ остановлено: ждёт

@@ -169,8 +169,8 @@ the design (`references/design-owner.md`).
 **One branch per iteration.** Every stage of the iteration, by everyone who
 works on it (`references/team.md`), commits on `iteration/<version>`;
 nothing is committed to `main` during the iteration. Only that branch is
-pushed — by the plugin itself after each document commit of the stages
-before `work`, by the user for the rest — and `main` receives the iteration
+pushed — by the plugin itself once a document of the stages before `work`
+is final (its reviews and their fixes done), by the user for the rest — and `main` receives the iteration
 once, when the user merges it on GitHub.
 
 ## End of the pipeline
@@ -205,9 +205,9 @@ Its shape, where each number comes from, and the two tables the user fills:
 `references/summary.md`.
 
 No skill in this pipeline opens a PR or merges on its own. It pushes only
-the iteration's branch, and only the document commits of the stages before
-`work` (`scripts/push_branch.py`), so that people working on the branch see
-each other's documents as they land. The code of `work`, the tag and the
+the iteration's branch, and only finished documents of the stages before
+`work` — after their reviews and fixes (`scripts/push_branch.py`) — so that
+people working on the branch see each other's documents once they are final. The code of `work`, the tag and the
 iteration's close are pushed by the user, who reviews the whole result first;
 the user merges the branch into `main` on GitHub.
 
@@ -315,14 +315,20 @@ the user stops at a gate's or transition's question (the stop line names
 the gates not run). A stop, a compaction, or another person who picks the
 work up from git (`references/team.md`) then finds every finished document
 on the branch, and `scripts/where_am_i.py` reads from the commits what is
-written and which stage is still open. **Then it is sent:** after every
-document commit of the stages before `work` — a document, a gate fix, a
-stamp, a changed decision — run `python3 "${CLAUDE_SKILL_DIR}/scripts/push_branch.py"`.
-It pushes `iteration/<version>` to `origin` when the project has one, after
-taking the others' commits (`git pull --rebase`); never `main`, never a tag,
-never `--force`. Its one line goes into the message. Exit 1 (no access, no
-network) is no stop — say it with the command it prints; exit 2 (the others'
-commits conflict with these) is a question to the user before anything else.
+written and which stage is still open. **A finished document is sent,
+not a draft.** A document is final when the gates of its stage that apply to
+it ran or the user skipped them and their fixes are committed; only then run
+`python3 "${CLAUDE_SKILL_DIR}/scripts/push_branch.py"`: at the stage's close,
+after the stamp — and in the architecture stage also after each document's
+own `doc-review` and fixes; a changed decision is final at its own commit;
+`docs-consistency`, when its fixes are committed. Drafts stay committed on
+this machine until then. Only the stages before `work` push this way. The
+script pushes `iteration/<version>` to `origin` when the project has one,
+after taking the others' commits (`git pull --rebase`); never `main`, never a
+tag, never `--force`. Its one line goes into the message. Exit 1 (no access,
+no network) is no stop — say it with the command it prints; exit 2 (the
+others' commits conflict with these) is a question to the user before
+anything else.
 
 For a **gate**, three options, always these letters:
 

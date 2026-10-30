@@ -1,4 +1,4 @@
-"""Send the iteration branch after a document commit — the document stages push their own work.
+"""Send the iteration branch once a document is final — after its reviews and their fixes, never a draft.
 
     python3 push_branch.py [<project dir>]
 
