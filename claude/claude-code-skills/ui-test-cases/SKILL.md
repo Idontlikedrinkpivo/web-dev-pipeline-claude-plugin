@@ -73,7 +73,8 @@ writer marks each section as its cases are written. For the chat, run
 `python3 "${CLAUDE_SKILL_DIR}/../pipeline/scripts/progress_link.py"
 documentation/plans/<version>/progress-test-cases.md` (add `--desktop`
 when the session has the built-in browser) and paste the line it prints as
-is — before the dispatch and each time one returns. It carries
+is — before the dispatch and each time one returns; each time one returns, check the context too
+(`pipeline` → `references/context.md` → When to hand over). It carries
 the count and the link to the page that reloads itself; a link written by
 hand opens the Markdown source or a page that never refreshes.
 

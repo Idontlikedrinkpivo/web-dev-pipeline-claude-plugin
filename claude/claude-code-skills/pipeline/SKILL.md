@@ -273,7 +273,8 @@ stage. One transition per question, shown as every question is —
 an example first, then the skill's real name and what it means, the
 options, the recommendation, «Ответьте сообщением». Before a gate
 question, `references/gates.md` says why that gate sits there and what it
-costs. When the user wants the next iterations to run without them, the
+costs. Before a transition, check the context (`references/context.md`): a session over the limit hands
+the next stage to a fresh one instead of starting it here. When the user wants the next iterations to run without them, the
 questions are asked once, before the first (`references/unattended.md`).
 
 Explain the skill in the user's terms: `grill-me` is the interview that
@@ -425,6 +426,9 @@ scan).
 - `references/team.md` — an iteration shared with other people: any stage of 1–9 handed over and picked up from
   the branch.
 - `references/closing-cleanup.md` — the working files a closed iteration drops.
+- `references/context.md` — what a stage session lets into its context
+  (short reports, checks summarised, long output in files) and when it
+  hands over to a fresh session (over 300,000 tokens at a safe boundary).
 - `references/unattended.md` — several iterations without the user: the
   standing answers before the first, the child's «закрыта» message, checking
   instead of answering from memory; a parent session that runs no stage and

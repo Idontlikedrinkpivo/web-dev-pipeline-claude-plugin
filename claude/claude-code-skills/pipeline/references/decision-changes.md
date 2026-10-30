@@ -62,7 +62,11 @@ the template's shape and the ids that other documents cite.
    and read the hits, using `pipeline` → Increments («Changed → Names») for
    where to look.
 3. **Edit them**, owner first, each through its writer with one
-   `SETTLEMENT` line per change and nothing else. A downstream document
+   `SETTLEMENT` line per change and nothing else. The documents `doc-typist`
+   edits (schema, OpenAPI, architecture, domain, scenarios) go in **one**
+   `doc-typist` dispatch for the decision — owner first in its list, every
+   file's lines in the same packet — not one dispatch per document: each
+   dispatch costs its start again. A downstream document
    whose change needs design judgment rather than a line edit — a scenario
    whose flow changes shape — is its stage's increment: stop and ask, with
    that stage named.

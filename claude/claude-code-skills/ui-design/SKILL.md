@@ -105,7 +105,7 @@ it to the builder as `PROGRESS FILE`. The builder marks each screen
 "${CLAUDE_SKILL_DIR}/../pipeline/scripts/progress_link.py"
 documentation/plans/<version>/progress-design.md` (add `--desktop` when
 the session has the built-in browser) and paste the line it prints as is — before the first dispatch and after each returned one. The
-file is how the user tells progress from a hang.
+file is how the user tells progress from a hang. After each returned one, check the context (`pipeline` → `references/context.md` → When to hand over).
 
 ## Entry question
 

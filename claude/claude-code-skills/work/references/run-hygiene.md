@@ -81,6 +81,8 @@ in a measured run its context grew by ~100,000 tokens per unit, a third of it ag
 
 ## Context — handing over to a fresh session
 
+The same rule holds for every stage (`pipeline` → `references/context.md`); what is particular to `work`:
+
 After each unit's commit (Step 5.6) run
 `python3 "${CLAUDE_SKILL_DIR}/../reflect/scripts/context_size.py" "$PWD"`. Over the limit (300,000 tokens by
 default; exit 2), hand over at this boundary — the unit is committed, nothing is in flight — rather than let the

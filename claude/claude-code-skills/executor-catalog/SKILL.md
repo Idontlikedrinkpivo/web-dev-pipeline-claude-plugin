@@ -131,6 +131,13 @@ tool like this. Consumers point here instead of restating it.
   `srs.md` and every `areas/*.md`, the API `openapi.yaml` and every file
   under `paths/` and `components/`, the schema `schema.md` and
   `migrations/`.
+- **Short reports.** An agent's last message — its report — comes back into
+  the dispatching session and stays there, paid on every later call. It is
+  about 2,000 characters: the packet's fields, one line each where they
+  allow; what is long (lists, evidence, reasoning, a file-by-file account)
+  goes to a details file under `$(git rev-parse --git-dir)/pipeline-work/`
+  whose path the report gives. What needs the session's decision is never
+  only in that file (`pipeline` → `references/context.md`).
 - **`SKILLS ROOT` is absolute.** The agent works in the project; the plugin
   sits elsewhere (its cache). Every packet that names a plugin file carries
   `SKILLS ROOT`: the absolute folder that holds this plugin's skills — the

@@ -298,7 +298,8 @@ and writes the files itself; there is no `doc-typist` on this stage.
    documentation/plans/<version>/progress-screen-specs.md` (add `--desktop`
    when the session has the built-in browser) and paste the line it prints
    as is — before the first dispatch and after each
-   finished screen. It carries the count and the link to the page that
+   finished screen; after each finished screen check the context too (`pipeline` →
+   `references/context.md` → When to hand over). It carries the count and the link to the page that
    reloads itself; a link written by hand opens the Markdown source or a
    page that never refreshes.
    Read `executor-catalog`. Resolve `screen-writer`, write the
