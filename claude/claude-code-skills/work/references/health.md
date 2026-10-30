@@ -61,7 +61,10 @@ stream are the default to avoid, not the safe choice.
    `DATABASE_URL`, so the test helper accepts it — `references/run-hygiene.md`), migrated before the start; its own
    bucket, queue or temp folder when the tests touch one. All of it through environment variables and temporary
    configs under `$(git rev-parse --git-dir)/pipeline-work/<version>/mutation/` — never a change in the repository.
-   mutmut writes its mutants beside the code, so its shares run each in its own worktree.
+   Stryker processes side by side share nothing on disk either: each share's config names its own
+   `tempDirName`, `incrementalFile` and report files there, or one process's cleanup removes another's sandbox and
+   the last one to finish overwrites the others' results. mutmut writes its mutants beside the code, so its shares
+   run each in its own worktree.
 4. **Parts side by side** — the frontend's beside the backend's shares — when their workers together fit the
    budget and share nothing.
 5. **Watch the timeouts.** When «timed out» passes ~5% of a share's mutants, the machine is overloaded: lower the
@@ -70,6 +73,32 @@ stream are the default to avoid, not the safe choice.
    configs. The run report names the streams («3 потока на своих базах, фронтенд — 4 потока»).
 
 Each backend share takes a temporary test-runner config holding only the tests of its mutated code.
+
+**Progress — a page of its own.** A run of thousands of mutants over hours is followed on
+`documentation/plans/<version>/progress-mutation.md`, not in the run's `progress.md` (`pipeline` →
+`references/progress-files.md` → `progress-mutation.md`):
+
+1. Before the first part starts, write `parts.json` beside the temporary configs: the budget line and one entry
+   per part or share — its name, the ranges, the workers («1 поток · база app_test_mut_2»), the tool, its log
+   file, the dry run's mutant count — and one entry with `skip` and the reason for each part that will not be
+   measured.
+2. Each part's output goes to its log: Stryker with `--reporters progress-append-only,clear-text,json` (in its
+   config, beside the report file names), mutmut as it prints.
+3. Run `python3 "${CLAUDE_SKILL_DIR}/../pipeline/scripts/progress_mutation.py"
+   documentation/plans/<version>/progress-mutation.md <parts.json>` — it creates the file, then rewrites its top
+   from the logs each time — and paste the line `progress_link.py` prints for that file.
+4. While parts run, a Monitor loop runs the script every two minutes and prints only the lines of parts whose
+   status changed; it ends when the script prints «все части закончены». On each such line paste the progress
+   line; a `🔍 разбор: таймауты` line is the overload of step 5 above. When the last process exits, run the
+   script once more with `--done`: a part that ended early shows as stopped, never as done. Read each part's
+   numbers against the tool's own final summary once: a mismatch means the log format changed — say so and fix
+   that row by hand.
+5. The section «Выжившие и эквивалентные» below the table is the session's, kept with Edit: one row per survivor
+   as it is read — the mutant (file:line, mutator), the part, the decision (тест дописать, or the user's answer on
+   equivalents: оставить с причиной, упростить, пометить в коде), where it went (the final review's finding, «Задачи
+   на потом»), its status.
+
+The run's `progress.md` carries one line while it runs: «Мутации: см. progress-mutation» with the link.
 
 **Estimate first, ask past the budget.** The run prints the mutant count before it starts («Found N mutants»; a
 dry run only, when the version has one). Time ≈ initial test run × mutants ÷ the part's workers (its shares

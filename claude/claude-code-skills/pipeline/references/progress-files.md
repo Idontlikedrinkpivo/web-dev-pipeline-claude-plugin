@@ -23,6 +23,7 @@ without asking and can tell a slow step from a stuck one.
 | `clean-architecture-design` | `progress-architecture.md` | document | the writer as it settles and prints each document; the session as it inspects and reviews |
 | `repo-scaffold` | `progress-scaffold.md` | step | the session |
 | `work` | `progress.md` | unit, then fix | the session — `work` → `references/progress-file.md` |
+| `work` — mutation runs at the close | `progress-mutation.md` | part or share of the run, plus each part not measured | `scripts/progress_mutation.py` from the logs; the survivors section — the session (`work` → `references/health.md` → Progress) |
 | `deploy-topology` | `progress-deploy.md` | step | the session |
 
 The stages that only ask questions (`grill-me`, `doc-review`,
@@ -100,9 +101,11 @@ document keeps none.
   `cat >`), and never by a script that rewrites the file on a timer: the
   page is rebuilt by the plugin's hook on Edit and Write only, so a file
   changed any other way is fresh on disk and stale on the page the user
-  watches. Two scripts are the exception, and both redraw the page
+  watches. Three scripts are the exception, and all redraw the page
   themselves: `progress_e2e.py` (`work` → `references/progress-file.md` →
-  The e2e section) and `progress_set.py <file> <done> <total> [--section
+  The e2e section), `progress_mutation.py` (the top of
+  `progress-mutation.md`, from the mutation logs) and
+  `progress_set.py <file> <done> <total> [--section
   "<heading>"]`, which sets the bar and the count line — never copy a
   hundred-cell bar into an Edit by hand: one cell off and the Edit fails.
   Rows still change with Edit, after a fresh Read of the file. After a
@@ -361,3 +364,37 @@ under Step 8 can run for minutes — its row says so while it runs). Statuses: `
 <причина>`. The state line carries the closing check: the quality gate for
 the scaffold, the compose-contract tests and the release folder for the
 topology.
+
+### `work` mutation runs — `progress-mutation.md`
+
+````markdown
+# Прогресс мутационной проверки — итерация 2.3.0
+
+```text
+███████████████████████████████████████████████████████░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░ 55%
+```
+
+Проверено: 868 из 1562 мутантов · убито 782 · выжило 51 · таймаут 29 · без покрытия 6
+
+| Часть | Что мутируется | Потоки | Статус | Мутантов | Проверено | Убито | Выжило | Таймаут | Без покрытия |
+|---|---|---|---|---|---|---|---|---|---|
+| Доменные правила | src/domain/booking.ts:40-72 | 4 потока | 🔄 в работе | 412 | 206 | 196 | 9 | 1 | — |
+| Защиты на базе · доля 1 | src/guards/a.ts:1-80 | 1 поток · база app_test_mut_1 | 🔍 разбор: таймауты 8% — перегрузка? | 300 | 300 | 255 | 20 | 25 | — |
+| Защиты на базе · доля 2 | src/guards/b.ts:1-90 | 1 поток · база app_test_mut_2 | ✅ готово | 310 | 310 | 291 | 12 | 3 | 4 |
+| Извлечение текста | — | — | ⏭ пропущено: не измерено — отдельный процесс | — | — | — | — | — | — |
+
+Состояние: идут: Доменные правила · бюджет: 8 потоков из 10 ядер · обновлено 2026-10-30 19:03
+
+## Выжившие и эквивалентные
+
+| Мутант | Часть | Решение | Куда | Статус |
+|---|---|---|---|---|
+| guard.ts:12 `>` → `>=` | Защиты · доля 2 | тест дописать | финальное ревью, F-3 | ⏳ ждёт |
+````
+
+Everything above «Выжившие и эквивалентные» is the script's, rewritten from
+the logs on each call; the section below is the session's, kept with Edit.
+The bar counts the mutants tested. Statuses: `⏳ ждёт`, `🔄 в работе`,
+`🔍 разбор: таймауты N%` (the machine was overloaded — `work` →
+`references/health.md`), `✅ готово`, `⛔ остановлено: <причина>` (no log,
+or a run that ended early), `⏭ пропущено: не измерено — <причина>`.

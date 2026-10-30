@@ -37,7 +37,7 @@ LABEL = {
     "progress.md": "План", "progress-design.md": "Макеты", "progress-screen-specs.md": "ТЗ на экраны",
     "progress-test-cases.md": "Тест-кейсы", "test-run.md": "Проверка через интерфейс",
     "security-audit.md": "Аудит безопасности", "progress-architecture.md": "Архитектура",
-    "progress-scaffold.md": "Каркас", "progress-deploy.md": "Релиз",
+    "progress-scaffold.md": "Каркас", "progress-deploy.md": "Релиз", "progress-mutation.md": "Мутации",
 }
 
 
