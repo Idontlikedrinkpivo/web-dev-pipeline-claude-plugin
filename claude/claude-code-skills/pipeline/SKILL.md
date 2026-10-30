@@ -21,6 +21,10 @@ full name, `dev-pipeline:<skill>` in the `Skill` tool, so a same-named skill
 from another plugin is never picked (`executor-catalog` → Names); named to
 the user as a command, it is `/dev-pipeline:screen-spec`.
 
+Everything the user sees is in the user's language — the answers and the short
+lines between tool calls too («Коммичу архитектуру», not «Commit the
+architecture change»). A working note to yourself is not printed.
+
 ## Two kinds of transition
 
 The distinction is load-bearing. Outside `work`, both kinds are questions.

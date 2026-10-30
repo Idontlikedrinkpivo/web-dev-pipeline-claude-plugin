@@ -7,7 +7,7 @@ usage:
                      under several project folders is listed once, and a session whose typed
                      messages all reappear, in order, at the start of a longer one (it was
                      resumed into a new file) is marked «# повтор <id>» and skipped
-  sessions.py digest <session.jsonl> <out.md>             the session as a short chronological digest
+  sessions.py digest <session.jsonl> <out.md> [--since …]  the session as a short chronological digest (from --since on)
   sessions.py errors <project-dir> <out.md> [--since YYYY-MM-DD[THH:MM]] [--also <old-project-dir> ...]
                      the failed tool calls of the main sessions AND of every agent they ran
                      (<session>/subagents/), grouped by kind and shape, most repeated first
@@ -159,14 +159,17 @@ def cmd_list(cwd: str, since: str | None, also: list[str]) -> None:
         print(f"{p}\t{a}\t{b}\t{p.stat().st_size // 1024} KB")
 
 
-def cmd_digest(src: str, out: str) -> None:
+def cmd_digest(src: str, out: str, since: str | None = None) -> None:
     rows: list[str] = []
+    since = since.replace("T", " ") if since else None
     for line in open(src, errors="ignore"):
         try:
             d = json.loads(line)
         except json.JSONDecodeError:
             continue
         ts = (d.get("timestamp") or "")[:16].replace("T", " ")
+        if since and ts and ts < since:  # a part of the session an earlier reflect section already read
+            continue
         t = d.get("type")
         if t == "user":
             origin = d.get("origin") if isinstance(d.get("origin"), dict) else {}
@@ -299,8 +302,8 @@ if __name__ == "__main__":
         since = sys.argv[sys.argv.index("--since") + 1] if "--since" in sys.argv else None
         also = [sys.argv[i + 1] for i, x in enumerate(sys.argv) if x == "--also"]
         cmd_list(sys.argv[2], since, also)
-    elif len(sys.argv) == 4 and sys.argv[1] == "digest":
-        cmd_digest(sys.argv[2], sys.argv[3])
+    elif len(sys.argv) >= 4 and sys.argv[1] == "digest":
+        cmd_digest(sys.argv[2], sys.argv[3], sys.argv[sys.argv.index("--since") + 1] if "--since" in sys.argv else None)
     elif len(sys.argv) >= 4 and sys.argv[1] == "errors":
         since = sys.argv[sys.argv.index("--since") + 1] if "--since" in sys.argv else None
         also = [sys.argv[i + 1] for i, x in enumerate(sys.argv) if x == "--also"]

@@ -30,7 +30,7 @@ answers it land together. Splitting them into a `test:` commit and a `feat:`
 commit doubles the dispatch and breaks the one invariant the plan is built on.
 Tests are not nested either: choosing what to assert from an invariant row is
 judgment, and it belongs to the unit's own implementer — `mechanical-worker`
-may only replicate an assertion that implementer already wrote.
+may only replicate an assertion that implementer already wrote. Every line the user sees, between tool calls too, is in their language (`pipeline` → Names).
 
 ## Not this skill's job
 

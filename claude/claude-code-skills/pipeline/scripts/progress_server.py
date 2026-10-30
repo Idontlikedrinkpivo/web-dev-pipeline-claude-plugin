@@ -36,8 +36,24 @@ def serve(port: int, folder: str) -> None:
     tag = urllib.parse.quote(folder)
 
     class Handler(SimpleHTTPRequestHandler):
+        def do_GET(self) -> None:  # noqa: N802 — http.server's name
+            # A page older than its progress file (the file was changed around the hook — from the shell, by a
+            # script) is redrawn before it is served, so the user never watches a stale page.
+            name = urllib.parse.urlparse(self.path).path.lstrip("/")
+            if name.endswith(".html") and "/" not in name:
+                md, html = Path(folder) / (name[:-5] + ".md"), Path(folder) / name
+                try:
+                    if md.is_file() and (not html.exists() or md.stat().st_mtime > html.stat().st_mtime):
+                        sys.path.insert(0, str(Path(__file__).resolve().parent))
+                        import progress_page
+                        progress_page.page(md)
+                except Exception:
+                    pass  # the old page is still better than none
+            super().do_GET()
+
         def end_headers(self) -> None:
             self.send_header(HEADER, tag)
+            self.send_header("Cache-Control", "no-store")
             super().end_headers()
 
         def log_message(self, *args) -> None:

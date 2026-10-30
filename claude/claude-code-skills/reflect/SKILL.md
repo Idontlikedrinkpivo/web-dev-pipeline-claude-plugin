@@ -40,7 +40,11 @@ rules (check them — the session may have run an older version).
 1. **Scope.** The folder of the iteration being closed
    (`documentation/plans/<version>/`; the open one when run by hand) gives
    the window: from the iteration's first commit (or the folder's
-   date) to now. List this project's sessions in it:
+   date) to now — or, when `~/.claude/dev-pipeline-feedback/<project>.md`
+   already has a section whose «Окно: … — <end>» ends later (a part read
+   before a restart, a run by hand mid-iteration), from that end, so no
+   moment is read twice. That start is the `--since` of every command below
+   (logs keep UTC times, as the «Окно» line does). List this project's sessions in it:
    `python3 "${CLAUDE_SKILL_DIR}/scripts/sessions.py" list "$PWD" --since <YYYY-MM-DD>`.
    Only this project's sessions — never another project's. The script finds
    them under every name the app gives this project's folder: the plain one,
@@ -54,7 +58,7 @@ rules (check them — the session may have run an older version).
    and skips one that a later session continued (its messages are the start
    of the longer one) as «повтор».
 2. **Digest.** For each session:
-   `python3 "${CLAUDE_SKILL_DIR}/scripts/sessions.py" digest <session.jsonl> <tmp>/<n>.md`
+   `python3 "${CLAUDE_SKILL_DIR}/scripts/sessions.py" digest <session.jsonl> <tmp>/<n>.md --since <the same start>`
    — the user's typed messages, Claude's replies, the skills and agents
    run, and the compaction marks, in order; tool output is left out. Then
    the failed calls of the whole window, the agents' own logs included:
@@ -97,7 +101,7 @@ rules (check them — the session may have run an older version).
 ## The section
 
 ```markdown
-## <project> · итерация <version> · <YYYY-MM-DD>
+## <project> · итерация <version> · <YYYY-MM-DD>      (mid-iteration: «… · часть <n>, до <what ended it>»)
 
 Сессий прочитано: <n> (<first date> — <last date>) · версия плагина: <x.y.z> · находок: <k>
 
