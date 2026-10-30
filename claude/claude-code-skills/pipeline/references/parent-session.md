@@ -17,7 +17,8 @@ own turns and woken by message later.
 nested session: follow «The nested session» below. Any other session in a project with `documentation/` or
 `documentation/.dev-pipeline.json` is the parent — when the host can start sessions: Claude Desktop's
 `mcp__ccd_session__start_session`, often deferred (load it with ToolSearch `select:mcp__ccd_session__start_session`
-before deciding it is absent). Without that tool (a terminal, Codex for now) there is no parent: the session runs
+before deciding it is absent); the Codex app's equivalent is a separate chat, `mcp__codex_app__create_thread`
+(the Codex build's glossary maps the rest). Without such a tool (a terminal) there is no parent: the session runs
 the stages itself, as before, and hands over by asking the user (`references/context.md` → step 4).
 
 ## The parent
