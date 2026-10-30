@@ -47,8 +47,12 @@ STACK REVIEW RULES
   that its code touches; skip the ones it does not.
 
 WORKER REPORT
-  <TESTS / EVIDENCE / RED OBSERVED / SCREEN CHECK / CONCERNS / OUT OF SCOPE, or "none";
+  <the worker's short report pasted, and its DETAILS file path — read the file; or "none";
    always "none" on the separate Risk-only pass — judge the artifact, not the claim>
+
+REVIEW DETAILS FILE
+  <absolute path: $(git rev-parse --git-dir)/pipeline-work/<version>/U<n>-review-<pass>.md —
+   your reasoning and dismissed findings go there>
 
 ALREADY RECORDED THIS RUN
   <one line per prior finding, or "none">
@@ -88,6 +92,9 @@ TEST CHECK
     could not have failed against the pre-change tree;
   - an existing assertion relaxed or deleted without the report saying the
     design changed;
+  - something in the worker's details file that needed the orchestrator's
+    decision — a step not run, a scenario skipped, a workaround, a doubt — and
+    is missing from its NEEDS FROM ORCHESTRATOR and CONCERNS;
   - a quality bar loosened that the unit spec does not name: a lint, type or
     coverage threshold raised, a rule switched off, a file added to the
     legacy list, a suppression (`eslint-disable`, `# noqa`, `# type: ignore`,
@@ -126,11 +133,16 @@ per U-id; every FINDINGS line names its U-id.
 VERDICT           COMMIT | FIX_THEN_COMMIT | RETURN_TO_EXECUTOR | STOP
 FINDINGS          one per line: <sev> | <file:line> | <lens> | <what> | <fix> |
                   <the offending line quoted from THE DIFF>
-DISMISSED         findings you ruled out, and which rule applied
+DISMISSED         how many, and the path of your details file — the findings you
+                  ruled out and the rule for each go there, not into the report
 LENSES            each fired lens: clean, or the finding ids it produced
 OPEN              doubts about the design itself, or a cross-unit suspicion —
                   for the user or for `code-review-full`, not for the executor
+REVIEW DETAILS    <the path the packet named for your details file>
 ```
+
+Keep the report short — the orchestrator keeps every report of the run: the P0/P1 findings in full, each P2/P3
+on one line, OPEN in full; the reasoning behind them goes to your details file.
 
 Verdict rules the reviewer must follow:
 

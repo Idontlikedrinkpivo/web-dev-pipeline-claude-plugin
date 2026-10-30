@@ -60,6 +60,47 @@ U<N>), correct U<N>'s file list **in its packet** before the dispatch — no
 reads the run report. Only a file whose need nothing in the run explains still
 goes the Step 6 way (re-dispatch with the corrected list, or a scope question).
 
+## What reaches the orchestrator
+
+The orchestrator keeps everything it reads for the rest of the session, and every later call pays for it again:
+in a measured run its context grew by ~100,000 tokens per unit, a third of it agents' reports. So:
+
+- **Agents' reports are short; their details are files.** An executor's report and a reviewer's report come
+  back in about 2,000 characters; the long part sits in `$(git rev-parse --git-dir)/pipeline-work/<version>/`
+  (`U<n>-details.md`, `U<n>-review-<pass>.md`) — the packet names each path. Paste the short report into the
+  reviewer's packet with the path; the reviewer reads the file.
+- **When the orchestrator opens the details file itself:** a High or risk-floor unit; any status but `DONE`;
+  NEEDS FROM ORCHESTRATOR other than «нет»; files changed outside the unit's `Файлы`; and when
+  `python3 "${CLAUDE_SKILL_DIR}/scripts/report_alarm.py" <details file> --concerns "<CONCERNS and NEEDS>"`
+  exits 1 — an alarm word (skipped, not run, a workaround, TODO) with nothing in CONCERNS. A missing details
+  file or a report without NEEDS goes back to the executor unread.
+- **Checks run through `scripts/run_check.py <name> -- <command>`** — the unit's tests, `lint`, `typecheck`, the
+  критерии готовности: the log goes to a file, the summary (exit code, counts, failures, «⚠» when tests got fewer
+  or skipped grew) into the context. A failure is read in full from the log, the passing rest is not.
+- **Other long output goes to a file too** — a search, a diff, a listing: `> <file>`, then read the part needed.
+
+## Context — handing over to a fresh session
+
+After each unit's commit (Step 5.6) run
+`python3 "${CLAUDE_SKILL_DIR}/../reflect/scripts/context_size.py" "$PWD"`. Over the limit (300,000 tokens by
+default; exit 2), hand over at this boundary — the unit is committed, nothing is in flight — rather than let the
+host compact the session, which loses rules:
+
+1. Refresh `resume.md` (`pipeline` → `references/pause-and-resume.md`), the run report and the progress line,
+   as at any stop. The run report says where the next session starts («продолжать с U18»).
+2. **Run by a parent session** (its first message named one): send the parent «ПРОГОН <version> ПЕРЕДАН ·
+   после U<n> · контекст <N> тыс. · продолжать с U<m>» and stop. The parent opens the next nested session
+   (`pipeline` → `references/unattended.md` → Parent and nested sessions).
+3. **No parent, and the host can start a session** (Claude Desktop: the `start_session` tool): start one with a
+   fresh context, no worktree, the title «<version> · часть <n+1>» and the prompt «продолжи прогон <version>;
+   родительская сессия — <this session's name>; по закрытии, остановке или передаче пиши ей» — then this
+   session becomes its parent: it waits, relays questions to the user, and opens the next part when told.
+4. **Neither:** tell the user in one line to open a new session in this folder and write «продолжи прогон
+   <version>», and stop.
+
+The new session starts from git, the run report and `resume.md` (Step 1) — it repeats nothing. The script
+cannot tell two sessions working in one project apart: it reads the newest, and its line names that session.
+
 ## The orchestrator's own commits
 
 A commit no unit made — a stand made copyable (`stand`), the verify skill

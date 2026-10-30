@@ -303,12 +303,12 @@ Per unit, in this order, and never skip to the next unit on a broken tree:
 2. **Check the diff against the unit spec.** Does it implement the cited
    design, or something adjacent? Does it re-decide something the design
    already fixed?
-3. **Run the checks** — `lint`, `typecheck` (tests too) and the unit's tests plus what the plan names for
+3. **Run the checks** (through `scripts/run_check.py`) — `lint`, `typecheck` (tests too) and the unit's tests plus what the plan names for
    this ring (`repo-scaffold/references/quality-gates.md`). This run is authoritative; the worker's
    self-check is not. Then check the proof, not just the green: every scenario
    the plan listed exists as a test in the diff and asserts what the scenario
    names (a test named after a scenario that asserts nothing reports coverage
-   that does not exist), and the report's `EVIDENCE` matches what the diff
+   that does not exist), and the details file's evidence matches what the diff
    shows. **A behavior-bearing unit returning `DONE` with
    no observed red and no recorded exception is not done** — send it back for
    the evidence rather than committing on the claim. `RED OBSERVED` cannot be
@@ -347,7 +347,7 @@ Per unit, in this order, and never skip to the next unit on a broken tree:
    commit for a changed decision (**A decision changed during the run**).
 6. **Update the task list, the run report** (the unit's row, the worker's
    `DECISIONS`, «В работе» cleared) **and the resume note**, post the progress
-   line (Step 1), then move on. When the run stops on a unit instead (a
+   line (Step 1), check the context (`references/run-hygiene.md` → Context), then move on. When the run stops on a unit instead (a
    design gap, rounds that stopped making progress), set that row to
    `⛔ остановлено: <причина>`.
 

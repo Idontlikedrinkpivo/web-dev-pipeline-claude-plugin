@@ -15,6 +15,8 @@ PLAN            <repo-relative plan path>
 UNIT            U<n> — <goal sentence>
 COMPLEXITY      <grade>  (<why>)
 PHASE           full | tests-only | implementation
+DETAILS FILE    <absolute path: $(git rev-parse --git-dir)/pipeline-work/<version>/
+                 U<n>-details.md — your full evidence goes there, not into the report>
 WORKTREE        <yes — a parallel unit: you start in a worktree the harness
                  made; the folder you start in (`pwd`) is your work root and
                  every path below is relative to it | none — the main tree>
@@ -121,6 +123,9 @@ RULES
 - Never make a test pass by weakening it, and never delete or loosen a test
   an earlier unit wrote, nor leave `.only` / `.skip`. If a scenario and the design
   contradict each other, stop and report BLOCKED with both quoted.
+- Run checks through `python3 <SKILLS ROOT>/work/scripts/run_check.py <name> --
+  <command>`: the full output goes to a file and you read its short summary —
+  the counts, the failures, a «⚠» when tests got fewer or skipped grew.
 - Before reporting, run the project's `lint` and `typecheck` (tests included)
   and fix what they say about your files — the orchestrator runs them too, and
   an error is a return (`repo-scaffold/references/quality-gates.md`).
@@ -178,37 +183,45 @@ REPORT (last message, exactly these fields)
 
 ## The report
 
+Two parts. The **report** — your last message — is short, about 2,000 characters: the orchestrator keeps every
+report of the run in its context, so a long one costs on every later step. The **details file** (DETAILS FILE)
+holds everything long. Whatever the orchestrator or a reviewer must act on goes into NEEDS FROM ORCHESTRATOR or
+CONCERNS, never only into the details file: a reviewer reads the file and returns the unit when it hides one.
+
 ```
 STATUS            DONE | DONE_WITH_CONCERNS | BLOCKED | HARDER_THAN_EXPECTED
+NEEDS FROM ORCHESTRATOR  a decision or an action only the orchestrator can take — or: нет
 FILES CHANGED     every path you actually touched
-TESTS             added / changed / reused — with paths
-EVIDENCE          the strategy you followed, and if it differs from the
-                  packet's, why
-RED OBSERVED      the failing test name and the failure message you saw before
-                  writing the implementation, or the exception the strategy
+TESTS             how many added / changed / reused, and the test files
+RED OBSERVED      one line: the failing test and the first line of the failure you
+                  saw before the implementation, or the exception the strategy
                   allows (baseline captured / smoke check / none — reason)
-VERIFICATION      what you ran and what it returned
-SCREEN CHECK      UI units only: each item of `ux-patterns` → «Проверка
-                  экрана перед сдачей» — ok | defect: what | not checked:
-                  why — and the Figma comparison result; `n/a` otherwise.
-                  A part of a screen checks its own elements; the last
-                  part checks the whole screen
+VERIFICATION      one line per check: what ran → its summary line (run_check.py)
+SCREEN CHECK      UI units only: ok, or the items that are defects — one line each;
+                  `n/a` otherwise
 DECISIONS         each local decision you made that the design did not fix
                   (public name, signature, error type, file placement), one per
                   line — or none. Dependent units receive these verbatim.
 DELEGATED         what the nested worker did, or none
-OUT OF SCOPE      problems you found and deliberately did not fix
-CONCERNS          only for DONE_WITH_CONCERNS: what a reviewer should look at
+OUT OF SCOPE      problems you found and deliberately did not fix, one line each
+CONCERNS          only for DONE_WITH_CONCERNS: what a reviewer should look at, in full —
+                  a step you could not run, a scenario skipped, a workaround, a doubt
 BLOCKER           only for BLOCKED / HARDER_THAN_EXPECTED: what is missing or
                   wrong in the unit spec or the design, specifically
+DETAILS           the path of the details file you wrote
 ```
+
+The details file: each test with the scenario it proves; the full red you observed; each check's command and
+the path of its log; the evidence strategy as you followed it; the screen check item by item and the Figma
+comparison (UI units). A part of a screen checks its own elements; the last part checks the whole screen.
 
 `RED OBSERVED` and `TESTS` cannot be reconstructed from the diff afterwards —
 a worker that omits them on a behavior-bearing unit gets the unit returned, not
 committed with a caveat. A green suite proves the tests pass now; only the red
 proves they can fail. Everything else the orchestrator re-checks against the real tree
 anyway: `FILES CHANGED` is a hint for where to look, never a substitute for
-inspecting it.
+inspecting it. A report without NEEDS FROM ORCHESTRATOR (write «нет» when nothing is
+needed) or without its details file goes back unread.
 
 ## Status meanings
 

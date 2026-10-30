@@ -427,7 +427,8 @@ scan).
 - `references/closing-cleanup.md` — the working files a closed iteration drops.
 - `references/unattended.md` — several iterations without the user: the
   standing answers before the first, the child's «закрыта» message, checking
-  instead of answering from memory.
+  instead of answering from memory; a parent session that runs no stage and
+  opens nested sessions with a fresh context (`start_session`).
 - `reflect` (skill) — the plugin's own failures in the iteration's sessions.
 - `references/branch-order.md` — the order of the two branches after the
   SRS, and both branches in one session.

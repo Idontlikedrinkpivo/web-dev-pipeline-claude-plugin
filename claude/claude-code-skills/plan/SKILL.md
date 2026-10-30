@@ -222,8 +222,9 @@ Slice along the architecture's own seams:
 | Version bump | only when MANIFEST differs from VERSION (a new repo's scaffold already wrote it; a `fix` appended to a plan that ran never adds one): the last unit, sets the manifest's `version` to VERSION; grade 0, `mechanical-worker`, `Зависит от` every other unit |
 
 Split a unit when it crosses a ring (domain **and** adapter), when it mixes a
-decision with mechanics, or when two halves would land in separate commits
-anyway. Merge two units when neither can land green alone.
+decision with mechanics, when two halves would land in separate commits
+anyway, or when its `Файлы` pass ~8 files of different kinds (a mechanical
+sweep of one shape is exempt) — an executor's context grows with its footprint. Merge two units when neither can land green alone.
 
 Never produce: a 5-minute micro-step, a unit spanning unrelated concerns, a
 layer batch ("all entities", "all adapters", "wire everything" — it cannot
