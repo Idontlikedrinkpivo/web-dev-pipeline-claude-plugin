@@ -107,7 +107,7 @@ Low unit at High cost, or skip a Mid unit because the diff "looks fine":
 | **0** | no dispatch — the orchestrator's own diff-vs-`Файлы` check is the review. A mechanical diff has no judgment to second-guess. |
 | **Low** | no per-unit dispatch. Accumulate the units and run one `review-medium` pass over the batch at the next wave boundary — `work` Step 3 calls it there (see Low batch below). |
 | **Mid** | one `review-medium` carrying the fired lenses. |
-| **High** | one `review-hard` carrying the fired lenses, plus a second `review-hard` dispatch with LENSES TO APPLY = Risk only — a single reviewer that just designed an opinion about the diff is a poor adversary to it. |
+| **High** | one `review-hard` carrying the fired lenses, plus a second `review-hard` dispatch with LENSES TO APPLY = Risk only — a single reviewer that just designed an opinion about the diff is a poor adversary to it. The risk pass gets the diff, the contract and the tests, with WORKER REPORT `none`: the executor's account of its work would steer the one reviewer meant to doubt it. |
 
 Keep the catalog's split: a High unit reviewed on the implementer's
 alias tends to ratify its blind spots.

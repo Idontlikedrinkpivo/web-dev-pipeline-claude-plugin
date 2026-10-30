@@ -129,6 +129,12 @@ RULES
 - In PHASE implementation, the tests are already there and red. Make them pass
   without touching their assertions.
 - Match this repo's conventions over your own preferences.
+- Write as little as the unit needs. First reuse what the project already
+  has (the pattern, a helper, a type), then the standard library, then a
+  package already installed — a new dependency is outside FILES, so
+  BLOCKED. No abstraction, parameter, option or extension point the unit
+  does not use now. Removing or simplifying code beats adding it: when the
+  scenario can be met by deleting, delete.
 - Do not commit, do not stage, do not run the full suite — the orchestrator
   owns staging, committing, and authoritative verification. Run only this
   unit's focused tests.

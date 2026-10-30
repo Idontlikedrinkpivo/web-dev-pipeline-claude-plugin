@@ -47,7 +47,8 @@ STACK REVIEW RULES
   that its code touches; skip the ones it does not.
 
 WORKER REPORT
-  <TESTS / EVIDENCE / RED OBSERVED / SCREEN CHECK / CONCERNS / OUT OF SCOPE, or "none">
+  <TESTS / EVIDENCE / RED OBSERVED / SCREEN CHECK / CONCERNS / OUT OF SCOPE, or "none";
+   always "none" on the separate Risk-only pass — judge the artifact, not the claim>
 
 ALREADY RECORDED THIS RUN
   <one line per prior finding, or "none">
@@ -86,7 +87,11 @@ TEST CHECK
   - a claimed red observation for a test that is not in the diff, or one that
     could not have failed against the pre-change tree;
   - an existing assertion relaxed or deleted without the report saying the
-    design changed.
+    design changed;
+  - a quality bar loosened that the unit spec does not name: a lint, type or
+    coverage threshold raised, a rule switched off, a file added to the
+    legacy list, a suppression (`eslint-disable`, `# noqa`, `# type: ignore`,
+    `@ts-expect-error`) with no reason on its line.
   Do not demand a failing assertion when the strategy was characterization-first
   (owes a captured baseline), smoke (owes a runtime check), or none.
   Test naming, structure, and fixture style are P2 at most.

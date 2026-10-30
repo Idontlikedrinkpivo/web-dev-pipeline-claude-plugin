@@ -112,7 +112,7 @@ Outside `work`, read the file and check each point you rely on against the insta
 7. **`/health/live` touches nothing; `/health/ready` checks only stores the app cannot serve without**, each bounded,
    never a partner's API — a partner outage must not take every pod out of rotation.
 8. **No metric label or log field comes from raw input**: `route` is the template (`scope["route"].path`), never
-   the request path; no user id, email, token or body in a label or a log line.
+   the request path; no user id, email, token or body in a label or a log line. A label takes a small fixed set of values (the route template, the method, the status class): an id from the path or a user's value in a label makes a new series per value.
 9. **A write takes the request model's fields by name**: no `**body.model_dump()` into a record or an update, and
    a field the client may not set — the owner, a role, a status, a price — is not in the request model; request
    models forbid extra fields (`extra="forbid"`), so a sent one is refused, not stored.

@@ -52,7 +52,11 @@ result goes into the chat in a line.
    - **jobs** — every scheduled or looping process: schedule, what it
      changes, how a run leaves a trace;
    - **log events** — every named event the code writes
-     (`grep` the logger calls), with its fields; which ones are alarms;
+     (`grep` the logger calls), with its fields; which ones are alarms. An
+     alarm is a symptom the user feels — requests failing, answers slow, a
+     job late, a message not sent — never a bare cause (CPU, memory), and its
+     «Что делать» cell points to the operation or troubleshooting row
+     (П-n, Т-n) that handles it;
    - **health and metrics** — endpoints, metric names, what a dashboard
      counts;
    - **external systems** — each failure mode and what the system does

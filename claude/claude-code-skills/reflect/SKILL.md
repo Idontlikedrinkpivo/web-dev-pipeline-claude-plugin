@@ -120,6 +120,9 @@ rules (check them — the session may have run an older version).
 
 Order by cost to the user: repeated corrections first.
 
+**Comparing two versions of the plugin** («стало ли дешевле после правки»): `references/comparing.md` — several
+runs per version, `measure.py --json` and `scripts/compare.py`.
+
 **Asked only what the run cost** («сколько стоила итерация», «куда ушли токены»): run step 5 alone, from the
 iteration's first commit or the date the user names, and answer with its tables and flags in plain words; nothing
 is written.

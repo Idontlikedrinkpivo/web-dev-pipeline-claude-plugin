@@ -3,7 +3,10 @@
 
 usage:
   measure.py <project-dir> [--since YYYY-MM-DD[THH:MM]] [--also <old-project-dir> ...]
-             [--progress <plans/<version>/progress.md> ...] [--units <git range>]
+             [--progress <plans/<version>/progress.md> ...] [--units <git range>] [--json <out.json>]
+
+--json also writes the run's figures (total, by group, the session's spend and peak, executors over 250k, unit
+acceptance) for compare.py, which compares several runs of two variants (reflect/references/comparing.md).
 
 --progress (one per iteration whose progress file is still there) and --units (the iterations' git range, e.g.
 v2.1.2..HEAD) add «Принятие задач»: how many plan units passed their review the first time, how many went back,
@@ -290,6 +293,7 @@ def main() -> None:
     if session.units / total > 0.4:
         flags.append(f"сама сессия — {session.units / total:.0%} расхода: оркестратор держит большой контекст "
                      f"(пик {fmt(session.peak)})")
+    accepted = first = back = 0
     progress = [args[i + 1] for i, a in enumerate(args) if a == "--progress" and i + 1 < len(args)]
     rng = args[args.index("--units") + 1] if "--units" in args and args.index("--units") + 1 < len(args) else ""
     if progress or rng:
@@ -308,6 +312,16 @@ def main() -> None:
             print("нет данных: файлов прогресса нет, коммитов с Plan-Unit в диапазоне нет")
     print("\n#### На что посмотреть\n")
     print("\n".join(f"- {f}" for f in flags) if flags else "- ничего необычного по порогам скрипта")
+    if "--json" in args and args.index("--json") + 1 < len(args):
+        built = by_group.get("Исполнители", [0.0])[0] + by_group.get("Ревью кода", [0.0])[0]
+        Path(args[args.index("--json") + 1]).write_text(json.dumps({
+            "total": total, "groups": {k: v[0] for k, v in by_group.items()},
+            "session": session.units, "session_peak": session.peak, "calls": sum(a.calls for a in every),
+            "executors": len(execs), "executors_over_250k": sum(1 for a in execs if a.peak > BIG),
+            "accepted": accepted, "first_review": first, "sent_back": back,
+            "first_review_share": first / accepted if accepted else None,
+            "per_accepted_unit": built / accepted if accepted else None,
+        }, ensure_ascii=False, indent=1))
 
 
 if __name__ == "__main__":

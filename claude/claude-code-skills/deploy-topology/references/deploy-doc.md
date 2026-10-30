@@ -243,6 +243,11 @@ ALTER DEFAULT PRIVILEGES FOR ROLE room_booking_migrate IN SCHEMA room_booking
 
 Откат: предыдущий комплект лежит в своей папке выпуска; откат версии с миграцией,
 которая меняет или удаляет данные, согласовывается отдельно.
+
+Когда откатывать — решено до обновления, а не во время сбоя:
+- `/health/ready` нового выпуска не отвечает 200 через <N> мин после запуска;
+- доля ответов 5xx выше <порог> за 10 мин (метрика `http_request_duration_seconds`, статус 5xx);
+- не проходит проверка после обновления: <ключевой сценарий выпуска, одной строкой>.
 ````
 
 Where each section comes from:
@@ -265,7 +270,7 @@ Where each section comes from:
 | Трассировка | «Нет.», or the `OTEL_` variables when the project chose tracing |
 | Состояние и тома | `volumes:` in `docker-compose.prod.yml` |
 | Первый запуск | the architecture or SRS (how the first admin or seed data appears); ask the user when neither says |
-| Обновление | fixed text above, with the project's names |
+| Обновление | fixed text above, with the project's names; «Когда откатывать»: the readiness wait from «Сеть и проверки», the 5xx share and the key scenario from the SRS NFRs and this release's main change — when the NFRs give no threshold, ask the user once; never left as a placeholder |
 
 The image without a shell changes three places: «Образ» says «без
 оболочки (distroless)», the UIDs are 65532, and the frontend has no

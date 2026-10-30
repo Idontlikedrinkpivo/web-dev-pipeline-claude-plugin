@@ -25,7 +25,9 @@ and the user's words are the spec for a change this size. A new screen still nee
 1. **Branch.** The open iteration's `iteration/<version>`. With no open iteration (the last one is merged), a
    branch `fix/<short-name>` from `main`; the user merges it, as an iteration.
 2. **Executor.** Write a unit spec from the user's words — a goal sentence, the files, the scenario that proves
-   it («поле «Отчество» пустое → форма сохраняется, в карточке прочерк») — grade it by
+   it («поле «Отчество» пустое → форма сохраняется, в карточке прочерк») — for a defect («работало, а теперь
+   нет»), a scenario that reproduces it, so the test fails without the fix and passes with it; when a regression's
+   cause is not obvious, `git bisect run <that test>` names the commit that broke it — grade it by
    `plan/references/complexity.md`, and dispatch the row `executor-catalog` names for that grade (`impl-ui` for a
    screen) with the worker packet. The session writes no code itself, as in a run.
 3. **Review.** `code-review-unit` with that spec. At least one `review-medium` pass, whatever the grade: no plan

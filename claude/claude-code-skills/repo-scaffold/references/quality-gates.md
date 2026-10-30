@@ -101,6 +101,10 @@ Turning every threshold into an error on an old codebase stops all work at once.
 2. A file leaves the list when it is fixed; the list never grows — a new or changed file meets the full rules.
 3. The duplicate threshold starts at today's figure and only goes down.
 4. Type errors in tests are fixed, not listed — they are real defects.
+5. Tightening is silent, loosening is loud. A file leaving the list, a threshold going down — just done. A threshold
+   going up, a file added to the list, a rule switched off or a suppression without a reason is never a side effect
+   of a unit: the unit's spec names it, or the review flags it. Each exception carries an owner and an expiry on its
+   line — `ratchet: <who>, until <version or date>` — and an expired one is a finding of the next run's review.
 
 ## Where the gates run
 
