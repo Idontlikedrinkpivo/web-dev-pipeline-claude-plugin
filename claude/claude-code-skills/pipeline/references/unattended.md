@@ -52,8 +52,9 @@ When the user opens a session to run work through nested sessions — «веди
 
 - **It runs no stage itself.** It collects the standing answers (above), opens nested sessions, reads their
   short messages, relays questions, and decides what comes next. Its context grows only by those messages.
-- **A nested session** is opened with the host's session tool — Claude Desktop: `start_session`, a fresh context,
-  no worktree — so it shows under the parent in the sidebar and the user can open it and talk to it. Its prompt:
+- **A nested session** is opened with the host's session tool — Claude Desktop: `mcp__ccd_session__start_session`
+  (often deferred: load it with ToolSearch `select:mcp__ccd_session__start_session` first), locally, in this
+  folder, a fresh context, no worktree — so it shows under the parent in the sidebar and the user can open it and talk to it. Its prompt:
   the task («продолжи прогон 2.2.0», «открой итерацию 2.3.0 и начни с brainstorm»), the standing answers, the
   parent's name, and the duty to report. Its title: «<version> · <stage or часть n>».
 - **What a nested session sends the parent**, one line each: «ИТЕРАЦИЯ <v> ЗАКРЫТА · main <sha> · тег v<v>»;
