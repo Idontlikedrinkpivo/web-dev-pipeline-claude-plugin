@@ -74,6 +74,14 @@ stream are the default to avoid, not the safe choice.
 
 Each backend share takes a temporary test-runner config holding only the tests of its mutated code.
 
+**The configs are generated, not written by hand.** Put the streams into a spec and run
+`python3 "${CLAUDE_SKILL_DIR}/scripts/mutation_config.py" <spec.json>` (its docstring shows the spec): it writes
+each share's Stryker config — the project's own imported, then one `mutate` list, `inPlace: false`, its own
+`tempDirName`, `incrementalFile` and reports — and `parts.json` for the progress page, refuses two shares on one
+database or a database without «test» in its name, and prints the commands to start. mutmut has no such generator:
+its shares run in worktrees as said above. `run_check.py` refuses a second run on a test database already in use, so
+shares on their own databases run side by side and nothing else can join them.
+
 **Progress — a page of its own.** A run of thousands of mutants over hours is followed on
 `documentation/plans/<version>/progress-mutation.md`, not in the run's `progress.md` (`pipeline` →
 `references/progress-files.md` → `progress-mutation.md`):

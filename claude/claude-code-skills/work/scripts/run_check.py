@@ -10,17 +10,25 @@ lines instead — more, never less.
 
 The counts of the previous run with the same <name> are kept beside the log: fewer tests than last time, or more
 skipped, is flagged «⚠» — a test that quietly disappeared or was switched off. Exit code: the command's own.
+
+Two refusals (exit 3, nothing run), both for test runs with TEST_DATABASE_URL set: it equals DATABASE_URL, or the
+database's name has no «test» — the run would wipe the stand's data; and another run_check on the same test
+database is still running — two suites on one database give false failures. Shares of a mutation run, each on its
+own `<project>_test_mut_<k>`, run side by side (work → references/health.md).
 Recognised: Vitest / Jest, pytest, Playwright, tsc, ESLint, Ruff; anything else gets the exit code and the tail.
 Standard library only.
 """
 from __future__ import annotations
 
+import hashlib
 import json
+import os
 import re
 import subprocess
 import sys
 from datetime import datetime
 from pathlib import Path
+from urllib.parse import urlparse
 
 ANSI = re.compile(r"\x1b\[[0-9;]*m")
 
@@ -73,15 +81,65 @@ def failures(text: str) -> list[str]:
     return found[:30]
 
 
+TEST_RUNNER = re.compile(r"\b(?:vitest|jest|pytest|playwright|stryker|mutmut|npm|pnpm|yarn)\b")
+
+
+def db_name(url: str) -> str:
+    return urlparse(url).path.lstrip("/").split("?")[0]
+
+
+def database_guard(cmd: list[str]) -> str:
+    """Why this test run must not start, or "" (work → references/run-hygiene.md → The database)."""
+    test_url, stand_url = os.environ.get("TEST_DATABASE_URL", ""), os.environ.get("DATABASE_URL", "")
+    if not test_url or not TEST_RUNNER.search(" ".join(cmd)):
+        return ""
+    if stand_url and test_url == stand_url:
+        return "TEST_DATABASE_URL совпадает с DATABASE_URL — тесты прошли бы по базе стенда"
+    if "test" not in db_name(test_url).lower():
+        return (f"в имени тестовой базы «{db_name(test_url)}» нет «test» — так названа не тестовая база; "
+                "тесты, которые чистят и мигрируют схему, работают только на своей")
+    return ""
+
+
+def take_lock(folder: Path, name: str) -> Path | None:
+    """One test run at a time on one test database: a second one refuses instead of colliding with the first."""
+    url = os.environ.get("TEST_DATABASE_URL", "")
+    if not url:
+        return None
+    locks = folder / "locks"
+    locks.mkdir(exist_ok=True)
+    lock = locks / (hashlib.sha1(url.encode()).hexdigest()[:12] + ".lock")
+    try:
+        pid, started, who = lock.read_text().split("\t", 2)
+        os.kill(int(pid), 0)                       # still running?
+        print(f"{name}: не запущено — на этой тестовой базе ({db_name(url)}) уже идёт прогон «{who.strip()}» "
+              f"(pid {pid}, с {started}). Дождитесь его конца: два прогона на одной базе дают ложные падения "
+              "(work → references/run-hygiene.md → The database).")
+        sys.exit(3)
+    except (OSError, ValueError):
+        pass                                       # no lock, or its run has ended
+    lock.write_text(f"{os.getpid()}\t{datetime.now():%H:%M:%S}\t{name}")
+    return lock
+
+
 def main() -> None:
     args = sys.argv[1:]
     if len(args) < 3 or args[1] != "--":
         sys.exit(__doc__)
     name, cmd = re.sub(r"[^\w.-]", "_", args[0]), args[2:]
+    why = database_guard(cmd)
+    if why:
+        print(f"{name}: не запущено — {why}.")
+        sys.exit(3)
     folder = git_dir() / "pipeline-work" / "checks"
     folder.mkdir(parents=True, exist_ok=True)
+    lock = take_lock(folder, name)
     log = folder / f"{name}-{datetime.now():%Y%m%d-%H%M%S-%f}.log"
-    proc = subprocess.run(cmd, capture_output=True, text=True, errors="replace")
+    try:
+        proc = subprocess.run(cmd, capture_output=True, text=True, errors="replace")
+    finally:
+        if lock:
+            lock.unlink(missing_ok=True)
     text = ANSI.sub("", (proc.stdout or "") + ("\n" + proc.stderr if proc.stderr else ""))
     log.write_text(f"$ {' '.join(cmd)}\n{text}", encoding="utf-8")
     c = counts(text)

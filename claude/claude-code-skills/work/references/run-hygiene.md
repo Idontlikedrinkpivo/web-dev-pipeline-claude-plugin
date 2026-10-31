@@ -19,6 +19,9 @@ orchestrator, the executors and the reviewers, and nothing else keeps them apart
   (`pytest-patterns` → conftest template, `vitest` → the database helper). A
   helper in the project that falls back is fixed before the run goes on — a unit
   of its own, or the first fix of the run, asked once.
+- **`run_check.py` holds both rules below the model:** it refuses a test run whose `TEST_DATABASE_URL`
+  equals `DATABASE_URL` or names a database without «test», and a second run on a test database another
+  `run_check` is still using (exit 3, the line says who holds it). Run every suite through it.
 - **One test-suite run at a time on a shared database.** Before starting a suite
   on the shared test database, make sure the previous one has ended (its task is
   done, no process holds the port). Never `&` a suite in Bash, and never start one
