@@ -7,7 +7,12 @@ nothing.
 
 DIGEST          <path to the digest .md> — chronological lines:
                 USER (typed by the person), CLAUDE (replies), SKILL / AGENT
-                (what ran), === CONTEXT COMPACTED === (a compaction).
+                (what ran), === CONTEXT COMPACTED === (a compaction); and
+                the nested-session flow (pipeline → references/
+                parent-session.md): OPENED BY SESSION (the card a parent
+                opened this one with), FROM SESSION «title» (a message from
+                another session), TO SESSION / OPENS SESSION / RENAMES /
+                ARCHIVES / STOPS / SETS EFFORT (this session's calls).
                 Over ~400 KB: read it in parts with offsets, all of it.
 PLUGIN SKILLS   <path to the installed plugin's skills folder> — read the
                 SKILL.md and references of any skill a finding touches.
@@ -18,7 +23,11 @@ FIND
 - a stage doing what its skill forbids or skipping what it requires;
 - a rule followed before a compaction mark and lost after it;
 - many turns spent working out what a skill should have said;
-- a skill instruction that led the stage astray.
+- a skill instruction that led the stage astray;
+- the nested-session flow broken: a stage started twice or in the wrong
+  session, a report («ЭТАП … ЗАКРЫТ», «ПЕРЕДАН») never sent or never acted
+  on, a session opened without the user's turn or on another model, a
+  closed stage's session still answering, the handover check skipped.
 
 DO NOT REPORT
 - the project's own defects, product decisions, one-offs with no cost to

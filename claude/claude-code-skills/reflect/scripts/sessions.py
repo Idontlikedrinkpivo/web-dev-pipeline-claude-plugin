@@ -7,7 +7,9 @@ usage:
                      under several project folders is listed once, and a session whose typed
                      messages all reappear, in order, at the start of a longer one (it was
                      resumed into a new file) is marked «# повтор <id>» and skipped
-  sessions.py digest <session.jsonl> <out.md> [--since …]  the session as a short chronological digest (from --since on)
+  sessions.py digest <session.jsonl> <out.md> [--since …]  the session as a short chronological digest (from --since on):
+                     the person's messages, the replies, skills and agents run, and the nested-session flow — the
+                     card a parent opened it with, messages between sessions, sessions opened, renamed, archived
   sessions.py window <project-dir> [--version <v>]
                      the --since every other command takes: from the iteration's first commit on its branch (or
                      its plans/<version>/ folder's date), or later — from the end of the last «Окно: … — <end>» in
@@ -189,8 +191,31 @@ def cmd_mine(cwd: str, marker: str, out: str) -> None:
     sys.exit(1)
 
 
+CROSS = re.compile(r'<cross-session-message[^>]*?from-name="([^"]*)"[^>]*>(.*?)(?:</cross-session-message>|$)', re.S)
+SESSION_TOOLS = {"SendMessage": "TO SESSION", "mcp__ccd_session_mgmt__send_message": "TO SESSION",
+                 "mcp__ccd_session__start_session": "OPENS SESSION", "mcp__ccd_session_mgmt__set_session_title": "RENAMES",
+                 "mcp__ccd_session_mgmt__archive_session": "ARCHIVES", "mcp__ccd_session_mgmt__stop_session": "STOPS",
+                 "mcp__ccd_session_mgmt__set_session_effort": "SETS EFFORT"}
+
+
+def session_line(name: str, inp: dict) -> str:
+    """A session tool call in one line: whom it addresses and what — the nested-session flow
+    (pipeline → references/parent-session.md) the reviewer checks."""
+    to = inp.get("to") or inp.get("session_id") or ""
+    if name.endswith("start_session"):
+        what = f"«{inp.get('title', '')}» ({inp.get('initiation', '')}, model {inp.get('model', 'default')})"
+    elif name.endswith("set_session_title"):
+        what = f"{to} → «{inp.get('title', '')}»"
+    elif name.endswith("set_session_effort"):
+        what = f"{to} → {inp.get('effort', '')}"
+    else:
+        what = f"{to}: {str(inp.get('message', ''))[:500]}" if inp.get("message") else str(to)
+    return f"{SESSION_TOOLS[name]}: {what}"
+
+
 def cmd_digest(src: str, out: str, since: str | None = None) -> None:
     rows: list[str] = []
+    opened = False   # a nested session's first message is its card from the parent, not typed by the person
     since = since.replace("T", " ") if since else None
     for line in open(src, errors="ignore"):
         try:
@@ -203,9 +228,17 @@ def cmd_digest(src: str, out: str, since: str | None = None) -> None:
         t = d.get("type")
         if t == "user":
             origin = d.get("origin") if isinstance(d.get("origin"), dict) else {}
-            if origin.get("kind") != "human":
-                continue
             txt = text_of(d.get("message", {}).get("content")).strip()
+            if origin.get("kind") == "peer":   # another session wrote: the parent's «начинай», a stage's report
+                m = CROSS.search(txt)
+                if m:
+                    rows.append(f"[{ts}] FROM SESSION «{m.group(1)}»: {m.group(2).strip()[:700]}")
+                continue
+            if origin.get("kind") != "human":
+                if not opened and txt.startswith("Background (from the session that started this one)"):
+                    rows.append(f"[{ts}] OPENED BY SESSION: {txt[:1200]}")
+                    opened = True
+                continue
             if txt:
                 rows.append(f"[{ts}] USER: {txt[:2000]}")
         elif t == "assistant":
@@ -220,6 +253,8 @@ def cmd_digest(src: str, out: str, since: str | None = None) -> None:
                         rows.append(f"[{ts}] SKILL: {inp.get('skill')} {str(inp.get('args', ''))[:120]}")
                     elif name == "Agent":
                         rows.append(f"[{ts}] AGENT: {inp.get('subagent_type', 'general')} — {str(inp.get('description', ''))[:120]}")
+                    elif name in SESSION_TOOLS:
+                        rows.append(f"[{ts}] {session_line(name, inp)}")
         elif t == "system" and d.get("subtype") == "compact_boundary":
             rows.append(f"[{ts}] === CONTEXT COMPACTED ===")
     Path(out).write_text("\n".join(rows) + "\n")
