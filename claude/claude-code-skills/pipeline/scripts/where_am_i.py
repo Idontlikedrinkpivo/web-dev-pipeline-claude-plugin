@@ -270,10 +270,15 @@ NOT_CLOSE = re.compile(r"этап не закрыт|^docs: решение изм
 ALL_CLOSE = re.compile(r"^docs: документы \S+ перед тегом|^docs: publish document versions")
 
 
+def stage_key(doc: Doc) -> str | None:
+    """How a commit subject names the document's stage («SRS», «схема БД», «API», «архитектура», «ТЗ на экран»)."""
+    return next((k for part, k in CLOSE_KEY if part in doc.rel), None)
+
+
 def close_commit(root: Path, doc: Doc, span: str = "HEAD") -> tuple[str, str]:
     """The newest commit in span that closed the document's stage — read from the whole log, since an empty close
     commit touches no file: (sha, subject), or ("", "")."""
-    key = next((k for part, k in CLOSE_KEY if part in doc.rel), None)
+    key = stage_key(doc)
     if not key:
         return "", ""
     for line in git(root, "log", "--format=%H\t%s", "-n", "3000", span).splitlines():
@@ -302,7 +307,9 @@ def unstamped(root: Path, doc: Doc, version: str | None) -> bool:
     log = git(root, "log", "--format=%H\t%s", span, "--", DOC_FILES.get(doc.rel, doc.rel)).splitlines()
     if doc.meta.get("version") != version:
         return any(l.partition("\t")[2] and not NOT_A_STAGE_COMMIT.search(l.partition("\t")[2]) for l in log)
-    written = {l.partition("\t")[0] for l in log if WRITTEN.search(l.partition("\t")[2])}
+    key = stage_key(doc) or "."   # another stage's writer commit may touch these files (a migration with the
+    written = {l.partition("\t")[0] for l in log    # architecture) — it does not reopen this stage
+               if WRITTEN.search(l.partition("\t")[2]) and re.search(key, l.partition("\t")[2])}
     if not written:
         return False
     closed, _ = close_commit(root, doc, span)
