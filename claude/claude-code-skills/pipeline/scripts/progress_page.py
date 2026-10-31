@@ -63,6 +63,46 @@ def status_counts(lines: list[str], lo: int = 0, hi: int | None = None) -> list[
     return []
 
 
+# the files whose bar the page computes from the rows' statuses — agents change rows and forgot the bar (it stayed at
+# 0% through whole stages: architecture, screen specs, test cases); a row in progress counts in part, so the bar
+# moves with every status, not only when a document is finished
+DERIVED = {"progress-design.md", "progress-screen-specs.md", "progress-test-cases.md", "progress-architecture.md",
+           "security-audit.md", "progress-scaffold.md", "progress-deploy.md"}
+WEIGHT = {"✅": 1.0, "⏭": 1.0, "🔍": 2 / 3, "🔄": 1 / 3, "🔁": 1 / 3, "⏳": 0.0, "⛔": 0.0}
+
+
+def derived(text: str) -> tuple[int, str] | None:
+    """(percent, count line) from the statuses of the main table — the first table with «Статус» under the file's
+    first bar: ✅ and ⏭ whole, 🔍 two thirds, 🔄 and 🔁 a third, ⏳ and ⛔ nothing."""
+    lines = text.splitlines()
+    start = next((i for i, l in enumerate(lines) if re.search(r"[█░]{5,}", l)), 0)
+    heads = [i for i, l in enumerate(lines) if re.match(r"^#{1,4}\s", l) and i > start]
+    end = heads[0] if heads else len(lines)
+    for i in range(start, end - 1):
+        if lines[i].lstrip().startswith("|") and re.match(r"^\s*\|[\s:|-]+\|\s*$", lines[i + 1]):
+            head = [c.strip() for c in lines[i].strip().strip("|").split("|")]
+            col = next((k for k, c in enumerate(head) if c.startswith("Статус")), None)
+            if col is None:
+                continue
+            marks = []
+            for row in lines[i + 2:end]:
+                if not row.lstrip().startswith("|"):
+                    break
+                cells = [c.strip() for c in row.strip().strip("|").split("|")]
+                cell = cells[col] if col < len(cells) else ""
+                if cell[:1] in WEIGHT:
+                    marks.append(cell[:1])
+            if not marks:
+                return None
+            pct = int(sum(WEIGHT[m] for m in marks) * 100 // len(marks))
+            done = sum(1 for m in marks if m in "✅⏭")
+            extra = [f"{w} {n}" for w, n in (("в работе", sum(1 for m in marks if m in "🔄🔁")),
+                                              ("на проверке", marks.count("🔍")), ("остановлено", marks.count("⛔")))
+                     if n]
+            return pct, f"Готово: {done} из {len(marks)}" + (" · " + " · ".join(extra) if extra else "")
+    return None
+
+
 def bars(text: str) -> list[dict]:
     """Every bar of the file, in order: the heading it sits under (none above the first `## ` — the file's own
     bar), its percent, its count line, and the status counts of its own section's table."""
@@ -137,6 +177,9 @@ def page(md: Path) -> None:
     text = md.read_text(encoding="utf-8", errors="replace")
     pct = percent(text)
     count, state = lines_of(text)
+    computed = derived(text) if md.name in DERIVED else None
+    if computed:
+        pct, count = computed
     title = next((re.sub(r"[*`]", "", l[2:]).strip() for l in text.splitlines() if l.startswith("# ")), md.stem)
     found = bars(text)
     chip = lambda cs: "".join(f"<span>{html.escape(label)}: {n}</span>" for label, n in cs)

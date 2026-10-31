@@ -50,7 +50,14 @@ document keeps none.
   the bar drawn as a bar, the count, the status counts — one per row of
   the main table, the first table with a «Статус» column under the file's
   first bar, by the status's words («✅ прошёл: 144») — then the file in
-  full; it reloads itself every 5 seconds. The plugin's hook rebuilds the
+  full. **For the stage files whose rows are documents, screens or steps** —
+  design, screen specs, test cases, architecture, scaffold, deploy, the
+  audit — **the page computes the bar and the count from those rows itself**:
+  ✅ and ⏭ whole, 🔍 two thirds, 🔄 and 🔁 a third, ⏳ and ⛔ nothing. Measured:
+  agents changed the rows and left the bar, so these pages stood at 0% through
+  whole stages. In those files only the rows matter; their bar line is not
+  read. The plan's, the UI run's and the mutation run's bars are kept by their
+  scripts, as below; it reloads itself every 5 seconds. The plugin's hook rebuilds the
   page after every Edit or Write of its file, a subagent's included. The
   Markdown file stays the source the agents edit; **the link the user gets
   is always the page**, never the `.md`.
@@ -261,7 +268,7 @@ chosen option. Screen statuses: `⏳ ждёт`, `🔄 в работе`, `✅ г�
 (the builder), `🔁 возвращено: <что>`, `⛔ остановлено: <причина>` (the
 session, when its check of a drawn screen fails). «Работа» is the screen's mark
 (`новый экран`, `правка`, `редизайн`, `перекраска`, `переименование слоёв`).
-The bar counts `✅ готово`.
+The page computes the bar from the rows (The page, above).
 
 ### `screen-spec` — `progress-screen-specs.md`
 
@@ -310,7 +317,7 @@ over the set: не запускалось → идёт → its verdict.
 ````
 
 Statuses: `⏳ ждёт`, `🔄 в работе`, `✅ готово`. The «Без интерфейса» row
-counts the acceptance criteria listed there, and is not in the bar.
+counts the acceptance criteria listed there.
 
 ### `clean-architecture-design` — `progress-architecture.md`
 
@@ -336,7 +343,7 @@ counts the acceptance criteria listed there, and is not in the bar.
 Statuses: `⏳ ждёт`, `🔄 в работе: решения`, `🔄 в работе: печать`,
 `🔍 проверка` (the writer, then the session's inspection), `✅ готово`,
 `⛔ остановлено: <причина>` (the session). «Ревью» takes the `doc-review` verdict of that document when the
-gate runs. The bar counts `✅ готово`.
+gate runs. The page computes the bar from the rows (The page, above).
 
 ### `repo-scaffold` — `progress-scaffold.md` and `deploy-topology` — `progress-deploy.md`
 

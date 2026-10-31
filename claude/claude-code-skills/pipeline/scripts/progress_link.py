@@ -52,6 +52,14 @@ def rebuild(md: Path) -> None:
 
 def count_of(md: Path) -> str:
     text = md.read_text(encoding="utf-8", errors="replace")
+    try:
+        import progress_page   # the files whose count the page computes from the rows
+        if md.name in progress_page.DERIVED:
+            got = progress_page.derived(text)
+            if got:
+                return re.sub(r"^Готово:\s*", "", got[1]) + f" · {got[0]}%"
+    except Exception:
+        pass
     lines = [l.strip() for l in text.splitlines() if l.strip()]
     line = ""
     for i, l in enumerate(lines):  # the count line sits right under the bar's block
@@ -65,11 +73,17 @@ def count_of(md: Path) -> str:
     return re.sub(r"^[^:·|]{1,40}:\s*", "", line).strip()  # «Сделано: 3 из 6» -> «3 из 6»
 
 
+DERIVED_NAMES = {"progress-design.md", "progress-screen-specs.md", "progress-test-cases.md",
+                 "progress-architecture.md", "security-audit.md", "progress-scaffold.md", "progress-deploy.md"}
+
+
 def bar_mismatch(md: Path, count: str) -> str:
     """A warning when the bar's percent is not the count's, else ""."""
     text = md.read_text(encoding="utf-8", errors="replace")
     b = re.search(r"([█░]{20,})\s*(\d+)\s*%", text)
     c = re.search(r"(\d+)\s*из\s*(\d+)", count)
+    if md.name in DERIVED_NAMES:   # the page computes this bar from the rows; the file's own bar is not read
+        return ""
     if not b or not c or int(c[2]) == 0 or "успешно" in count:  # a test run's bar is the share that passes
         return ""
     want = int(c[1]) * 100 // int(c[2])
