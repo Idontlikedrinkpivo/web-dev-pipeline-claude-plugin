@@ -21,7 +21,9 @@ Refused:
 - Edit / Write of a file outside the worktree the agent runs in — its edit lands in the main tree
   (executor-catalog → worker-prompt RULES).
 
-Acts only in a project with documentation/.dev-pipeline.json. Never fails the tool call on its own error.
+Acts only in a project with documentation/.dev-pipeline.json. Never fails the tool call on its own error. Each
+refusal is also logged outside the project (~/.claude/dev-pipeline-feedback/.guard/<project>.jsonl), and reflect
+reports them (reflect/scripts/guard_report.py).
 `decide()` is pure, so `claude/tools/guard_replay.py` can run it over past sessions.
 """
 from __future__ import annotations
@@ -32,6 +34,8 @@ import re
 import shlex
 import subprocess
 import sys
+from datetime import datetime
+from pathlib import Path
 
 RUNNER = re.compile(r"\b(?:npm (?:run )?(?:test|lint|typecheck)|npx (?:vitest|jest|tsc|eslint|playwright test)|"
                     r"pnpm (?:run )?(?:test|lint|typecheck)|yarn (?:test|lint|typecheck)|pytest|"
@@ -179,6 +183,24 @@ def decide(tool: str, inp: dict, cwd: str, *, branch: str = "", open_iteration: 
     return None
 
 
+RULES = [("commit-chained", "chained to a test"), ("commit-on-main", "would land on"),
+         ("plan-unit-trailer", "Plan-Unit"), ("sed-i", "sed -i"), ("progress-from-shell", "progress file from the shell"),
+         ("wipe-shared-tree", "git stash (of everything)"), ("edit-outside-worktree", "you work in the worktree")]
+
+
+def log_refusal(project: str, tool: str, inp: dict, why: str) -> None:
+    """One line per refusal outside the project, for reflect's «Отказы хука» (reflect/scripts/guard_report.py): how
+    often each rule fires in real work, and the commands to judge whether a refusal was wrong."""
+    home = ".codex" if "/.codex/" in str(Path(__file__).resolve()) else ".claude"
+    store = Path.home() / home / "dev-pipeline-feedback" / ".guard"
+    store.mkdir(parents=True, exist_ok=True)
+    rule = next((code for code, mark in RULES if mark in why), "other")
+    what = str(inp.get("command") or inp.get("file_path") or inp.get("notebook_path") or "")
+    row = {"ts": datetime.now().isoformat(timespec="seconds"), "rule": rule, "tool": tool, "what": what[:240]}
+    with (store / f"{Path(project).resolve().name}.jsonl").open("a", encoding="utf-8") as fh:
+        fh.write(json.dumps(row, ensure_ascii=False) + "\n")
+
+
 def git(cwd: str, *args: str) -> str:
     try:
         return subprocess.run(["git", "-C", cwd, *args], capture_output=True, text=True, timeout=5).stdout.strip()
@@ -214,6 +236,10 @@ def main() -> None:
     why = decide(tool, inp, cwd, branch=branch, open_iteration=open_iteration(project) if branch else None,
                  worktree_root=top if is_worktree else None, main_root=main_root)
     if why:
+        try:
+            log_refusal(project, tool, inp, why)
+        except Exception:
+            pass
         print(json.dumps({"hookSpecificOutput": {"hookEventName": "PreToolUse", "permissionDecision": "deny",
                                                  "permissionDecisionReason": why}}, ensure_ascii=False))
 

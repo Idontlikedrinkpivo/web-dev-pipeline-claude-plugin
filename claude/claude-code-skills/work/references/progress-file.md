@@ -112,11 +112,12 @@ shape, over its blocking findings (`✅ готово` of the rows that block).
 ## The e2e section
 
 A browser suite in Step 7 (the критерии готовности) runs for an hour or more;
-the user follows it in the same file. **Before the suite starts**, add the
-section with nothing checked yet and post the progress line; while it runs,
-`pipeline/scripts/progress_e2e.py` keeps it current from the Playwright log —
-the one writer of a progress file allowed outside Edit/Write, since hundreds of
-tests cannot be followed one Edit at a time; it redraws the page itself.
+the user follows it in the same file. **Run it through `run_check.py`** (`run_check.py e2e -- npx playwright
+test …`): in a project with an open iteration it counts the suite (`--list`), adds the section with nothing
+checked yet, and keeps it current every minute from the streamed log through
+`pipeline/scripts/progress_e2e.py` — the one writer of a progress file allowed outside Edit/Write, since hundreds
+of tests cannot be followed one Edit at a time — with a last pass at the end. Post the progress line when it
+starts. By hand, outside `run_check`, the same takes three commands:
 
 ```bash
 npx playwright test --list | tail -1          # «Total: 616 tests in 28 files» → --total

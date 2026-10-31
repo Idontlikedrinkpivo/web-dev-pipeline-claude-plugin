@@ -15,6 +15,10 @@ Two refusals (exit 3, nothing run), both for test runs with TEST_DATABASE_URL se
 database's name has no «test» — the run would wipe the stand's data; and another run_check on the same test
 database is still running — two suites on one database give false failures. Shares of a mutation run, each on its
 own `<project>_test_mut_<k>`, run side by side (work → references/health.md).
+
+A Playwright suite (`playwright test`, not `--list`) in a project with an open iteration's progress.md gets its
+«e2e» section by itself: the suite's size from `--list`, `--reporter=list` added when no reporter is given, and
+pipeline/scripts/progress_e2e.py run every minute over the streamed log and once at the end.
 Recognised: Vitest / Jest, pytest, Playwright, tsc, ESLint, Ruff; anything else gets the exit code and the tail.
 Standard library only.
 """
@@ -26,6 +30,7 @@ import os
 import re
 import subprocess
 import sys
+import time
 from datetime import datetime
 from pathlib import Path
 from urllib.parse import urlparse
@@ -122,6 +127,43 @@ def take_lock(folder: Path, name: str) -> Path | None:
     return lock
 
 
+PIPELINE = Path(__file__).resolve().parents[2] / "pipeline" / "scripts"
+
+
+def e2e_progress(cmd: list[str]) -> tuple | None:
+    """A Playwright suite in a project with an open iteration: (the command with a list reporter, the run's
+    progress.md, the suite's size, the last update) — so the «e2e» section of the progress page appears and moves
+    by itself (work → references/progress-file.md → The e2e section). None for anything else."""
+    line = " ".join(cmd)
+    if not re.search(r"playwright\s+test\b", line) or "--list" in line:
+        return None
+    top = subprocess.run(["git", "rev-parse", "--show-toplevel"], capture_output=True, text=True).stdout.strip()
+    plans = Path(top or ".") / "documentation" / "plans"
+    vs = [p for p in plans.glob("*") if p.is_dir() and re.fullmatch(r"\d+(\.\d+)*", p.name)
+          and not (p / "summary.md").exists() and (p / "progress.md").exists()]
+    if not vs:
+        return None
+    md = max(vs, key=lambda p: [int(x) for x in p.name.split(".")]) / "progress.md"
+    try:
+        listed = subprocess.run(cmd + ["--list"], capture_output=True, text=True, timeout=180).stdout
+    except (OSError, subprocess.TimeoutExpired):
+        return None
+    m = re.search(r"Total:\s*(\d+)\s+tests?", listed)
+    if not m:
+        return None
+    if "--reporter" not in line:
+        cmd = cmd + ["--reporter=list"]   # the list reporter's lines are what progress_e2e.py reads
+    update_e2e(None, md, int(m.group(1)))
+    return cmd, md, int(m.group(1)), time.time()
+
+
+def update_e2e(log: Path | None, md: Path, total: int, done: bool = False) -> None:
+    script = PIPELINE / "progress_e2e.py"
+    if script.exists():
+        args = [sys.executable, str(script), str(log or md.with_suffix(".nolog")), str(md), "--total", str(total)]
+        subprocess.run(args + (["--done"] if done else []), capture_output=True, text=True)
+
+
 def main() -> None:
     args = sys.argv[1:]
     if len(args) < 3 or args[1] != "--":
@@ -135,13 +177,25 @@ def main() -> None:
     folder.mkdir(parents=True, exist_ok=True)
     lock = take_lock(folder, name)
     log = folder / f"{name}-{datetime.now():%Y%m%d-%H%M%S-%f}.log"
+    e2e = e2e_progress(cmd)
+    if e2e:
+        cmd = e2e[0]
     try:
-        proc = subprocess.run(cmd, capture_output=True, text=True, errors="replace")
+        with log.open("w", encoding="utf-8") as fh:   # streamed, so a long suite's progress can be read while it runs
+            fh.write(f"$ {' '.join(cmd)}\n")
+            fh.flush()
+            proc = subprocess.Popen(cmd, stdout=fh, stderr=subprocess.STDOUT, text=True, errors="replace")
+            while proc.poll() is None:
+                time.sleep(2)
+                if e2e and time.time() - e2e[3] >= float(os.environ.get("RUN_CHECK_E2E_EVERY", "60")):
+                    e2e = (*e2e[:3], time.time())
+                    update_e2e(log, e2e[1], e2e[2])
+        if e2e:
+            update_e2e(log, e2e[1], e2e[2], done=True)
     finally:
         if lock:
             lock.unlink(missing_ok=True)
-    text = ANSI.sub("", (proc.stdout or "") + ("\n" + proc.stderr if proc.stderr else ""))
-    log.write_text(f"$ {' '.join(cmd)}\n{text}", encoding="utf-8")
+    text = ANSI.sub("", log.read_text(encoding="utf-8", errors="replace").split("\n", 1)[-1])
     c = counts(text)
     last_file = folder / f"{name}.last.json"
     try:

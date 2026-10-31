@@ -167,7 +167,8 @@ orchestrator checks it when the unit returns:
   shared config, a barrel file — is not edited by the units: each reports its lines,
   and the orchestrator writes them once when it brings the wave home;
 - an executor stops every background task it started (a watch, a `run_in_background`
-  command) before its report. When the agent still shows as running after its report,
+  command) before its report — the plugin's hook (`hooks/watchers.py`) keeps an agent from ending while one it
+  started still runs, and names it. When the agent still shows as running after its report,
   stop it (`TaskStop`) — a finished executor left «running» holds the panel for hours.
 
 ## Finishing an older iteration while a newer one is open

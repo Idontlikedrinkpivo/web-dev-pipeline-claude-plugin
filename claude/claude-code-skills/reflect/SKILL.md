@@ -90,6 +90,10 @@ rules (check them — the session may have run an older version).
    under «### Расход»: the maintainer tunes unit size, reviews and packets from these numbers, and a paraphrase
    loses them. A flag becomes a finding only when a skill caused it (a stage pasting whole documents, a
    session kept for days on a huge context).
+   Then `python3 "${CLAUDE_SKILL_DIR}/scripts/guard_report.py" "$PWD" --since <the same date>` — what the
+   plugin's command guard (`hooks/guard.py`) refused, per rule with sample commands; its block goes under «###
+   Отказы хука» unchanged. Read the samples: a refused command that was right is a finding on the hook (the rule
+   is too wide); one rule firing again and again is a finding on the skill that keeps asking for that command.
 6. **Write.** Append one section to
    `~/.claude/dev-pipeline-feedback/<project folder's basename>.md` (create the
    folder and the file when missing; never rewrite earlier sections). Shape
@@ -116,6 +120,9 @@ rules (check them — the session may have run an older version).
 
 ### Расход
 <measure.py's output from «Окно» on, unchanged>
+
+### Отказы хука
+<guard_report.py's table, unchanged>
 ```
 
 Order by cost to the user: repeated corrections first.

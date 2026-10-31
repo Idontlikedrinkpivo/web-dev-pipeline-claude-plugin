@@ -134,7 +134,8 @@ document keeps none.
   process gone) and then exits, never only until its timeout. The run keeps
   the ids of the watchers it started and, when it ends — finished, failed
   or stopped — stops any still running (TaskStop) before its last line. A
-  watcher left behind keeps waking the session for nothing.
+  watcher left behind keeps waking the session for nothing; an agent that tries to end with one still running
+  is held back by the plugin's hook (`hooks/watchers.py`) until it stops it.
 - **Results from background work** (stands, long commands) wake the agent,
   and the agent edits: watch their output with the Monitor tool, which
   wakes the session on each new line, or — without it — a background

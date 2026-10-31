@@ -98,9 +98,13 @@ def main() -> None:
     print("Запустить каждую в фоне (run_in_background), все сразу:")
     for c in commands:
         print("  " + c)
-    print("Страница прогресса (pipeline/scripts/progress_mutation.py):")
-    print(f"  python3 <pipeline>/scripts/progress_mutation.py documentation/plans/{version}/progress-mutation.md "
-          f"{shlex.quote(str(out / 'parts.json'))}")
+    progress = Path(__file__).resolve().parents[2] / "pipeline" / "scripts" / "progress_mutation.py"
+    page = root / "documentation" / "plans" / version / "progress-mutation.md"
+    if page.parent.is_dir():   # the page exists before the first share starts
+        subprocess.run([sys.executable, str(progress), str(page), str(out / "parts.json")], capture_output=True)
+        print(f"Страница прогресса создана: {page.relative_to(root)} (ссылку в чат — progress_link.py)")
+    print("Следить за прогоном — одна команда под Monitor, она сама обновляет страницу и заканчивается с последней долей:")
+    print(f"  python3 {shlex.quote(str(progress))} {shlex.quote(str(page))} {shlex.quote(str(out / 'parts.json'))} --watch 120")
 
 
 if __name__ == "__main__":

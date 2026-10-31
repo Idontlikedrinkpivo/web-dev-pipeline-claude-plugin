@@ -1,6 +1,7 @@
 """Keep `progress-mutation.md` current while a mutation run's parts work — from their logs, not by hand.
 
     python3 progress_mutation.py <progress-mutation.md> <parts.json> [--done]
+    python3 progress_mutation.py <progress-mutation.md> <parts.json> --watch [seconds]   # until every part ends
 
 parts.json is written by the session before the first part starts (work → references/health.md → Progress):
 
@@ -139,10 +140,33 @@ def top(version: str, parts: list[dict], results: list[dict], budget: str, finis
     ])
 
 
+def watch(args: list[str]) -> None:
+    """Rewrite the page every N seconds (default 120) until every part has ended, printing only the lines of parts
+    whose status changed — one Monitor over this command follows the whole run, and it ends by itself."""
+    import subprocess
+    import time
+    i = args.index("--watch")
+    every = float(args[i + 1]) if i + 1 < len(args) and args[i + 1].replace(".", "", 1).isdigit() else 120.0
+    base = [sys.executable, str(Path(__file__).resolve()), args[0], args[1]]
+    while True:
+        out = subprocess.run(base, capture_output=True, text=True).stdout
+        for line in out.splitlines():
+            if line.startswith("часть "):
+                print(line, flush=True)
+        if "все части закончены" in out:
+            break
+        time.sleep(every)
+    final = subprocess.run(base + ["--done"], capture_output=True, text=True).stdout.strip().splitlines()
+    print(final[-1] if final else "мутации: закончено", flush=True)
+
+
 def main() -> None:
     args = sys.argv[1:]
     if len(args) < 2:
         sys.exit(__doc__)
+    if "--watch" in args:
+        watch(args)
+        return
     md, cfg = Path(args[0]), Path(args[1])
     finished = "--done" in args
     spec = json.loads(cfg.read_text(encoding="utf-8"))

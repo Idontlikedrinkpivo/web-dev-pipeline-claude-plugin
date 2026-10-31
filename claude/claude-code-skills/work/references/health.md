@@ -92,13 +92,13 @@ shares on their own databases run side by side and nothing else can join them.
    measured.
 2. Each part's output goes to its log: Stryker with `--reporters progress-append-only,clear-text,json` (in its
    config, beside the report file names), mutmut as it prints.
-3. Run `python3 "${CLAUDE_SKILL_DIR}/../pipeline/scripts/progress_mutation.py"
-   documentation/plans/<version>/progress-mutation.md <parts.json>` — it creates the file, then rewrites its top
-   from the logs each time — and paste the line `progress_link.py` prints for that file.
-4. While parts run, a Monitor loop runs the script every two minutes and prints only the lines of parts whose
-   status changed; it ends when the script prints «все части закончены». On each such line paste the progress
-   line; a `🔍 разбор: таймауты` line is the overload of step 5 above. When the last process exits, run the
-   script once more with `--done`: a part that ended early shows as stopped, never as done. Read each part's
+3. `mutation_config.py` has already created `progress-mutation.md` (the page exists before the first share
+   starts); paste the line `progress_link.py` prints for that file.
+4. While parts run, one Monitor over the command `mutation_config.py` printed —
+   `progress_mutation.py <page> <parts.json> --watch 120` — rewrites the page every two minutes, prints only the
+   lines of parts whose status changed, and ends by itself after the last part, with a final `--done` pass (a
+   part that ended early shows as stopped, never as done). On each such line paste the progress line; a
+   `🔍 разбор: таймауты` line is the overload of step 5 above. Read each part's
    numbers against the tool's own final summary once: a mismatch means the log format changed — say so and fix
    that row by hand.
 5. The section «Выжившие и эквивалентные» below the table is the session's, kept with Edit: one row per survivor
