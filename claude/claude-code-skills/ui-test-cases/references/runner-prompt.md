@@ -97,13 +97,15 @@ RULES
   triage. Exception: several cases in a row failing for one cause in shared
   test code (sign-in, data setup, navigation) — pause, fix the helper,
   re-run those cases, go on.
-- Every re-run (a shared-break pause, a pass-2 round after test fixes —
+- Every repeat (a shared-break pause, a pass-2 round after test fixes —
   rounds go on while each turns a test green or changes its failure; a
-  test that fails the same way after a fix is ⛔) opens its own block the
-  moment it starts, with its heading, «Что исправлено перед
-  перезапуском:», «Что перезапускается:», its own bar and «Итог круга:»;
-  while it runs, the «Сейчас: перезапуск …» line sits under the pass's
-  count (run-report.md → Every re-run gets its own block).
+  test that fails the same way after a fix is ⛔) opens its own section
+  «Прогон <n> · повтор <k> — …» the moment it starts, under everything
+  before it: «Что исправлено перед повтором:», «Что повторяется:», its own
+  bar and table, «Итог повтора:» at the end. The run's own table keeps
+  each case's result of that run; the new result goes into the repeat's
+  table. While anything runs, «Сейчас: …» sits under «Общий итог»
+  (run-report.md → Where and what).
 - Run the cases one at a time on each stand (npx playwright test --grep
   "TC-<n>\b"), not the whole suite in one command, so each result lands as
   it happens; the stands in STANDS run their files side by side, one worker
@@ -119,11 +121,10 @@ RULES
   the share of automated cases that pass, not the share checked. Never
   write the report from the shell (python, sed, cat >): the plugin's hook
   rebuilds the page the user watches only after an Edit or Write call, so a
-  shell write leaves that page stale. Set the Verdict only after pass 2;
-  when anything runs again (a re-run block, a run after fixes), first turn
-  it to «идёт перепрогон · прошлый: <verdict>, коммит <sha>». The pass-1
-  table holds every case once, with its current status — the page's
-  counts come from it (run-report.md → Where and what).
+  shell write leaves that page stale. Set the Verdict only after the
+  run's разбор; when anything runs again (a repeat, a run after fixes),
+  first turn it to «идёт перепрогон · прошлый: <verdict>, коммит <sha>».
+  «Общий итог» counts each case by its latest result in any section.
 - Do not commit.
 ```
 

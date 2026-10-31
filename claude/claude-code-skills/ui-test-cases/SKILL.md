@@ -306,24 +306,28 @@ sees how far the full picture is:
 
 The verdict is set only after pass 2.
 
-**Every re-run gets its own block** in the report — a heading that says
-which re-run it is, what was fixed before it, which cases it re-runs, its
-own bar, and «Итог круга:» at the end — because a pass's bar stands still
-while cases are re-run, and a bar that stands still reads as a hang
-(`references/run-report.md` → Every re-run gets its own block).
+**Every run and every repeat is its own section** of the report, one under
+the other, with its own table and bar — a repeat says what was fixed before
+it, which cases it repeats, and «Итог повтора:» at the end; a later run in
+the iteration (after a fix plan) is appended, never written over the
+first. At the top, «Общий итог» — the share of automated cases passing by
+their latest result — and the page draws every section's bar at its top
+(`references/run-report.md` → Where and what).
 
 **The report is live.** Read `references/run-report.md` — the one place
-for the report's shape: path, bars, re-run blocks, an example, statuses,
-the verdict and the lists under it. Before the dispatch, create the report
-with every case of the run `⏳ ждёт`, the pass-1 bar at 0% and `Verdict:
-идёт прогон` under the table; then run `python3
+for the report's shape: path, sections, bars, an example, statuses, the
+verdict and the lists under it. Before the first run's dispatch, create the
+report: «Общий итог» at 0%, the section «Прогон 1 — все кейсы» with every
+case `⏳ ждёт` and its bar at 0%, `Verdict: идёт прогон` last; before a
+later run, append its section «Прогон <n> — после …» and turn the verdict
+to `идёт перепрогон · прошлый: …`; then run `python3
 "${CLAUDE_SKILL_DIR}/../pipeline/scripts/progress_link.py"
 documentation/plans/<version>/test-run.md` (add `--desktop` when the
 session has the built-in browser) and paste the line it prints in the chat
 as is — never a link written by hand (it gives the page that
-reloads itself, served in the desktop app). Pass 2's section is added
-under pass 1 when pass 1 reaches 100%, and the line is pasted again — as
-it is each time a runner dispatch returns and after each re-run round. A
+reloads itself, served in the desktop app). The разбор section is added
+under its run when the run reaches 100%, and the line is pasted again — as
+it is each time a runner dispatch returns and after each repeat. A
 run resumed after a break or a context compaction keeps the report: every
 case without a result in the current pass goes back to `⏳ ждёт`, the line
 is pasted again, and only then the runner goes on. The runner changes the
@@ -415,7 +419,7 @@ fix plan must turn green.
 - `references/writer-prompt.md` — packet for `ui-test-writer`.
 - `references/runner-prompt.md` — packet for `ui-test-runner`.
 - `references/run-report.md` — the run report `test-run.md`: bars,
-  re-run blocks, example, statuses, verdict. Read before creating it.
+  sections per run and repeat, example, statuses, verdict. Read before creating it.
 - `references/parallel-stands.md` — several identical stands for a long
   run: what makes a stand copyable, how many the machine holds, the split.
 - `playwright-cli` — `references/test-config.md` (the stand-ready

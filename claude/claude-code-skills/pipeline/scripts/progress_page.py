@@ -33,21 +33,19 @@ FILES = {
 STATUS = ["✅", "❌", "🔄", "🔍", "⏳", "🔁", "⛔", "⏭", "🖼", "❓"]
 
 
-def status_counts(text: str) -> list[tuple[str, int]]:
-    """One count per row of the main table — the first table with a «Статус» column after the file's first bar —
-    by the status's words before any colon («✅ прошёл», «❌ не прошёл», «⏭ не автоматизирован»). Never the
-    emoji counted over the whole file: a case is named again in a pass-2 table, a re-run block, the lists under
-    the verdict, and the page would count it each time."""
-    lines = text.splitlines()
-    start = next((i for i, l in enumerate(lines) if re.search(r"[█░]{5,}", l)), 0)
-    i = start
-    while i < len(lines):
-        if lines[i].lstrip().startswith("|") and i + 1 < len(lines) and re.match(r"^\s*\|[\s:|-]+\|\s*$", lines[i + 1]):
+def status_counts(lines: list[str], lo: int = 0, hi: int | None = None) -> list[tuple[str, int]]:
+    """One count per row of the first table with a «Статус» column in lines[lo:hi], by the status's words before
+    any colon («✅ прошёл», «❌ не прошёл», «⏭ не автоматизирован»). Never the emoji counted over the whole file:
+    a case is named again in another run's table and in the lists under the verdict."""
+    hi = len(lines) if hi is None else hi
+    i = lo
+    while i < hi:
+        if lines[i].lstrip().startswith("|") and i + 1 < hi and re.match(r"^\s*\|[\s:|-]+\|\s*$", lines[i + 1]):
             head = [c.strip() for c in lines[i].strip().strip("|").split("|")]
             col = next((k for k, c in enumerate(head) if c.startswith("Статус")), None)
             j = i + 2
             rows = []
-            while j < len(lines) and lines[j].lstrip().startswith("|"):
+            while j < hi and lines[j].lstrip().startswith("|"):
                 rows.append([c.strip() for c in lines[j].strip().strip("|").split("|")])
                 j += 1
             if col is not None:
@@ -64,16 +62,43 @@ def status_counts(text: str) -> list[tuple[str, int]]:
         i += 1
     return []
 
+
+def bars(text: str) -> list[dict]:
+    """Every bar of the file, in order: the heading it sits under (none above the first `## ` — the file's own
+    bar), its percent, its count line, and the status counts of its own section's table."""
+    lines = text.splitlines()
+    heads = [(i, len(m.group(1)), re.sub(r"[*`]", "", m.group(2)).strip())
+             for i, l in enumerate(lines) for m in [re.match(r"^(#{1,4})\s+(.*)$", l)] if m]
+    out = []
+    for i, l in enumerate(lines):
+        m = re.match(r"^\s*[█░]{5,}\s*(\d{1,3})\s*%", l)
+        if not m:
+            continue
+        above = [h for h in heads if h[0] < i and h[1] >= 2]
+        label = above[-1][2] if above else ""
+        nxt = next((h[0] for h in heads if h[0] > i), len(lines))
+        count = ""
+        for x in lines[i + 1:nxt]:
+            x = x.strip()
+            if x and not x.startswith(("```", "|", "#")):
+                count = re.sub(r"[*`]", "", x)
+                break
+        out.append({"label": label, "pct": int(m.group(1)), "count": count,
+                    "chips": status_counts(lines, i, nxt)})
+    return out
+
+
 CSS = """
 :root{--bg:#fbfaf8;--card:#fff;--fg:#1f2328;--muted:#656d76;--line:#e4e2dd;--bar:#e9e6e0;--done:#2f8f5b;--acc:#3b6fd8}
 @media (prefers-color-scheme:dark){:root{--bg:#16181c;--card:#1e2126;--fg:#e6e6e6;--muted:#9aa1a9;--line:#30343b;--bar:#2b2f36;--done:#3fb37a;--acc:#6e9bff}}
 *{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--fg);font:15px/1.5 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif}
 main{max-width:1180px;margin:0 auto;padding:24px 16px 64px}.stage{font-size:13px;color:var(--muted);text-transform:uppercase;letter-spacing:.04em}
 h1{font-size:24px;line-height:1.25;margin:4px 0 16px}.head{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:16px 18px;margin-bottom:24px}
-.row{display:flex;align-items:baseline;justify-content:space-between;gap:12px}.count{font-weight:600}.pct{font-size:28px;font-weight:700;font-variant-numeric:tabular-nums}
+.head>.lbl{font-size:13px;font-weight:600;color:var(--muted);margin-bottom:2px}.row{display:flex;align-items:baseline;justify-content:space-between;gap:12px}.count{font-weight:600}.pct{font-size:28px;font-weight:700;font-variant-numeric:tabular-nums}
 .track{height:12px;background:var(--bar);border-radius:7px;overflow:hidden;margin:10px 0}.fill{height:100%;background:var(--done);border-radius:7px}
 .chips{display:flex;flex-wrap:wrap;gap:6px;font-size:13px;color:var(--muted)}.chips span{background:var(--bar);border-radius:999px;padding:2px 10px}
-.sub{color:var(--muted);font-size:12.5px;margin-top:10px}.body{overflow-x:auto}.body h1{display:none}.body h2{font-size:18px;margin:28px 0 10px}.body h3{font-size:16px}
+.sub{color:var(--muted);font-size:12.5px;margin-top:10px}.runs{margin-top:14px;border-top:1px solid var(--line);padding-top:10px;display:grid;gap:10px}
+.run .lbl{font-size:13px;font-weight:600}.run .cnt{font-size:13px;color:var(--muted)}.run .track{height:8px;margin:5px 0}.run .chips{font-size:12px}.body{overflow-x:auto}.body h1{display:none}.body h2{font-size:18px;margin:28px 0 10px}.body h3{font-size:16px}
 table{border-collapse:collapse;width:100%;font-size:14px;background:var(--card)}th,td{border-bottom:1px solid var(--line);padding:7px 9px;text-align:left;vertical-align:top}
 th{color:var(--muted);font-weight:600;white-space:nowrap}pre{background:var(--bar);padding:8px 10px;border-radius:6px;overflow-x:auto;font-size:12px}code{font-size:.92em}
 a{color:var(--acc)}.hash{display:none}
@@ -113,7 +138,15 @@ def page(md: Path) -> None:
     pct = percent(text)
     count, state = lines_of(text)
     title = next((re.sub(r"[*`]", "", l[2:]).strip() for l in text.splitlines() if l.startswith("# ")), md.stem)
-    chips = "".join(f"<span>{html.escape(label)}: {n}</span>" for label, n in status_counts(text))
+    found = bars(text)
+    chip = lambda cs: "".join(f"<span>{html.escape(label)}: {n}</span>" for label, n in cs)
+    chips = chip(found[0]["chips"]) if found else ""
+    runs = "".join(
+        f'<div class="run"><div class="row"><div class="lbl">{html.escape(b["label"] or "—")}</div>'
+        f'<div class="lbl">{b["pct"]}%</div></div><div class="cnt">{html.escape(b["count"])}</div>'
+        f'<div class="track"><div class="fill" style="width:{b["pct"]}%"></div></div>'
+        f'<div class="chips">{chip(b["chips"])}</div></div>' for b in found[1:])
+    lead = (found[0]["label"] or "Общий итог") if len(found) > 1 else ""
     # the bar and the count line are drawn in the header, not repeated in the body
     body_md = re.sub(r"```text\n[█░\s\d%]+\n```\n*", "", text, count=1)
     if count:
@@ -130,10 +163,12 @@ def page(md: Path) -> None:
            f'<meta http-equiv="refresh" content="5"><title>{html.escape(title)}</title><style>{CSS}</style></head>'
            f'<body><main><div class="stage">{html.escape(FILES.get(md.name, md.stem))}</div>'
            f"<h1>{html.escape(title)}</h1>"
-           f'<div class="head"><div class="row"><div class="count">{html.escape(count)}</div>'
+           f'<div class="head">{f"<div class=lbl>{html.escape(lead)}</div>" if lead else ""}'
+           f'<div class="row"><div class="count">{html.escape(count)}</div>'
            f'<div class="pct">{"—" if pct is None else f"{pct}%"}</div></div>'
            f'<div class="track"><div class="fill" style="width:{width}%"></div></div>'
            f'<div class="chips">{chips}</div>'
+           f'{f"<div class=runs>{runs}</div>" if runs else ""}'
            f'<div class="sub">{html.escape(state)}{" · " if state else ""}страница обновляется сама каждые 5 секунд · '
            f'собрана {now} из <a href="{html.escape(md.name)}">{html.escape(md.name)}</a></div></div>'
            f'<div class="body">{body}</div></main></body></html>')
