@@ -317,7 +317,9 @@ work up from git (`references/team.md`) then finds every finished document
 on the branch, and `scripts/where_am_i.py` reads from the commits what is
 written and which stage is still open. **A finished document is sent,
 not a draft.** A document is final when the gates of its stage that apply to
-it ran or the user skipped them and their fixes are committed; only then run
+it ran or the user skipped them and their fixes are committed, and
+`python3 "${CLAUDE_SKILL_DIR}/../doc-versioning/scripts/doc_check.py" . --only <each document of the stage>`
+passes before the stamp commit (its lines are fixed first); only then run
 `python3 "${CLAUDE_SKILL_DIR}/scripts/push_branch.py"`: at the stage's close,
 after the stamp, all its documents at once (the architecture's three too); a
 changed decision is final at its own commit;

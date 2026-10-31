@@ -11,18 +11,39 @@ others' commits are taken (`--autostash`) and put back.
 When `origin` already has the branch, it first takes the others' commits (`git pull --rebase`); a rebase that stops
 on a conflict is undone (`git rebase --abort`) and the script stops with exit 2 — the session asks the user. A push
 the remote refuses (no access, no network, a branch moved meanwhile) is exit 1 with the reason and the command to
-run by hand; the stage goes on, it is not a stop. Never `--force`, never a tag. Exit 0: pushed, or nothing to push.
+run by hand; the stage goes on, it is not a stop. Exit 3: a contract document the push carries fails
+doc-versioning/scripts/doc_check.py (its lines are printed) — nothing is pushed until it is fixed. Never `--force`,
+never a tag. Exit 0: pushed, or nothing to push.
 Standard library only.
 """
 from __future__ import annotations
 
 import subprocess
 import sys
+from pathlib import Path
 
 
 def git(root: str, *args: str) -> tuple[int, str]:
     p = subprocess.run(["git", "-C", root, *args], capture_output=True, text=True)
     return p.returncode, (p.stdout + p.stderr).strip()
+
+
+def form_problems(root: str, upstream: str | None) -> str:
+    """doc_check.py over the contract documents this push carries: a document with a broken form is not final."""
+    base = upstream or next((b for b in ("origin/main", "main", "origin/master", "master")
+                             if git(root, "rev-parse", "-q", "--verify", b)[0] == 0), None)
+    if not base:
+        return ""
+    _, names = git(root, "diff", "--name-only", f"{base}...HEAD", "--", "documentation")
+    docs = sorted({n for n in names.splitlines() if not n.startswith(("documentation/plans/", "documentation/_web-docs/"))})
+    if not docs:
+        return ""
+    check = Path(__file__).resolve().parents[2] / "doc-versioning" / "scripts" / "doc_check.py"
+    args = [sys.executable, str(check), root]
+    for d in docs:
+        args += ["--only", d]
+    r = subprocess.run(args, capture_output=True, text=True)
+    return "" if r.returncode == 0 else r.stdout.strip()
 
 
 def main() -> None:
@@ -49,6 +70,11 @@ def main() -> None:
     if ahead == "0":
         print(f"push: origin/{branch} уже содержит всё — отправлять нечего")
         sys.exit(0)
+    bad = form_problems(root, f"origin/{branch}" if fetched == 0 else None)
+    if bad:
+        print("push: не отправлено — у отправляемых документов ошибки формы (doc_check.py); исправьте, закоммитьте "
+              "и отправьте снова:\n" + bad)
+        sys.exit(3)
     code, out = git(root, "push", "-u", "origin", branch)
     if code:
         print(f"push: не отправлено — {out.splitlines()[-1] if out else 'ошибка'}. Вручную: {manual}")
