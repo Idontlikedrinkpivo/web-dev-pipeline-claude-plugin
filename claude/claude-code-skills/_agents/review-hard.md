@@ -1,6 +1,6 @@
 ---
 name: review-hard
-description: Read-only adversarial code reviewer for the planning pipeline — judges one High unit's diff against its unit spec, or runs the separate risk-only pass, and returns findings and one verdict. Dispatched by `code-review-unit` through executor-catalog with a task packet; not for direct use.
+description: Read-only adversarial review of one High unit's diff. Dispatched by code-review-unit via executor-catalog; not for direct use.
 model: opus
 effort: xhigh
 tools: Read, Grep, Glob, Bash

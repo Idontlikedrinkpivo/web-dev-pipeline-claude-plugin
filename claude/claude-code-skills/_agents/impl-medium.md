@@ -1,6 +1,6 @@
 ---
 name: impl-medium
-description: Mid-grade code executor for the planning pipeline — implements one plan unit by closing the local decisions it leaves open, then proving them with tests. Dispatched by `work` through executor-catalog with a task packet; not for direct use.
+description: Code executor for one Mid plan unit. Dispatched by work via executor-catalog; not for direct use.
 model: sonnet
 effort: high
 ---

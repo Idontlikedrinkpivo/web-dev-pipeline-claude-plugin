@@ -1,8 +1,8 @@
 ---
 name: ui-ux-pro-max
 description: >-
-  Design data: styles by product type, palettes, Cyrillic font pairs, landing patterns, charts. Use for «подбери
-  палитру», «какой шрифт»; a pick reaches the project via ui-design's visual direction. UX rules: ux-patterns.
+  Design reference data: palettes, Cyrillic font pairs, styles by product type, landing patterns, charts. Use for
+  «подбери палитру», «какой шрифт подойдёт». A style for the project: ui-design; UX rules: ux-patterns.
 ---
 
 # UI UX Pro Max — design data

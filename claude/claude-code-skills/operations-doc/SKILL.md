@@ -1,8 +1,8 @@
 ---
 name: operations-doc
 description: >-
-  Writes the operations document for a built system: what it records and where, how to see each, jobs, alarms,
-  troubleshooting. Use for «эксплуатационная документация», «где посмотреть журналы», «инструкция для поддержки».
+  Writes the operations document for a built system: logs, jobs, alarms, troubleshooting. Use for «эксплуатационная
+  документация», «где посмотреть журналы», «инструкция для поддержки». Deployment: deploy-topology.
 ---
 
 # Operations document

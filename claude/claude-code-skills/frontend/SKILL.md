@@ -1,9 +1,8 @@
 ---
 name: frontend
 description: >-
-  Builds screens from a screen spec and OpenAPI (React + Vite or Next.js): each element, state and error mapped, a
-  typed client. Usually run by work; «сверстай экран S-3» once its ТЗ exists. No mockup yet: ui-design; a chat fix:
-  work.
+  Builds screens from a screen spec and OpenAPI (React + Vite or Next.js); usually run by work. Directly: «сверстай
+  экран S-3» once its ТЗ exists. No mockup: ui-design; a chat fix: work.
 ---
 
 # Frontend

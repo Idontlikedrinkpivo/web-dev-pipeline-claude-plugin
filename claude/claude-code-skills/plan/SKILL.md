@@ -1,9 +1,8 @@
 ---
 name: plan
 description: >-
-  Turns design documents or existing code into the implementation plan: one-commit units, each with a grade and an
-  executor; or a fix plan from a test or audit report. Use for «составь план», «разбей на задачи», «план исправлений»,
-  «исправь дефекты по отчёту».
+  Turns design documents or code into the implementation plan (one-commit units, grade, executor), or a fix plan from
+  a test or audit report. Use for «составь план», «разбей на задачи», «исправь баги из отчёта».
 ---
 
 # Implementation Plan with Executor Routing

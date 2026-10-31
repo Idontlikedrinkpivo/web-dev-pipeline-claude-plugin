@@ -32,8 +32,9 @@ Name the `S-n` in the page file's first comment line so a search for `S-1` finds
 
 ## Stack conventions
 
-- No server of its own: the session is the API's cookie, so the client sends
-  credentials and the app-wide handler owns `401`.
+- No server of its own. The session travels as the architecture §1 decides: the API's `HttpOnly` cookie (the
+  client sends credentials) or a Bearer token — the backend skills' default — kept in memory only, never in
+  `localStorage` or `sessionStorage`. Either way the app-wide handler owns `401`.
 - Loading/Error/Empty come from the query status of that screen, not a global
   spinner. Retry buttons call the query's refetch.
 - The API base URL comes from a build-time env variable read in `shared/api/client.ts` only.

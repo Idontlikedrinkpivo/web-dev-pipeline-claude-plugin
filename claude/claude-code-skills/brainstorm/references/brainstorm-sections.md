@@ -148,8 +148,9 @@ Run this against the written artifact before declaring it written or presenting
 the Phase 4 closing summary:
 
 1. **Complete** — no placeholders, `TBD`s, or half-written sections remain;
-   every Outstanding Question is classified as `Resolve Before Planning` or
-   `Deferred to Planning`. When the coherent-work gate split a broader request,
+   every open question is a row of `open-questions.md` beside the document,
+   classed «Блокирует старт» or «Отложено» (`doc-versioning` → Открытые
+   вопросы); the document itself has no open-questions section. When the coherent-work gate split a broader request,
    the `work-relationships` section is present and carries the marker for the
    marker `<!-- ce-section: work-relationships -->`.
 2. **Consistent** — Goal Capsule, Requirements, Key Flows, Acceptance Examples,

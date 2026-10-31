@@ -1,7 +1,8 @@
 ---
 name: vitest
 description: >-
-  Vitest rules (tests per layer, fakes over vi.mock, MSW); read before writing *.test.ts files.
+  Internal: Vitest rules (tests per layer, fakes over vi.mock, MSW); read by work's executors before *.test.ts(x) and
+  vitest.config.
 ---
 
 # Vitest

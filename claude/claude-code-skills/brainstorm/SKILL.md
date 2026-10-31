@@ -1,8 +1,8 @@
 ---
 name: brainstorm
 description: >-
-  Turns a vague idea or new feature into the business-requirements document: goal, scope, product contract. Use for
-  «давай подумаем», «что строим», «хочу новую фичу». A ready description goes to srs-writer.
+  Turns an idea or feature into the business-requirements document (goal, scope, product contract); a clear request
+  gets a short confirmation. Use for «давай подумаем», «что строим», «хочу новую фичу». Numbered SRS: srs-writer.
 ---
 
 # Brainstorm a Feature or Improvement

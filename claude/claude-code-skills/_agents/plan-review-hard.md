@@ -1,6 +1,6 @@
 ---
 name: plan-review-hard
-description: Read-only judgment plan reviewer for the planning pipeline — argues with an implementation plan's commit atomicity, grade calibration against the complexity cascade, and test-first writability. Dispatched by `plan-review` through executor-catalog with a task packet; not for direct use.
+description: Read-only judgment review of a plan. Dispatched by plan-review via executor-catalog; not for direct use.
 model: opus
 effort: xhigh
 tools: Read, Grep, Glob, Bash

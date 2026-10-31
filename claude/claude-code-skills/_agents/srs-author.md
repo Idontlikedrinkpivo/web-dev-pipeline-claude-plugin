@@ -1,6 +1,6 @@
 ---
 name: srs-author
-description: SRS writer for the planning pipeline — settles every decision of one Software Requirements Specification (greenfield, increment, or grill reversal) and hands the printing to `doc-typist`. Dispatched by `srs-writer` through executor-catalog with a task packet; not for direct use.
+description: Settles one SRS; doc-typist prints it. Dispatched by srs-writer, grill-me, the session via executor-catalog; not for direct use.
 model: sonnet
 effort: high
 ---

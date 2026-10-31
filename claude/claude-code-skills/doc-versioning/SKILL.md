@@ -1,8 +1,8 @@
 ---
 name: doc-versioning
 description: >-
-  How documents evolve: edited in place, stable ids, a version per release, changelog rows, sources pins, the stamp at
-  a stage's close. Use for «проставь версии», «какая версия документа», «найди устаревшие ссылки».
+  Sets document versions: stable ids, a version per release, changelog rows, sources pins, the stage-close stamp. Use
+  for «проставь версии», «обнови версии документов», «найди устаревшие ссылки».
 ---
 
 # Document Versioning

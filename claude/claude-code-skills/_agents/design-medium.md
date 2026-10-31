@@ -1,6 +1,6 @@
 ---
 name: design-medium
-description: Mid-grade design writer for the planning pipeline — closes the local design decisions of a Modest, one-slice architecture, DB schema, or OpenAPI document and hands the printing to `doc-typist`. Dispatched by `clean-architecture-design`, `db-schema-design`, or `openapi-spec-generator` through executor-catalog with a task packet; not for direct use.
+description: Design writer, Mid grade. Dispatched by clean-architecture-design, db-schema-design, openapi-spec-generator; not for direct use.
 model: opus
 effort: high
 ---

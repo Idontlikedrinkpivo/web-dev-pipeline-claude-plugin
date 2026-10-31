@@ -1,9 +1,8 @@
 ---
 name: docs-consistency
 description: >-
-  Checks that the finished SRS, schema, OpenAPI, architecture and screen specs agree: every requirement has a home,
-  every shared name one meaning. Use before plan, or for «сходятся ли документы», «сверь ТЗ, схему и API». One
-  document: doc-review.
+  Checks that the finished SRS, schema, OpenAPI, architecture and screen specs agree. Use before plan, or for «проверь
+  документы», «сходятся ли документы», «сверь ТЗ и API». One document: doc-review.
 ---
 
 # Docs Consistency

@@ -1,6 +1,6 @@
 ---
 name: docs-consistency-checker
-description: Read-only cross-document checker for the planning pipeline — reads the finished SRS, DB schema, OpenAPI, architecture, domain model, scenarios and screen specs together and reports where they contradict each other or leave a requirement without a home, as labelled text. Dispatched by `docs-consistency` through executor-catalog with a task packet; not for direct use.
+description: Read-only check that the finished documents agree. Dispatched by docs-consistency via executor-catalog; not for direct use.
 model: sonnet
 effort: high
 tools: Read, Grep, Glob, Bash

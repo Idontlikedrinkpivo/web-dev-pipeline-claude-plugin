@@ -1,9 +1,8 @@
 ---
 name: reflect
 description: >-
-  At an iteration's end, reads its sessions and logs where the dev-pipeline plugin itself failed, with the user's
-  words, and what the run cost by agent, in a feedback file outside the repo. Use for «разбери сессии для плагина»,
-  «сколько стоила итерация», /reflect. Never edits the plugin.
+  At an iteration's end, finds in its sessions where the dev-pipeline plugin itself failed and what the iteration cost
+  by agent. Use for «разбери сессии для плагина», «сколько стоила итерация». One session's tokens: explain-usage.
 ---
 
 # Reflect

@@ -1,8 +1,8 @@
 ---
 name: fastapi
 description: >-
-  FastAPI rules (routes from openapi.yaml, Depends, problem+json, JWT login, settings); read before FastAPI code. The
-  contract: openapi-spec-generator.
+  Internal: FastAPI rules (routes from openapi.yaml, Depends, problem+json, login, settings); read by work's executors
+  before FastAPI code.
 ---
 
 # FastAPI
@@ -100,7 +100,8 @@ Outside `work`, read the file and check each point you rely on against the insta
    ORM record as the response.
 2. **Errors reach the client only through the handlers in `bootstrap/`**: no `HTTPException(detail=...)`, no body
    built in a route, a validation failure answers the contract's validation status, not FastAPI's default 422 body.
-3. **Login is timing-safe and strict**: tokens through PyJWT and passwords through `pwdlib` (Argon2) — not
+3. **Login is timing-safe and strict** — when the app runs its own password login (with SSO the token is the
+   issuer's, checked by its keys as architecture §1 says, and this check does not apply): tokens through PyJWT and passwords through `pwdlib` (Argon2) — not
    `python-jose`, `passlib` or a bare `hashlib`; an unknown email still verifies against a dummy hash; decoding passes
    `algorithms=[...]`; a bad token is 401 with `WWW-Authenticate: Bearer`; a role is read from the database on each
    request, never from a token claim; login and registration are rate-limited by address and by account where

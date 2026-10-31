@@ -2,8 +2,7 @@
 name: web-design-guidelines
 description: >-
   Code-level UI rules (Vercel guidelines mapped to UX-n): accessibility, focus, forms, motion, performance. Use for
-  screen code written or reviewed, «проверь вёрстку», «ревью вёрстки». Not mockups (ux-patterns) or the running app
-  (ui-test-cases).
+  «проверь вёрстку», «ревью вёрстки». Not mockups (ux-patterns) or the running app (ui-test-cases).
 ---
 
 # Web interface guidelines

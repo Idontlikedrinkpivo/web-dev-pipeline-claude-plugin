@@ -1,6 +1,6 @@
 ---
 name: session-reviewer
-description: Read-only reviewer of one Claude Code session digest for the planning pipeline — finds where the dev-pipeline plugin itself worked badly (the user correcting a stage, a rule skipped or lost after a compaction, a skill instruction that misled), each with the user's quote, the skill and rule it touches and a suggested change. Dispatched by `reflect` through executor-catalog with a task packet; not for direct use.
+description: Read-only review of one session digest for plugin faults. Dispatched by reflect via executor-catalog; not for direct use.
 model: sonnet
 effort: medium
 tools: Read, Grep, Glob, Bash

@@ -1,6 +1,6 @@
 ---
 name: review-full-plan
-description: Read-only whole-run code reviewer for the planning pipeline — judges the entire branch diff of a finished plan once for cross-unit drift, aggregate invariant and AC coverage, and the definition of done. Dispatched by `code-review-full` through executor-catalog with a task packet; not for direct use.
+description: Read-only review of a finished plan's whole diff. Dispatched by code-review-full via executor-catalog; not for direct use.
 model: opus
 effort: high
 tools: Read, Grep, Glob, Bash

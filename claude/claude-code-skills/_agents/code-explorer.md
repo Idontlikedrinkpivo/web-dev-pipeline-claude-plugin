@@ -1,6 +1,6 @@
 ---
 name: code-explorer
-description: Read-only repository explorer for the planning pipeline — locates files, patterns, call sites, and conventions and returns paths and shapes, or verifies listed claims with file and line evidence. Dispatched by `plan`, `grill-me`, and `brainstorm` through executor-catalog with a task packet; not for direct use.
+description: Read-only repo scout for files, patterns, call sites, claim checks. Dispatched by plan, grill-me, brainstorm; not for direct use.
 model: haiku
 effort: low
 tools: Read, Grep, Glob, Bash

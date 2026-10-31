@@ -1,9 +1,8 @@
 ---
 name: ui-design
 description: >-
-  Design stage in Figma: visual direction as style tiles, mockups from the SRS, restyles, the frames register. Use for
-  «нарисуй макеты», «дизайн экранов», «сделай экран настроек» with no mockup yet, «перерисуй стильнее», «сделай менее
-  шаблонно», «нужен характер». Not screen-spec or frontend.
+  Figma design stage: visual direction, mockups from the SRS, restyles. Use for «нарисуй макеты», «подбери стиль»,
+  «перерисуй стильнее». A screen not in the SRS: brainstorm first. Not screen-spec or frontend.
 ---
 
 # UI Design

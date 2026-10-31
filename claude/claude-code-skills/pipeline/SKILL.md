@@ -1,9 +1,9 @@
 ---
 name: pipeline
 description: >-
-  Order of the pipeline from idea to release: gates, next stages, skips, how a transition is asked. Use at each
-  stage's close and for «где я», «что дальше», «на чём остановились», «продолжим», also in a new session (user
-  command: /dev-pipeline:continue).
+  Stage order from idea to release: gates, next step, iteration close, changed decisions into documents. Use for «где
+  я», «что дальше», «продолжим», «закрой итерацию», «итог», «сводка», «что осталось до релиза», «поменяли правило —
+  обнови документы».
 ---
 
 # Pipeline
@@ -46,10 +46,10 @@ Inside `work`, the reviews in the Gates cell stay automatic.
 | **gate** | the check listed for this stage (`grill-me`, `doc-review`). Ask before starting it; every question inside it — each grill question, each review finding — is the user's to answer. `plan-review` and the code reviews are not asked: they run on their own, because every product decision is already settled in the documents, so what the review finds is the pipeline's own work to fix. A recommendation, not a lock: the user runs it, skips it and goes on, or stops. A skipped gate is named in the stage's report and blocks nothing. |
 | **offer** | the one next stage in the table. Ask before starting it. A declined offer stops the sitting. |
 
-The exception is stage 12: `work` invokes `code-review-unit` per unit and
-`code-review-full` once at the end without asking. Those calls are inside
-the run, not transitions; nothing outside `work` schedules them. The offer
-after `work` is still a question.
+Two exceptions, both reviews of the pipeline's own work: stage 11, where `plan-review` runs on the plan without
+asking, its findings fixed round by round; and stage 12, where `work` invokes `code-review-unit` per unit and
+`code-review-full` once at the end without asking. Those calls are not transitions; the offer after `plan` and
+the offer after `work` are still questions.
 
 A skipped gate is not a passed gate, and it is not a stop either. Say
 which gate did not run, leave its field unset (`grilled:`, `reviewed:`,

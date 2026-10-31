@@ -1,7 +1,8 @@
 ---
 name: fastapi-sqlalchemy
 description: >-
-  SQLAlchemy async and Alembic under FastAPI (repositories, sessions, commits, migrations); read before such code.
+  Internal: SQLAlchemy async and Alembic under FastAPI (repositories, sessions, migrations); read by work's executors
+  before such code.
 ---
 
 # FastAPI + SQLAlchemy async

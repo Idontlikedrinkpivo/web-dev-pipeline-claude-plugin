@@ -1,6 +1,6 @@
 ---
 name: ui-test-runner
-description: UI acceptance runner for the planning pipeline — turns user test cases into Playwright tests, starts the app locally, runs them, compares screens with the Figma frames, and reports defects. Never edits application code. Dispatched by `ui-test-cases` (mode run) through executor-catalog with a task packet; not for direct use.
+description: Runs UI test cases as Playwright tests on the local app. Dispatched by ui-test-cases via executor-catalog; not for direct use.
 model: sonnet
 effort: high
 ---

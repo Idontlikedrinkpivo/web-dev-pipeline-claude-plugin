@@ -1,7 +1,8 @@
 ---
 name: typescript-fastify
 description: >-
-  Fastify rules (routes from openapi.yaml, problem+json errors, contract test); read before Fastify code.
+  Internal: Fastify rules (routes from openapi.yaml, problem+json errors, contract test); read by work's executors
+  before Fastify code.
 ---
 
 # Fastify

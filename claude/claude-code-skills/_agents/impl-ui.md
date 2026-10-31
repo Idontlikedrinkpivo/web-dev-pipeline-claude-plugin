@@ -1,6 +1,6 @@
 ---
 name: impl-ui
-description: Frontend code executor for the planning pipeline — implements one plan unit whose docs cite a screen spec and a Figma nodeId (a screen and its states, or a component shaped by that frame) or the 🎨 Tokens page (the theme after a restyle), at any grade. Dispatched by `work` through executor-catalog with a task packet; not for direct use.
+description: Code executor for a screen unit built from its spec and frame. Dispatched by work via executor-catalog; not for direct use.
 model: sonnet
 effort: high
 ---

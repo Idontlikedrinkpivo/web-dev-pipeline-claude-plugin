@@ -1,9 +1,8 @@
 ---
 name: security-audit
 description: >-
-  Audits the whole app's security before release: scanners, then each API operation traced from route to data (auth,
-  roles, others' data). Use for «проверь безопасность», «нет ли уязвимостей», «нет ли дыр в безопасности». Requirement
-  gaps: doc-review.
+  Audits the whole app's security before release: scanners, then each API operation traced route to data. Use for
+  «проверь безопасность», «аудит безопасности», «нет ли уязвимостей». A PR or diff: /security-review.
 ---
 
 # Security Audit

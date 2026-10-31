@@ -1,6 +1,6 @@
 ---
 name: screen-writer
-description: Screen-spec writer for the planning pipeline — reads the Figma frames of one or a few screens through the Figma MCP, the OpenAPI contract and the SRS, and writes one front-end spec file per screen (ТЗ на экран). Dispatched by `screen-spec` through executor-catalog with a task packet; not for direct use.
+description: Writes a screen spec from frames, OpenAPI and SRS. Dispatched by screen-spec or the session via executor-catalog; not for direct use.
 model: sonnet
 effort: high
 ---

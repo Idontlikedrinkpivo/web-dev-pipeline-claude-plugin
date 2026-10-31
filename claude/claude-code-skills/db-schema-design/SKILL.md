@@ -1,8 +1,8 @@
 ---
 name: db-schema-design
 description: >-
-  Designs the relational schema from the SRS, slice by slice: DBMS and version, tables, keys, constraints, indexes,
-  SQL migrations, ER diagram. Use for «схема БД», «какие таблицы нужны», «выбор СУБД». Not the API or entities.
+  Designs the relational schema from the SRS: DBMS, tables, keys, indexes, migrations, ER diagram. Use for «схема БД»,
+  «спроектируй базу», «какие таблицы нужны», «Postgres или MySQL». Not API or entities.
 ---
 
 # Database Schema Design

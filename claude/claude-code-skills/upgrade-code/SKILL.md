@@ -1,10 +1,8 @@
 ---
 name: upgrade-code
 description: >-
-  Brings a project's code and settings (quality gates, linters, CI) up to a newer dev-pipeline plugin, a commit each,
-  and audits the code and its technical decisions against the plugin's rules — fix, rewrite or accept, the user
-  decides each. Use when the session-start hook names code changes, «обнови линтеры и CI под плагин», «проведи аудит
-  кода», «нужно ли переписывать». Documents: upgrade-docs.
+  Brings a project's code, linters and CI up to a newer dev-pipeline plugin and audits code by its rules. Use when the
+  hook names code changes, «обнови CI под новую версию плагина», «аудит кода по правилам плагина». Docs: upgrade-docs.
 ---
 
 # Upgrade a project's code to the installed plugin

@@ -1,6 +1,6 @@
 ---
 name: impl-critical
-description: Escalation code executor for the planning pipeline — the tier above High for a unit that came back BLOCKED or HARDER_THAN_EXPECTED, carrying the previous attempt's report. Dispatched by `work` (escalation only) through executor-catalog with a task packet; not for direct use.
+description: Code executor for an escalated unit, with the last report. Dispatched by work via executor-catalog; not for direct use.
 model: sonnet
 effort: high
 ---

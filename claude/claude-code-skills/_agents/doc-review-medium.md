@@ -1,6 +1,6 @@
 ---
 name: doc-review-medium
-description: Read-only document reviewer for the planning pipeline — runs the design-lens or scope-guardian persona over a finished requirements or design document when those signals are present, and returns findings as labelled text. Dispatched by `doc-review` through executor-catalog with a task packet; not for direct use.
+description: Read-only design-lens or scope persona over a document. Dispatched by doc-review via executor-catalog; not for direct use.
 model: sonnet
 effort: high
 tools: Read, Grep, Glob, Bash

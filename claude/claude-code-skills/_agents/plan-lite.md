@@ -1,6 +1,6 @@
 ---
 name: plan-lite
-description: Low-grade plan writer for the planning pipeline — slices a fully bounded increment into atomic units along seams the design already drew and hands the printing to `doc-typist`. Dispatched by `plan` through executor-catalog with a task packet; not for direct use.
+description: Plan writer, Low grade. Dispatched by plan via executor-catalog; not for direct use.
 model: sonnet
 effort: high
 ---

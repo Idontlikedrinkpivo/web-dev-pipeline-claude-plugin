@@ -1,6 +1,6 @@
 ---
 name: ui-test-writer
-description: Test-case writer for the planning pipeline — turns SRS acceptance criteria and screen specs into numbered user test cases (steps in interface terms, expected states and messages, frame ids). Dispatched by `ui-test-cases` (mode write) through executor-catalog with a task packet; not for direct use.
+description: Writes UI test cases from SRS criteria and screen specs. Dispatched by ui-test-cases, screen-spec, docs-consistency; not for direct use.
 model: sonnet
 effort: medium
 tools: Read, Grep, Glob, Bash, Write, Edit

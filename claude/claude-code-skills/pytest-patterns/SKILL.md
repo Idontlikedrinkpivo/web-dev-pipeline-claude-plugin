@@ -1,7 +1,8 @@
 ---
 name: pytest-patterns
 description: >-
-  pytest rules for FastAPI backends (layers, real PostgreSQL, fixtures); read before Python backend tests.
+  Internal: pytest rules for FastAPI backends (layers, real PostgreSQL, fixtures); read by work's executors before
+  Python tests.
 compatibility: 'Python, pytest, pytest-asyncio, httpx, factory_boy; versions come from the project lockfile'
 metadata:
   version: '2.0.0'

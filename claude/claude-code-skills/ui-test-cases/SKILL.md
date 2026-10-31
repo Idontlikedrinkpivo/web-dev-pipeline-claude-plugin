@@ -1,9 +1,8 @@
 ---
 name: ui-test-cases
 description: >-
-  UI acceptance. write: SRS criteria and screen specs become test cases; run: Playwright tests on the local app,
-  checked against the frames. Use for «тест-кейсы», «протыкай приложение», «протестируй в браузере», «e2e». One-off
-  check: playwright-cli.
+  Writes UI test cases from SRS criteria and screen specs, then runs them as Playwright tests against the frames. Use
+  for «тест-кейсы», «прогони тест-кейсы», «приёмочное тестирование». One-off check: playwright-cli.
 ---
 
 # UI Test Cases

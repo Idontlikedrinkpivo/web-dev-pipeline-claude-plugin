@@ -1,8 +1,8 @@
 ---
 name: clean-architecture-design
 description: >-
-  Writes the architecture from the SRS, schema and OpenAPI: foundation (stack, modules, file tree), domain model,
-  use-case scenarios. Use for «спроектируй архитектуру», «доменная модель», «сценарии use case». Not tables or API.
+  Writes the architecture from the SRS, schema and OpenAPI: stack, modules, file tree, domain model, scenarios. Use
+  for «спроектируй архитектуру», «выбери стек», «структура проекта». DBMS: db-schema-design.
 ---
 
 # Clean Architecture Design from Requirements

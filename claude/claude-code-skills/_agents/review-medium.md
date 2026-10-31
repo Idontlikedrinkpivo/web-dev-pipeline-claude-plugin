@@ -1,6 +1,6 @@
 ---
 name: review-medium
-description: Read-only code reviewer for the planning pipeline — judges one Mid unit's diff, or a batch of Low units, against the unit spec and returns findings and one verdict. Dispatched by `code-review-unit` through executor-catalog with a task packet; not for direct use.
+description: Read-only review of a Mid, Low-batch or UI unit's diff. Dispatched by code-review-unit via executor-catalog; not for direct use.
 model: opus
 effort: high
 tools: Read, Grep, Glob, Bash

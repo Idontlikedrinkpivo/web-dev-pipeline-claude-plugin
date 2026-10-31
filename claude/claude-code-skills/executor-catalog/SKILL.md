@@ -1,7 +1,7 @@
 ---
 name: executor-catalog
 description: >-
-  Internal routing: which agent runs each executor and how it is dispatched; read before any dispatch.
+  Internal: which agent runs each executor and how it is dispatched; read before dispatching a dev-pipeline agent.
 ---
 
 # Executor Catalog

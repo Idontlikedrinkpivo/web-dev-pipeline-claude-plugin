@@ -1,6 +1,6 @@
 ---
 name: plan-review-medium
-description: Read-only structural plan reviewer for the planning pipeline — checks an implementation plan's dependency graph, parallel safety, files completeness, citations, coverage, executor names, existing work, service version, and hygiene. Dispatched by `plan-review` through executor-catalog with a task packet; not for direct use.
+description: Read-only structural review of a plan. Dispatched by plan-review via executor-catalog; not for direct use.
 model: sonnet
 effort: medium
 tools: Read, Grep, Glob, Bash

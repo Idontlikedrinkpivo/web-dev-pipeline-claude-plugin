@@ -1,8 +1,8 @@
 ---
 name: frontend-design
 description: >-
-  Taste rules for frames and a visual direction, read by ui-design and the Figma builders; «перерисуй стильнее» is
-  ui-design.
+  Internal: taste rules for frames and a visual direction, read by ui-design and the Figma builders; not for direct
+  requests.
 ---
 
 # Frontend Design

@@ -1,8 +1,8 @@
 ---
 name: plan-review
 description: >-
-  Reviews a finished implementation plan before code: commit per unit, dependencies, parallel safety, grades,
-  coverage; one verdict. Runs after plan, or for «проверь план», «ревью плана». Not documents or code.
+  Reviews a finished implementation plan before code: units, dependencies, parallel safety, grades, coverage. Runs
+  after plan, or for «проверь план», «отревьюй план». Not documents or code.
 ---
 
 # Plan Review
@@ -39,7 +39,7 @@ author's own framing hid.
 |---|---|---|
 | Plan document `documentation/plans/<version>/plan.md` | **yes** | §1 digest and its version line, the unit table, every unit's fields, §5 критерии готовности, `open-questions.md` beside the plan, version pins |
 | Cited design documents | **yes** | resolving every `Документы` citation to a real section or id — a citation nobody checked is the plan's most common silent defect. Every part of a split document: `srs.md` and `areas/*.md`, `openapi.yaml` with `paths/` and `components/` |
-| The report a fix plan answers — `test-run.md` or `security-audit.md` beside the plan | on a fix plan | the rows its units cite and must cover |
+| The report a fix plan answers — `test-run.md` or `security-audit.md` beside the plan, or `documentation/plans/code-audit-<date>.md` | on a fix plan | the rows its units cite and must cover |
 | `executor-catalog/references/assignable-implementers.md` | **yes** | the only legal `Исполнитель` / `Вложенный` names |
 | `plan/references/complexity.md` | judgment half | the cascade, the six signals, both floors, the anti-inflation and anti-deflation gates — the standard grades are checked against |
 | The iteration's changes | **yes** | the manifest's current `version`; the iteration's typed changes — changelog rows whose `Версия` is the folder's version (OpenAPI: `info.x-changelog`), plus changes not stamped yet, from the diff of the versioned documents since the last tag `v<version>`; whether the API has external consumers (the foundation's Full trigger "versioned partner API", a `/vN` path) — what the level is checked against, and what the coverage ledger holds (Step 1) |
@@ -49,7 +49,7 @@ author's own framing hid.
 The plan's mode decides what is in scope: a **greenfield** plan answers for
 everything the documents hold; an **increment** for what this version
 added or changed; a **fix** plan (units appended after a `DEFECTS` or `FIX`
-report, `plan` → `references/modes.md`) for the report rows, and only its
+report, or born from a code audit's rows, `plan` → `references/modes.md`) for the report rows, and only its
 appended units are reviewed; a **brownfield** plan with no design
 documents cites `code:<path>` and answers for the request §1 names.
 
@@ -114,7 +114,7 @@ checked.
 | **Parallel safety** | for each `Параллельно: yes` pair: disjoint `Файлы` **and** no shared type, migration, registry, config, generated client, lockfile, or runtime resource (test database, port, dev server). Declared file disjointness is necessary, never sufficient — the unmarked shared contract is what a merge fight is made of. |
 | **Grade calibration** | run the cascade on the unit's own filled fields and compare to the stated grade. Check both floors — auth, authorization, money, migrations on existing data, secrets, external contracts never below Mid; a unit whose `Документы` do not determine the outcome never below Mid. Check the anti-deflation gate (`complexity.md`): a `— first of its kind` unit graded Low, or 0 outside the mechanical gate, is miscalibrated. Check the compound gate was reachable: a plan whose only High units are risky ones usually skipped it. |
 | **Files completeness** | for each unit with «Меняет символы» — and each unit that visibly removes or changes a field, a constant, an environment variable, a response shape or a public symbol without listing it there: search the repository for the symbol and check that every hit is in the unit's `Файлы` or named under «Не затрагивается» with a reason. A missing caller or test, or a changed symbol left out of «Меняет символы», is P1: the executor finds it mid-run and the unit goes round again. Then the other cases of `plan/references/files-field.md`: a later unit naming a path an earlier unit splits, moves or renames without the new path or «по итогам U<K>»; a new test file the unit's strategy needs; a tool's or a dependency's configs on a unit that changes it; sites a unit defers «до U<N>» missing from U<N> — each P1. |
-| **Citation integrity** | does every `Документы` entry resolve to a real section, id, `operationId`, table, or screen in the named document? A report row (`test-run.md TC-n`, `security-audit.md F<n>`) resolves against that report; `code:<path>` in a brownfield plan to a file in the repository; `plugin change <id>` to that id in the plugin's `upgrade-docs/changes.json`. A dangling citation is P0: the executor cannot see this session and will fill the gap by inventing. |
+| **Citation integrity** | does every `Документы` entry resolve to a real section, id, `operationId`, table, or screen in the named document? A report row (`test-run.md TC-n`, `security-audit.md F<n>`, `code-audit-<date>.md A<n>`) resolves against that report; `code:<path>` in a brownfield plan to a file in the repository; `plugin change <id>` to that id in the plugin's `upgrade-docs/changes.json`. A dangling citation is P0: the executor cannot see this session and will fill the gap by inventing. |
 | **Coverage** | a screen split into part units: do the parts' element ranges cover every element of its spec exactly once, with the first part setting the screen up and the last one checking it whole? And does every ledger line (Step 1 — in scope only) appear where it must: an invariant row or AC in some unit's `Тестовые сценарии`, a use case, operation, screen, NFR decision or configuration variable in some unit's `Документы` or `Файлы`, a report row in a fix unit's `Документы`? An operation or screen needs a unit, not its own test line. Nothing silently dropped, nothing covered twice by two units that will both claim ownership. |
 | **Test-first writability** | can each scenario's expected outcome be written before the implementation exists? A scenario whose expected value can only be filled in after reading the code has not been specified — the design already fixed the invariant, the status mapping, the constraint. |
 | **Executor validity** | does every `Исполнитель` sit on the assignable list (`mechanical-worker`, `impl-lite`, `impl-medium`, `impl-hard`, `impl-ui`), is `Вложенный` either `—` or `mechanical-worker`, and is no review / plan-review / doc-review / `code-explorer` / `impl-critical` name or model slug written into the plan? A unit whose `Документы` cite a screen spec and a Figma `nodeId` is `impl-ui` with `Вложенный: —`. Any other unit on `impl-ui` is a finding. |

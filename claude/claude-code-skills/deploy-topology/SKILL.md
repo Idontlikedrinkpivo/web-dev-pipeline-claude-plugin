@@ -1,8 +1,8 @@
 ---
 name: deploy-topology
 description: >-
-  Packs a working app into Docker: an image per container, compose for test, dev and prod, a deploy document, one tar
-  of the images for hand-over. Use for «докер», «окружения», «собери образ». Not CI or Kubernetes.
+  Packs a working app into Docker: images, compose for test, dev and prod, a deploy document. Use for «докер»,
+  «docker-compose», «собери образ», «инструкция по развёртыванию». The server upload is the user's step; not CI.
 ---
 
 # Deploy Topology

@@ -1,6 +1,6 @@
 ---
 name: design-hard
-description: High-grade design writer for the planning pipeline — holds Full-trigger, security-heavy, or cross-section judgment for an architecture, DB schema, or OpenAPI document and hands the printing to `doc-typist`. Dispatched by `clean-architecture-design`, `db-schema-design`, or `openapi-spec-generator` through executor-catalog with a task packet; not for direct use.
+description: Design writer, High grade. Dispatched by clean-architecture-design, db-schema-design, openapi-spec-generator; not for direct use.
 model: opus
 effort: xhigh
 ---

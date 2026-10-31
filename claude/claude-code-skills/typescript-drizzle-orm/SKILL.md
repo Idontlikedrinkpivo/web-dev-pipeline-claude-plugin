@@ -1,7 +1,8 @@
 ---
 name: typescript-drizzle-orm
 description: >-
-  Drizzle ORM rules (repositories, transactions, keyset pages, migrations); read before Drizzle code.
+  Internal: Drizzle ORM rules (repositories, transactions, keyset pages, migrations); read by work's executors before
+  Drizzle code.
 ---
 
 # Drizzle ORM

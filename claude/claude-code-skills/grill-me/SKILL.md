@@ -2,7 +2,7 @@
 name: grill-me
 description: >-
   Interview, one question at a time, that stress-tests a requirements draft, SRS, plan or design until no silent
-  assumption is left; writes the answers in. Use for «допроси меня», «выжги допущения». Not «покритикуй» (doc-review).
+  assumption is left. Use for «допроси меня», «выжги допущения», «проверь мои допущения». Critique: doc-review.
 ---
 
 Interview the user relentlessly until you reach a shared understanding. Map this as a **design tree**: every decision branches into the decisions that hang off it. Ask every question in Russian. Do not translate cited tokens when you quote them.

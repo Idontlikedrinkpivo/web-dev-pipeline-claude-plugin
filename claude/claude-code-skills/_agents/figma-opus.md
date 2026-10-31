@@ -1,6 +1,6 @@
 ---
 name: figma-opus
-description: Figma builder for the planning pipeline — draws frames from an empty file, a new screen, or a redesign of an existing screen, from the SRS-based packet (flows, roles, states, rules by id), or the style tiles of a visual direction, and returns the fileKey and nodeIds. Dispatched by `ui-design` through executor-catalog with a task packet; not for direct use.
+description: Draws new Figma frames, redesigns, style tiles. Dispatched by ui-design via executor-catalog; not for direct use.
 model: opus
 effort: high
 ---

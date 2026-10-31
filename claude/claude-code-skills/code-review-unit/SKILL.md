@@ -1,7 +1,8 @@
 ---
 name: code-review-unit
 description: >-
-  Reviews one plan unit's diff before its commit; run by work. Whole run: code-review-full; a PR: /code-review.
+  Internal step of work: reviews one plan unit's diff before its commit. Whole run: code-review-full; a PR:
+  /code-review.
 ---
 
 # Unit Review

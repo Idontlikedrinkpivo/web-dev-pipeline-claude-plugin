@@ -1,9 +1,8 @@
 ---
 name: doc-review
 description: >-
-  Reviews one finished document (SRS, schema, OpenAPI, architecture, screen spec) with reviewer personas; fixes the
-  obvious, asks about the rest. Use for «покритикуй ТЗ», «найди дыры в требованиях», «проверь документ». Not grill-me
-  or docs-consistency.
+  Reviews one finished document (BRD, SRS, schema, OpenAPI, architecture, screen spec) with reviewer personas. Use for
+  «покритикуй ТЗ», «найди дыры в требованиях», «проверь схему». The whole set: docs-consistency.
 ---
 
 # Document Review

@@ -1,8 +1,8 @@
 ---
 name: srs-writer
 description: >-
-  Turns any product or feature description (brainstorm, note, ticket, chat) into the numbered SRS (FR, NFR, BR, UC,
-  Given/When/Then) or updates it. Use for «напиши ТЗ», «оформи требования». Not a screen's ТЗ (screen-spec).
+  Turns a product or feature description into the numbered SRS (FR, NFR, BR, UC, Given/When/Then) or updates it. Use
+  for «напиши ТЗ на фичу», «оформи требования», «добавь требование». A screen with mockups: screen-spec.
 ---
 
 # SRS Writer

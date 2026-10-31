@@ -1,6 +1,6 @@
 ---
 name: plan-hard
-description: High-grade plan writer for the planning pipeline — holds Full-trigger, security, or cross-section slicing of an implementation plan and hands the printing to `doc-typist`. Dispatched by `plan` through executor-catalog with a task packet; not for direct use.
+description: Plan writer, High grade. Dispatched by plan via executor-catalog; not for direct use.
 model: opus
 effort: xhigh
 ---

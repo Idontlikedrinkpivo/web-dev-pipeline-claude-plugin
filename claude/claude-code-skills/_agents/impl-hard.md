@@ -1,6 +1,6 @@
 ---
 name: impl-hard
-description: High-grade code executor for the planning pipeline — implements one plan unit that designs the missing part inside given boundaries such as auth, money, transaction and idempotency shape, or a cross-cutting contract. Dispatched by `work` through executor-catalog with a task packet; not for direct use.
+description: Code executor for one High plan unit. Dispatched by work via executor-catalog; not for direct use.
 model: sonnet
 effort: high
 ---

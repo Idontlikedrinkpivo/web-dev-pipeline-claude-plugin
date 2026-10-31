@@ -1,6 +1,6 @@
 ---
 name: doc-review-hard
-description: Read-only document reviewer for the planning pipeline — runs the product-lens, security-lens, or adversarial persona that challenges a finished document's premise, security decisions, or rightness, and returns findings as labelled text. Dispatched by `doc-review` through executor-catalog with a task packet; not for direct use.
+description: Read-only product, security or adversarial persona over a document. Dispatched by doc-review via executor-catalog; not for direct use.
 model: opus
 effort: high
 tools: Read, Grep, Glob, Bash

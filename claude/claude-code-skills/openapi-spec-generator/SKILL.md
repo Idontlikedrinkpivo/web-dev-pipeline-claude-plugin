@@ -1,9 +1,8 @@
 ---
 name: openapi-spec-generator
 description: >-
-  Writes the OpenAPI 3.0 contract from the SRS, slice by slice: an operation per use case, schemas, problem+json
-  errors, statuses, security. Use for «опиши API», «какие эндпоинты нужны». Endpoint code is work (fastapi,
-  typescript-fastify).
+  Writes the OpenAPI 3.0 contract from the SRS: operations, schemas, problem+json errors, security. Use for «опиши
+  API», «какие эндпоинты нужны», «спецификация API». Endpoint code: work.
 ---
 
 # OpenAPI 3.0 Specification Generator

@@ -1,6 +1,6 @@
 ---
 name: figma-sonnet
-description: Figma editor for the planning pipeline — adds or changes elements on frames that already exist, restyles them to a chosen visual direction, or names a designer's layers by action, from the SRS-based packet, and returns the fileKey and nodeIds. Not a new screen and not a redesign. Dispatched by `ui-design` through executor-catalog with a task packet; not for direct use.
+description: Edits or restyles existing Figma frames. Dispatched by ui-design via executor-catalog; not for direct use.
 model: sonnet
 effort: medium
 ---

@@ -1,6 +1,6 @@
 ---
 name: doc-typist
-description: Document printer for the planning pipeline — writes an SRS, design document, or implementation plan (with its D2 / PlantUML diagram files, migration files and open-questions rows) that a writer row already settled, or a line edit for a decision the user changed after the document was finished, making no new decision. Nested by `srs-author`, the `design-*` rows, and the `plan-*` rows, or dispatched by the session for a changed decision (`MODE revise`), through executor-catalog with a task packet; not for direct use.
+description: Prints a document a writer settled, or a changed decision. Nested by srs-author, design-*, plan-*; also by the session; not for direct use.
 model: sonnet
 effort: low
 ---

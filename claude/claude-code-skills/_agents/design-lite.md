@@ -1,6 +1,6 @@
 ---
 name: design-lite
-description: Low-grade design writer for the planning pipeline — settles a bounded Framework-first, one-table, or few-operation architecture, DB schema, or OpenAPI document and hands the printing to `doc-typist`. Dispatched by `clean-architecture-design`, `db-schema-design`, or `openapi-spec-generator` through executor-catalog with a task packet; not for direct use.
+description: Design writer, Low grade. Dispatched by clean-architecture-design, db-schema-design, openapi-spec-generator; not for direct use.
 model: sonnet
 effort: high
 ---

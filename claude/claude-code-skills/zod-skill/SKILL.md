@@ -1,7 +1,8 @@
 ---
 name: zod-skill
 description: >-
-  Zod at the boundary: parse untrusted input once, no zod in the domain; read before zod code.
+  Internal: Zod at the boundary (parse untrusted input once, no zod in the domain); read by work's executors before
+  zod code.
 license: MIT
 compatibility: "TypeScript projects using zod"
 metadata:

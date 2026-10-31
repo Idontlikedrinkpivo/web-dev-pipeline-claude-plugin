@@ -1,6 +1,6 @@
 ---
 name: plan-medium
-description: Mid-grade plan writer for the planning pipeline — closes the remaining slice and grade decisions of an implementation plan and hands the printing to `doc-typist`. Dispatched by `plan` through executor-catalog with a task packet; not for direct use.
+description: Plan writer, Mid grade. Dispatched by plan via executor-catalog; not for direct use.
 model: opus
 effort: high
 ---

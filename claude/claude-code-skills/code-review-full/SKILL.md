@@ -1,8 +1,8 @@
 ---
 name: code-review-full
 description: >-
-  Reviews a finished plan's whole diff once (drift between units, invariants, leftovers, security); run by work at the
-  close, or on «отревьюй весь план». One unit: code-review-unit; a PR: /code-review.
+  Reviews a finished plan's whole branch diff once; run by work at the close, or for «отревьюй весь код прогона»,
+  «ревью всей ветки». Plan document: plan-review; a PR: /code-review.
 ---
 
 # Full-Plan Review

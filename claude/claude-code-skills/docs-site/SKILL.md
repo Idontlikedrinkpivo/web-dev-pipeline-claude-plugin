@@ -1,9 +1,8 @@
 ---
 name: docs-site
 description: >-
-  Builds documentation/ into a static HTML site: menu, search, linked ids, Swagger. Use for «собери сайт
-  документации», «пересобери сайт», «выгрузи документы в HTML», «опубликуй документацию» (hosting is the user's step).
-  Opening: open-docs.
+  Builds documentation/ into a static HTML site with menu, search and Swagger. Use for «собери сайт документации»,
+  «пересобери сайт», «выгрузи документы в HTML». Hosting: the user; opening: open-docs.
 ---
 
 # Documentation site

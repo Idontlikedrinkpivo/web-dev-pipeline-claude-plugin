@@ -1,6 +1,6 @@
 ---
 name: doc-review-low
-description: Read-only document reviewer for the planning pipeline — runs the always-on coherence and feasibility personas over a finished requirements or design document and returns findings as labelled text. Dispatched by `doc-review` through executor-catalog with a task packet; not for direct use.
+description: Read-only coherence and feasibility personas over a document. Dispatched by doc-review via executor-catalog; not for direct use.
 model: sonnet
 effort: medium
 tools: Read, Grep, Glob, Bash

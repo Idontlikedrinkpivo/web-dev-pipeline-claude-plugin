@@ -1,7 +1,8 @@
 ---
 name: typescript
 description: >-
-  TypeScript rules (typed errors, exhaustive switch, no any); read before writing or reviewing .ts code.
+  Internal: TypeScript rules (typed errors, exhaustive switch, no any); read by work's executors and reviewers before
+  .ts/.tsx code.
 ---
 
 # TypeScript

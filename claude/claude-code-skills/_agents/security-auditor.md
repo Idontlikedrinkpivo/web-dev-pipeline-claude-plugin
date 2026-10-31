@@ -1,6 +1,6 @@
 ---
 name: security-auditor
-description: Read-only security auditor for the planning pipeline — traces one area's operations from route to data (authentication, access per role, other users' data, input, output, errors), or the application-wide settings and the scanner findings, or tries to disprove blocking findings, and returns findings with file:line and an exploit request. Dispatched by `security-audit` through executor-catalog with a task packet; not for direct use.
+description: Read-only security trace of one area, route to data. Dispatched by security-audit via executor-catalog; not for direct use.
 model: opus
 effort: high
 tools: Read, Grep, Glob, Bash

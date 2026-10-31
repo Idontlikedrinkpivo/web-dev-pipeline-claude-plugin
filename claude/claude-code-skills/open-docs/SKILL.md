@@ -1,8 +1,8 @@
 ---
 name: open-docs
 description: >-
-  Opens the documentation site in the built-in browser, building it if missing, and gives its link; stops it on
-  request. Use for «открой документацию», «дай ссылку на сайт», «закрой сайт». Building is docs-site.
+  Opens the documentation site in the built-in browser, building it if missing, and gives its link. Use for «открой
+  документацию», «покажи документацию», «закрой сайт». Building: docs-site.
 ---
 
 # Open the documentation site

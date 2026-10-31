@@ -1,7 +1,8 @@
 ---
 name: python
 description: >-
-  Python rules (strict typing, domain exceptions, exhaustive match); read before Python code.
+  Internal: Python rules (strict typing, domain exceptions, exhaustive match); read by work's executors before Python
+  code.
 ---
 
 # Python

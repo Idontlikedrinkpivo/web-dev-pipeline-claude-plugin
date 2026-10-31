@@ -42,7 +42,8 @@ READ FROM DISK
   <repo-relative paths of every document the units' «Документы» cite, every
    part of a split one (srs.md and areas/*.md; openapi.yaml, paths/,
    components/); on a fix plan the report (test-run.md or security-audit.md
-   beside the plan); on a brownfield plan the code:<path> files — this is
+   beside the plan, or documentation/plans/code-audit-<date>.md for a code
+   audit's fix plan); on a brownfield plan the code:<path> files — this is
    what citations are resolved against>
 
 COVERAGE LEDGER   (structural packet only)
@@ -130,7 +131,8 @@ Every citation finding names the document and the id that did not resolve.
     a unit changes.
   Citation integrity — every «Документы» entry resolves to a real section, id,
     operationId, table, or screen in the documents read; a report row
-    (test-run.md TC-n, security-audit.md F<n>) to that row of the report;
+    (test-run.md TC-n, security-audit.md F<n>, code-audit-<date>.md A<n>) to
+    that row of the report;
     code:<path> (brownfield) to a file in the repository; plugin change <id>
     to that id in <SKILLS ROOT>/upgrade-docs/changes.json.
   Coverage — every "covered by a test" line appears in some unit's

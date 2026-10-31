@@ -1,6 +1,6 @@
 ---
 name: impl-lite
-description: Low-grade code executor for the planning pipeline — transcribes one fully specified plan unit into working code against an existing local pattern, including README, changelog, and doc-comment units. Dispatched by `work` through executor-catalog with a task packet; not for direct use.
+description: Code executor for one Low plan unit. Dispatched by work via executor-catalog; not for direct use.
 model: sonnet
 effort: medium
 ---

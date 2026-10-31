@@ -1,6 +1,6 @@
 ---
 name: code-auditor
-description: Read-only auditor for the planning pipeline — checks one module's code, or the technical decisions of the design documents, against the plugin's design and stack rules, and returns each deviation with file:line, the rule it breaks, how it should be, and what fixing it touches. Dispatched by `upgrade-code` (its code audit) through executor-catalog with a task packet; not for direct use.
+description: Read-only audit of code or design decisions against the plugin's rules. Dispatched by upgrade-code via executor-catalog; not for direct use.
 model: opus
 effort: high
 tools: Read, Grep, Glob, Bash

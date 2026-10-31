@@ -1,8 +1,8 @@
 ---
 name: ci-pipeline
 description: >-
-  Writes the CI workflow (GitHub Actions; GitLab or CircleCI on request) that re-runs the project's lint, typecheck
-  and tests on each push and PR. Use for «настрой CI», «чтобы сломанный код не попал в main». Not CD or releases.
+  Writes the CI workflow (GitHub Actions; GitLab or CircleCI on request) running lint, typecheck and tests on each
+  push and PR. Use for «настрой CI», «проверки на PR», «чтобы сломанный код не попал в main». Not CD.
 ---
 
 # CI Pipeline
@@ -332,6 +332,13 @@ Example (the iteration's close follows it — References → `pipeline`):
 > Чтобы сделать его обязательным, сначала вынесите команду аудита в
 > `make audit`, затем добавьте `security` в required.
 
+### Step 10. Close the iteration
+
+CI is the chain's last stage, so the iteration's close follows at once, unasked: `pipeline` → End of the pipeline,
+in its order — the last stamp, the site, `summary.md`, the tag, `reflect`, the cleanup question — with
+`pipeline/scripts/close_iteration.py` showing which step is next. Stopping at «CI добавлен» leaves the version
+open.
+
 ## Guardrails
 
 - **A value that departs from the architecture.** A port, a variable, a
@@ -379,10 +386,4 @@ Example (the iteration's close follows it — References → `pipeline`):
   when the provider is not GitHub Actions or a toolchain is not Python / Node.
 - `deploy-topology` (skill) — the test topology and fixture values this
   workflow must mirror exactly.
-- `pipeline` (skill) — this is its last stage, and the iteration's close
-  follows it. After Step 9, read `pipeline` → "End of the pipeline" and do
-  it, unasked, in its order: the last stamp, the documentation site,
-  `summary.md`, the tag, `reflect`, the cleanup, and the push command as the
-  last line. Stopping at «CI добавлен»
-  leaves the iteration without its tag and the plugin's author without the
-  report. Offer no other stage; shipping is the user's own flow.
+- `pipeline` (skill) — End of the pipeline, run as Step 10; offer no other stage, shipping is the user's own flow.

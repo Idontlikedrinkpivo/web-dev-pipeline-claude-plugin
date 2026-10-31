@@ -1,8 +1,8 @@
 ---
 name: playwright-cli
 description: >-
-  Drives a real browser with playwright-cli (snapshots, refs, mocks); writes or fixes one Playwright spec or config.
-  Use for a one-off browser check, a UI bug repro, a failing e2e test. Acceptance by test cases: ui-test-cases.
+  Drives a real browser with playwright-cli; writes or fixes one Playwright spec. Use for «проверь в браузере»,
+  «воспроизведи баг», «почини упавший e2e-тест». Acceptance by test cases: ui-test-cases.
 ---
 
 # Browser Automation with playwright-cli

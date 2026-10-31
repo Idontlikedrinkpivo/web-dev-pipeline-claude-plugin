@@ -130,11 +130,11 @@ Load this file for a UI review pass or when you need every rule of a category. M
 
 ### 7. Animation (MEDIUM)
 
-- `duration-timing` - Choose shared motion tokens by distance, complexity, platform, and user context; test that feedback remains responsive instead of treating one duration range as universal → UX-61
+- `duration-timing` - Use the shared motion tokens of `web-design-guidelines` → Motion (`--dur-press` 120 ms … `--dur-dialog` 250 ms); one set for the product, never a duration picked per element → UX-61
 - `transform-performance` - Use transform/opacity only; avoid animating width/height/top/left → UX-61
 - `loading-states` - Match feedback to the expected wait and platform/component guidance; avoid both flashing indicators for near-instant work and unexplained long waits → UX-25
 - `excessive-motion` - Motion only answers an action or shows what changed; no decorative entrances or staggers → UX-61
-- `easing` - Use deceleration when arriving, acceleration when leaving, and linear motion for genuinely constant-rate progress or rotation → UX-61
+- `easing` - `--ease-out` for entering and leaving (an ease-in exit feels sluggish), `--ease-in-out` for moving on screen, linear only for constant-rate progress or rotation — `web-design-guidelines` → Motion → UX-61
 - `motion-meaning` - Every animation must express a cause-effect relationship, not just be decorative (Apple HIG) → UX-61
 - `parallax-subtle` - Parallax only as the one orchestrated moment of a B2C first screen, never under reduced motion → UX-61
 - `exit-faster-than-enter` - Exit animations shorter than enter (~60–70% of enter duration) to feel responsive (MD motion) → UX-61
