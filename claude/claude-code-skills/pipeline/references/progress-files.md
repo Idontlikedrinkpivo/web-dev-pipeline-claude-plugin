@@ -47,7 +47,9 @@ document keeps none.
   «обновлено YYYY-MM-DD HH:MM».
 - **The page.** Each progress file has its page beside it, the same name
   in `.html` (`progress-screen-specs.md` → `progress-screen-specs.html`):
-  the bar drawn as a bar, the count, the status counts, then the file in
+  the bar drawn as a bar, the count, the status counts — one per row of
+  the main table, the first table with a «Статус» column under the file's
+  first bar, by the status's words («✅ прошёл: 144») — then the file in
   full; it reloads itself every 5 seconds. The plugin's hook rebuilds the
   page after every Edit or Write of its file, a subagent's included. The
   Markdown file stays the source the agents edit; **the link the user gets

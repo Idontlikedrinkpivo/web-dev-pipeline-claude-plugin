@@ -15,6 +15,20 @@ under it, its table; under the last table the `Verdict:` line — `идёт
 прогон` while the run is on, `PASS | DEFECTS | BLOCKED` after pass 2 — with
 the commit and the update time.
 
+**The `Verdict:` line always tells what is true now.** The moment anything
+starts running again — a re-run block, a new run after a fix plan — it
+turns `Verdict: идёт перепрогон · прошлый: DEFECTS, коммит 6e96d58 ·
+обновлено …`, and the new verdict replaces it only when that run ends. An
+old verdict standing under a run that is going on reads as its result.
+
+**The page counts the main table, one row per case.** The status chips at
+the top of `test-run.html` count the statuses of the pass-1 table — the
+first table with a «Статус» column under the main bar — one per row. A
+case named again elsewhere (pass 2, a re-run block, the lists under the
+verdict) is not counted twice, so those places may repeat its status
+freely; the pass-1 table must hold every case exactly once, with its
+current status.
+
 ## The bars
 
 The bars follow `work` → `references/progress-file.md` → The progress bar

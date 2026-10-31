@@ -28,9 +28,41 @@ FILES = {
     "progress-test-cases.md": "Тест-кейсы", "progress-architecture.md": "Архитектура",
     "progress-scaffold.md": "Каркас", "progress.md": "Код",
     "test-run.md": "Проверка через интерфейс", "security-audit.md": "Аудит безопасности",
-    "progress-deploy.md": "Релиз",
+    "progress-deploy.md": "Релиз", "progress-mutation.md": "Мутации",
 }
-STATUS = ["✅", "🔄", "🔍", "⏳", "🔁", "⛔", "⏭", "❌"]
+STATUS = ["✅", "❌", "🔄", "🔍", "⏳", "🔁", "⛔", "⏭", "🖼", "❓"]
+
+
+def status_counts(text: str) -> list[tuple[str, int]]:
+    """One count per row of the main table — the first table with a «Статус» column after the file's first bar —
+    by the status's words before any colon («✅ прошёл», «❌ не прошёл», «⏭ не автоматизирован»). Never the
+    emoji counted over the whole file: a case is named again in a pass-2 table, a re-run block, the lists under
+    the verdict, and the page would count it each time."""
+    lines = text.splitlines()
+    start = next((i for i, l in enumerate(lines) if re.search(r"[█░]{5,}", l)), 0)
+    i = start
+    while i < len(lines):
+        if lines[i].lstrip().startswith("|") and i + 1 < len(lines) and re.match(r"^\s*\|[\s:|-]+\|\s*$", lines[i + 1]):
+            head = [c.strip() for c in lines[i].strip().strip("|").split("|")]
+            col = next((k for k, c in enumerate(head) if c.startswith("Статус")), None)
+            j = i + 2
+            rows = []
+            while j < len(lines) and lines[j].lstrip().startswith("|"):
+                rows.append([c.strip() for c in lines[j].strip().strip("|").split("|")])
+                j += 1
+            if col is not None:
+                counts: dict[str, int] = {}
+                for r in rows:
+                    cell = r[col] if col < len(r) else ""
+                    if cell[:1] and not cell[:1].isalnum():
+                        label = cell.split(":")[0].strip()
+                        counts[label] = counts.get(label, 0) + 1
+                order = {e: n for n, e in enumerate(STATUS)}
+                return sorted(counts.items(), key=lambda kv: (order.get(kv[0][:1], len(STATUS)), -kv[1]))
+            i = j
+            continue
+        i += 1
+    return []
 
 CSS = """
 :root{--bg:#fbfaf8;--card:#fff;--fg:#1f2328;--muted:#656d76;--line:#e4e2dd;--bar:#e9e6e0;--done:#2f8f5b;--acc:#3b6fd8}
@@ -81,7 +113,7 @@ def page(md: Path) -> None:
     pct = percent(text)
     count, state = lines_of(text)
     title = next((re.sub(r"[*`]", "", l[2:]).strip() for l in text.splitlines() if l.startswith("# ")), md.stem)
-    chips = "".join(f"<span>{s} {text.count(s)}</span>" for s in STATUS if text.count(s))
+    chips = "".join(f"<span>{html.escape(label)}: {n}</span>" for label, n in status_counts(text))
     # the bar and the count line are drawn in the header, not repeated in the body
     body_md = re.sub(r"```text\n[█░\s\d%]+\n```\n*", "", text, count=1)
     if count:

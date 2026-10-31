@@ -119,7 +119,11 @@ RULES
   the share of automated cases that pass, not the share checked. Never
   write the report from the shell (python, sed, cat >): the plugin's hook
   rebuilds the page the user watches only after an Edit or Write call, so a
-  shell write leaves that page stale. Set the Verdict only after pass 2.
+  shell write leaves that page stale. Set the Verdict only after pass 2;
+  when anything runs again (a re-run block, a run after fixes), first turn
+  it to «идёт перепрогон · прошлый: <verdict>, коммит <sha>». The pass-1
+  table holds every case once, with its current status — the page's
+  counts come from it (run-report.md → Where and what).
 - Do not commit.
 ```
 
