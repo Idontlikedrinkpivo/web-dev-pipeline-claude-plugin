@@ -1,8 +1,8 @@
 # The plan document
 
-Read at Step 7, before settling: the file `doc-typist` renders from the
+Read at writer Step 7, before settling: the file `doc-typist` renders from the
 settlement, and the pins it carries. The unit block itself is
-`SKILL.md` → Step 4.
+`writer.md` → Step 4.
 
 ## Pins
 

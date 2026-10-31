@@ -9,9 +9,13 @@ description: >-
 
 ## Which layout governs — decide first
 
-- **An architecture document exists** (`documentation/architecture/architecture.md`, the foundation): its §5 tree is the layout, foundation §4 holds the ports, the wiring and the named-error → HTTP table, the domain model (`documentation/architecture/domain.md`) §4 the invariant table, foundation §1 the security decisions. Use those names; do not add folders §5 does not list.
-- **The level is Framework-first** (foundation §1 «Уровень»): no ports, repository adapters or mappers — the models are the storage and the route or a small service queries them directly; the rules sit in the one framework-free `domain/` module, which takes and returns plain values, never a record. Sessions, commits, loading, migrations and driver errors below hold unchanged.
-- **No architecture document, existing repo**: follow the repo's layout and patterns for the change at hand (a `src/<domain>/service.py` stays where it is). Do not restructure the project or move code into new layers unasked. A new business rule still goes into a function or class that imports neither FastAPI nor SQLAlchemy, not into a route; say so in one line of the final answer.
+The cases (architecture document, Framework-first, existing repo) are in
+`typescript/references/which-layout-governs.md`, shared by the backend and test skills of both stacks — read it
+first. SQLAlchemy's placement in them:
+
+- **An architecture document exists**: the table below.
+- **Framework-first**: the models are the storage, and the route or a small service queries them directly.
+- **Existing repo**: a `src/<domain>/service.py` stays where it is; a new rule imports neither FastAPI nor SQLAlchemy.
 - **HTTP**: routes, the problem+json error handlers, auth and settings are `fastapi`; this skill ends where a repository returns an entity or raises a named error.
 
 ## Layout with an architecture document
@@ -28,7 +32,7 @@ description: >-
 | Engine, sessionmaker, use-case construction, exception handlers | `bootstrap/` | May import everything; nothing imports it |
 
 - No `service.py` that holds business logic beside an anemic entity: the rule belongs to the entity method its invariant-table row names.
-- Each mapper gets a round-trip test (every field non-default, entity → record → entity equal); see `pytest-patterns`. A field added without its mapper line must fail the build.
+- Each mapper gets a round-trip test (`typescript/references/shared-test-rules.md` → 1, written by `pytest-patterns`).
 - Run the import-linter contracts from foundation §6 after the change (`uv run lint-imports`, or the command the repo already uses).
 
 ```python
@@ -71,7 +75,7 @@ class SqlOrderRepository:                      # implements application.ports.Or
 - The migrations are the SQL files in `documentation/db/migrations/` (`0001_init.sql`, `0002_…`), written by `db-schema-design`. Alembic only orders and records them: one revision per file, revision id = the file's number, `down_revision` = the previous one, and `upgrade()` executes that file's text read from `documentation/db/migrations/` (path from the repo root, the same relative path inside the image). Never autogenerate DDL and never retype a file into `op.*` calls — two copies of a migration drift. A committed SQL file is never edited; a change is the next file and the next revision.
 - `downgrade()` undoes what the schema changelog row calls reversible; otherwise it raises with the file name.
 - A file with `CONCURRENTLY` (its own file, `db-schema-design/references/migration-safety.md`) runs inside `with op.get_context().autocommit_block():` — a revision runs in a transaction, and PostgreSQL refuses `CREATE INDEX CONCURRENTLY` inside one. The block commits what ran before it, so `env.py` sets `transaction_per_migration=True`: each revision is then its own transaction, and a failed one leaves the earlier ones recorded.
-- Never `metadata.create_all` — not in application code and not in test fixtures: the tests build their schema with the same migrations (`pytest-patterns`), so a model that disagrees with the files fails there. Migrations run before the app starts, not from the lifespan. `version_table_schema` is the project schema (`db-schema-design` §0).
+- Never `metadata.create_all` — not in application code and not in test fixtures: the tests build their schema with the same migrations (`pytest-patterns`), so a model that disagrees with the files fails there. The one exception is a brownfield repo with no migration files at all: its test fixture keeps `create_all` until the first migration file exists, and the report says so. Migrations run before the app starts, not from the lifespan. `version_table_schema` is the project schema (`db-schema-design` §0).
 - After `alembic upgrade head`, `alembic check` (or autogenerate into a scratch file) must find no difference between the models and the database: a difference is a model that does not match `schema.md`.
 - No database up: render the SQL offline (`alembic upgrade head --sql`) and read it.
 
@@ -105,7 +109,8 @@ Outside `work`, read the file and check each point you rely on against the insta
 2. **Every relationship is `lazy="raise"` and every query that is mapped or serialized loads what it reads**
    (`selectinload` / `joinedload`), the object a create returns included.
 3. **Migrations are the SQL files**: one revision per file executing its text, no autogenerated or retyped DDL, no
-   edited committed file, `CONCURRENTLY` inside `autocommit_block()`, no `create_all` anywhere.
+   edited committed file, `CONCURRENTLY` inside `autocommit_block()`, no `create_all` anywhere — except the test
+   fixture of a brownfield repo with no migration files at all.
 4. **`domain/` and `application/` import no SQLAlchemy**; the repository returns entities through a mapper that has
    a round-trip test.
 5. **An expected constraint violation becomes a named exception with fields, `from e`**, classified by SQLSTATE

@@ -5,8 +5,9 @@
     python3 plan_lint.py documentation/plans/<version>/plan.md [--repo <dir>]
 
 Errors (exit 1), one line each with the unit and what to fix:
-  - a U-id used twice; a unit without one of the fields Документы, Файлы, Зависит от, Параллельно, Сложность,
-    Почему, Исполнитель, Вложенный;
+  - a U-id used twice; a unit without one of the fields Документы, Файлы, Образец, Зависит от, Параллельно,
+    Сложность, Почему, Исполнитель, Вложенный, or with an empty or missing «Тестовые сценарии» or «Проверка»
+    paragraph (`work` refuses such a unit at its readiness gate, so the plan must not pass here);
   - Сложность other than 0 / Low / Mid / High; Исполнитель not in executor-catalog → assignable-implementers.md
     (impl-critical is never written); Вложенный other than `—` or mechanical-worker; impl-ui with a Вложенный;
   - Зависит от naming a unit the plan does not have, or a cycle;
@@ -29,7 +30,12 @@ from pathlib import Path
 
 UNIT = re.compile(r"^###\s+U(\d+)\.\s*(.*)$", re.M)
 ROW = re.compile(r"^\|\s*\*\*([^*|]+)\*\*\s*\|(.*)\|\s*$", re.M)
-REQUIRED = ["Документы", "Файлы", "Зависит от", "Параллельно", "Сложность", "Почему", "Исполнитель", "Вложенный"]
+REQUIRED = ["Документы", "Файлы", "Образец", "Зависит от", "Параллельно", "Сложность", "Почему", "Исполнитель",
+            "Вложенный"]
+# The unit's body paragraphs `work` needs besides the table: «**Тестовые сценарии**» and «**Проверка**», each with text
+# after it («none — <reason>» counts) before the next bold paragraph or heading.
+BODY_REQUIRED = ["Тестовые сценарии", "Проверка"]
+PARA = re.compile(r"^\*\*([^*\n]+)\*\*[ \t]*[—–:-]?[ \t]*", re.M)
 GRADES = {"0", "Low", "Mid", "High"}
 PATH = re.compile(r"`([\w./@+-]+/[\w./@*+-]+|[\w-]+\.[\w.]+)`")
 MODEL = re.compile(r"\b(?:opus|sonnet|haiku|fable|gpt-\d[\w.-]*)\b", re.I)
@@ -45,8 +51,18 @@ def units(text: str) -> list[dict]:
         nxt = re.search(r"^#{1,3}\s", text[m.end():end], re.M)
         block = text[m.end(): m.end() + nxt.start()] if nxt else text[m.end():end]
         fields = {k.strip(): v.strip() for k, v in ROW.findall(block)}
-        out.append({"id": int(m.group(1)), "title": m.group(2), "block": block, "f": fields,
+        out.append({"id": int(m.group(1)), "title": m.group(2), "block": block, "f": fields, "p": paragraphs(block),
                     "line": text[: m.start()].count("\n") + 1})
+    return out
+
+
+def paragraphs(block: str) -> dict[str, str]:
+    """{name: text} of the bold-led paragraphs below the unit's table («**Цель** — …», «**Тестовые сценарии**\n- …»)."""
+    marks = list(PARA.finditer(block))
+    out = {}
+    for i, m in enumerate(marks):
+        end = marks[i + 1].start() if i + 1 < len(marks) else len(block)
+        out[m.group(1).strip()] = block[m.end():end].strip()
     return out
 
 
@@ -140,6 +156,14 @@ def main() -> None:
         missing = [k for k in REQUIRED if k not in f]
         if missing:
             err(u, "нет полей: " + ", ".join(missing))
+        if "Образец" in f and not f["Образец"].strip(" `"):
+            err(u, "Образец пуст — путь образца или «— first of its kind»")
+        for k in BODY_REQUIRED:
+            if k not in u["p"]:
+                err(u, f"нет абзаца «{k}»")
+            elif not u["p"][k]:
+                err(u, f"абзац «{k}» пуст" + (" — для задачи без поведения «none — <причина>»"
+                                               if k == "Тестовые сценарии" else ""))
         g = f.get("Сложность", "").split()[0] if f.get("Сложность") else ""
         if "Сложность" in f and g not in GRADES:
             err(u, f"Сложность «{f['Сложность']}» — допустимо 0, Low, Mid, High")

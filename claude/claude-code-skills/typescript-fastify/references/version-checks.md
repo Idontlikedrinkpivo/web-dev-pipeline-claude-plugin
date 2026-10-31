@@ -32,6 +32,15 @@ a quick probe in the project.
   per-route `logLevel`; and what `close()` does — waits for in-flight requests, closes idle keep-alive connections
   (`forceCloseConnections`), answers 503 while closing (`return503OnClosing`), runs `onClose` hooks.
 
+## Auth libraries (`references/auth.md`)
+
+- The current releases of the Argon2 package in use (`@node-rs/argon2` or `argon2`): its hash and verify
+  signatures, whether its defaults are Argon2id and which cost options it takes.
+- The JWT library in use (`jose` or `@fastify/jwt`): how signing sets `sub` and `exp`, and how verifying takes the
+  explicit list of allowed algorithms.
+- `@fastify/rate-limit`: per-route options, the key generator for «by account», the status and `Retry-After` header
+  it sends, and whether its error passes through the app's error handler.
+
 ## prom-client
 
 - The current major and the Node versions it supports.

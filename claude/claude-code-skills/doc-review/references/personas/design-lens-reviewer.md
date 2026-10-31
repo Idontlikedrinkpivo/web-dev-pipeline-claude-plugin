@@ -17,7 +17,7 @@ interaction decisions, states on screen, or layout: those belong to the
 mockups (`ui-design`). The reverse is a finding: a screen, control,
 gesture, message wording, or visual in an FR, UC step, trigger, or `Then`
 binds the designer — suggest the behaviour wording and moving the wish to
-`ui-wishes.md` (`srs-writer` → Behaviour, not interface).
+`ui-wishes.md` (`srs-writer/references/srs-template.md` → Behaviour, not interface).
 
 **`screen`:** your primary surface — this document records what the
 mockups decided, for the implementer. Per screen: can an implementer build
@@ -38,7 +38,7 @@ for a finding.
 surface, with one exception: a widget, presentation, or layout written
 into them (a `description` «для выпадающего списка», a column «порядок в
 меню», a `Note` «показывается в модалке») binds the designer and is a
-finding (`doc-versioning` → What, not how it looks). Otherwise stay
+finding (`doc-versioning` → `references/writing-rules.md` → What, not how it looks). Otherwise stay
 silent. When `Origin:` already
 specified a flow, do not re-flag flow completeness.
 

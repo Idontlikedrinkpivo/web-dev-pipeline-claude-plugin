@@ -1,6 +1,13 @@
 """One document per database table, generated from the DBML of the schema document.
 
-    python3 table_docs.py [<project root>]     # writes documentation/db/tables/<table>.md, prints what changed
+    python3 table_docs.py [<project root>]           # writes documentation/db/tables/<table>.md, prints what changed
+    python3 table_docs.py [<project root>] --check   # writes nothing; exit 1 with a line per print defect
+
+--check lists what the schema stage must not close with: a table without a table-level Note, a column without
+`note:`, a note that only repeats the name, and a migration file in documentation/db/migrations/ that does not open
+with the schema lines of db-schema-design §0 (0001: CREATE SCHEMA IF NOT EXISTS <schema>; then
+SET search_path TO <schema>; every later file: the SET line naming the same schema). The migration lines are left
+out for a schema documented as it is (schema.md's `migrations: <folder>` — it lives where it lives).
 
 Reads every ```dbml block of the Markdown files under documentation/db/ (the tables/ folder left out) and the
 rows of `## Закрытые наборы значений` (`## Status attributes` before 1.2.152): `table.column` → code → label. For each table: its Note, one row per column —
@@ -296,8 +303,70 @@ def table_doc(name: str, t: dict, refs: list, codes: dict, src: str, comments: d
     return "\n".join(parts)
 
 
+def echo(note: str, name: str) -> bool:
+    """A note that only repeats the identifier: `orders` → 'orders', `public_id` → 'public id'."""
+    norm = lambda x: re.sub(r"[\W_]+", " ", x).strip().lower()
+    return norm(note) in {norm(name), norm(name).rstrip("s")}
+
+
+def first_statements(sql: str, n: int) -> list[str]:
+    """The first n SQL statements with comments and blank lines dropped, whitespace collapsed."""
+    body = re.sub(r"/\*.*?\*/", " ", sql, flags=re.S)
+    body = "\n".join(l.split("--", 1)[0] for l in body.splitlines())
+    return [" ".join(st.split()) for st in body.split(";") if st.strip()][:n]
+
+
+def check_migrations(db: Path) -> list[str]:
+    fm = re.match(r"---\n(.*?)\n---", (db / "schema.md").read_text(encoding="utf-8", errors="replace")
+                  if (db / "schema.md").is_file() else "", re.S)
+    if fm and re.search(r"^migrations:\s*\S+", fm.group(1), re.M):
+        return []  # documented as it is: the project's own migrations keep their own header
+    folder = db / "migrations"
+    files = sorted(f for f in folder.glob("*.sql") if re.match(r"\d+_", f.name)) if folder.is_dir() else []
+    out, schema = [], None
+    for i, f in enumerate(files):
+        rel = f"documentation/db/migrations/{f.name}"
+        heads = first_statements(f.read_text(encoding="utf-8", errors="replace"), 2)
+        set_line = lambda st: re.fullmatch(r"SET\s+search_path\s+(?:TO|=)\s+\"?(\w+)\"?", st, re.I)
+        if i == 0 and f.name.startswith("0001_"):
+            m = re.fullmatch(r"CREATE\s+SCHEMA\s+IF\s+NOT\s+EXISTS\s+\"?(\w+)\"?", heads[0], re.I) if heads else None
+            if not m:
+                out.append(f"{rel}: первая строка не `CREATE SCHEMA IF NOT EXISTS <схема>;` (db-schema-design §0)")
+                continue
+            schema = m.group(1).lower()
+            s2 = set_line(heads[1]) if len(heads) > 1 else None
+            if not s2 or s2.group(1).lower() != schema:
+                out.append(f"{rel}: вторая строка не `SET search_path TO {schema};` (db-schema-design §0)")
+        else:
+            s1 = set_line(heads[0]) if heads else None
+            if not s1:
+                out.append(f"{rel}: файл не начинается с `SET search_path TO <схема>;` — таблицы лягут в public "
+                           "(db-schema-design §0)")
+            elif schema and s1.group(1).lower() != schema:
+                out.append(f"{rel}: search_path `{s1.group(1)}`, а 0001 создаёт схему `{schema}`")
+    return out
+
+
+def check(tables: dict, db: Path) -> list[str]:
+    out = []
+    for name, t in tables.items():
+        if not t["note"].strip():
+            out.append(f"{name}: нет Note таблицы — что хранит одна строка")
+        elif echo(t["note"], name):
+            out.append(f"{name}: Note таблицы только повторяет имя — «{t['note'].strip()}»")
+        for c in t["cols"]:
+            note = unquote(str(c["set"].get("note", ""))) if c["set"].get("note") not in (None, True) else ""
+            if not note.strip():
+                out.append(f"{name}.{c['name']}: нет note: у столбца")
+            elif echo(note, c["name"]):
+                out.append(f"{name}.{c['name']}: note: только повторяет имя — «{note.strip()}»")
+    return out + check_migrations(db)
+
+
 def main() -> None:
-    root = Path(sys.argv[1] if len(sys.argv) > 1 else ".").resolve()
+    args = [a for a in sys.argv[1:] if a != "--check"]
+    checking = "--check" in sys.argv[1:]
+    root = Path(args[0] if args else ".").resolve()
     db = root / "documentation" / "db"
     out_dir = db / "tables"
     tables: dict = {}
@@ -314,6 +383,12 @@ def main() -> None:
             for b in found:
                 parse(b, tables, refs)
             codes.update(statuses(text))
+    if checking:
+        problems = check(tables, db) if db.is_dir() else []
+        for line in problems:
+            print("✗", line)
+        print(f"table_docs --check: таблиц {len(tables)}, проблем {len(problems)}")
+        sys.exit(1 if problems else 0)
     if not tables:
         print("no DBML under documentation/db — nothing to write")
         return

@@ -139,10 +139,10 @@ Across aggregates only through the `UnitOfWork` port the architecture names.
 
 ## Tests
 
-- Mapper round-trip without a database.
+- Mapper round-trip without a database (`typescript/references/shared-test-rules.md` → 1).
 - Repository against a real Postgres (container or the project's PGlite setup), one test per
   classified SQLSTATE, produced by a real duplicate insert or FK violation. With no database
-  available, write those tests as they would run and report the run as owed (`vitest` → no database
-  here); the classification itself can be shown meanwhile by throwing an error shaped like the
+  available, write those tests as they would run and report the run as owed
+  (`typescript/references/shared-test-rules.md` → 6); the classification itself can be shown meanwhile by throwing an error shaped like the
   wrapped one (code on `cause`, not top level) from a stubbed insert.
 - Use-case tests use an in-memory fake of the port, never a mocked Drizzle client.

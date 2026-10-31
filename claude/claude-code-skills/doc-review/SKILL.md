@@ -11,7 +11,7 @@ Takes a finished document and reviews it. Does not write the first draft.
 Write findings and the review report in Russian. Do not translate cited
 tokens, persona ids, or the report shape's headings and fixed lines
 (`## Результаты ревью документа`, `### Охват`, `Review complete.`). See
-`doc-versioning` → Document language.
+`doc-versioning` → `references/writing-rules.md` → Document language.
 Dispatches specialist reviewers through `executor-catalog` (Phase 2),
 silently applies one-right-answer fixes, and asks what to do with
 everything else.
@@ -112,14 +112,25 @@ downstream document.
 
 Do this on the session after the file is read, **before** dispatch. These
 are not a new reviewer and not a second copy of the versioning rules.
-Read `doc-versioning` (language, changelog table, change types
-ломает / добавляет / уточняет, parking lot, unversioned BRD) and flag only what that file — or the stage
-skill that wrote the document — already forbids.
 
-Read `references/convention-checks.md` and run it. Each miss is a P1
-omission, Reviewer `convention`, confidence high; carry the misses into
-Phase 3 and merge them with persona findings. That file also says which
-misses may be fixed silently.
+1. **What code decides, first:** run
+   `python3 "${CLAUDE_SKILL_DIR}/../doc-versioning/scripts/doc_check.py" . --only <document path>`
+   from the project's root — frontmatter keys, the changelog's columns,
+   order, first-row version and change types, pins, lost ids, migrations,
+   OpenAPI references, `open-questions.md` shape. Each line it prints about
+   this document's files is a convention miss; lines about other documents
+   are not this review's.
+2. **Then the rows the script cannot decide:** read
+   `references/convention-checks.md` and run its rows. When a row fails,
+   read the owner section it names (in `doc-versioning` or the stage skill
+   that wrote the document) for the rule and its reason — not the whole
+   `doc-versioning` skill on every review — and flag only what that owner
+   already forbids.
+
+Each miss is a P1 omission, Reviewer `convention`, confidence high; carry
+the misses into Phase 3 and merge them with persona findings.
+`references/convention-checks.md` also says which misses may be fixed
+silently.
 
 A silent fix, or any other fix this review applies, edits the body only.
 Leave `version`, `updated`, and the changelog exactly as they are, in every
@@ -141,7 +152,7 @@ Add a persona only when its signal is present:
 | `design-lens-reviewer` | UI/UX, screens, forms, navigation, controls. **Always on a `screen` document** — a screen spec reviewed without this lens has no reviewer looking at the elements |
 | `security-lens-reviewer` | Auth, sessions, API exposure, PII, payments, tokens, credentials, third-party trust, or an SRS Security NFR checklist |
 | `scope-guardian-reviewer` | Priority tiers, >8 requirements or use cases, stretch / future-work, or scope that looks misaligned with the summary |
-| `adversarial-document-reviewer` | The document rests on **2+** contestable, load-bearing assumptions — premise claims, a new abstraction or architectural pattern, a pick among stated alternatives — that would topple it if wrong. A single auth / PII / payments mention does not trigger it; that is `security-lens-reviewer`'s signal. Do **not** activate on a routine `architecture` / `api` / `db` / `ui` document whose `{origin_path}` is a path and that stays in scope |
+| `adversarial-document-reviewer` | The document rests on **2+** contestable, load-bearing assumptions — premise claims, a new abstraction or architectural pattern, a pick among stated alternatives — that would topple it if wrong. A single auth / PII / payments mention does not trigger it; that is `security-lens-reviewer`'s signal. Do **not** activate on a routine `architecture` / `domain` / `scenarios` / `api` / `db` / `screen` document whose `{origin_path}` is a path and that stays in scope |
 
 Announce the team and, for each conditional persona, the one-line reason.
 
@@ -233,15 +244,17 @@ rounds.
 
 **The review ledger.** Decisions held only in context are lost with a
 compaction, and the user is asked them again. So every decision on a
-finding — applied, deferred, skipped — is appended the moment it is made to
-`${TMPDIR:-/tmp}/review-<repo>-<doc-slug>.md` (`<doc-slug>` as in `grill-me`
-→ The ledger): first line `# Ревью <path> · итерация <version> · <git
-hash-object of the document at round 1, 7 chars>`, then one line per
-finding `Круг N · <title> · применено | отложено | пропущено · Evidence:
-<~120 characters>`. The primer is built from this file. A session that
-resumes the review reads it before anything else and never asks a logged
-finding again; a ledger of another iteration is a past review — delete it
-and start at round 1. Delete it when the review closes.
+finding — applied, deferred, skipped — is kept in a file outside the repo by
+`grill-me`'s script (`L` is `python3
+"${CLAUDE_SKILL_DIR}/../grill-me/scripts/ledger.py"`, run from the
+project's root): `L open --kind review --doc <document's main file>` at
+round 1 and first thing in a resumed session — `state: resumed` or
+`changed` prints the logged lines: read them before anything else and never
+ask a logged finding again (`changed` is expected after an applied round);
+`restarted` means a past iteration's review was deleted: round 1. Each
+decision the moment it is made: `L add --kind review --doc <file> "Круг N ·
+<title> · применено | отложено | пропущено · Evidence: <~120 characters>"`.
+The primer is built from `L show …`. `L close …` when the review closes.
 The primer rule inside each persona only reduces noise; synthesis step
 3.3a is what drops a re-raised rejection and checks that an applied fix
 landed.

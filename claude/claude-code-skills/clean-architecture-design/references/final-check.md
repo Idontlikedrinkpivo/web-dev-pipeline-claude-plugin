@@ -16,7 +16,7 @@ states the rule; fix the document there, not here.
   has the same name and the same shape in both — grep each such name
   across the set before the report.
 - No widget, layout, colour, icon, or exact UI wording anywhere —
-  `doc-versioning` → What, not how it looks.
+  `doc-versioning` → `references/writing-rules.md` → What, not how it looks.
 - The design stays inside the level's limits (no ceremony of the level
   above). Nothing was cut to make the document shorter — Step 2.
 - Read the document as if its previous version did not exist: every

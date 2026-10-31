@@ -114,8 +114,17 @@ commit that next stamps the document puts the five-column table in the
 frozen place and leaves the old table directly below it, unchanged, under
 the line «Журнал до перехода на версии сервиса:». Readers take an old
 `major` row as «ломает» and a `minor` row as «уточняет»; an old number
-precedes every service version, whatever its digits (`SKILL.md` → Moving
-from the old numbers).
+precedes every service version, whatever its digits (Old numbers below).
 
 A document that still has its changelog at the bottom, or `### v…` blocks,
 is moved to this table on its next stamp — not on a change with no row.
+
+## Old numbers
+
+Documents written before this scheme carry `version: N.x`, rows classed
+none / minor / major, and `@vN` pins. Nothing is rewritten in bulk. Until a
+document is stamped again, read `1.2` as `1.2.0` and `@v3` as `@3.0.0`; the
+iteration that next stamps it sets the service version and starts the
+five-column table above the old one (Old tables above). An old number
+precedes every service version whatever its digits, an old major row reads
+as «ломает», a minor as «уточняет».

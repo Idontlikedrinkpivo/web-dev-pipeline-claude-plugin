@@ -34,11 +34,15 @@ quotes, focus after a failed submit).
 
 ## How to review
 
-1. Read the files in scope — for a unit, the files its diff touches.
-2. Check every rule below that the code can break. A rule marked
+1. Run `python3 -I "${CLAUDE_SKILL_DIR}/scripts/flag_antipatterns.py"
+   <files or folders in scope>` first. It finds the breaches a text search
+   can (Anti-patterns below) and prints them in the report format. Each
+   line is a candidate: open it and keep it only when the rule holds there.
+2. Read the files in scope — for a unit, the files its diff touches.
+3. Check every rule below that the code can break. A rule marked
    «только по требованиям» applies only when the SRS asks for that
    feature; a Next.js rule only in a Next.js project.
-3. Report each breach once, at the line that causes it, with its `UX-n`.
+4. Report each breach once, at the line that causes it, with its `UX-n`.
    Say what to change when the fix is not obvious from the finding.
 
 ## Rules
@@ -161,6 +165,7 @@ The motion tokens — one set for every product, defined once in the theme (CSS 
 - While dragging: no text selection, `inert` on the dragged elements → UX-76
 - Drag, swipe, pinch and path gestures have a tap or click and a keyboard alternative → UX-67
 - `autoFocus` only on desktop and only for the single main field → UX-76
+- Zoom is never disabled: no `user-scalable=no`, no `maximum-scale=1` → UX-55
 
 ### Layout
 
@@ -204,23 +209,15 @@ Only in a Next.js project; the details are in `frontend` →
 - An error message says how to fix it, not only what went wrong → UX-21
 - The user is «вы», in lower case; sections are named without pronouns («Проекты», not «Мои проекты»), «мои» only where others' items are shown too → UX-79
 
-### Anti-patterns — flag on sight
+### Anti-patterns — the script
 
-- `user-scalable=no` or `maximum-scale=1` → UX-55
-- `onPaste` with `preventDefault` → UX-19
-- `type="number"` → UX-19
-- `transition: all` → UX-61
-- `outline-none` without a `focus-visible` replacement → UX-63
-- Navigation by `onClick` without `<a>` → UX-64
-- `<div>` or `<span>` with a click handler instead of `<button>` → UX-64
-- Images without dimensions → UX-75
-- A large array `.map()` without virtualization → UX-75
-- Form inputs without a label → UX-17
-- Icon buttons without an accessible name → UX-8
-- Hand-made date or number formats instead of `Intl.*` → UX-77
-- `autoFocus` without a clear reason → UX-76
-- An animated GIF where a compressed video fits → UX-75
-- A gesture-only action without a tap or click and a keyboard alternative → UX-67
+`scripts/flag_antipatterns.py` searches for the breaches of the rules above
+that show in the text: zoom disabled, paste blocked, `type="number"`,
+`transition: all`, `outline` removed with no replacement, `<div>` or
+`<span>` with `onClick`, navigation by `onClick`, `<img>` without size, a
+GIF, `autoFocus`, a date built by hand. What it cannot see — a long list
+without virtualization, an icon button's name, a field's label, a
+gesture-only action — is found by reading, under the rules above.
 
 ## Report format
 

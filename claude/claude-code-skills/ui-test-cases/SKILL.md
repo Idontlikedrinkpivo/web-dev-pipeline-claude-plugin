@@ -305,81 +305,37 @@ sees how far the full picture is:
 
 The verdict is set only after pass 2.
 
-**Every run and every repeat is its own section** of the report, one under
-the other, with its own table and bar — a repeat says what was fixed before
-it, which cases it repeats, and «Итог повтора:» at the end; a later run in
-the iteration (after a fix plan) is appended, never written over the
-first. At the top, «Общий итог» — the share of automated cases passing by
-their latest result — and the page draws every section's bar at its top
-(`references/run-report.md` → Where and what).
-
-**The report is live.** Read `references/run-report.md` — the one place
-for the report's shape: path, sections, bars, an example, statuses, the
-verdict and the lists under it. Before the first run's dispatch, create the
-report: «Общий итог» at 0%, the section «Прогон 1 — все кейсы» with every
-case `⏳ ждёт` and its bar at 0%, `Verdict: идёт прогон` last; before a
-later run, append its section «Прогон <n> — после …» and turn the verdict
-to `идёт перепрогон · прошлый: …`; then run `python3
+**The report is live.** `documentation/plans/<version>/test-run.md`, in
+the open version folder; read `references/run-report.md` before creating it
+— the one place for its shape: a section per run and repeat, «Общий итог»,
+bars, statuses, the verdict and the lists under it. No open version folder
+→ say so and ask per `pipeline` → "Asking before a transition" which
+version this run belongs to; do not invent one. Before the first run's
+dispatch create it as run-report.md → Where and what describes, every case
+`⏳ ждёт` and `Verdict: идёт прогон`; before a later run, append its section
+and turn the verdict to `идёт перепрогон`. Then run `python3
 "${CLAUDE_SKILL_DIR}/../pipeline/scripts/progress_link.py"
 documentation/plans/<version>/test-run.md` (add `--desktop` when the
 session has the built-in browser) and paste the line it prints in the chat
-as is — never a link written by hand (it gives the page that
-reloads itself, served in the desktop app). The разбор section is added
-under its run when the run reaches 100%, and the line is pasted again — as
-it is each time a runner dispatch returns and after each repeat. A
+as is — never a link written by hand (it gives the page that reloads
+itself, served in the desktop app). Paste it again each time a runner
+dispatch returns, after each repeat, and when a run's разбор is added. A
 run resumed after a break or a context compaction keeps the report: every
 case without a result in the current pass goes back to `⏳ ждёт`, the line
-is pasted again, and only then the runner goes on. The runner changes the
-report the moment a case changes status: the row with Edit, the bars with
-`progress_set.py` (`references/run-report.md` → How it is kept) — never
-otherwise from the shell (`python`, `sed`, `cat >`): the page is rebuilt
-only after Edit, Write or the progress scripts.
+is pasted again, and only then the runner goes on. The runner keeps the
+report per run-report.md → How it is kept.
 
 **Dispatch:** resolve `ui-test-runner` through `executor-catalog` with
-`references/runner-prompt.md`. The runner:
-
-1. writes one Playwright spec per section file of the cases, named like it
-   (`01-login-session.spec.ts`; an existing suite keeps its file names), under the project's E2E
-   folder (`e2e/` unless the project has one), each test titled with its
-   `TC-` id, using role- and label-based locators from the screen spec's element
-   names. From `playwright-cli` it takes `references/test-config.md` (the
-   stand-ready config: one worker, `E2E_BASE_URL`, `testDir` the E2E
-   folder) and, of `references/test-generation.md`, only §0 and §3.1–3.3
-   under its «Inside dev-pipeline» block — the rest of that file is for a
-   person at the keyboard: one test per file, the app taken as right,
-   «ask the user», `test.fixme` for a known bug, `show --annotate`, `npm
-   init`. The E2E folder and the config belong to this suite: `ui-test-cases`
-   owns them, and a screen unit in `work` adds no spec there (`frontend` →
-   Verification);
-2. adds or keeps the `test:e2e` script, so `ci-pipeline` can run the
-   suite;
-3. pass 1: runs the cases one at a time (`npx playwright test --grep
-   "TC-7\b"`), so each result reaches the report as it happens; takes a
-   screenshot of the screen under test and compares it with its frame for
-   layout, texts and states — not pixel equality. The frame is read once
-   per `nodeId` (`get_screenshot`) and compared once, at the first case
-   that reaches that screen and state; the cases citing the same `nodeId`
-   reuse that result, because a read per case is hundreds of Figma calls
-   against the seat's limit and as many images in the context. A mismatch
-   is a `❌ не прошёл` with what differs on that first case and a line in
-   the report's «Сверка с макетом»; without Figma access the comparison is
-   skipped and the report says so. On the same screens it checks the items of `ux-patterns` →
-   «Проверка экрана перед сдачей» a browser can show: every width of the
-   frames register with no sideways page scroll (UX-74), the case's path
-   by keyboard with visible focus (UX-63, UX-64), no motion under reduced
-   motion (UX-61), icons from one set and no emoji (UX-57), Russian
-   typography in the texts (UX-78);
-4. pass 2: triages each failed case as above. It never edits application
-   code.
-
-**Report:** `documentation/plans/<version>/test-run.md` in the open version
-folder. No open version folder → say so and ask per `pipeline` → "Asking
-before a transition" which version this run belongs to; do not invent one.
-After pass 2 the `Verdict:` line under the last table is `PASS`,
-`DEFECTS` (an app defect, mockup mismatch, spec gap or screen-check breach
-remains) or `BLOCKED` (blocked cases leave a screen unchecked); under it
-the «Проверить вручную», «Проверка экрана» and «Сверка с макетом» lists
-(`references/run-report.md`).
+`references/runner-prompt.md` — the one place for the runner's rules: a
+spec file per section file, the parts of `playwright-cli` it takes, the
+`test:e2e` script `ci-pipeline` runs, the cases one at a time, each frame
+compared once per `nodeId`, the `ux-patterns` screen-check items, the
+triage. Two of them bind the session too: the E2E folder and its config
+belong to this suite — `ui-test-cases` owns them, and a screen unit in
+`work` adds no spec there (`frontend` → Verification); and the runner
+never edits application code. After pass 2 it sets the `Verdict:` line —
+`PASS`, `DEFECTS` or `BLOCKED` (run-report.md → The verdict and the lists
+under it).
 
 A `DEFECTS` verdict names, per defect, the unit or screen it points at, so
 the next step is one increment plan of fix units, not a hunt. Ask about that

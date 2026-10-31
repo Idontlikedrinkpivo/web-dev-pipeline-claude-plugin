@@ -58,8 +58,12 @@ instead of trusting the run report.
 
 Without the project's own commands already existing, stop and name the gap
 — do not write `ruff check .` directly into the workflow when there is no
-local `lint` target calling it; add the target first, or hand back to
-whichever skill owns that tooling. This holds per part: a repository with
+local `lint` target calling it. This stage adds no check target of its own
+except the audit target (Step 7): a missing `lint`, `typecheck` or `test`
+stops the stage and names the skill that owns the tooling —
+`/dev-pipeline:upgrade-code` (its quality gates) in a running project,
+`repo-scaffold` in a new one — because a target written here to unblock CI
+is a check nobody chose for the developer's machine. This holds per part: a repository with
 a backend and a frontend needs `lint`, `typecheck` and `test` in each, and
 a part missing one is a stop that names it, never a job that quietly
 skips it — the quality gates are `repo-scaffold/references/quality-gates.md`.
@@ -299,7 +303,7 @@ Commit it on the iteration branch before anything is said about it: the
 iteration's tag and push at the pipeline's end carry only what is
 committed, and a workflow left in the tree never runs. One commit,
 `ci: проверки на каждый push и PR`, staged by name — the workflow file and
-any local target this stage added to the Makefile or `package.json`
+the audit target when this stage added it to the Makefile or `package.json`
 (Step 7) — never `git add .`. An architecture fix has its own commit first
 (Guardrails).
 

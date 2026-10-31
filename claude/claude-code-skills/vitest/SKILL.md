@@ -7,26 +7,33 @@ description: >-
 
 # Vitest
 
-**Which layering applies.** With an architecture document (`clean-architecture-design`; foundation `documentation/architecture/architecture.md` §6): one entity test per row of the domain model's invariant table (`domain.md` §4), no I/O; use-case tests with in-memory fakes of the ports; repository adapter tests against a real Postgres; one round-trip test per mapper; HTTP tests through `app.inject`; one end-to-end path. At the Framework-first level (foundation §1 «Уровень») there are no ports to fake: the one `domain/` module gets plain unit tests, the rest is tested through `app.inject` against the real database. Without an architecture document, in an existing repo: mirror its placement, naming, setup files, and fakes (colocated `*.test.ts` when there is no precedent); do not restructure the suite unasked.
+**Which layering applies.** The cases (architecture document, Framework-first, existing repo) are in
+`typescript/references/which-layout-governs.md`, and the rules every test suite shares (mapper round-trip, race
+test, property test, grouping, mutants, no database reachable) in `typescript/references/shared-test-rules.md` —
+read both first. Vitest's placement in the cases: with an architecture document, the foundation §6 test plan — one
+entity test per row of the domain model's invariant table (`domain.md` §4), no I/O; use-case tests with in-memory
+fakes of the ports; repository adapter tests against a real Postgres; one round-trip test per mapper; HTTP tests
+through `app.inject`; one end-to-end path. At Framework-first there are no ports to fake: the one `domain/` module
+gets plain unit tests, the rest is tested through `app.inject` against the real database. In an existing repo:
+mirror its placement, naming, setup files, and fakes (colocated `*.test.ts` when there is no precedent).
 
 ## House rules
 
 1. Read neighbouring tests and the config first; one style per suite.
 2. Fake only what crosses the process boundary (network, clock, randomness, file system). Pass a fake where the code accepts one instead of `vi.mock` of a module; a test of a mocked internal proves the mock. A fake port is an in-memory store that behaves like the real adapter, and the test asserts what was stored and returned — not which method was called how often, unless the call order is itself a stated rule.
-3. One behaviour per test, named after behaviour and condition; edge cases and the error path beside the happy path, including exact boundary values. Group `describe` blocks by behaviour, never by plan unit (`U17:`); setup a second file needs goes to the shared test helpers, never copied.
+3. One behaviour per test, named after behaviour and condition; edge cases and the error path beside the happy path, including exact boundary values. `describe` blocks and shared setup: shared rule 4.
 4. `await` (or `return`) every `.resolves` / `.rejects`. `vi.mock` / `vi.hoisted` only at module top level.
 5. Undo what a test changed in `afterEach`: real timers back, spies restored, mock state reset. Fake time instead of sleeping. No mutable state shared between tests; the file must pass in shuffled order.
 6. Run the file, then break the code under test once and watch the test fail.
 7. Never commit `.only`; a `.skip` carries why and when it returns. Read every snapshot diff before accepting it.
-8. An invariant over many values (a format, a range, a round trip, «whoever edits can see») gets a property test with `fast-check` beside its examples.
-9. A guard against a double action (a row lock, a conditional update, a unique key, an idempotency key) gets a
-   race test against the real database: `Promise.all` of two calls, each with its own connection from the pool
-   (never one transaction shared), then count the effect — exactly one — and assert what the second caller got.
-10. A surviving mutant named in a review finding points to the missing assertion: add one that fails on that mutant; never change the mutated code or weaken a test to kill it. Mutation runs are `work`'s, at the run's close (`work/references/health.md` → Mutation runs), never a unit's.
+8. Property tests with `fast-check` (shared rule 3).
+9. A guard against a double action gets the race test of shared rule 2: `Promise.all` of two calls, each with its
+   own connection from the pool.
+10. A surviving mutant gets the assertion that kills it (shared rule 5).
 11. **The test database is named, never defaulted**: the database helper reads `TEST_DATABASE_URL` and throws
    when it is unset, when its database name has no «test», or, outside CI (`CI` unset), when it equals `DATABASE_URL`
    — locally it is a database of its own, not the one a running stand serves; a fallback address
-   once sent these tests to a running stand and wiped its data. **No database reachable here** (a sandbox without Docker): write the repository, race and HTTP tests as they would run, run the rest, and report the database run as owed — in a `work` packet a line in `CONCERNS` with the command. Never replace the database with a mocked client to get a green run.
+   once sent these tests to a running stand and wiped its data. **No database reachable here**: shared rule 6.
 12. Coverage has one threshold, in `coverage.thresholds` of the Vitest config (the foundation §6 number, otherwise 80% of lines); the full suite measures it in CI (`repo-scaffold/references/quality-gates.md`, the Coverage gate), a unit's focused run does not.
 
 A whole-application browser flow (log in, open a page, type, click, see the result) is Playwright, not Vitest:

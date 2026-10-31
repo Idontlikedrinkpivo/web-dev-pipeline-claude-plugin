@@ -36,15 +36,13 @@ rules (check them — the session may have run an older version).
 
 ## Steps
 
-1. **Scope.** The folder of the iteration being closed
-   (`documentation/plans/<version>/`; the open one when run by hand) gives
-   the window: from the iteration's first commit (or the folder's
-   date) to now — or, when `~/.claude/dev-pipeline-feedback/<project>.md`
-   already has a section whose «Окно: … — <end>» ends later (a part read
-   before a restart, a run by hand mid-iteration), from that end, so no
-   moment is read twice. That start is the `--since` of every command below
-   (logs keep UTC times, as the «Окно» line does). List this project's sessions in it:
-   `python3 "${CLAUDE_SKILL_DIR}/scripts/sessions.py" list "$PWD" --since <YYYY-MM-DD>`.
+1. **Scope.** `python3 "${CLAUDE_SKILL_DIR}/scripts/sessions.py" window "$PWD"` (add `--version <v>` when the
+   iteration being closed is not the current branch's) prints the window's start as `--since <…>` — the
+   iteration's first commit, or the end of the last «Окно» already in the feedback file when that is later (a
+   part read before a restart, a run by hand mid-iteration), so no moment is read twice; exit 1 means neither a
+   branch nor a folder names the iteration: ask the user from which date. That `--since` goes into every command
+   below. List this project's sessions in it:
+   `python3 "${CLAUDE_SKILL_DIR}/scripts/sessions.py" list "$PWD" --since <the window's start>`.
    Only this project's sessions — never another project's. The script finds
    them under every name the app gives this project's folder: the plain one,
    a long path shortened with a hash, and the repository's worktrees
@@ -129,6 +127,6 @@ Order by cost to the user: repeated corrections first.
 **Comparing two versions of the plugin** («стало ли дешевле после правки»): `references/comparing.md` — several
 runs per version, `measure.py --json` and `scripts/compare.py`.
 
-**Asked only what the run cost** («сколько стоила итерация», «куда ушли токены»): run step 5 alone, from the
-iteration's first commit or the date the user names, and answer with its tables and flags in plain words; nothing
-is written.
+**Asked only what the iteration cost** («сколько стоила итерация», «куда ушли токены за итерацию»): run step 5
+alone, from the iteration's first commit or the date the user names, and answer with its tables and flags in plain
+words; nothing is written. What this one session spent is `explain-usage`, not this skill.

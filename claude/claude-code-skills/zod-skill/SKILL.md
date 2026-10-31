@@ -19,13 +19,13 @@ Adapted from Anivar Aravind's zod skill (MIT, see `LICENSE`).
 Zod validates at **runtime** data the app does not control: request bodies, query strings, forms,
 env vars, external API responses, queue messages. Compile-time-only types stay plain TypeScript.
 
-**Which layout applies.** With an architecture document (`clean-architecture-design`), schemas live
-in the adapters the foundation's §5 tree (`documentation/architecture/architecture.md`) names (HTTP, config, gateways); `domain/` and `application/` never import
-zod or a wire schema — the boundary lint refuses it (`clean-architecture-design/references/machine-checkable-boundaries.md`).
-At the Framework-first level (foundation §1 «Уровень») the route's schema is the boundary and there is no
-separate input type; the one `domain/` module still imports no zod. Without an architecture document, in an
-existing repo, keep its schema files and the types its services already take; do not restructure unasked. A new
-business rule still goes into a module with no Zod, Fastify, or Drizzle import — say so in one line.
+**Which layout applies.** The cases (architecture document, Framework-first, existing repo) are in
+`typescript/references/which-layout-governs.md`, shared by the backend and test skills of both stacks — read it
+first. Zod's placement in them: with an architecture document, schemas live in the adapters the §5 tree names
+(HTTP, config, gateways); `domain/` and `application/` never import zod or a wire schema — the boundary lint refuses
+it (`clean-architecture-design/references/machine-checkable-boundaries.md`). At Framework-first the route's schema
+is the boundary and there is no separate input type. In an existing repo, keep its schema files and the types its
+services already take.
 
 ## Boundary rules
 
@@ -40,6 +40,12 @@ business rule still goes into a module with no Zod, Fastify, or Drizzle import �
   never a hand-written interface that mirrors a schema.
 - **`safeParse` for untrusted input**; a throwing `parse` only for startup config, where crashing is
   the point. Never throw inside a refinement or transform; report an issue through the context.
+- **A request body or query refuses unknown keys.** Use the strict object form for request schemas, so a sent
+  field the contract does not declare — an owner, a role, a price — is refused with the validation answer, not
+  dropped or stored, and the emitted JSON Schema carries the contract's `additionalProperties: false` the contract
+  test compares (`typescript-fastify` → check 10). Plain object schemas strip unknown keys silently. Which helper
+  the installed major names for it is a version check (`references/version-checks.md` → Object strictness).
+  Response schemas and external API responses stay non-strict: a partner adding a field must not break the parse.
 - **Fastify routes:** the route `schema` through the Zod type provider parses, not `safeParse` in the
   handler (`typescript-fastify`). Env: once at startup, fail fast with every bad variable named.
   External API responses: right after fetch, log the mismatch with the schema name. DB rows from a
@@ -64,8 +70,10 @@ await registerUser.execute(toRegisterUserInput(result.data)) // use case gets it
 ## Schema evolution and tests
 
 - Additive changes are safe (new optional field, loosened constraint, new union member); anything
-  else breaks consumers: ship it optional or deprecated first, remove in the next major. Object
-  schemas drop unknown keys by default, so a removed field fails silently.
+  else breaks consumers: ship it optional or deprecated first, remove in the next major. A
+  non-strict object schema (a response, a partner's payload) drops unknown keys, so a removed field fails
+  silently; a strict request schema refuses a client still sending it — which is why removing a request field is a
+  breaking change.
 - Test through `safeParse`. Cover valid data, each invalid case, and boundaries (min/max, empty,
   optional vs nullable, unknown keys). Assert on issue path and code, not message text, unless the
   message is the contract. For boundary code, test the handler's error response too.
@@ -89,3 +97,4 @@ of fetching docs. Outside `work`, read the file and check each point you rely on
    transform.
 5. **No raw input or raw issues in a response or a log line** — field paths and the schema name only.
 6. **A form's format rule comes from the generated schema or the rules module**, never a regex typed into the form.
+7. **A request schema is the strict object form**, so an undeclared field is refused, not dropped or stored.

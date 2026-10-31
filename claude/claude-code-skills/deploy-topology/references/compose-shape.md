@@ -1,5 +1,16 @@
 # Compose shape, file by file
 
+Contents:
+
+- Hardened app containers — the four keys every app container carries.
+- `docker-compose.test.yml` — the copyable test stand and its invariants.
+- Two database accounts — `docker/db-init/roles.sql` for the test stand.
+- `docker-compose.dev.yml`
+- `docker-compose.prod.yml` — external stores, loopback port, its invariants.
+- `frontend` — the frontend image, when the architecture has a client.
+- Make/task-runner targets — bootstrap and `up-<environment>`.
+- The compose-contract tests (Step 7) — each invariant a test checks, key by key.
+
 Placeholders in `<angle brackets>`. Substitute real service/image/variable
 names from the architecture; do not invent services the architecture never
 named (a queue, a cache) just because this shape has room for one.
@@ -426,3 +437,55 @@ compose file — they are part of the topology's contract — but the
 `up-<env>` target removes their exited containers immediately after a
 successful `--wait`, so they do not linger visibly next to the long-running
 services.
+
+## The compose-contract tests (Step 7)
+
+One test in the project's own suite per invariant below, so a future edit that reopens a closed hole fails
+CI instead of shipping:
+
+- The prod port mapping has an explicit loopback host IP; a mapping with no
+  host IP (binds all interfaces) fails the test.
+- `docker-compose.prod.yml` has no local database/storage service.
+- `migrate` in every file has no published port, and `backend` depends on it
+  with `service_completed_successfully`.
+- `docker-compose.test.yml` is copyable: no `container_name`, no volume
+  `name:`, every published host port a `${VAR:-default}`, `image:` on the
+  application services.
+- Every Dockerfile's `CMD` has no hot-reload flag, `CMD`/`ENTRYPOINT` is
+  exec form, every `FROM` has an explicit tag other than `latest` or a
+  digest, and the final stage's `USER` is a number other than 0.
+- Every app service in the test and prod files has `read_only: true`,
+  `/tmp` in `tmpfs`, `ALL` in `cap_drop`, `no-new-privileges:true` in
+  `security_opt`, and no `user:`; in test `migrate` and `backend` have
+  different `DATABASE_URL`s, neither with the database image's superuser,
+  and prod's `migrate` also reads `.env.prod.migrate.local`.
+- With a client: no `<<…>>` placeholder is left in `nginx/`, and its only
+  uncommented `proxy_pass` is under `location /api/` (the backend's
+  `/health/*` and `/metrics` stay off the entry point). With a shell,
+  `frontend`'s healthcheck reaches `:8081/_healthz` and its environment
+  sets `BACKEND_SERVICE`, `BACKEND_PROTOCOL` and `SECURE_MODE`; without
+  one, it has neither and its Dockerfile renders the templates at build.
+- `scripts/build-images.sh` passes `--platform "$PLATFORM"`, saves to
+  `release/<APP_VERSION>/<project>-<APP_VERSION>.tar`, and puts
+  `DEPLOY.md`, `<project>.env.example` and `openapi.yaml` (bundled when
+  the contract is split) beside it.
+- `documentation/deploy/deploy.md` agrees with `docker-compose.prod.yml`
+  and `.env.example`: containers, every variable per container with its
+  required and secret marks, ports, probes, volumes, the allowed
+  values of a variable that has a fixed set (`SECURE_MODE`: `plain` or
+  `secure`), and every file it names is one the release folder holds; its
+  card, «Для DBA», «Остановка» and «Безопасность пода» agree with the
+  build script, the Dockerfiles, the migrations, `roles.sql` and the
+  config layer — "The sync test" in `references/deploy-doc.md`.
+- `.dockerignore` exists and matches `.env.*.local` (a build context
+  that can see `.env.prod.local` fails the test).
+- `backend` in every compose file has a `healthcheck` that asks
+  `/health/ready` through the runtime (`node`/`python`, not `wget`/`curl`) —
+  it is what makes `up --wait` mean "the app can serve", not "the container
+  started" — and a `stop_grace_period` of at least `SHUTDOWN_TIMEOUT_SEC` + 5 s.
+- `.env.example` contains every variable the config layer requires, and no
+  variable the config layer does not recognize — the two drift silently
+  otherwise, in either direction. Test pattern: "The `.env.example` sync
+  test" in `references/env-and-config-contract.md`.
+- Setting the mock gate with `APP_ENV` other than `test` makes config
+  loading fail (a config-layer test, not a compose check).

@@ -1,7 +1,7 @@
 # Plan modes
 
-The writer reads the section of its MODE before Step 1. The session reads
-the table in `SKILL.md` → Modes to pick one. Steps 1–7 of `SKILL.md` hold
+The writer reads the section of its MODE before its Step 1. The session reads
+the table in `SKILL.md` → Modes to pick one. Steps 1–7 of `writer.md` hold
 in every mode; this file says what each mode changes.
 
 ## Contents

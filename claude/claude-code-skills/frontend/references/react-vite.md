@@ -28,7 +28,7 @@ Name the `S-n` in the page file's first comment line so a search for `S-1` finds
 | Forms | React Hook Form + Zod via its resolver | schema typed against the generated request body |
 | Styling / UI kit | Tailwind CSS + shadcn/ui | Radix-based primitives bring dialog focus trap and keyboard handling |
 | Component tests | Vitest + Testing Library + jsdom, MSW at the network boundary | queries by role and accessible name |
-| E2E / a11y | Playwright, the user test suite of `ui-test-cases`; eslint-plugin-jsx-a11y | `@axe-core/playwright` scan of each state; whether jsx-a11y loads with the installed ESLint major — Verify in current docs |
+| E2E / a11y | Playwright, the user test suite of `ui-test-cases`; eslint-plugin-jsx-a11y | `@axe-core/playwright` scan of each state; whether jsx-a11y loads with the installed ESLint major — `version-checks.md` → «Profile: React + Vite» |
 
 ## Stack conventions
 
@@ -49,19 +49,4 @@ Name the `S-n` in the page file's first comment line so a search for `S-1` finds
 | test | `<pm> run test` / `<pm> exec playwright test` |
 | API codegen | `<pm> run api:gen` — add it if missing |
 
-## Verify in current docs
-
-- TanStack Query: query-key and invalidation API, option names and defaults
-  (stale time, retries) in the installed major.
-- Router: data-router vs component-router API, lazy routes, error elements;
-  which package the installed React Router major is imported from
-  (`react-router-dom` was folded into `react-router` in a recent major) and
-  the React version it requires.
-- openapi-fetch / generator: CLI flags, output file, how non-2xx bodies and
-  `response.status` are typed.
-- Vite: which env variables reach client code and how they are typed; the
-  test environment key in the Vitest config.
-- React Hook Form resolver: support for the installed Zod major.
-- eslint-plugin-jsx-a11y: that it loads with the installed ESLint major — it
-  has lagged ESLint releases; if it does not, say so in the report rather
-  than pinning ESLint back.
+Version-sensitive points of this profile: `version-checks.md` → «Profile: React + Vite».

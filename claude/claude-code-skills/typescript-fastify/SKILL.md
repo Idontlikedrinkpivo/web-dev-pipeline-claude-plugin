@@ -9,24 +9,21 @@ description: >-
 
 ## Which contract and layout apply
 
-- **An architecture document exists** (`clean-architecture-design`): routes live where the foundation's §5 tree
-  (`documentation/architecture/architecture.md`) puts the HTTP adapter; a handler parses, calls one use
-  case or query (at Modest a read is a query function in the adapters, no use case), and maps the result.
-  `documentation/api/openapi.yaml` (from `openapi-spec-generator`) is the only source for paths, `operationId`, statuses, the
-  Problem body, the validation status, JSON casing, and the page shape; this skill defines none of
-  them. Named errors map to statuses through the architecture's «Named error → HTTP» table — one module, an
+The cases (architecture document, Framework-first, existing repo) and the contract's authority are in
+`typescript/references/which-layout-governs.md`, shared by the backend and test skills of both stacks — read it
+first. Fastify's placement in them:
+
+- **An architecture document exists**: routes live where the §5 tree puts the HTTP adapter; a handler parses,
+  calls one use case or query (at Modest a read is a query function in the adapters, no use case), and maps the
+  result. Named errors map to statuses through the architecture's «Named error → HTTP» table — one module, an
   exhaustive `switch` over the errors' `kind` with `assertNever`, never a mapper per route (`typescript` →
   «Every named error is its own type», «One translation of failures to answers»).
   A failure of an outside call reaches the handler wrapped with its `cause`; where the client only sees a generic
   answer, the handler writes one warn line with the cause's name — never keys, addresses or secrets.
-- **The level is Framework-first** (foundation §1 «Уровень»): no ports or use-case classes — a handler calls the
-  one framework-free `domain/` module for the rules and the ORM directly for reads and writes; the request and
-  response schemas are the boundary. The contract, the error handler and the rules below hold unchanged.
-- **No architecture document, existing repo:** follow the repo's layout, error classes, error body,
-  validation status, casing, and page shape for the change at hand, even where they differ from the
-  spec defaults above. Do not migrate the contract or restructure unasked; propose it in the answer
-  instead. A new business rule still goes into a module that imports no Fastify, Drizzle, or Zod
-  (the service or a domain module), not into the handler — say so in one line.
+- **Framework-first**: the request and response schemas are the boundary.
+- **Existing repo**: also its error body, validation status, casing and page shape, even where they differ from
+  the spec defaults above; do not migrate the contract unasked. A new rule goes into the service or a domain module
+  with no Fastify, Drizzle or Zod import.
 
 ## Rules
 
@@ -51,7 +48,9 @@ description: >-
    `inject` and no port. Wire use cases and adapters in the composition root, not inside plugins.
 9. Auth: reuse the existing auth plugin or permission helper. Missing or invalid credentials are 401,
    missing permission 403. An auth check that must precede body validation runs in a hook that runs
-   before validation, registered on the prefix it protects so sibling route plugins inherit it.
+   before validation, registered on the prefix it protects so sibling route plugins inherit it. Implementing
+   registration, password login, tokens or a route guard: read [references/auth.md](./references/auth.md) —
+   libraries, the timing-safe check, explicit algorithms, roles read from the database, rate limits.
 10. Reuse canonical identifiers; change the id format only when the task selects it.
 
 ## Errors
@@ -177,5 +176,6 @@ of fetching docs. Outside `work`, read the file and check each point you rely on
    does. Login and registration are rate-limited by address and by account where architecture §1 puts it — in the
    app, `@fastify/rate-limit` on those routes, answering the contract's 429 with `Retry-After`.
 10. **A write takes the contract's fields by name**: the body is never spread into an insert or an update, and a
-    field the client may not set — the owner, a role, a status, a price — is not in the request schema
-    (`additionalProperties: false`), so a sent one is refused, not stored.
+    field the client may not set — the owner, a role, a status, a price — is not in the request schema, and the
+    schema refuses extra fields (`additionalProperties: false`; with Zod the strict object form, `zod-skill` →
+    Boundary rules), so a sent one is refused, not stored.

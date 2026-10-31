@@ -56,11 +56,18 @@ invent its own idea of what the branch was supposed to do. Say so and stop.
 ### Step 1. Reconstruct the whole
 
 Read the plan's unit map and this run's section of the run report side by
-side. Confirm every unit this run committed has a commit in the diff range
-(its `Plan-Unit: <version>/U<n>` trailer in `BASE..HEAD` — read from the
-message body, `git log --format=%B`, since a blank line before
-`Co-Authored-By:` keeps it out of git's own trailer list), and that every
-commit in the range is mapped. BASE is the HEAD the last whole review covered
+side, and map the range with the script rather than by reading the log:
+
+```bash
+python3 "${CLAUDE_SKILL_DIR}/../work/scripts/plan_state.py" documentation/plans/<version>/plan.md --range <BASE>
+```
+
+Its `units` line is every unit with a `Plan-Unit: <version>/U<n>` trailer in
+`BASE..HEAD` (read from the message body, since a blank line before
+`Co-Authored-By:` keeps it out of git's own trailer list), `mapped` counts
+each trailer kind, and `unmapped` names every commit with none. Confirm every
+unit this run committed is on the `units` line and every commit in the range
+is mapped. BASE is the HEAD the last whole review covered
 (`work` → `references/run-hygiene.md` → The review range), so commits made
 between two runs — a stand, the e2e suite, decision documents — are in this
 range; units reviewed by an earlier whole review sit before it. Mapped means a `Plan-Unit: <version>/<kind>` trailer the run
@@ -68,15 +75,15 @@ report lists:
 
 | Trailer | Commit |
 |---|---|
-| `U<n>` | the unit, or a fix on top of it (`work` → A fix after a commit) |
+| `U<n>` | the unit, or a fix on top of it (`work/references/fixes-and-decisions.md` → A fix after a commit) |
 | `review-fix-<n>` | a fix that spans units |
 | `health-<n>` | the simplifier (`work/references/health.md`) |
-| `decision-<n>` | the documents of a decision changed during the run (`work` Step 6) |
+| `decision-<n>` | the documents of a decision changed during the run (`work/references/fixes-and-decisions.md`) |
 | `verify-skill` | the project's verify skill, written for the run's browser suite (`deploy-topology` → `references/verify-skill.md`) |
 | `stand` | the test stand made copyable (`ui-test-cases` → `references/parallel-stands.md`) |
 | `chat-<n>` | a change asked in chat (`work/references/chat-change.md`) |
 
-A commit with none of these is unmapped: name it, its subject and what it
+A commit on the `unmapped` line is unmapped: name it, its subject and what it
 touches, and read its diff with the rest — it is not by itself a sign that
 the report is stale. A unit the report marks committed with no trailer in the
 range, or a trailer the report does not list, means the report is stale — fix
@@ -203,7 +210,7 @@ while I was in there".
 ## Report
 
 Write findings in Russian. Keep the heading, column names, bold labels, and
-verdict tokens exactly as below (`doc-versioning` → Document language).
+verdict tokens exactly as below (`doc-versioning` → `references/writing-rules.md` → Document language).
 
 ```markdown
 ## Ревью всего прогона — <plan path> — <verdict>

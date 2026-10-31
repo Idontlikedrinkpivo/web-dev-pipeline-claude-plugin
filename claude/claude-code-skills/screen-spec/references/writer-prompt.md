@@ -59,26 +59,19 @@ GENERAL HANDLER
    from «Общие состояния» and their texts, and return them in the report>
 
 RULES
-- Figma reads: get_metadata on every screen, state, nested-step and
-  Аннотация frame; one get_screenshot per screen, state and nested-step
-  frame; get_design_context on the Аннотация frame to copy its «Элементы»
-  and «Тексты» tables verbatim, and on another frame only when metadata and
-  the screenshot cannot tell what an element is, or — with «Слои по
-  действиям: нет» — to read its text layers. Use the figma-* skills when
-  installed, else the Figma MCP tools (mcp__figma__* or
-  mcp__plugin_dev-pipeline_figma__*). Neither available → BLOCKED.
+- Figma reads and the text layers of a file without annotation: exactly
+  as SKILL → "Writer (dispatched)" → Read the frames — the one place for
+  which call reads what. Neither the figma-* skills nor the Figma MCP tools
+  available → BLOCKED.
 - № comes from the annotation's «Элементы» table, one numbering across the
   screen and its nested steps; never renumber. With «Слои по действиям: нет»
   number in reading order and add the Разрыв «нет аннотации — № назначены ТЗ».
 - Every text in «» is copied from «Тексты». It is keyed by element and SRS
   flow, not by status: map flow → SRS named error → the status whose error
   code the operation declares, and write the flow id beside the code. With
-  «Слои по действиям: нет» there is no «Тексты»: read the text layers with
-  get_design_context on each screen, state and nested-step frame, copy each
-  character for character, and mark it `текст слоя` with the layer's
-  nodeId; the frame it sits on gives its flow (the register's state name).
-  Only a meaning with no text layer anywhere is a Разрыв «текст — нет на
-  кадре»; never read a text off a screenshot.
+  «Слои по действиям: нет» it is the text layer marked `текст слоя` (Read
+  the frames); the frame it sits on gives its flow (the register's state
+  name). Never read a text off a screenshot.
 - Every branch of an interactive element ends in one outcome of the closed
   set; every non-success status of every called operation has a row in
   «Ошибки ответов»; every computed value is defined once in «Производные
@@ -103,6 +96,9 @@ RULES
   rewrite the file in place, keep its path, leave version, updated and the
   journal alone, drop resolved Разрывы rows.
 - Russian prose; ids, operationIds, field paths and nodeIds untranslated.
+- Before the report, run python3 -I <SKILLS ROOT>/screen-spec/scripts/
+  check_spec.py --docs documentation S-<n> … for your screens and fix each
+  line it prints, or name it in CONCERNS when the inputs decide it.
 - Write only the OUTPUT PATHs. Do not commit. Do not run doc-review or
   pipeline.
 

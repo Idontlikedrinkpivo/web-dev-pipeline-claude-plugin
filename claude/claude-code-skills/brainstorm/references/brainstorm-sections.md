@@ -7,7 +7,7 @@
 - [Decide whether a doc is warranted at all](#decide-whether-a-doc-is-warranted-at-all)
 - [Match depth to content](#match-depth-to-content)
 - [Prose economy](#prose-economy)
-- [Ready for Planning Check](#ready-for-planning-check)
+- [Ready for SRS Check](#ready-for-srs-check)
 - [Product Contract hard floor](#product-contract-hard-floor)
 - [Include when material](#include-when-material)
 - [Agent agency](#agent-agency)
@@ -23,15 +23,15 @@ It does NOT prescribe how the doc looks on the page — rendering is handled by
 
 ## The outcome
 
-A great brainstorm produces a business requirements document that later
-technical planning (architecture, API/DB design, implementation) builds on.
-It enables three audiences to act:
+A great brainstorm produces a business requirements document that the SRS
+stage (`srs-writer`) reads next, and the design stages (schema, API,
+architecture) build on after it. It enables three audiences to act:
 
-- **The planning agent** (a technical-planning skill or a human) produces an
-  implementation plan without inventing user behavior, scope boundaries, or
+- **The SRS writer** (`srs-writer`, or a human) turns it into numbered
+  requirements without inventing user behavior, scope boundaries, or
   success criteria — the brainstorm answered those.
 - **The reviewer** sees the framing choices, distinguishes pinned from open,
-  and catches scope gaps before planning.
+  and catches scope gaps before the SRS.
 - **The future reader** traces why the proposed thing matters, who it's for,
   and what success looks like.
 
@@ -68,7 +68,7 @@ Skip document creation when **both** hold:
 
 The trigger for creating a doc is when the dialogue surfaced enough
 structural decisions, scope boundaries, or acceptance criteria that
-downstream consumers (planner, reviewer, future reader) need them in a
+downstream consumers (SRS writer, reviewer, future reader) need them in a
 durable, IDed form — not just as conversational artifacts.
 
 **Stress test:** a brainstorm about a tiny bug fix where the user asks "fix
@@ -142,7 +142,7 @@ the commitment, cite the path, and record only this work's deltas. A
 multi-sentence summary of the cited document is restatement of an owner that
 lives outside the doc.
 
-## Ready for Planning Check
+## Ready for SRS Check
 
 Run this against the written artifact before declaring it written or presenting
 the Phase 4 closing summary:
@@ -162,15 +162,15 @@ the Phase 4 closing summary:
 3. **Focused** — the Product Contract owns one coherent work unit. Surrounding
    work appears only as context, deferred work, or an explicit non-goal; it does
    not leak into active Requirements, Flows, or Acceptance Examples.
-4. **Usable by planning** — the next technical-planning step can decide how to
-   build the current work without inventing product behavior, scope, actors,
-   or success criteria.
+4. **Usable by the SRS stage** — `srs-writer` can write the numbered
+   requirements of the current work without inventing product behavior,
+   scope, actors, or success criteria.
 
 Fix a failed check in place when the correction preserves settled intent, then
 rerun the failed checks. When a fix would choose or change product behavior or
 scope, ask one targeted question and update the artifact after the answer. If
-the user is unavailable, keep the artifact blocked rather than letting planning
-invent the answer. Do not emit this checklist into the Product Contract; the
+the user is unavailable, keep the artifact blocked rather than letting the SRS
+stage invent the answer. Do not emit this checklist into the Product Contract; the
 corrected artifact is the output.
 
 ## Product Contract hard floor
@@ -223,7 +223,7 @@ worse than omitting it.
   surfaced options) and `user-approved` (the agent proposed with the
   tradeoff surfaced; the user assented). An agent never labels its own
   unexamined proposal. Preserve the label on the Product Contract Key
-  Decision and its exact `Governs R…` links. A later technical-planning
+  Decision and its exact `Governs R…` links. A later design
   document may inherit the label into its own decision entry only when that
   entry makes a distinct how-level choice and cites the governed R-IDs; it
   must not create an entry that merely mirrors the product decision.
@@ -320,8 +320,8 @@ worse than omitting it.
   when planning cannot start, or `Отложено` when planning or the codebase
   can answer it later.
 
-- **Sources / Research** — surface research that orients the planner or
-  justifies framing choices. The test: *"if I were the planner reading this
+- **Sources / Research** — surface research that orients the SRS writer or
+  justifies framing choices. The test: *"if I were the SRS writer reading this
   cold, would this breadcrumb help me make better choices?"* Yes → surface
   (code locations, external docs, RFCs, constraints, prior plans — the
   category is inclusive, not enumerated). Process exhaust (reading the
@@ -381,9 +381,9 @@ not introduce one.
 ### Field-name stability
 
 Field names are stable across brainstorm revisions: a new brainstorm uses
-these exact names and never repurposes one, because the file name and the
-resume check are built from them — renaming `topic` to `subject` or `date`
-to `created` breaks both. Adding a new field is fine.
+these exact names and never repurposes one, because other stages and
+`doc-review` read these keys by name — renaming `topic` to `subject` or
+`date` to `created` hides them from those readers. Adding a new field is fine.
 
 ## ID and content rules
 

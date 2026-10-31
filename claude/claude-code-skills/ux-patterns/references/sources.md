@@ -4,6 +4,20 @@ Read when a `UX-<n>` rule is challenged. Checked October 2026. Material 3,
 Apple HIG and Polaris pages render through JavaScript; their numbers were
 confirmed through secondary sources.
 
+## Where the rules come from
+
+The rules are distilled from Nielsen Norman Group, Baymard, GOV.UK
+Design System, Material 3, Apple HIG, IBM Carbon, Atlassian, Shopify
+Polaris, GitHub Primer, AWS Cloudscape and W3C WCAG 2.2 / WAI-ARIA APG,
+checked in October 2026, and reconciled with three rule sets this plugin
+embeds: `web-design-guidelines` (Vercel Web Interface Guidelines — the
+code-level detail behind Section 8), `ui-ux-pro-max` (style, palette and
+font data for the visual direction, and a searchable mirror of these
+rules) and `frontend-design` (taste rules for drawing). Every rule in
+those three that overlaps a rule here carries the `UX-<n>` it maps to,
+and where one of them disagrees with this file, this file wins and the
+other is the one to fix. The source per rule is in the table below.
+
 ## Sources per rule
 
 | Rule | Sources |

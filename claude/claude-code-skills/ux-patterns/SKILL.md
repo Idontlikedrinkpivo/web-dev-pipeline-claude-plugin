@@ -8,17 +8,13 @@ description: >-
 # UX Patterns
 
 A component library can be assembled any way. These rules keep the result
-usable. They are distilled from Nielsen Norman Group, Baymard, GOV.UK
-Design System, Material 3, Apple HIG, IBM Carbon, Atlassian, Shopify
-Polaris, GitHub Primer, AWS Cloudscape and W3C WCAG 2.2 / WAI-ARIA APG,
-checked in October 2026, and reconciled with three rule sets this plugin
-embeds: `web-design-guidelines` (Vercel Web Interface Guidelines — the
-code-level detail behind Section 8), `ui-ux-pro-max` (style, palette and
-font data for the visual direction, and a searchable mirror of these
-rules) and `frontend-design` (taste rules for drawing). Every rule in
-those three that overlaps a rule here carries the `UX-<n>` it maps to,
-and none of them contradicts this file. The source per rule is in `references/sources.md`; read it when
-a rule is challenged.
+usable. Three rule sets this plugin embeds tag each rule that overlaps one
+here with its `UX-<n>`: `web-design-guidelines` (code-level detail behind
+Section 8), `ui-ux-pro-max` (style data and a searchable mirror of these
+rules) and `frontend-design` (taste rules for drawing). Where one of them
+disagrees with this file, this file wins and the other is the one to fix.
+Where the rules come from, and the disagreements already settled:
+`references/sources.md`; read it when a rule is challenged.
 
 Every rule is checkable on a screen-spec row, a frame screenshot, or a diff. A
 rule nobody can check is not in this file.
@@ -41,14 +37,10 @@ and built first, and the narrow width must work (UX-74).
 
 ## Who applies what
 
-| Reader | Applies |
-|---|---|
-| `ui-design` | records the product type and the visual direction, decides the screen set, and runs Полнота макета against it before and after drawing; picks no widget itself — it hands the choices to the builders |
-| `figma-opus` / `figma-sonnet` (or a designer) | pick every widget, presentation and behaviour pattern — button or menu item, dropdown or radio group, dialog or side panel or page, toast or banner, table or cards, undo or confirmation — compose frames that satisfy Sections 1–7 and 9 and Полнота макета by the taste rules of `frontend-design`, and write the copy by UX-12, UX-21, UX-78 and UX-79 into the «Тексты» table; a designer may choose differently without touching any document |
-| `screen-spec` | records what the frames chose — the behaviour each element has, its texts verbatim from «Тексты», cited by frame — and the `UX-<n>` exception a frame notes; it never picks a widget or rewrites a text |
-| `frontend` | implements Sections 1–9 — the look from the frames and the code rules of Section 1 (UX-59, UX-61, UX-62, UX-66), the behaviour (Sections 2–7), the implementation rules (Section 8, with the code-level detail in `web-design-guidelines`), the texts (Section 9) — and the accessibility baseline, and runs Проверка экрана перед сдачей before handing a screen over |
-| `doc-review` (design lens), `code-review-unit` (UI lens) | cite the `UX-<n>` a finding breaks; the UI lens also checks Section 8 against `web-design-guidelines` and the screen checklist |
-| `ui-test-cases` (run) | checks the screen-checklist items a screenshot shows when it compares a screen with its frame |
+Which reader applies which sections — `ui-design`, the Figma builders,
+`screen-spec`, `frontend`, the reviews, `ui-test-cases` — is in
+`references/readers.md`; read it when deciding whether a rule is yours to
+apply or only to check.
 
 A screen spec, frame or diff that must break a rule (a product constraint, a
 legal text) says so next to the place, with the rule id. Silence is a

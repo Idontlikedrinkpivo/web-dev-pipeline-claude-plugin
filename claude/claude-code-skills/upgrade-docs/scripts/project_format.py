@@ -10,8 +10,11 @@
     python3 project_format.py check <project dir> <id>   # exit 0 when this change is no longer pending
     python3 project_format.py skip  <project dir> <id>   # the user declined it for good: never offered again
     python3 project_format.py stamp <project dir>        # record the installed version — only when nothing is pending
-    python3 project_format.py born  <project dir>        # a new project's first document: record the installed version
-                                                         # at once (its stages produce today's formats); no-op when stamped
+    python3 project_format.py born  <project dir>        # a new project's first document (brainstorm or srs-writer, when
+                                                         # documentation/ did not exist at the stage's start): record the
+                                                         # installed version at once, committed with that document — its
+                                                         # stages produce today's formats, so the session-start check must
+                                                         # not report them as missing; no-op when stamped
     python3 project_format.py set   <project dir> [--next [--after <id>] | --foreign]
                                                          # the document set (doc_set.py): which documents the code calls
                                                          # for, which are there; --next: only the next missing one;

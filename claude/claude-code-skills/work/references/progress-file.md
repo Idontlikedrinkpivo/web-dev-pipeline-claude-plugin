@@ -51,8 +51,8 @@ Create it before the first dispatch from the unit map and `plan_state.py`
 (`work` → Step 1): a unit with its `Plan-Unit:` trailer `✅ готово`, every
 other unit in scope `⏳ ждёт` — the same on a resumed run and on a second run
 in the same iteration. Then post the progress line before the first dispatch,
-and again after every commit and every stop (`work` → Step 1, the progress
-line from `progress_link.py`, never a hand-written link). It is never
+and again after every commit and every stop (`references/run-state.md`, the
+progress line from `progress_link.py`, never a hand-written link). It is never
 committed — `documentation/plans/` is out of git — so it lives only on this
 machine, and git keeps the record through the `Plan-Unit:` trailers. A
 pre-existing progress file from another run of the same plan is overwritten,

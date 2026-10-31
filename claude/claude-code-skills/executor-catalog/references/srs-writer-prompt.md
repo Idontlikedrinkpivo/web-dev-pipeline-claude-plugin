@@ -21,14 +21,15 @@ a failed print.
 SKILLS ROOT     <absolute folder holding the plugin's skills
                 (executor-catalog → Dispatch contract)>
 SKILL           <SKILLS ROOT>/srs-writer/SKILL.md
-                Follow the Writer half and the `srs-writer` skill's references/security-checklist.md.
+                Follow the Writer half, its references/srs-template.md and
+                references/security-checklist.md.
                 Skip the Orchestrator half. Do not run grill-me, doc-review,
                 or pipeline. Do not commit.
 
 EXECUTOR        srs-author
 
 OUTPUT PATH     documentation/requirements/srs/srs.md and its areas/
-                files (srs-writer → Document Structure → Layout)
+                files (srs-writer/references/srs-template.md → Layout)
 MODE            greenfield | increment | grill-reversal | as-is
                 as-is: the system exists and the SRS does not — write it
                 from the code and the project's own documents named in
@@ -77,14 +78,15 @@ RULES
   with the ledger. Do not bump version. Do not add a changelog row.
 - Frontmatter is only `title`, `date`, `updated`, `version`. Do not
   write `status`, `grilled`, `reviewed`, or `sources`.
-- On increment: follow srs-writer → Resume and doc-versioning. Do not
+- On increment: follow srs-writer/references/srs-template.md → Artifact
+  Root and Resume, and doc-versioning. Do not
   change `version`, `updated`, or `## Журнал изменений`. Never renumber:
   a row inserted between two rows takes a dotted id after the row above
   (`FR-10.1`), a row at a section's end the next whole number.
-- Behaviour, not interface (srs-writer → Behaviour, not interface): no
+- Behaviour, not interface (srs-writer/references/srs-template.md): no
   screen, control, gesture, message wording, or visual in the SRS.
   Interface wishes from the source go to `ui-wishes.md` beside the SRS,
-  by SRS group, a table «Где · Пожелание · Требования» (srs-writer → Behaviour, not interface).
+  by SRS group, a table «Где · Пожелание · Требования» (same section).
 - Do not invoke grill-me, doc-review, or pipeline.
 - Do not commit, do not stage.
 ```
@@ -102,7 +104,7 @@ COUNTS            FR range, UC range, N rows in open-questions.md
 SOURCE            покрыто N из M пунктов источника
 CHANGES           every new or changed id with its change type —
                   `FR-10.1 добавляет`, `BR-3 ломает`, `UC-4 уточняет`
-                  (srs-writer → Artifact Root and Resume, step 4); the
+                  (srs-template.md → Artifact Root and Resume, step 4); the
                   stamp types its changelog rows from this list. Omit on
                   greenfield.
 DOWNSTREAM        increment only: one line per consumer, must bump or

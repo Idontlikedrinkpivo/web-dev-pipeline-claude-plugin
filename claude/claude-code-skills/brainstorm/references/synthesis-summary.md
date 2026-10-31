@@ -1,6 +1,6 @@
 # Synthesis Summary
 
-**Synthesis ≠ the business requirements document.** The synthesis is NOT a preview, draft, or substitute for the business requirements document — it's the scope checkpoint that doc-write consumes as input. The Product Contract itself is written in Phase 3 from the confirmed synthesis. Both the synthesis and the Product Contract stay scope-only — implementation detail (file paths, code shapes, exact error wording) is downstream, for later technical planning, not the Product Contract.
+**Synthesis ≠ the business requirements document.** The synthesis is NOT a preview, draft, or substitute for the business requirements document — it's the scope checkpoint that doc-write consumes as input. The Product Contract itself is written in Phase 3 from the confirmed synthesis. Both the synthesis and the Product Contract stay scope-only — implementation detail (file paths, code shapes, exact error wording) is downstream, for the SRS and the design stages, not the Product Contract.
 
 **Two-stage shape: internal draft, then chat-time scoping synthesis.** The synthesis is composed in two stages. Stage 1 is an internal three-bucket draft (Stated / Inferred / Out of scope) the agent uses to think comprehensively about scope. Stage 2 is the scoping synthesis presented to the user — shaped like what two product collaborators would confirm before writing a PRD, not like a comprehensive audit and not like a one-line preview. The user only sees stage 2. The internal draft still informs the doc body via the doc-shape routing below; it just doesn't reach the user verbatim. This split exists because the comprehensive audit shape produced too much detail for the user to actually weigh in on, even when the granularity rules were followed.
 
@@ -48,7 +48,7 @@ Each section answers a different question:
 
 Then the confirmation, which names **what actually happens next** so the user knows what is coming and can interrupt without ambiguity. When a doc is expected — the common case — that is the artifact write: *"Confirm and I'll write the requirements-only plan next, drawing on our dialogue and this synthesis. Or tell me what to change."*
 
-When a doc is already ruled out — the user declined one, or `brainstorm-sections.md`'s "Decide whether a doc is warranted at all" criteria plainly hold — name where the decisions actually go instead, which is whichever of that rule's alternatives *this run* established (the next technical-planning step, the user's commit message): *"Confirm and we're done here — the scope above carries straight into [the destination the dialogue established]. Or tell me what to change."* When the dialogue named none, drop the clause rather than picking one: *"Confirm and we're done here — no doc, as you asked. Or tell me what to change."*
+When a doc is already ruled out — the user declined one, or `brainstorm-sections.md`'s "Decide whether a doc is warranted at all" criteria plainly hold — name where the decisions actually go instead, which is whichever of that rule's alternatives *this run* established (the SRS stage, the user's commit message): *"Confirm and we're done here — the scope above carries straight into [the destination the dialogue established]. Or tell me what to change."* When the dialogue named none, drop the clause rather than picking one: *"Confirm and we're done here — no doc, as you asked. Or tell me what to change."*
 
 Do not hardcode a destination. This phase writes no commit message and hands off at Phase 4, so asserting a downstream action the run will not take is the same overreach as promising the doc. Phase 3, not this phase, owns the doc-warranted decision, so promising the write here makes a user who already declined a doc decline it a second time.
 
@@ -76,14 +76,14 @@ Each conditional section has its own keep test. Sections are render-conditional 
 - **Real scope fork** — another reasonable agent might choose a different scope on this dimension (who the primary actor is, whether case X is in/out, in scope vs deferred)
 - **Non-obvious scope inclusion** — a behavior the agent assumed is in scope that the user might want excluded
 - **Non-obvious scope exclusion** — an item the agent moved to deferred that the user might want in scope
-- **Cheap-now-expensive-later correction** — a scope bet that's cheap to fix now but expensive after the Product Contract lands and later planning consumes it
+- **Cheap-now-expensive-later correction** — a scope bet that's cheap to fix now but expensive after the Product Contract lands and the SRS consumes it
 - **Non-obvious consequence of multi-turn answers** — a downstream effect of combining user-stated answers that the user is unlikely to have tracked through dialogue. Surfaced forward-looking ("X means Y for the doc"), not retrospectively ("you said X"). This category is the multi-turn-dialogue reason call-outs exist at all in this skill; do not filter these as "already implied by Stated"
 
 Cut anything that doesn't match a keep-test category, including:
 
 - Session-settled decisions — already chosen; they render as `Carrying forward:` lines, never call-outs
 - Mechanical items where there is no real alternative
-- Implementation choices that will be settled during planning
+- Implementation choices that will be settled in the design stages
 - Items already implied by the scoping synthesis prose
 - Re-statements of Q&A turns ("you said you wanted X") — that's transcript, not a call-out
 - Re-statements of the Phase 2 approach the user already picked
@@ -127,7 +127,7 @@ The "What we're building" prose obeys the same discipline: 1–3 sentences descr
 
 Each anti-pattern below produces a bullet that fails its section's keep test, or a scoping synthesis that drifts back toward the comprehensive-audit failure mode.
 
-- **Naming implementation detail in any bullet**: file paths, module names, exact JSON keys, HTTP status codes, error message wording, SQL syntax. The synthesis is scope-only; implementation is the later technical-planning step's job. These granularity rules apply to every bullet in every section.
+- **Naming implementation detail in any bullet**: file paths, module names, exact JSON keys, HTTP status codes, error message wording, SQL syntax. The synthesis is scope-only; implementation is the design stages' job. These granularity rules apply to every bullet in every section.
 - **Re-stating a Q&A turn verbatim** ("you said you wanted X"): transcript, not scoping synthesis. Reframe forward-looking ("X means Y for the doc") or cut.
 - **Re-stating the Phase 2 approach the user already picked**: the approach was chosen before Phase 2.5 — its mention belongs in one sentence of "What we're building," not as a call-out.
 - **Padding a section to meet a bullet count**: render-conditional means empty is allowed. Omit the section entirely rather than fill it with weak items.
@@ -203,7 +203,7 @@ What got cut from the 12-item internal draft and why:
 
 - Stated items already covered by the "What we're building" prose dissolved silently
 - "Use existing rule entity" — mechanical, no real trade-off
-- "Use Postgres for persistence" — implementation detail (the later technical-planning step's job), failed granularity rules
+- "Use Postgres for persistence" — implementation detail (the design stages' job), failed granularity rules
 - One Out-of-scope item ("no rate limiting") — mechanical exclude, no reader would ask about it
 - Three Inferred items rolled into the Trade-offs section as the explicit choices behind them
 

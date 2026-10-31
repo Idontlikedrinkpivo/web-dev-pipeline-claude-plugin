@@ -1,5 +1,16 @@
 # The deploy document and its sync test
 
+Contents:
+
+- Where it lives — the source in `documentation/deploy/`, the hand-over copy.
+- What it holds — the template of `deploy.md`, section by section: Карточка сервиса, Контейнеры, Порядок
+  запуска, Сеть и проверки, Ресурсы, Переменные, Внешние зависимости, Для DBA, Логи, Метрики, Остановка,
+  Безопасность пода, Трассировка, Состояние и тома, Первый запуск, Обновление на новую версию; then probe
+  timings, secrets and the files it may name.
+- The stand's proof (Step 7b) — the service check in the container, measuring resources.
+- The variables file — `<project>.env.example` for the operators.
+- The sync test — what keeps `deploy.md` true to the compose file, the images and the config layer.
+
 Read this in Step 8 while writing `documentation/deploy/deploy.md`, in
 Step 7 while writing its sync test, and in Step 7b for the stand's proof
 (the service check and the resource measurement for «Ресурсы»).
@@ -43,27 +54,33 @@ rather than disappearing — an operator reading a missing section cannot tell
 
 Write it to be scanned (`doc-versioning` → `references/readable.md`): a cell is one fact, a run of cases is a table, a procedure is a numbered list, a paragraph at most four sentences.
 
-````markdown
-# Развёртывание room-booking <версия>
+Placeholders in the template: `<project>` is the project's name as the images carry it
+(`<project>-backend`), `<schema>` is `db-schema-design` §0's schema; fill both from the project, never
+copy a sample's names. For the room-booking example: `<project>` = `room-booking`, `<schema>` = `room_booking`.
+The values in the cells (PostgreSQL 17, the pool of 10, the TypeScript commands) are a sample too — each
+comes from this project's files.
 
-Комплект: `room-booking-<версия>.tar` (образы `room-booking-backend:<тег>`,
-`room-booking-frontend:<тег>`), этот файл, `room-booking.env.example` —
+````markdown
+# Развёртывание <project> <версия>
+
+Комплект: `<project>-<версия>.tar` (образы `<project>-backend:<тег>`,
+`<project>-frontend:<тег>`), этот файл, `<project>.env.example` —
 переменные прода с пометками, и `openapi.yaml` — контракт API.
 
-Загрузка образов: `docker load -i room-booking-<версия>.tar`
+Загрузка образов: `docker load -i <project>-<версия>.tar`
 
 ## Карточка сервиса
 
 | Что | Значение |
 |---|---|
-| Образы | `room-booking-backend:<тег>`, `room-booking-frontend:<тег>` |
+| Образы | `<project>-backend:<тег>`, `<project>-frontend:<тег>` |
 | Архитектура | linux/amd64 |
 | Образ | с оболочкой (alpine) |
 | Пользователь | backend и migrate — UID 1000, frontend — UID 101; root не нужен |
 | Порты | backend 3000 — API, проверки, метрики; frontend 8080 — вход, 8081 — его проверка |
 | Проверки | backend: живость `GET /health/live`, готовность `GET /health/ready`; frontend: `GET /_healthz` на 8081 |
 | Метрики | `GET /metrics` на backend:3000, формат Prometheus |
-| Переменные | раздел «Переменные»; образец — `room-booking.env.example` |
+| Переменные | раздел «Переменные»; образец — `<project>.env.example` |
 | Ресурсы | backend: 100m и 128Mi, лимит памяти 256Mi; frontend: 50m и 64Mi, лимит 64Mi (замерено 2026-10-23) |
 | Зависимости | PostgreSQL 17, S3-совместимое хранилище, почтовый сервис — раздел «Внешние зависимости» |
 | Заметки | миграции — контейнер `migrate`, один раз перед `backend`; остановка по SIGTERM за 25 с; томов нет — состояние в PostgreSQL и S3 |
@@ -72,9 +89,9 @@ Write it to be scanned (`doc-versioning` → `references/readable.md`): a cell i
 
 | Контейнер | Образ | Команда | Запуск |
 |---|---|---|---|
-| migrate | room-booking-backend:<тег> | `node dist/src/migrate.js` | разово, до успешного завершения |
-| backend | room-booking-backend:<тег> | по умолчанию (`node dist/src/index.js`) | постоянно |
-| frontend | room-booking-frontend:<тег> | по умолчанию (nginx) | постоянно |
+| migrate | <project>-backend:<тег> | `node dist/src/migrate.js` | разово, до успешного завершения |
+| backend | <project>-backend:<тег> | по умолчанию (`node dist/src/index.js`) | постоянно |
+| frontend | <project>-frontend:<тег> | по умолчанию (nginx) | постоянно |
 
 ## Порядок запуска
 
@@ -127,7 +144,7 @@ requests — обычное значение, округлённое вверх;
 | Переменная | Обязательна | Секрет | Пример / формат | Что задаёт |
 |---|---|---|---|---|
 | APP_ENV | да | нет | `prod` | окружение; без него приложение не стартует |
-| DATABASE_URL | да | да | `postgres://user:***@host:5432/db?options=-c%20search_path%3Droom_booking` | подключение к PostgreSQL, схема `room_booking`. У `backend` — учётка backend (только данные), у `migrate` — учётка migrate (владелец схемы): значения разные |
+| DATABASE_URL | да | да | `postgres://user:***@host:5432/db?options=-c%20search_path%3D<schema>` | подключение к PostgreSQL, схема `<schema>`. У `backend` — учётка backend (только данные), у `migrate` — учётка migrate (владелец схемы): значения разные |
 | LOG_LEVEL | нет | нет | `info`; допустимо `trace`, `debug`, `info`, `warn`, `error`, `fatal` | подробность логов |
 | SHUTDOWN_TIMEOUT_SEC | нет | нет | `25` (секунды) | сколько `backend` после SIGTERM дожидается текущих запросов |
 | … | | | | |
@@ -145,7 +162,7 @@ requests — обычное значение, округлённое вверх;
 | Что | Адрес в переменной | Порт, протокол | Направление | Требования |
 |---|---|---|---|---|
 | PostgreSQL 17 | `DATABASE_URL` | 5432, TCP | backend, migrate → база | раздел «Для DBA» |
-| S3-совместимое хранилище | `S3_ENDPOINT` | 443, HTTPS | backend → хранилище | бакет `room-booking-files`, чтение и запись |
+| S3-совместимое хранилище | `S3_ENDPOINT` | 443, HTTPS | backend → хранилище | бакет `<project>-files`, чтение и запись |
 | Почтовый сервис (внешняя система) | `MAIL_API_URL` | 443, HTTPS | backend → интернет | ключ — `MAIL_API_KEY` |
 | Прокси эксплуатации | — | 8080, HTTP | прокси → frontend | TLS завершается на прокси |
 
@@ -157,7 +174,7 @@ DNS-имена и адреса — ваши: приложение берёт и�
 | Что | Значение |
 |---|---|
 | СУБД | PostgreSQL 17 |
-| Схема | `room_booking` (не `public`); создаёт DBA, владелец — учётка migrate |
+| Схема | `<schema>` (не `public`); создаёт DBA, владелец — учётка migrate |
 | Расширения | `citext` — доверенное: учётка migrate создаёт его сама по праву CREATE на базу. Недоверенные (`postgis`) DBA создаёт заранее |
 | Учётка migrate | владелец схемы и право CREATE на базу: создаёт и меняет таблицы; её адрес — в `DATABASE_URL` контейнера `migrate` |
 | Учётка backend | только данные: SELECT, INSERT, UPDATE, DELETE, использование последовательностей; её адрес — в `DATABASE_URL` контейнера `backend` |
@@ -169,17 +186,17 @@ DNS-имена и адреса — ваши: приложение берёт и�
 `CREATE SCHEMA IF NOT EXISTS`, а PostgreSQL проверяет это право раньше, чем наличие схемы.
 
 ```sql
-CREATE ROLE room_booking_migrate LOGIN PASSWORD '<секрет>';
-CREATE ROLE room_booking_backend LOGIN PASSWORD '<секрет>';
-GRANT CREATE ON DATABASE <база> TO room_booking_migrate;
-CREATE SCHEMA room_booking AUTHORIZATION room_booking_migrate;
-GRANT USAGE ON SCHEMA room_booking TO room_booking_backend;
-GRANT SELECT, INSERT, UPDATE, DELETE ON ALL TABLES IN SCHEMA room_booking TO room_booking_backend;
-GRANT USAGE ON ALL SEQUENCES IN SCHEMA room_booking TO room_booking_backend;
-ALTER DEFAULT PRIVILEGES FOR ROLE room_booking_migrate IN SCHEMA room_booking
-  GRANT SELECT, INSERT, UPDATE, DELETE ON TABLES TO room_booking_backend;
-ALTER DEFAULT PRIVILEGES FOR ROLE room_booking_migrate IN SCHEMA room_booking
-  GRANT USAGE ON SEQUENCES TO room_booking_backend;
+CREATE ROLE <schema>_migrate LOGIN PASSWORD '<секрет>';
+CREATE ROLE <schema>_backend LOGIN PASSWORD '<секрет>';
+GRANT CREATE ON DATABASE <база> TO <schema>_migrate;
+CREATE SCHEMA <schema> AUTHORIZATION <schema>_migrate;
+GRANT USAGE ON SCHEMA <schema> TO <schema>_backend;
+GRANT SELECT, INSERT, UPDATE, DELETE ON ALL TABLES IN SCHEMA <schema> TO <schema>_backend;
+GRANT USAGE ON ALL SEQUENCES IN SCHEMA <schema> TO <schema>_backend;
+ALTER DEFAULT PRIVILEGES FOR ROLE <schema>_migrate IN SCHEMA <schema>
+  GRANT SELECT, INSERT, UPDATE, DELETE ON TABLES TO <schema>_backend;
+ALTER DEFAULT PRIVILEGES FOR ROLE <schema>_migrate IN SCHEMA <schema>
+  GRANT USAGE ON SEQUENCES TO <schema>_backend;
 ```
 
 Те же права у учёток тестового стенда, ни одна из них не суперпользователь: миграции прошли под
@@ -237,7 +254,7 @@ ALTER DEFAULT PRIVILEGES FOR ROLE room_booking_migrate IN SCHEMA room_booking
 
 ## Обновление на новую версию
 
-1. `docker load -i room-booking-<новая версия>.tar`.
+1. `docker load -i <project>-<новая версия>.tar`.
 2. Запустить `migrate` нового образа, дождаться кода 0.
 3. Перезапустить `backend` и `frontend` на новом теге.
 
@@ -296,7 +313,7 @@ the image's nginx includes `${SECURE_MODE}.conf` and has only those two
 **Files it names.** Only the bundle's: `<project>-<версия>.tar`, `DEPLOY.md`,
 `<project>.env.example`, `openapi.yaml`, `OPERATIONS.md`, or a file a
 numbered step of the document itself tells the operator to create
-(«создайте файл с переменными по образцу `room-booking.env.example`»).
+(«создайте файл с переменными по образцу `<project>.env.example`»).
 Never a file of the repository — `docker-compose.*.yml`, `.env.example`,
 `.env.*.local`, `roles.sql`, a script. A file the operator creates is named
 on a line with «создайте», which the build script's check skips; a path

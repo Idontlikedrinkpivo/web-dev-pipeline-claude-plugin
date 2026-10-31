@@ -5,6 +5,9 @@
                                                # would not start (another repository, a declined site)
     python3 rebuild.py <project dir> --wait    # block until no rebuild runs or is queued
     python3 rebuild.py <project dir> --wait --report   # then print the last build's report (pages, ids, links)
+    python3 rebuild.py <project dir> --if-outdated  # open-docs: wait, then build a missing site or rebuild one
+                                               # another plugin version built; one line says which (exit 1: no
+                                               # documentation/ at all)
 
 `docs-site` and `open-docs` build through this script, never by calling build_site.py beside a running worker: the
 worker swaps the whole site folder in at the end of its build, so a second, parallel build loses its output or
@@ -88,21 +91,55 @@ def worker(root: Path, d: Path) -> None:
         lock.unlink(missing_ok=True) if sys.version_info >= (3, 8) else None
 
 
+def wait(root: Path, d: Path) -> None:
+    lock, pending = d / "site-build.lock", d / "site-build.pending"
+    for _ in range(1200):  # up to 10 minutes: a contract rebuild bundles the spec
+        if not running(lock):
+            break  # idle — or queued with no worker: run it now, in the foreground
+        time.sleep(0.5)
+    if pending.exists() and not running(lock):
+        worker(root, d)
+
+
+def if_outdated(root: Path) -> int:
+    """A missing site is built, one another plugin version built is rebuilt (a new version's site features — a back
+    button, a new page — appear only after a rebuild); either way through the queue, and waited for."""
+    doc = root / "documentation"
+    if not doc.is_dir():
+        print("site: documentation/ нет — показывать нечего")
+        return 1
+    d = work_dir(root)
+    wait(root, d)
+    sys.path.insert(0, str(HERE))
+    from build_site import plugin_version  # noqa: E402 — only here: the builder's imports are not needed otherwise
+    want = plugin_version()
+    stamp = doc / "_web-docs" / "assets" / "plugin-version.txt"
+    if not (doc / "_web-docs" / "index.html").exists():
+        why = "собран сейчас"
+    else:
+        have = stamp.read_text(encoding="utf-8").strip() if stamp.exists() else ""
+        if have == want:
+            print(f"site: актуален (плагин {want or '?'})")
+            return 0
+        why = f"пересобран для плагина {want or '?'}" + (f" (был собран плагином {have})" if have else "")
+    (d / "site-build.pending").write_text("api")
+    worker(root, d)
+    print(f"site: {why} — в git войдёт со следующим коммитом документов")
+    return 0
+
+
 def main() -> None:
     args = sys.argv[1:]
     root = Path(next((a for a in args if not a.startswith("--")), os.getcwd())).resolve()
+    if "--if-outdated" in args:
+        sys.exit(if_outdated(root))
     first = not (root / "documentation" / "_web-docs" / "index.html").exists()
     if first and "--wait" not in args and "--worker" not in args and "--force" not in args and not wanted(root):
         return  # no site, and this project is not the pipeline's or declined one
     d = work_dir(root, create="--wait" not in args)
     lock, pending = d / "site-build.lock", d / "site-build.pending"
     if "--wait" in args:
-        for _ in range(1200):  # up to 10 minutes: a contract rebuild bundles the spec
-            if not running(lock):
-                break  # idle — or queued with no worker: run it now, in the foreground
-            time.sleep(0.5)
-        if pending.exists() and not running(lock):
-            worker(root, d)
+        wait(root, d)
         if "--report" in args:
             log = d / "site-build.log"
             print(log.read_text(encoding="utf-8").rstrip() if log.exists() else "no build has run yet")

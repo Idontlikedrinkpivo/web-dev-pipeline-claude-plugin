@@ -81,9 +81,8 @@ answered, and a question left unanswered was answered by the model itself («В�
 3. **Make the chosen change**, before the next one is shown:
    - **The branch, before the first commit.** The working tree must be clean — if not, ask how to handle it, do not
      stash on your own. The message that asks the first «Создать» question says which branch the commits will go
-     to; ask only when the current branch is neither the default nor an open iteration's. During an open iteration (an open `documentation/plans/<version>/` with no `summary.md`) the
-     commits go on `iteration/<version>` — run `python3 "${CLAUDE_SKILL_DIR}/../pipeline/scripts/open_iteration.py"
-     <version>` when on another branch; it only switches. Otherwise make a branch `docs/plugin-<installed version>`
+     to; ask only when the current branch is neither the default nor an open iteration's. During an open iteration the commits go on its branch `iteration/<version>`, reused as
+     `pipeline` → Service version says (no iteration is opened for an upgrade). Otherwise make a branch `docs/plugin-<installed version>`
      from the current one, unless the user wants the current branch.
    - Read the skill the `fix` names and do what the `fix` says — only that. A row that names one step of a stage
      runs that step, not the stage. A row that names a whole stage (a new document) runs the stage with its gates;

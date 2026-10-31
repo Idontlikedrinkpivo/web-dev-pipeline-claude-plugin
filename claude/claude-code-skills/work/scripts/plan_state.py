@@ -1,6 +1,6 @@
 """Where a plan's execution stands, from git — what `work` reads before its first dispatch and after a compaction.
 
-    python3 plan_state.py <documentation/plans/<version>/plan.md> [--base <branch>]
+    python3 plan_state.py <documentation/plans/<version>/plan.md> [--base <branch>] [--range <BASE>]
 
 Prints one line per fact:
 
@@ -16,6 +16,17 @@ Prints one line per fact:
     other     the iteration's other trailers (review-fix-<n>, health-<n>, decision-<n>, verify-skill, stand,
               chat-<n>), so a run numbers its next one from here
     count     «<done> из <total>» — the numbers of the progress file's count line
+
+With --range <BASE> (code-review-full, Step 1: BASE is the HEAD the last whole review covered), three more lines map
+every commit of BASE..HEAD to its «Plan-Unit: <version>/<kind>» trailer, read from the message body:
+
+    range     BASE..HEAD and how many commits it holds
+    mapped    each kind found in the range (U<n>, review-fix-<n>, health-<n>, decision-<n>, verify-skill, stand,
+              chat-<n>) with its commit count — the run report must list each
+    units     the plan's units with a U<n> trailer in the range — compare with the units the run report marks
+              committed: one missing here, or one here the report lacks, means the report is stale
+    unmapped  one line per commit with no trailer of this version, or with a kind outside that list or a U<n> the
+              plan lacks: short sha, subject, files touched — read its diff with the rest
 
 Done is read from the whole iteration branch, not from the run's start: a second run in the same iteration (units
 appended to the plan after the first run, a fix plan) sees the first run's units as done and dispatches only the
@@ -34,6 +45,7 @@ import sys
 from pathlib import Path
 
 UNIT = re.compile(r"^###\s+U(\d+)\.", re.M)
+KINDS = re.compile(r"U\d+|review-fix-\d+|health-\d+|decision-\d+|verify-skill|stand|chat-\d+")
 DEPS = re.compile(r"^\|\s*\*\*(?:Зависит от|Depends on)\*\*\s*\|(.*)\|\s*$", re.M)
 SHA = re.compile(r"\b[0-9a-f]{64}\b")
 
@@ -86,6 +98,33 @@ def review_gate(plan: Path) -> tuple:
     return True, f"review    PASS · checked {now[:12]} = plan.md"
 
 
+def range_lines(cwd: Path, version: str, base: str, plan_ids: list) -> list:
+    """The --range lines: every commit of base..HEAD mapped to its trailer kind, or named as unmapped."""
+    if not has_ref(cwd, base):
+        return [f"range     {base} is not a commit here — pass the BASE the run report records"]
+    log = git(cwd, "log", f"{base}..HEAD", "--format=%h%x1f%s%x1f%B%x1e")
+    commits = [c.strip("\n").split("\x1f", 2) for c in log.split("\x1e") if c.strip()]
+    kinds: dict = {}
+    units = set()
+    unmapped = []
+    for sha, subject, body in commits:
+        found = re.findall(rf"^Plan-Unit:\s*{re.escape(version)}/(\S+)\s*$", body, re.M)
+        good = [k for k in found if KINDS.fullmatch(k) and not (k[0] == "U" and int(k[1:]) not in plan_ids)]
+        for k in good:
+            kind = "U<n>" if k.startswith("U") else re.sub(r"-\d+$", "-<n>", k)
+            kinds[kind] = kinds.get(kind, 0) + 1
+            if k.startswith("U"):
+                units.add(int(k[1:]))
+        if not good:
+            files = git(cwd, "show", "--name-only", "--format=", sha).splitlines()
+            why = f" · trailer {', '.join(found)} is not a kind of this run" if found else ""
+            unmapped.append(f"unmapped  {sha} {subject} — {len(files)} files{why}")
+    out = [f"range     {base}..HEAD · {len(commits)} commits",
+           "mapped    " + (" · ".join(f"{k} ×{n}" for k, n in sorted(kinds.items())) or "—"),
+           "units     " + (" ".join(f"U{n}" for n in plan_ids if n in units) or "—")]
+    return out + (unmapped or ["unmapped  —"])
+
+
 def main() -> int:
     args = sys.argv[1:]
     if not args or args[0] in ("-h", "--help"):
@@ -93,6 +132,7 @@ def main() -> int:
         return 0 if args else 1
     plan = Path(os.path.abspath(args[0]))  # not resolved: a plans folder linked into a worktree stays the worktree's
     base = args[args.index("--base") + 1] if "--base" in args and args.index("--base") + 1 < len(args) else ""
+    rbase = args[args.index("--range") + 1] if "--range" in args and args.index("--range") + 1 < len(args) else ""
     version = plan.parent.name
     cwd = plan.parent
     while cwd.is_symlink():  # git runs in the tree that holds the link, not in the tree it points to
@@ -179,6 +219,8 @@ def main() -> int:
     print("waiting   " + ("; ".join(f"U{n} ← {ids([d for d in deps[n] if d not in done_ids])}" for n in waiting) or "—"))
     print(f"other     {' '.join(other) or '—'}")
     print(f"count     {len(done)} из {len(units)}")
+    if rbase:
+        print("\n".join(range_lines(cwd, version, rbase, plan_ids)))
     return 2 if problems else 0
 
 

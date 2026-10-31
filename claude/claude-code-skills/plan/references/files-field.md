@@ -1,6 +1,6 @@
 # What belongs in a unit's «Файлы»
 
-Read when filling `Файлы` (Step 4) and by `plan-review`'s Files completeness lens.
+Read when filling `Файлы` (`writer.md` → Step 4) and by `plan-review`'s Files completeness lens.
 `Файлы` is the unit's whole footprint: a file the executor must touch and the plan
 did not list stops the unit (`BLOCKED`, or a scope breach the review flags) and
 costs a round. Runs measured this: 11 and 7 corrections of `Файлы` in two runs of

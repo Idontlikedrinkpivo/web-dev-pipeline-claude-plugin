@@ -101,11 +101,14 @@ tool like this. Consumers point here instead of restating it.
   tier would silently run whatever was typed instead of what its file says.
   Never `general-purpose`, `Explore`, or another built-in agent: those carry
   none of the row's model, effort, tools, or prompt.
-- **Before every `Agent` call, write the resolved row in this turn:**
-  `Name | subagent_type`, prefixed with the grade when a cascade picked the row
-  (`Mid | design-medium | dev-pipeline:design-medium`). You may append the
-  model and effort read from the agent file (`· opus · high`); copy them from
-  the file, never from memory.
+- **Before every `Agent` call, show the resolved row in this turn** — one line
+  the user reads, in the user's language around the untranslated names
+  (`pipeline` → Names): «Запускаю `Name | subagent_type`», prefixed with the
+  grade when a cascade picked the row (`Mid | design-medium |
+  dev-pipeline:design-medium`). It is not a working note: the user sees who
+  does the work, and writing it makes you check the row before the call. You
+  may append the model and effort read from the agent file (`· opus · high`);
+  copy them from the file, never from memory.
 - **A model the user names.** Only when the user, on their own, names a model
   for this dispatch — a Claude alias (`haiku`, `sonnet`, `opus`, `fable`) or a
   full Claude model id — dispatch the same row and pass that value as `model`

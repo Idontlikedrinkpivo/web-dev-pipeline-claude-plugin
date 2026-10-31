@@ -59,11 +59,4 @@ Name the `S-n` in the page file's first comment line.
 | test | `<pm> run test` / `<pm> exec playwright test` |
 | API codegen | `<pm> run api:gen` — add it if missing |
 
-## Verify in current docs
-
-- Caching and revalidation defaults for `fetch` and route segments; refresh after a mutation.
-- Route file conventions (loading, error, not-found), params typing, and
-  navigation hooks in the installed major.
-- Server Actions: form integration, returned errors, pending state hooks.
-- Which env variables reach the browser; how rewrites/proxies to the API are configured.
-- The generator's config and output; how its client runs on server and client.
+Version-sensitive points of this profile: `version-checks.md` → «Profile: Next.js».

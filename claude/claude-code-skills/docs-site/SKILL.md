@@ -34,17 +34,12 @@ only has numbers.
 2. **Read the report** the script prints: pages, ids per kind, ids mentioned but never defined, broken links.
    An id that is mentioned and defined nowhere, or a broken link between documents, is a defect of the
    documents, not of the site: name each in the close. Do not edit a document to make the site prettier.
-3. **Open it and look at it.** In the desktop app the built-in browser shows a page given as a file without its
-   stylesheet and scripts — no menu, no search — so serve the site:
-   `python3 "${CLAUDE_SKILL_DIR}/scripts/site_server.py"` prints `http://127.0.0.1:<port>/index.html` (it reuses
-   a server already running for this site). Open that address in the built-in browser yourself and give it as
-   a link in the chat — that link is the user's one click back to the site. Without a built-in browser (a
-   terminal), open the file in the user's own browser yourself — `open documentation/_web-docs/index.html` on
-   macOS, `xdg-open …` on Linux (`uname` tells which) — and give its full path; where neither command exists,
-   the full path alone: the user's own browser shows the file whole. Never
-   point at the file in the file tree — it shows the HTML source. Then check it: follow one requirement link,
-   one test-case link and the API page, try the search with one number. A page that renders wrong — a table that broke, a diagram missing — is a fix in
-   `scripts/mdhtml.py`, reported, not hidden.
+3. **Open it and look at it** exactly as `open-docs` → Open, steps 2–3 say
+   (`${CLAUDE_SKILL_DIR}/../open-docs/SKILL.md`): served by `scripts/site_server.py` and opened in the built-in
+   browser, or the file in the user's own browser in a terminal, with the address given as a link in the chat.
+   Then check it: follow one requirement link, one test-case link and the API page, try the search with one
+   number. A page that renders wrong — a table that broke, a diagram missing — is a fix in `scripts/mdhtml.py`,
+   reported, not hidden.
 4. **Close** with one line: the site's link from step 3, pages and ids, and what the report
    found. Publishing (GitHub Pages, a server, a zip) is the user's step — the site holds
    the project's whole documentation, so it leaves the machine only on their word.
@@ -60,7 +55,8 @@ every commit holds the site of its own documents. The commit that first carries 
 a project whose user declined it (`upgrade-docs` → `docs-site` skipped).
 
 **«Открой сайт», «открой документацию»** is the `open-docs` skill (`/dev-pipeline:open-docs`): it waits for a rebuild in
-flight, builds a missing site, serves it and opens it — step 3 alone. It also stops the server on «закрой
+flight, builds a missing site or rebuilds one another plugin version built (`scripts/rebuild.py
+--if-outdated`), serves it and opens it — step 3 alone. It also stops the server on «закрой
 сайт»; the iteration's close stops it too.
 
 `documentation/_web-docs/` is generated: never edit it, and never read it as a source — documents, checks and

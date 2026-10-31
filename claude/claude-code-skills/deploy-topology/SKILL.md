@@ -107,11 +107,10 @@ guessing.
 ### Step 2. Images
 
 One image per container, the same image in all three environments.
-Read `references/images.md` first: it holds the reference build the owner
-accepted — the backend image, the SPA image on `nginx-unprivileged` with
-the config copied from `assets/nginx/`, and what each takes from the
-environment. Match it; do not add labels or ports it does not
-have. No dev-only tooling baked in, no `--reload`/hot-reload flag in `CMD` (that belongs to a local
+Read `references/images.md` first: it holds the backend image, the SPA
+image on `nginx-unprivileged` with the config copied from `assets/nginx/`,
+and what each takes from the environment. Match it; do not add labels or
+ports it does not have. No dev-only tooling baked in, no `--reload`/hot-reload flag in `CMD` (that belongs to a local
 non-Docker dev loop, not the container). The process reads its worker/
 concurrency count from the environment (1 by default) rather than a
 hardcoded flag, so changing it later is a compose edit, not an image rebuild.
@@ -265,54 +264,23 @@ file fixes the `DATABASE_URL` schema option for every environment.
 ### Step 7. Compose-contract tests
 
 Encode the invariants that must never silently regress as tests in the
-project's own test suite, not just as prose here:
+project's own test suite, not just as prose here. One test per invariant —
+`references/compose-shape.md` → The compose-contract tests holds each one's exact keys; read it before
+writing them:
 
-- The prod port mapping has an explicit loopback host IP; a mapping with no
-  host IP (binds all interfaces) fails the test.
-- `docker-compose.prod.yml` has no local database/storage service.
-- `migrate` in every file has no published port, and `backend` depends on it
-  with `service_completed_successfully`.
-- `docker-compose.test.yml` is copyable: no `container_name`, no volume
-  `name:`, every published host port a `${VAR:-default}`, `image:` on the
-  application services.
-- Every Dockerfile's `CMD` has no hot-reload flag, `CMD`/`ENTRYPOINT` is
-  exec form, every `FROM` has an explicit tag other than `latest` or a
-  digest, and the final stage's `USER` is a number other than 0.
-- Every app service in the test and prod files has `read_only: true`,
-  `/tmp` in `tmpfs`, `ALL` in `cap_drop`, `no-new-privileges:true` in
-  `security_opt`, and no `user:`; in test `migrate` and `backend` have
-  different `DATABASE_URL`s, neither with the database image's superuser,
-  and prod's `migrate` also reads `.env.prod.migrate.local`.
-- With a client: no `<<…>>` placeholder is left in `nginx/`, and its only
-  uncommented `proxy_pass` is under `location /api/` (the backend's
-  `/health/*` and `/metrics` stay off the entry point). With a shell,
-  `frontend`'s healthcheck reaches `:8081/_healthz` and its environment
-  sets `BACKEND_SERVICE`, `BACKEND_PROTOCOL` and `SECURE_MODE`; without
-  one, it has neither and its Dockerfile renders the templates at build.
-- `scripts/build-images.sh` passes `--platform "$PLATFORM"`, saves to
-  `release/<APP_VERSION>/<project>-<APP_VERSION>.tar`, and puts
-  `DEPLOY.md`, `<project>.env.example` and `openapi.yaml` (bundled when
-  the contract is split) beside it.
-- `documentation/deploy/deploy.md` agrees with `docker-compose.prod.yml`
-  and `.env.example`: containers, every variable per container with its
-  required and secret marks, ports, probes, volumes, the allowed
-  values of a variable that has a fixed set (`SECURE_MODE`: `plain` or
-  `secure`), and every file it names is one the release folder holds; its
-  card, «Для DBA», «Остановка» and «Безопасность пода» agree with the
-  build script, the Dockerfiles, the migrations, `roles.sql` and the
-  config layer — "The sync test" in `references/deploy-doc.md`.
-- `.dockerignore` exists and matches `.env.*.local` (a build context
-  that can see `.env.prod.local` fails the test).
-- `backend` in every compose file has a `healthcheck` that asks
-  `/health/ready` through the runtime (`node`/`python`, not `wget`/`curl`) —
-  it is what makes `up --wait` mean "the app can serve", not "the container
-  started" — and a `stop_grace_period` of at least `SHUTDOWN_TIMEOUT_SEC` + 5 s.
-- `.env.example` contains every variable the config layer requires, and no
-  variable the config layer does not recognize — the two drift silently
-  otherwise, in either direction. Test pattern: "The `.env.example` sync
-  test" in `references/env-and-config-contract.md`.
-- Setting the mock gate with `APP_ENV` other than `test` makes config
-  loading fail (a config-layer test, not a compose check).
+- prod ports on loopback; no local database or storage in prod;
+- `migrate` unpublished and awaited by `backend`;
+- the test file copyable;
+- Dockerfiles: no hot reload, exec form, pinned `FROM`, numeric non-root `USER`;
+- app services hardened, two database accounts in test;
+- the client's nginx: no placeholder left, only `/api/` proxied, the healthcheck per the shell answer;
+- the build script and the release folder;
+- `deploy.md` agrees with the prod compose file and `.env.example` ("The sync test" in
+  `references/deploy-doc.md`);
+- `.dockerignore` hides `.env.*.local`;
+- `backend`'s healthcheck and stop grace period;
+- `.env.example` in sync with the config layer;
+- the mock gate refused outside `APP_ENV=test`.
 
 These are cheap and exist so a future edit that reopens a closed hole (an
 all-interfaces port publish, a mock flag with a default) fails CI instead
@@ -351,14 +319,20 @@ stand's proof).
 
 ### Step 8. The release for hand-over
 
-From `upgrade-docs` (`MODE as-is`, a project with its own containers and no deploy document): only item 1, from the project's own Dockerfiles and compose files as they are (`upgrade-docs/references/as-is.md`).
+From `upgrade-docs` (`MODE as-is`, a project with its own containers and no deploy document): only item 2, from the project's own Dockerfiles and compose files as they are (`upgrade-docs/references/as-is.md`).
 The operators get one folder per release and nothing else — every file
 the plugin produces for them: the image archive, `DEPLOY.md`, the
 variables file and the API contract `openapi.yaml`. They do not get
 `docker-compose.prod.yml` — they run the images their own way, so they
 need the facts it holds, written down.
 
-1. **Write `documentation/deploy/deploy.md`** per `references/deploy-doc.md`:
+1. **Check the security audit.** Read the first line of
+   `documentation/plans/<version>/security-audit.md`. An open P0
+   (`релиз заблокирован`) stops the stage before any release work: name the findings and ask —
+   fix first (a fix plan), or build anyway, which goes into the report's
+   «Принятый риск» with the date. No report means stage 14 did not run:
+   say so in one line and go on — a skipped stage blocks nothing.
+2. **Write `documentation/deploy/deploy.md`** per `references/deploy-doc.md`:
    «Карточка сервиса» first, then every section of its template — probes
    with their timings, the measured resources, dependencies with the
    variable, port and direction of each, «Для DBA», logs, metrics,
@@ -369,12 +343,6 @@ need the facts it holds, written down.
    operators fill. Facts come from the prod compose file, the Dockerfiles,
    `.env.example`, the schema and the measurement; Step 7's sync test holds
    them together.
-2. **Check the security audit first.** Read the first line of
-   `documentation/plans/<version>/security-audit.md`. An open P0
-   (`релиз заблокирован`) stops the build: name the findings and ask —
-   fix first (a fix plan), or build anyway, which goes into the report's
-   «Принятый риск» with the date. No report means stage 14 did not run:
-   say so in one line and go on — a skipped stage blocks nothing.
 3. **Write `scripts/build-images.sh`** and a `build-images` target per
    `references/images.md` → Hand-over: one tag `<version>-<YYYYMMDD-HHMM>`
    for every image, `docker buildx build --platform "$PLATFORM" --load` per
@@ -480,7 +448,8 @@ release folder and what DEPLOY.md names); each line it prints is fixed first.
   they are with the `<<…>>` values filled (Step 2).
 - `references/compose-shape.md` — the concrete file-by-file compose
   skeleton, the hardening of app containers, the two database accounts,
-  and the exact invariants each service must hold (Step 4).
+  and the exact invariants each service must hold (Step 4), with the
+  compose-contract tests key by key (Step 7).
 - `references/verify-skill.md` — the project's verify skill: its sections,
   the doctor's checks, the proof run, how stages use and refresh it (Step 7a).
 - `references/env-and-config-contract.md` — the env-var categories, the

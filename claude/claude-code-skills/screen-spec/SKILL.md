@@ -311,12 +311,15 @@ and writes the files itself; there is no `doc-typist` on this stage.
    API, and the Figma MCP serves one reader at a time better. A missing agent
    or a rejected alias is a stop per the catalog.
 6. **Inspect each file on disk** against the Quality gate below. Mechanical
-   checks first: every `operationId` in the file exists in the contract
-   (searched over `documentation/api/`); every non-success status those
-   operations declare has a row in «Ошибки ответов»; every «Кадр» `nodeId`
-   resolves (`get_metadata` on a sample of three, and on every one the
-   writer flagged); no look words (`цвет`, `зелён`, `серым`, `обводк`, `px`,
-   `курсор`, `ховер`). A miss sends that screen back with the list, round
+   checks first, by script — run `python3 -I
+   "${CLAUDE_SKILL_DIR}/scripts/check_spec.py" --docs documentation S-<n>`
+   and read only what it prints: sections and frontmatter, every called
+   operation in the contract, every non-success status it declares with a
+   row in «Ошибки ответов», look words, and the `общий обработчик` rows
+   word for word across the product's files. A look word it prints in a
+   recorded user decision is judged, not sent back blindly. Then by hand:
+   every «Кадр» `nodeId` resolves (`get_metadata` on a sample of three, and
+   on every one the writer flagged). A miss sends that screen back with the list, round
    after round while each round closes something; when progress stops it
    is a stop with the report (`pipeline` → `references/convergence.md`). Do not edit the file
    yourself.
@@ -332,8 +335,11 @@ You write the screen files the packet names, following this skill and
 `references/template.md`. You cannot ask the user: what the inputs do not
 decide is a Разрыв, not a guess.
 
-**Read the frames.** In portions — one `use_figma` call returns at most 48,000 bytes, so one frame per call,
-ids, names and short texts. For each screen: `get_metadata` on the screen frame,
+**Read the frames.** One frame per call, never a whole page: a page-wide
+read overflows the reply. When a read goes through `use_figma` (a script
+over the file) instead of the read tools below, it returns at most 48,000
+bytes — one frame (about 30 nodes) per call, ids, names and short texts
+only. For each screen: `get_metadata` on the screen frame,
 each state frame, each nested-step frame, and the `S-n · Аннотация` frame —
 layer names (`действие: …`, `ввод: …`, `шаг: M<n>`, `данные: …`), component
 variants, `nodeId`s. The annotation's «Элементы» table gives each layer its
@@ -427,6 +433,8 @@ sitting.
 - `references/template.md` — the file template and a filled example. Read
   before writing or checking a file.
 - `references/writer-prompt.md` — the packet and report for `screen-writer`.
+- `scripts/check_spec.py` — the mechanical checks of step 6; the writer
+  runs it too before its report.
 - `executor-catalog` — the Dispatch contract.
 - `doc-versioning` — versioning of each screen file, `open-questions.md`.
 - `ux-patterns` — the completeness list of states and the global behaviour

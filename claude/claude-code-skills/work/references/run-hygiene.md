@@ -48,8 +48,11 @@ A refusal is not an error to work around: fix the command as it says.
   U7: отмена брони владельцем
 
   Plan-Unit: 2.1.4/U7
-  Co-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>
+  Co-Authored-By: <the attribution line this session's harness gives, copied as given>
   ```
+
+  The `Co-Authored-By:` value is never typed from this example: a model name copied from here lands in the
+  project's history as a wrong author.
 
   A blank line between them makes git drop `Plan-Unit` from the trailers, and
   every tool that asks git for trailers — `where_am_i.py` on a fresh clone,

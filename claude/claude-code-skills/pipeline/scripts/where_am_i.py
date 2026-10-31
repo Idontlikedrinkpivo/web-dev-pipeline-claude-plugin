@@ -61,7 +61,7 @@ def git_ok(root: Path, *args: str) -> bool:
 
 
 def vkey(v: str) -> tuple:
-    """1.2.0 / 1.2 / v3 (the old numbers: doc-versioning → Moving from the old numbers) as a comparable tuple."""
+    """1.2.0 / 1.2 / v3 (the old numbers: doc-versioning → references/changelog.md → Old numbers) as a comparable tuple."""
     v = v.strip().strip('"\'')
     old = re.fullmatch(r"v(\d+)", v)
     nums = [int(x) for x in re.findall(r"\d+", v)] if not old else [int(old.group(1))]

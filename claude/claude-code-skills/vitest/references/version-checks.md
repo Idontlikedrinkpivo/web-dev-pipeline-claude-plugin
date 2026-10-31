@@ -18,6 +18,9 @@ a quick probe in the project.
   apply to a run of a few files.
 - Concurrent tests: whether the global `expect` misattributes snapshots and assertion counts (use the test-context
   `expect`).
-- Upgrades: read every crossed major's migration guide, walk this list against the config and suite (Vitest 5:
-  `clearMocks` on by default, an un-awaited `resolves` / `rejects` fails the test; Vitest 4: `workspace` became
-  `projects`, `poolOptions` removed; MSW 3: `onUnhandledRequest` became `onUnhandledFrame`).
+- Upgrades: read every crossed major's migration guide and walk this list against the config and suite. Ask each
+  guide: is `clearMocks` now on by default, and does an un-awaited `resolves` / `rejects` fail the test (Vitest 5's
+  guide said yes to both when read through Context7 on 2026-10-31)? Did `workspace` become `projects`, and were
+  `poolOptions` removed (Vitest 4)? Is MSW's `onUnhandledRequest` renamed `onUnhandledFrame` in the installed
+  major (MSW's main branch said so on 2026-10-31)? A renamed option passed under its old name may be ignored
+  silently.

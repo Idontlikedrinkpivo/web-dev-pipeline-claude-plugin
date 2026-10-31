@@ -63,32 +63,29 @@ Registry says. Never pick one.
 
 The report lives in the open `documentation/plans/<version>/` (no
 `summary.md`), and this stage's commits go on `iteration/<version>`. The
-iteration is normally already open — its first stage that committed opened
-it; when the branch is not `iteration/<version>`, run the script below with
-that version (it only switches). Only when no folder is open does this
-stage open it (`pipeline` → Service version): the number with its level and
-reason, asked as a question, then
-`python3 "${CLAUDE_SKILL_DIR}/../pipeline/scripts/open_iteration.py" <version>`
-— its exit 2 or 3 is a question for the user. `plan` then reuses it.
+iteration is normally already open; reuse it, or open it as `pipeline` →
+Service version says. `plan` then reuses it.
 
 ### Step 1. Pins first
 
-Read every `sources:` pin in the set (`info.x-sources` in OpenAPI), as
-`path@<version>` (a legacy `@vN` per `doc-versioning` → Moving from the old
-numbers). For each pin behind its source's `version`, read the source's
-changelog rows after the pin (`doc-versioning` → Staleness and cascade):
+Run `python3 "${CLAUDE_SKILL_DIR}/scripts/pins.py" .` from the project's
+root. It reads every `sources:` pin of the set (`info.x-sources` in OpenAPI,
+a legacy `@vN` too) and, for each pin behind its source's `version`, prints
+its class and the source's changelog rows after the pin in full
+(`doc-versioning` → Staleness and cascade) — classed by code, not by
+reading each changelog by hand:
 
-- **any «ломает» → stale.** A P1 finding owned by the dependant, axis
+- **`stale` — any «ломает».** A P1 finding owned by the dependant, axis
   «Pins»: `document → source@<pin> (current <version>): ломает <tokens>`,
   with the stage that re-derives it. When any pin is stale, write the
   report with those rows as the findings table, the earliest owner in
   chain order first, and stop with `Verdict: RETURN_TO_STAGE` before the
   dispatch: checking a stale document against its newer source reports the
   cascade the stage was going to do anyway.
-- **only «добавляет» → behind.** Not a finding. Collect the new tokens from
+- **`behind` — only «добавляет».** Not a finding. Collect the new tokens from
   those rows into NEW TOKENS for the checker, which checks that each has a
   home in the dependant or the document that should hold it.
-- **only «уточняет»** — nothing; the dependant's next stamp refreshes the pin.
+- **`refresh` — only «уточняет».** Nothing; the dependant's next stamp refreshes the pin.
 
 **Then the documents' form**, always: run
 `python3 "${CLAUDE_SKILL_DIR}/../doc-versioning/scripts/doc_check.py" .` over the whole set. Each line it prints is
@@ -115,28 +112,28 @@ model. One dispatch for the set. Build the packet from
 files itself — do not paste them), the skip lines, NEW TOKENS from Step 1,
 and the prior report's findings on a re-check.
 
-Do not run the matrix on the session model to save the dispatch: reading
+Do not run the axes on the session model to save the dispatch: reading
 the whole set end to end is the volume the row exists to carry.
 
 A reply not in the packet's format is re-dispatched once with the format
 restated. A second off-format reply ends the check as not done: say so,
 and do not write a `PASS`.
 
-### Step 3. The matrix the checker runs
+### Step 3. The axes the checker runs
 
-Every axis below runs when both of its documents exist. An axis whose
-document was skipped gets one line saying so.
+The checker runs eight axes, each when both of its documents exist; a
+skipped one gets one line. What each axis checks is written once, in the
+packet (`references/checker-prompt.md` → AXES) — read it there when a
+finding's axis needs explaining:
 
-| Axis | Checks |
-|---|---|
-| **SRS → downstream** | every FR / UC has an operation (HTTP), a scenario (scenarios of its area) and, when a human does it, a screen element (screen specs); every entity the SRS stores has a table; every BR has an invariant row (domain model) or a constraint; every NFR with a number or a security rule has a foundation §1 row or a schema / API mechanism |
-| **Downstream → SRS** | every table, operation, scenario and screen traces to an SRS id. An orphan is scope the SRS never asked for, or a requirement the SRS is missing — the finding says which is likelier |
-| **Schema ↔ OpenAPI** | field names, types, nullability vs `required`, enum values, lengths and ranges, uniqueness ↔ a 409, id format, money and time representation; the keys by the schema's rule (`db-schema-design` → How the API names keys): a resource's `id` is its table's `public_id`, a reference `<thing>_id` keeps the column's name and carries the referenced row's `public_id` (uuid), a path parameter is `<resource>_id`, and no `bigint` key or reference appears in the API |
-| **OpenAPI ↔ screen specs** | every `operationId` a screen cites exists and fits the action; every field in «Метод и поля» exists in that operation's request or response; input rules ↔ request schema (required, limits, enum options); every declared status of every operation a screen calls has a row in «Ошибки ответов»; data a screen shows that no response returns is a P1 owned by the API or the design |
-| **Domain model ↔ the rest** | every invariant row cites an SRS BR and matches the schema constraint it names; named errors ↔ OpenAPI error codes; entities ↔ tables |
-| **Scenarios ↔ the rest** | every scenario cites an operation that exists and only ports the foundation declares; every rule it relies on is an invariant row (cited, not restated); its errors are named errors of the domain model; roles ↔ SRS actors ↔ OpenAPI `security`; tenancy ↔ schema columns and RLS |
-| **One meaning per word** | the same concept has one name across the set, and the same number (a limit, a timeout, a page size, a retention period) has one value |
-| **No visual binding** | no SRS, schema, API or architecture document names a widget, a presentation (modal, toast, side panel), layout, colour, icon, or a narrow-width layout change (`doc-versioning` → What, not how it looks). A binding is a P1 owned by the document that holds it; the fix rewrites it as behaviour. Screen specs and the frames register are exempt: they are written from the frames |
+1. SRS → downstream
+2. Downstream → SRS
+3. Schema ↔ OpenAPI
+4. OpenAPI ↔ screen specs
+5. Domain model ↔ the rest
+6. Scenarios ↔ the rest
+7. One meaning per word
+8. No visual binding
 
 Where the set already fixes a convention, the checker reads that, not a
 generic rule: the error envelope, the case of JSON fields, the collection
@@ -240,7 +237,7 @@ skipped: none
 
 ## Before you finish
 
-- Every pin was read before dispatch; a stale one («ломает» after the
+- `scripts/pins.py` ran before dispatch; a stale pin («ломает» after the
   pin) stopped the check as a finding for the dependant, and every
   «добавляет» behind a pin went to the checker as a new token — Step 1.
 - Every axis has findings, a clean line, or a skip line — Step 3.
@@ -267,3 +264,4 @@ skipped: none
   earliest owner stage after `RETURN_TO_STAGE` — whether `pipeline` offered
   it or the user opened it directly.
 - `scripts/checked.py` — the `checked:` block and `--verify`.
+- `scripts/pins.py` — Step 1's pins, classed stale / behind / refresh with the rows after each pin.

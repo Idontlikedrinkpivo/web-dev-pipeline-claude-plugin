@@ -7,6 +7,10 @@ a quick probe in the project.
 
 - **Major line and import path** (`zod`, a versioned subpath, the mini build): string formats, enums, object
   strictness helpers, error-customisation params and error formatters differ between majors.
+- **Object strictness** (`SKILL.md` → A request body or query refuses unknown keys): the name of the strict
+  object form in the installed major (a `strictObject` constructor, a `.strict()` method, or both, and which is
+  deprecated); the issue code an unknown key raises; and how a strict versus a plain object comes out in the
+  JSON Schema the contract test compares, in input mode too (`additionalProperties: false` or absent).
 - **Cross-field refinements on an object:** whether the parent check still runs when some fields failed, and with
   what data.
 - **Defaults, prefaults and catch:** whether the default is validated or transformed, and when.

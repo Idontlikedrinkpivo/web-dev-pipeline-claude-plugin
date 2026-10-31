@@ -9,9 +9,8 @@ three architecture documents and the screen specs. Writers (`srs-writer`,
 `screen-spec`), `grill-me`, `doc-review`, `plan` and `work` edit bodies and
 never touch `version`, `updated`, `info.version`, or the changelog. A
 correction pass, a reversal, and an applied finding stay on the last
-stamped number — and so do the two commits that need no request: a move
-into the split layout, and a decision changed after the document was
-finished (`pipeline` → `references/decision-changes.md`). Opening an iteration fixes the service version (`pipeline`
+stamped number — and so do the commits that need no request (`SKILL.md` →
+Commits that are not stamps). Opening an iteration fixes the service version (`pipeline`
 → Service version), not a document's: a document takes that number only
 when a commit stamps a change in it.
 
@@ -41,19 +40,21 @@ under the same version: rows of this version are amended, not doubled.
 
 1. Compare each contract file with its **last stamped state** — the
    commit that last moved its `version` line (`info.version` for
-   OpenAPI; for a split set, the index file's): `git log -1 --format=%H
-   -G '^version:' -- <index>` (`-G '^  version:'` for `openapi.yaml`),
-   then `git diff <that commit> -- <the document's files>`. Not `HEAD`:
+   OpenAPI; for a split set, the index file's). Not `HEAD`:
    decision-change and move commits since then are in that diff, and
-   they are what the stamp types. The contract files only, under
-   `documentation/`:
-   `requirements/srs/srs.md`, `api/openapi.yaml`, `db/schema.md`,
-   `architecture/architecture.md`, `architecture/domain.md`,
-   `architecture/scenarios/*/*.md`, and `ui/screen-specs/S-*.md` (or
-   `ui/<product>/screen-specs/`).
-   Ignore code, plans, migrations, the frames register, and unversioned drafts.
-2. None of them differ from its last stamped state — stop. Report that
-   nothing was stamped. Do not commit.
+   they are what the stamp types. Run
+   `python3 "${CLAUDE_SKILL_DIR}/scripts/doc_state.py" . dirty` (from
+   another skill: the plugin's `doc-versioning/scripts/doc_state.py`; at a
+   stage's close add `--only <each document of the stage>`): it lists each
+   contract document that differs — SRS with `areas/`, the schema, OpenAPI
+   with its parts, the three architecture documents, the screen specs —
+   with its last stamp, its files, uncommitted edits, and the
+   upgrade-docs commits whose hunks get no row; `--diff` prints each
+   differing document's diff against that stamp, which is what step 4
+   types. Code, plans, migrations, the frames register and unversioned
+   drafts are not in it.
+2. It exits 0 — nothing differs from its last stamped state: stop. Report
+   that nothing was stamped. Do not commit.
 3. Read the iteration's version: the name of the open
    `documentation/plans/<version>/` (no `summary.md`), and be on
    `iteration/<version>`. The stage that changed the document should have

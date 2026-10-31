@@ -7,9 +7,9 @@ description: >-
 
 # Brainstorm a Feature or Improvement
 
-Brainstorming helps answer **WHAT** to build through collaborative dialogue. The durable output is a **business requirements document** — a lightweight PRD / feature brief with clear functional and non-functional requirements, use cases, and acceptance criteria, so later technical work does not need to invent product behavior, scope boundaries, or success criteria.
+Brainstorming helps answer **WHAT** to build through collaborative dialogue. The durable output is a **business requirements document** — a lightweight PRD / feature brief: goal, scope, R-requirements, key flows, and acceptance examples, so the SRS and the design after it do not need to invent product behavior, scope boundaries, or success criteria. Numbered FR / NFR / use cases are `srs-writer`'s job, the next reader of this document: a draft shaped like an SRS here gets rewritten there.
 
-This skill explores, clarifies, and documents decisions; it does not implement code. Its document feeds the stage `pipeline` names after this one. Architecture, API/DB design, and implementation come later in that chain: do not skip to architecture, code, or "technical planning" as if the stages between did not exist.
+This skill explores, clarifies, and documents decisions; it does not implement code. Its document feeds the stage `pipeline` names after this one. Architecture, API/DB design, and implementation come later in that chain: do not skip to the SRS's numbered requirements, architecture, or code as if the stages between did not exist.
 
 **Implementation request.** If the user asks to write code, a service, controllers, or tests **now**, refuse. Do not start those skills. The next stage is still the one `pipeline` names after this one.
 
@@ -17,11 +17,11 @@ This skill explores, clarifies, and documents decisions; it does not implement c
 
 1. **Assess scope first** - Match the amount of ceremony to the size and ambiguity of the work.
 2. **Be a thinking partner** - Suggest alternatives, challenge assumptions, and explore what-ifs instead of only extracting requirements.
-3. **Resolve product decisions here** - User-facing behavior, scope boundaries, and success criteria belong in this workflow. Detailed implementation belongs in planning.
+3. **Resolve product decisions here** - User-facing behavior, scope boundaries, and success criteria belong in this workflow. Detailed implementation belongs to the design stages after the SRS.
 4. **Keep implementation out of the Product Contract by default** - Do not include libraries, schemas, endpoints, file layouts, or code-level design unless the brainstorm itself is inherently about a technical or architectural change.
-5. **Right-size the artifact** - Simple work gets a compact business requirements document or brief alignment. Larger work gets a fuller Product Contract. Do not add ceremony that does not help planning.
+5. **Right-size the artifact** - Simple work gets a compact business requirements document or brief alignment. Larger work gets a fuller Product Contract. Do not add ceremony that does not help the SRS stage (`srs-writer`).
 6. **Apply YAGNI to carrying cost, not coding effort** - Prefer the simplest approach that delivers meaningful value. Avoid speculative complexity and hypothetical future-proofing, but low-cost polish or delight is worth including when its ongoing cost is small and easy to maintain.
-7. **Do not turn coverage into decomposition** - For software brainstorms, treat named devices, providers, and data sources as coverage requirements, not automatically as separate integration workstreams. Split them only when a shared access path cannot satisfy a named requirement. Leave connector selection to planning unless that choice materially changes product scope or behavior.
+7. **Do not turn coverage into decomposition** - For software brainstorms, treat named devices, providers, and data sources as coverage requirements, not automatically as separate integration workstreams. Split them only when a shared access path cannot satisfy a named requirement. Leave connector selection to the design stages unless that choice materially changes product scope or behavior.
 8. **Keep one coherent work unit per artifact** - When a request contains independently valuable outcomes that can be planned and delivered separately, choose one as the current focus before deep exploration. Preserve how the surrounding work is currently understood without turning tentative future areas into requirements for this plan.
 
 ## Interaction Rules
@@ -34,7 +34,7 @@ These rules apply to every brainstorm.
 4. **The question is one chat message** — shown as `pipeline` → `references/question-format.md` says: what a person will see, with an example, first; then the real terms with what they mean here, the options, which one you recommend and why, and «Ответьте сообщением: буква или свой текст.» Then stop. The user answers by sending a message. Do not call `AskUserQuestion` or any other question card. This holds for opening and elicitation questions too, not only narrowing. Never silently skip the question. On a visual topic, the Phase 1.3 visual-probe gate comes before this rule.
 5. **Use an open-ended question only when the question is genuinely open** - Ask it in the chat with no options when the answer is inherently narrative, when presented options would steer a diagnostic or introspective answer, or when you cannot write 3-4 genuinely distinct, plausibly-correct options without padding. The test: if you'd be straining to fill the option slots, the question is open — ask it open-ended. Rule 1 still applies: one question per turn.
 6. **Open-ended questions earn their place only when they're specific enough to elicit a substantive answer** - Apply Rule 5 silently: just ask the question, never narrate the form choice. The question must give the user something concrete to anchor on. Good: *"What's the most concrete thing someone's already done about this — paid for it, built a workaround, quit a tool over it?"* — it names what counts as an answer. Too thin: *"What's your take?"* — nothing to bite into, and framings that imply a short answer ("briefly", yes/no) waste the open question the same way.
-7. **A list as input is kept as a ledger** — When the input is a list of tasks, requests or requirements (a release backlog, a stakeholder's bullet list), write it down line by line first, each with its fate: «в релизе», «снят пользователем», «уже сделано», with the reason — in the file `${TMPDIR:-/tmp}/brainstorm-<repo>-input.md` (`<repo>` the repo folder's name), so a compaction does not lose it, and show it once in the chat. Every «убираю X» and every «остаётся N» updates that file and is recounted against it, and the synthesis summary and the document are checked against it by count before they are shown: an item that silently drops out of a list is the failure this prevents. Delete the file when the document is committed.
+7. **A list as input is kept as a ledger** — When the input is a list of tasks, requests or requirements (a release backlog, a stakeholder's bullet list), write it down line by line first, each with its fate: «в релизе», «снят пользователем», «уже сделано», with the reason — in the file `python3 "${CLAUDE_SKILL_DIR}/../grill-me/scripts/ledger.py" open --kind input` names (it says too whether one is already there from this iteration), so a compaction does not lose it, and show it once in the chat. Every «убираю X» and every «остаётся N» updates that file and is recounted against it, and the synthesis summary and the document are checked against it by count before they are shown: an item that silently drops out of a list is the failure this prevents. Delete it with the same script's `close --kind input` when the document is committed.
 
 ## Artifact Root
 
@@ -126,7 +126,7 @@ When they are clear:
 2. Skip Phases 1.1 and 1.2.
 3. Still classify the tier in Phase 0.3 — the tier, not the clarity, decides the Phase 2.5 path, so a clear Standard or Deep opener still gets the full confirmation.
 4. Go to Phase 1.3 if something is still open, otherwise straight to Phase 2.5.
-5. Write a short business requirements document only when a durable handoff to planning or later review is worth having (Phase 3 decides).
+5. Write a short business requirements document only when a durable handoff to the SRS stage (`srs-writer`) or later review is worth having (Phase 3 decides).
 
 #### 0.3 Assess Scope
 
@@ -168,19 +168,8 @@ Scan the repo before substantive brainstorming. **Lightweight:** search for the 
 
 **Standard and Deep:**
 
-1. **Constraint check (inline).** Use the project's active instructions and conventions already in your context. Read `STRATEGY.md` if it exists (product direction) and `CONCEPTS.md` if it exists (canonical vocabulary). Use canonical names in dialogue, approaches, and the Product Contract. A source that adds nothing is skipped.
-2. **Create the scratch directory** with this block, substituting a short unique run slug, and keep the printed absolute path:
-
-```bash
-SCRATCH_ROOT="/tmp/brainstorm-$(id -u)";
-if [ -L "$SCRATCH_ROOT" ]; then echo "unsafe scratch root symlink: $SCRATCH_ROOT" >&2; exit 1; fi;
-(umask 077; mkdir -p "$SCRATCH_ROOT") || exit 1;
-if [ -L "$SCRATCH_ROOT" ] || [ ! -O "$SCRATCH_ROOT" ]; then echo "scratch root is not owned by the current user: $SCRATCH_ROOT" >&2; exit 1; fi;
-chmod 700 "$SCRATCH_ROOT" || exit 1;
-SCRATCH_DIR="$SCRATCH_ROOT/brainstorm/<run-id>";
-(umask 077; mkdir -p "$SCRATCH_DIR") || exit 1; chmod 700 "$SCRATCH_DIR" || exit 1;
-echo "$SCRATCH_DIR";
-```
+1. **Constraint check (inline).** Use the project's active instructions and conventions already in your context. Use `CONCEPTS.md` terms if the project has one — in dialogue, approaches, and the Product Contract.
+2. **Create the scratch directory:** `bash "${CLAUDE_SKILL_DIR}/scripts/scratch_dir.sh" <run-slug>` with a short unique slug; keep the absolute path it prints — the private folder the dossier is saved in.
 
 3. **Dispatch the grounding scout:** `code-explorer` through `executor-catalog` (`subagent_type: "dev-pipeline:code-explorer"`, no `model` — the agent file holds it). Not `Explore` or `general-purpose`, and not the session doing the scout's reads itself: a missing agent is a stop, per the catalog's Dispatch contract — the user installs or updates the `dev-pipeline` plugin. With background dispatch, go on to Phase 1.2/1.3 **without waiting** — the scout runs during the user's think-time on the opening questions. The scout is read-only, so it returns the dossier as its reply and the session saves it. Scout prompt:
 
@@ -192,7 +181,7 @@ echo "$SCRATCH_DIR";
 Two rules govern technical depth during the scan, for every tier and topic:
 
 - **Verify before claiming.** When the brainstorm touches checkable infrastructure (database tables, routes, config files, dependencies, model definitions), read the source to confirm what exists. A claim that something is absent — a missing table, an endpoint that does not exist, a dependency not in the project's dependency manifest, an unsupported config option — must be verified against the codebase; otherwise label it an unverified assumption.
-- **Defer design decisions to planning.** Schemas, migration strategies, endpoint structure, or deployment topology belong in planning — unless the brainstorm is itself about a technical or architectural decision, in which case they are its subject.
+- **Defer design decisions to the design stages.** Schemas, migration strategies, endpoint structure, or deployment topology belong to the schema, API, architecture and deploy stages after the SRS — unless the brainstorm is itself about a technical or architectural decision, in which case they are its subject.
 
 #### 1.2 Product Pressure Test
 
@@ -217,7 +206,7 @@ Follow the Interaction Rules above: one chat question per Rule 4. **Before each 
 3. Fire each Phase 1.2 gap as its own direct, **open-ended** probe — one probe per gap. A menu would signal which kinds of evidence count and let the user pick instead of producing; an open probe forces real observation or surfaces real uncertainty. The reference's "when present, ask…" line is the probe; phrase it per Interaction Rule 6. Spread the probes across the conversation, interleaved with narrowing moves, and probe every gap before Phase 2. Do not fire them back to back at the start: a pre-flight gauntlet of five hard questions reads as an exam, and the answers get shorter and vaguer with each one.
 4. When the attachment gap is present (judged from the opening), make it the last probe before Phase 2 — even if narrowing already produced a shape, because its job is to pressure-test the framing Phase 2 would otherwise inherit.
 5. When a probe's answer shows genuine uncertainty, record it as an explicit assumption in the Product Contract instead of dropping the probe.
-6. Throughout: clarify the problem frame, validate assumptions, ask about success criteria, and make requirements concrete enough that planning will not invent behavior. Surface dependencies only when they materially affect scope. Resolve product decisions here; leave technical choices to planning. Bring ideas, alternatives, and challenges instead of only interviewing.
+6. Throughout: clarify the problem frame, validate assumptions, ask about success criteria, and make requirements concrete enough that the SRS stage (`srs-writer`) will not invent behavior. Surface dependencies only when they materially affect scope. Resolve product decisions here; leave technical choices to the design stages. Bring ideas, alternatives, and challenges instead of only interviewing.
 7. **Integration check, before exiting.** Combine what the user has said and look for non-obvious consequences one-question-at-a-time dialogue hides: user-stated X plus user-stated Y plus your default Z ("if mute lives on the rule AND we don't warn on delete, then rule-delete silently loses pause state"). Probe each genuine combination effect now, open-ended, one probe each. Phase 2.5's call-outs are a safety net for residuals (silent agent inferences, pre-loaded contexts with no dialogue), not a punt list for consequences you could ask about now.
 
 **Exit Phase 1.3** when all of these hold, or the user explicitly wants to proceed:
@@ -260,7 +249,7 @@ The user answers with a message. That answer becomes "Per-channel over per-user"
    - Apply the anti-genericness test: an approach that would appear in a generic listicle for this problem category gets sharpened against the grounding dossier or dropped.
    - At product tier, approaches differ on *what* is built (product shape, actor set, positioning), not *how*. Implementation variants belong at feature tier.
    - When useful, add one higher-upside challenger: the adjacent addition or reframing that most increases usefulness, compounding value, or durability without disproportionate carrying cost. Present it beside the baseline, not as the default. Omit it when the work is already over-scoped or the baseline is clearly right.
-3. **Keep the granularity at mechanism / product shape, not architecture.** Name mechanism-level distinctions ("pause as a rule property" vs "pause as an event filter" vs "pause as a separate entity") and product-relevant trade-offs (plan-tier coupling, complexity surface, migration difficulty). Do not name column or table names, file paths, service classes, JSON shapes, or method names — those belong to later technical planning, and bringing them forward forces architectural decisions on this phase's intentionally shallow research.
+3. **Keep the granularity at mechanism / product shape, not architecture.** Name mechanism-level distinctions ("pause as a rule property" vs "pause as an event filter" vs "pause as a separate entity") and product-relevant trade-offs (plan-tier coupling, complexity surface, migration difficulty). Do not name column or table names, file paths, service classes, JSON shapes, or method names — those belong to the design stages after the SRS, and bringing them forward forces architectural decisions on this phase's intentionally shallow research.
 4. **For each approach, give:** a 2-3 sentence description, pros and cons, key risks or unknowns, and when it is best suited.
 5. **Visual differences.** If the approaches differ spatially, behaviorally, or visually enough that prose would be slower or lower-fidelity, go through `references/visual-probes.md` before presenting them. If the Phase 0.3 tripwire fired and no shape decision has been through the gate yet, the offer fires here. The visual path is opt-in and display-only; text remains a first-class path.
 6. **Present all approaches first, then recommend** and say why — a recommendation before the user has seen the alternatives anchors the conversation. Prefer simpler solutions when added complexity has real carrying cost, but do not reject low-cost, high-value polish just because it is not strictly necessary.
@@ -281,7 +270,7 @@ This phase runs for every tier, including Lightweight.
 A fresh-context verifier replaces self-grading: the author confirming its own claims is anchored, and the verifier never saw the dialogue.
 
 1. **Skip** when Path A fired, or when the document will make no checkable claims.
-2. **List the checkable claims** the Product Contract will assert, one line each: absence claims ("no retry logic exists"), references to specific files, config, or dependencies, anything planning would build on.
+2. **List the checkable claims** the Product Contract will assert, one line each: absence claims ("no retry logic exists"), references to specific files, config, or dependencies, anything the SRS or the design would build on.
 3. **Dispatch `code-explorer`** through `executor-catalog` at the same moment the Path B confirmation question goes up, so it runs during the user's think-time. Same dispatch as the scout (`subagent_type: "dev-pipeline:code-explorer"`, no `model`). Pass the claim list, the grounding dossier path if one exists (the path, not its contents), and this instruction: verify each claim directly against the codebase — budget ~15 targeted reads — and return a per-claim verdict: **confirmed** (with `file:line`), **refuted** (with the contradicting evidence), or **unverifiable**.
 4. Do not block the confirmation question on the verifier.
 5. **At Phase 3,** correct refuted claims before writing and label unverifiable ones as explicit assumptions.
@@ -296,7 +285,7 @@ When a doc is warranted, compose it using:
 - `references/brainstorm-sections.md` — section contract (business requirements document contract, Product Contract hard floor, include-when-material catalog, agency rules, ID conventions).
 - `references/markdown-rendering.md` — read it **now**, before composing: it defines how the sections are presented, and composing without it produces drift the section contract alone cannot prevent.
 
-Session-settled decisions land in the Product Contract's Key Decisions section carrying their `session-settled:` annotation (shape in `references/settled-decisions.md`), so any later technical planning can inherit the label into its own decision entries.
+Session-settled decisions land in the Product Contract's Key Decisions section carrying their `session-settled:` annotation (shape in `references/settled-decisions.md`), so the SRS and the design stages can inherit the label into their own decision entries.
 
 **Language.** Write the document in Russian. Do not translate cited tokens.
 Required section names and frontmatter keys stay as this skill specifies.
@@ -307,23 +296,11 @@ Required section names and frontmatter keys stay as this skill specifies.
 code and the project's own documents (`upgrade-docs/references/as-is.md`) — the goal, the users and the scope the
 system serves today — instead of discovering them in dialogue, then the grill gate as usual; no iteration is opened.
 
-**Open the iteration first** — the document is committed on the iteration's branch, never on `main` (`pipeline` → Service version). An open `documentation/plans/<version>/` (no `summary.md`) is the current iteration: reuse it — as is an iteration branch `where_am_i.py` names (a fresh clone): `open_iteration.py <version>` only switches and creates the folder. None open: this stage opens it — greenfield `0.1.0` without asking; on a product that already has documents propose the number with its level and a one-line reason (a new area of the product → MAJOR proposed; new behaviour inside existing areas → MINOR) as one question — then `python3 "${CLAUDE_SKILL_DIR}/../pipeline/scripts/open_iteration.py" <version>` from the repo root. Its exit 2 or 3 is a question for the user, asked before writing. The uncommitted document is safe to write before or after: the branch carries it.
+**Be in the iteration** — the document is committed on the iteration's branch, never on `main`: reuse the open one, or open it as `pipeline` → Service version says (it owns the steps, the number's question and the script's exits). The uncommitted document is safe to write before or after: the branch carries it.
 
-Write to `documentation/requirements/business-requirements/business-requirements.md` (folder, increment, and the no-`version` / no-changelog rule are in Artifact Root). A new project — `documentation/` did not exist when this stage started — also gets the plugin's version stamp, committed with the document: `python3 "${CLAUDE_SKILL_DIR}/../upgrade-docs/scripts/project_format.py" born .` Its stages produce today's formats, so the session-start check must not report them as missing. Title is `<Name> - Business Requirements` (matching the H1; no conventional-commit prefix). Keep the doc light and standalone-readable: a Goal Capsule (objective, product authority, open blockers) and the Product Contract. Do **not** emit a Goal Launch Block or Reader Index. See `references/brainstorm-sections.md` — which owns the artifact content rules, including repo-relative file paths inside the doc.
+Write to `documentation/requirements/business-requirements/business-requirements.md` (folder, increment, and the no-`version` / no-changelog rule are in Artifact Root). A new project — `documentation/` did not exist when this stage started — also runs `python3 "${CLAUDE_SKILL_DIR}/../upgrade-docs/scripts/project_format.py" born .` and commits `documentation/.dev-pipeline.json` with the document (the script's `born` line says why). Title is `<Name> - Business Requirements` (matching the H1; no conventional-commit prefix). Keep the doc light and standalone-readable: a Goal Capsule (objective, product authority, open blockers) and the Product Contract. Do **not** emit a Goal Launch Block or Reader Index. See `references/brainstorm-sections.md` — which owns the artifact content rules, including repo-relative file paths inside the doc.
 
-**Ready for Planning Check.** After writing the actual file, run the four checks in `references/brainstorm-sections.md`: Complete, Consistent, Focused, and Usable by planning. Fix failures in place when the correction preserves settled intent, then rerun the failed checks. If a correction would choose or change product behavior or scope, ask one targeted question, update the artifact after the answer, and rerun the checks. Do not declare the artifact written or enter Phase 4 while any check fails. When confirming in chat after the pass, report the artifact with its absolute path so the reference is clickable.
-
-#### Vocabulary Capture — after the business requirements document (only if CONCEPTS.md already exists)
-
-**Skip this step entirely if `CONCEPTS.md` does not exist at repo root** — creation is owned by a separate vocabulary-maintenance workflow, if you have one.
-
-Run this **after** the approaches, the scope synthesis, and the business requirements document — that is where the canonical term often gets chosen or corrected, so capturing during early dialogue (before this point) would miss the final resolved name. If it exists, scan the full dialogue and the Product Contract for **resolved** domain terms — terms where the conversation actively pinned down a precise local meaning, not terms merely mentioned in passing. **Resolved means the definition is settled, not still under discussion.** Provisional terms that may still revise stay in the conversation only.
-
-For each resolved term: if missing, add it; if present but new precision surfaced, refine it; if already consistent, no action.
-
-**Domain entities, named processes, and status concepts with project-specific meaning only.** Not file paths, class names, function signatures, or implementation decisions — `CONCEPTS.md` is a glossary, not a spec or catch-all.
-
-Follow the format set by existing entries. Apply edits silently. (If Phase 3 skipped the doc, still run this against the resolved dialogue.)
+**Ready for SRS Check.** After writing the actual file, run the four checks in `references/brainstorm-sections.md`: Complete, Consistent, Focused, and Usable by the SRS stage. Fix failures in place when the correction preserves settled intent, then rerun the failed checks. If a correction would choose or change product behavior or scope, ask one targeted question, update the artifact after the answer, and rerun the checks. Do not declare the artifact written or enter Phase 4 while any check fails. When confirming in chat after the pass, report the artifact with its absolute path so the reference is clickable.
 
 #### Grill gate — after the business requirements document, before the closing summary
 
@@ -331,7 +308,7 @@ The document is written first, then interrogated. A written Product Contract is 
 
 1. **Run `grill-me` on the written document.** Load that skill (Skill tool, or read `grill-me/SKILL.md`) and follow it. Do not summarize it and do not invent a shorter interview.
 2. **The frontier decides the length, not a quota.** This phase already ran the pressure test and the blindspot pass, so a run that settled everything cleanly has an empty frontier and the gate closes in one turn. That is a pass, not a skipped gate.
-3. **Apply what the grill reversed, once, at its close**, in this same document — a reversed decision replaces the line it contradicts rather than sitting beside it — and each question the user deferred as a row of `open-questions.md` beside it (`grill-me` → The ledger). Re-run the Ready for Planning Check over anything the grill changed.
+3. **Apply what the grill reversed** in this same document, by `grill-me`'s rule (When a pipeline stage invoked this file → the reversals), and each deferred question as an `open-questions.md` row (`grill-me` → The ledger). Re-run the Ready for SRS Check over anything the grill changed.
 4. **Record it in the frontmatter** — `grilled: YYYY-MM-DD` — so a later session can tell the gate closed without replaying this conversation. See the `doc-versioning` skill for the field.
 
 A paused run that never reached a document skips this gate: there is nothing settled to interrogate. Say so in the pause summary.

@@ -13,9 +13,12 @@ Over the run's diff `BASE...HEAD`, with the tools of `repo-scaffold/references/q
 | duplicates — the share and the blocks the run added | `jscpd` on the changed files against the base |
 | functions over the complexity and length thresholds, files over the size thresholds — added or grown | the linter's rules over the changed files |
 | surviving mutants — in the lines of units that enforce an invariant row or are graded High | Stryker incremental / `mutmut` on those lines only — **Mutation runs** below |
+| dead code — exports, files and dependencies nothing uses | `knip` for TypeScript, `vulture` for Python, another stack's usual unused-code tool; the repo's config when it has one, otherwise defaults (say so in the run report); check the tool's current flags against the installed version |
 
 Save the table under `$(git rev-parse --git-dir)/pipeline-work/` and into the run report as «Здоровье кода»:
-each figure at BASE and at HEAD.
+each figure at BASE and at HEAD. The dead-code output is also saved whole as its own file: `code-review-full`
+takes it by path as the dead-code report, and a detector that could not run is that file's one line with the
+reason — noted, never skipped silently.
 
 **A tool that is not there.** Use the project's own install of each tool (its dev dependencies, its scripts); a
 one-off run through the package runner (`npx jscpd`, `uvx mutmut`) is fine when it needs no setup. A tool that

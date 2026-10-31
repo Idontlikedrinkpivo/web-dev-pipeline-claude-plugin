@@ -1,11 +1,6 @@
 # Stamp checklist
 
-`doc-versioning` runs this once per dirty contract document (SRS, OpenAPI,
-DB schema, architecture foundation, domain model, scenarios, screen specs)
-at a stage's close, at the iteration's close before the tag, and when the
-user asks to version or publish (`references/version-birth.md`). `plan` does not call it. Writers, gates,
-and reviews mid-stage, and `work`, do not run this list: they leave
-`version`, `updated`, and the changelog as they found them.
+Run once per dirty contract document, when and as `references/version-birth.md` says — nowhere else.
 
 The diff is the file about to be committed against its last stamped
 state (`references/version-birth.md`, step 1), so decision-change commits

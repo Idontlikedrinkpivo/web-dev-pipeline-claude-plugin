@@ -167,7 +167,7 @@ these documents are the contract every later stage builds on, so each is
 as detailed as the system needs. What keeps them readable is that each
 fact has one home (the table below), not a line count.
 
-**What, not how it looks** (`doc-versioning`). None of the three
+**What, not how it looks** (`doc-versioning` → `references/writing-rules.md`). None of the three
 documents names a widget, a layout, a colour, an icon, or exact UI
 wording — not in a row, a note, or prose. A use case is cited by its
 action, its data and its outcome.
@@ -389,23 +389,13 @@ errors already mapped to HTTP).
   the list an agent edits when a field changes; a place missing from it
   is where a stale field survives.
 - **Invariant table (§4)** — domain rules only, one row per rule, no
-  prose in the cells, no paragraph under the heading: `Правило |
-  Владелец | Где проверяется | Ограничение в схеме | Исход | Кто ещё
-  применяет` (column rules in `references/output-template-domain.md`
-  → «Column rules of the invariant table»). «Правило»
-  starts with the SRS id. «Где проверяется» is always an entity or
-  value-object method with the same signature as in the sketch — never a
-  use case, controller, adapter, `Clock`, or the word `database`.
-  «Ограничение в схеме» copies the schema document (`CHECK` / `UNIQUE` /
-  `FK`, or `none` when it left the rule to the entity); do not add a
-  constraint the schema lacks. Why: tests are written from «Где
-  проверяется» and the schema is checked against «Ограничение в схеме»,
-  so each rule needs exactly one owner and one row. Immutability and
-  at-most-once rules are rows too.
-- **Every `BR-n`** of the SRS lands in exactly one place, id first: an
-  invariant row, a boundary-checks row (§5), or the «Доступ» row of the
-  scenario that guards it (access policy). A BR left only in prose is
-  lost to the tests.
+  prose in the cells, no paragraph under the heading; each rule has
+  exactly one owner and one row, because tests are written from «Где
+  проверяется» and the schema is checked against «Ограничение в схеме».
+  The columns and what each may hold: `references/output-template-domain.md`
+  → «Column rules of the invariant table»; read it before writing §4.
+- **Every `BR-n`** lands in exactly one place —
+  `references/output-template-domain.md` → «Where each BR lands».
 - **Named errors (§3)** — every name a scenario may return, including
   application errors such as `…NotFound` and `Forbidden`, with who raises
   it. No HTTP status here; every name has its row in foundation §4.

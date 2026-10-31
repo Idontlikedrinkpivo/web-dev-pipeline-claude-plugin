@@ -59,9 +59,9 @@ starter): the next stages build on exactly the tree architecture drew.
 contains application modules (not just this skill's empty stubs), do
 **not** rewrite the tree. If the user asked for a project map, go to
 section 6, commit it (section 7) and stop. If a foundation changelog row's «Кого затрагивает»
-cell names `repo-scaffold`, go to "Increment mode". Otherwise stop:
-"This repo already has application code. Scaffold would overwrite it.
-Say which new service path to use, or stop." When the user names a path
+cell names `repo-scaffold`, go to "Increment mode". Otherwise stop and
+tell the user, in Russian: «В репозитории уже есть код приложения — каркас
+его перезапишет. Назовите папку для нового сервиса или остановимся.» When the user names a path
 (`services/billing/`), scaffold there as if it were an empty repo: that
 directory is the root for this run, and nothing outside it is touched.
 
@@ -169,7 +169,7 @@ rows as a changed decision (Step 2).
 
 `.gitignore` carries `documentation/plans/` from the first commit: plans,
 reviews, progress files, reports and summaries are working files of this
-machine, not project history (`pipeline` → Plans stay out of git).
+machine, not project history (`pipeline/references/service-version.md` → Plans stay out of git).
 
 `docker-compose.yml` whenever the system stores data (a schema exists): a
 database service of the DBMS and major `schema.md` «Решения по базе» names
@@ -206,7 +206,9 @@ designed become a schema the next stages must honour.
 
 Check that `0001_init.sql` opens with `CREATE SCHEMA IF NOT EXISTS <schema>;`
 and `SET search_path TO <schema>;`, and every later file with the `SET` line
-(`db-schema-design` §0). If a line is missing, do not edit the file — it
+(`db-schema-design` §0, the rule's home) — run
+`python3 "${CLAUDE_SKILL_DIR}/../db-schema-design/scripts/table_docs.py" . --check`
+and read its migration lines. If a line is missing, do not edit the file — it
 belongs to `db-schema-design`, and a committed one is frozen — do not apply
 it either: name the gap for `db-schema-design` in the report. Point
 `DATABASE_URL`'s `search_path` (and the migration tool's own version-table

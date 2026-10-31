@@ -8,6 +8,12 @@ usage:
                      messages all reappear, in order, at the start of a longer one (it was
                      resumed into a new file) is marked «# повтор <id>» and skipped
   sessions.py digest <session.jsonl> <out.md> [--since …]  the session as a short chronological digest (from --since on)
+  sessions.py window <project-dir> [--version <v>]
+                     the --since every other command takes: from the iteration's first commit on its branch (or
+                     its plans/<version>/ folder's date), or later — from the end of the last «Окно: … — <end>» in
+                     ~/.claude/dev-pipeline-feedback/<project>.md when that ends after it, so no moment is read
+                     twice. UTC, as the logs and the «Окно» line keep time. The version: --version, else the
+                     iteration branch, else the newest plans/ folder without summary.md
   sessions.py errors <project-dir> <out.md> [--since YYYY-MM-DD[THH:MM]] [--also <old-project-dir> ...]
                      the failed tool calls of the main sessions AND of every agent they ran
                      (<session>/subagents/), grouped by kind and shape, most repeated first
@@ -297,6 +303,51 @@ def cmd_errors(cwd: str, out: str, since: str | None, also: list) -> None:
     print(f"{out}: {len(rows)} failed calls in {len(groups)} groups")
 
 
+def git_out(cwd: str, *args: str) -> str:
+    try:
+        r = subprocess.run(["git", "-C", cwd, *args], capture_output=True, text=True, timeout=30)
+    except (OSError, subprocess.TimeoutExpired):
+        return ""
+    return r.stdout.strip() if r.returncode == 0 else ""
+
+
+def cmd_window(cwd: str, version: str | None) -> None:
+    from datetime import datetime, timezone
+    cwd = os.path.abspath(cwd)
+    plans = Path(cwd) / "documentation" / "plans"
+    branch = git_out(cwd, "rev-parse", "--abbrev-ref", "HEAD")
+    m = re.fullmatch(r"iteration/(\d+\.\d+\.\d+)", branch)
+    if not version and m:
+        version = m.group(1)
+    if not version and plans.is_dir():
+        vs = sorted((p for p in plans.iterdir() if p.is_dir() and re.fullmatch(r"\d+\.\d+\.\d+", p.name)
+                     and not (p / "summary.md").exists()), key=lambda p: tuple(int(x) for x in p.name.split(".")))
+        version = vs[-1].name if vs else None
+    utc = lambda ts: datetime.fromtimestamp(ts, timezone.utc).strftime("%Y-%m-%d %H:%M")
+    start, why = None, ""
+    base = next((b for b in ("origin/main", "main", "origin/master", "master")
+                 if git_out(cwd, "rev-parse", "-q", "--verify", b)), None)
+    if base and m and m.group(1) == version:
+        first = git_out(cwd, "log", "--reverse", "--format=%ct", f"{base}..HEAD").splitlines()
+        if first:
+            start, why = utc(int(first[0])), f"первый коммит ветки {branch}"
+    folder = plans / version if version else None
+    if not start and folder and folder.is_dir():
+        st = folder.stat()
+        start, why = utc(getattr(st, "st_birthtime", st.st_mtime)), f"дата папки documentation/plans/{version}/"
+    if not start:
+        print("window: ни ветки итерации, ни папки plans/<версия> — спросите пользователя, с какой даты читать")
+        sys.exit(1)
+    feedback = HOME / "dev-pipeline-feedback" / f"{os.path.basename(cwd)}.md"
+    ends = re.findall(r"^Окно: \d{4}-\d\d-\d\d \d\d:\d\d — (\d{4}-\d\d-\d\d \d\d:\d\d)",
+                      feedback.read_text(encoding="utf-8", errors="replace"), re.M) if feedback.exists() else []
+    later = max((e for e in ends if e > start), default=None)
+    if later:
+        start, why = later, f"конец последнего «Окно» в {feedback} (это уже прочитано)"
+    print(f"window: итерация {version or '?'} · с {start} UTC — {why}")
+    print(f"--since {start.replace(' ', 'T')}")
+
+
 if __name__ == "__main__":
     if len(sys.argv) >= 3 and sys.argv[1] == "list":
         since = sys.argv[sys.argv.index("--since") + 1] if "--since" in sys.argv else None
@@ -304,6 +355,8 @@ if __name__ == "__main__":
         cmd_list(sys.argv[2], since, also)
     elif len(sys.argv) >= 4 and sys.argv[1] == "digest":
         cmd_digest(sys.argv[2], sys.argv[3], sys.argv[sys.argv.index("--since") + 1] if "--since" in sys.argv else None)
+    elif len(sys.argv) >= 3 and sys.argv[1] == "window":
+        cmd_window(sys.argv[2], sys.argv[sys.argv.index("--version") + 1] if "--version" in sys.argv else None)
     elif len(sys.argv) >= 4 and sys.argv[1] == "errors":
         since = sys.argv[sys.argv.index("--since") + 1] if "--since" in sys.argv else None
         also = [sys.argv[i + 1] for i, x in enumerate(sys.argv) if x == "--also"]

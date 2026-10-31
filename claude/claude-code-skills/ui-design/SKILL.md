@@ -108,58 +108,13 @@ file is how the user tells progress from a hang. After each returned one, check 
 
 ## Entry question
 
-Ask once, when there is no register yet, per `grill-me` → "How a question
-is shown", in the chat, no question card. When the design owner is recorded
-nowhere — an iteration picked up from another session — ask
-`references/design-owner.md`'s question first. When the iteration's design
-owner is known (`pipeline` → `references/design-owner.md`), show only what
-it leaves: «мы» — B and C; «дизайнер с плагином» — the designer's
-session asks all three; «дизайнер без плагина» — only A, in this session:
-the designer draws in Figma on their own, and this stage indexes the
-frames once they are there (mode **index**), so the question is just the
-file link. A and B carry the file link, so this one message asks for it:
+Only when there is no register yet: read `references/entry-question.md`
+before asking — which options the design owner leaves, the question text,
+creating the file for option C, and recording the answer as **Кадры
+рисует** and **Дизайн ведёт** in the register header. A later run reads the
+header and asks neither question again.
 
-```text
-**Вопрос 1. Есть ли уже макеты**
-
-Макеты — это кадры экранов в Figma. От ответа зависит, рисую ли я их сам
-или только описываю нарисованное дизайнером.
-
-  A. Макеты уже нарисованы дизайнером — пришлите ссылку на файл. Я присвою
-     экранам номера S-n, составлю реестр кадров и проверю, все ли сценарии
-     и состояния нарисованы; пробелы станут вопросами дизайнеру.
-  B. Макетов нет — пришлите ссылку на файл, где рисовать (пустой подойдёт).
-     Я решу набор экранов по сценариям SRS и нарисую их. (рекомендую)
-  C. Макетов нет и файла нет — я создам пустой файл в вашем Figma сам и
-     нарисую в нём. Можно добавить ссылку на проект Figma, куда его
-     положить; без неё файл ляжет в черновики (Drafts).
-
-Рекомендую B: о готовых макетах в разговоре речи не было, а сценарии SRS
-уже есть.
-
-Ответьте сообщением: буква и ссылка на figma.com (для C — не обязательна).
-```
-
-Recommend the option the user's earlier messages point to. A reply A or B
-with no `figma.com` link writes nothing: ask for the link again, because
-frames that cannot be opened cannot be drawn or indexed.
-
-**C — creating the file.** Figma MCP `whoami` gives the user's plans (one
-is used as is; several are one question), then `create_new_file`:
-`editorType: "design"`, the plan's `key`, `fileName` «<продукт> — макеты»,
-the `projectId` from a project link if given. Post the link, record it and
-the `fileKey` in the register header, go on as B. Say in one line that a
-Drafts file is visible only to its owner and can be moved to the team's
-project (the link stays). No Figma MCP or a failed call: say why, ask for
-a link (B).
-
-Record the answer as **Кадры рисует:** `ui-design` (B, **draw**) or
-`дизайнер` (A, **index**), with **Дизайн ведёт** when known, in the register
-header; a later run reads it and asks neither question again.
-
-The answer and the file disagree — they chose A and the file has no product
-frames, or chose B and the file already holds frames for these screens —
-stop and say so. Do not pick a mode they did not pick.
+## Figma MCP
 
 The Figma MCP is required in both modes. If its tools are missing or
 unauthorized, stop: do not invent node ids, and tell the user to connect and
@@ -196,21 +151,14 @@ The register is an unversioned row of the `doc-versioning` Registry: no
 every write; `screen-spec` cites it by path with no `@<version>`. Its
 frontmatter `sources:` pins the SRS version the frames were drawn from
 (`srs.md@<version>`), so a stale sweep sees frames that lag the SRS. The
-`doc-versioning` → «What, not how it looks» rule does not apply to it: it
+`doc-versioning` → `references/writing-rules.md` → «What, not how it looks» rule does not apply to it: it
 names frames.
 
-What it holds:
-
-- **Frontmatter:** `title`, `updated`, `sources:` (the SRS `@<version>`).
-- **Header:** Figma URL and `fileKey`, **Кадры рисует**, **Тип продукта**,
-  **Ширины**, **Доступность**, **Визуальное направление**, and in index
-  mode **Слои по действиям**.
-- **Экраны:** `S-n | Экран | Сценарии | Акторы | Кадр | Состояния | Вложенные
-  шаги | Статус`. State and step cells list `имя → nodeId`. Статус is
-  `черновик` or `готово к разработке`.
-- **Общие состояния:** the app-wide states (session expired, too many
-  requests, server error, offline) with their frames — not a screen, so not
-  an `S-` id. `screen-spec` points its общий обработчик here.
+Its shape — frontmatter, header lines, the Экраны and Общие состояния
+tables, the cell rules — is `references/frames-register.md` → Template and
+nowhere else, so a new header line or column goes there. Общие состояния
+holds the app-wide states with their frames, not as `S-` ids;
+`screen-spec` points its общий обработчик there.
 
 Ids are append-only. `S-1…` is assigned here, by design; a screen dropped by
 a redesign keeps its id with Статус `черновик` and a note, and its number is

@@ -87,7 +87,7 @@ Always: **spec fidelity**. Then add only what the diff actually touched:
 | **Silent failure** | the diff touches error handling: `catch`, a fallback value, an adapter call to storage, a queue or an external service | is every failure named, its cause kept, and one log line written where the user sees a generic answer? An empty `catch`, a cause dropped, a failure turned into success is a P1 |
 | **Boundary** | the diff adds an import across a ring, or touches a port | do dependencies still point inward; does the adapter's shape stay out of the domain? |
 | **Contract** | the diff touches HTTP, schema, or a published type | status and error mapping, nullability, migration reversibility, backward compatibility for existing callers; a migration file already committed in `documentation/db/migrations/` is never edited — a schema change is the next numbered file |
-| **UI** | an `impl-ui` unit: its `Документы` cite a screen spec, or the `🎨 Tokens` page (a theme unit) | do elements, states and response outcomes match the screen spec rows, and texts the frame's «Тексты» table; does the screen follow the frame; does it keep the `ux-patterns` rules for the spec's **Тип продукта**, Section 8 for code and Section 9 for texts; does the diff pass `web-design-guidelines`, whose anti-patterns are findings on sight; does the worker report's SCREEN CHECK go through «Проверка экрана перед сдачей»; for a theme unit — every Figma variable has its theme variable, contrast holds in each theme (UX-7, UX-62), fonts load with the `cyrillic` subset (UX-59), no screen keeps a hardcoded colour, radius or shadow (UX-1). Each finding starts with the `UX-<n>` it breaks (`UX-61 — transition: all`). The orchestrator pastes the product type, the `ux-patterns` rules the screen touches and the `web-design-guidelines` rules into the design block |
+| **UI** | an `impl-ui` unit: its `Документы` cite a screen spec, or the `🎨 Tokens` page (a theme unit) | do elements, states and response outcomes match the screen spec rows, and texts the frame's «Тексты» table; does the screen follow the frame; does it keep the `ux-patterns` rules for the spec's **Тип продукта**, Section 8 for code and Section 9 for texts; does the diff pass `web-design-guidelines` (its `scripts/flag_antipatterns.py` run on the diff's files first, each line confirmed in the code); does the worker report's SCREEN CHECK go through «Проверка экрана перед сдачей»; for a theme unit — every Figma variable has its theme variable, contrast holds in each theme (UX-7, UX-62), fonts load with the `cyrillic` subset (UX-59), no screen keeps a hardcoded colour, radius or shadow (UX-1). Each finding starts with the `UX-<n>` it breaks (`UX-61 — transition: all`). The orchestrator pastes the product type, the `ux-patterns` rules the screen touches and the `web-design-guidelines` rules into the design block |
 | **Risk** | grade High, or the unit hit the risk floor (auth, money, migration over live rows, secrets), or the diff has an insert-or-update or a conflict branch | does a conflict branch apply every rule of the main path or refuse? what does a hostile or unlucky caller get: missing authorization, non-idempotent retry, partial write, leaked field, race — and is each guard against a double action (lock, conditional update, unique or idempotency key) proven by a test of two overlapping calls on separate connections? A guard without one is a finding |
 | **Stack rules** | the packet's `STACK REVIEW RULES` is not `none` | does the diff keep each rule its stack skills hand the reviewer — what the linter cannot see (a cursor taken unchecked, a commit before the response, `MagicMock` for an `AsyncSession`, a generated migration)? A broken rule that changes behavior, data or security is a P1; one about form only is a P2 |
 
@@ -124,8 +124,8 @@ findings of both, the same `file:line` and problem kept once; the verdict is
 the stricter of the two — `STOP` over `RETURN_TO_EXECUTOR` over
 `FIX_THEN_COMMIT` over `COMMIT` — and `FIX_THEN_COMMIT` only when every
 blocking finding of both is mechanical. A finding one pass dismissed and the
-other raised stays raised, with the dismissal under **Dismissed** for the
-next round to settle.
+other raised stays raised, with the dismissing pass's details file named under
+**Dismissed** for the next round to settle.
 
 Give any other grade-0 or Low unit its own `review-medium` pass when the worker
 returned `DONE_WITH_CONCERNS`, or when Step 1 found a scope breach. Cheap grades earn
@@ -155,17 +155,12 @@ Severity, and what it does to the commit:
 | **P3** | nit | recorded, does **not** block |
 
 The test-evidence findings sit at P1 by definition, because the whole point of
-a per-unit gate is that a green suite is not proof:
-
-- a named scenario has no test, or has one that asserts nothing the scenario
-  names;
-- a test asserts what the implementation happens to do rather than what the
-  cited design says — the tell is an expected value that only makes sense if
-  you read the code first;
-- the report claims a red that the diff contradicts (the test file is not
-  there, or the assertion could not have failed against the previous tree);
-- an existing assertion was relaxed or deleted to make the unit pass, and the
-  report does not say the design changed.
+a per-unit gate is that a green suite is not proof. Their list — a missing or
+vacuous scenario test, an expected value written from the code, a red the diff
+contradicts, a relaxed assertion, a doubt missing from the worker's report, a
+loosened quality bar — lives only in `references/reviewer-prompt.md` → TEST
+CHECK, the reviewer's copy, so the two cannot drift; judge a reviewer's test
+finding against that list.
 
 Check the evidence strategy the packet named first: a `characterization-first`
 or `smoke` unit owes a baseline or a runtime check, not a failing assertion,
@@ -223,9 +218,11 @@ whether the executor could do the unit as specified.
 
 ## Report
 
-Compact, inline, no artifact files — this runs dozens of times.
+Compact and inline — this runs dozens of times. The one file is the
+reviewer's details file (`REVIEW DETAILS`); the review itself is not written
+to a file.
 Write findings in Russian. Keep the heading, column names, and verdict tokens
-exactly as below (`doc-versioning` → Document language).
+exactly as below (`doc-versioning` → `references/writing-rules.md` → Document language).
 
 ```markdown
 ### Ревью U<n> — <verdict>
@@ -233,8 +230,9 @@ exactly as below (`doc-versioning` → Document language).
 | # | Важность | Файл:строка | Аспект | Находка | Исправление | Цитата строки |
 |---|---|---|---|---|---|---|
 
-**Dismissed** — findings ruled out by design citation, later-unit ownership,
-or prior record, one line each with which rule applied.
+**Dismissed** — how many were ruled out, and the path of the reviewer's details
+file, which holds each with its rule (design citation, later-unit ownership,
+prior record) — the count and path its report's `DISMISSED` gives.
 **Not blocking** — P2/P3 for the run report.
 **OPEN** — cross-unit suspicions this unit cannot close (`work` copies
 them into Cross-unit watch; `code-review-full` resolves them). Omit the
@@ -255,7 +253,7 @@ A filled review, for calibration — match its density, not its domain:
 | 1 | P1 | `src/app/pay-order.ts:31` | Invariant placement | запрет повторной оплаты проверяется в use case, а domain §4 отдаёт его `Order.pay()` | убрать проверку статуса, пробрасывать `IllegalTransition` из `Order.pay()` | `if (order.status === 'Paid') throw new ConflictError()` |
 | 2 | P1 | `src/app/pay-order.test.ts` | Test adequacy | сценарий повторной оплаты без теста | написать тест по сценарию | `заказ Paid → PayOrder → IllegalTransition, 409 ORDER_ALREADY_PAID (covers BR-3)` |
 
-**Dismissed** — «нет ретрая при сбое шлюза»: scenarios/orders `PayOrder` решает не ретраить (правило 1).
+**Dismissed** — 1, `.git/pipeline-work/1.3.0/U6-review-medium.md`.
 **Not blocking** — P2 `src/app/pay-order.ts:12`: `ord` → `order`.
 **OPEN** — `PaymentGateway.charge` принимает `amountCents: number`, а U2 моделирует деньги как `Money`; сверить в `code-review-full`.
 **Lenses** — Spec fidelity: clean. Test adequacy: #2 (use case несёт поведение). Invariant placement: #1 (unit исполняет BR-3). Contract: clean (маппинг ошибки в 409).

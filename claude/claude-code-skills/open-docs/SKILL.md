@@ -14,29 +14,25 @@ first document, kept fresh after). This command only shows it.
 
 From the project's root:
 
-1. **Wait for a rebuild in flight**, so the page is not a version behind:
-   `python3 "${CLAUDE_SKILL_DIR}/../docs-site/scripts/rebuild.py" . --wait`.
-2. **No site yet** (`documentation/_web-docs/index.html` missing): build it through the rebuild queue, never
-   `build_site.py` beside it (`docs-site` → step 1) —
-   `python3 "${CLAUDE_SKILL_DIR}/../docs-site/scripts/rebuild.py" . --api --force`, then
-   `python3 "${CLAUDE_SKILL_DIR}/../docs-site/scripts/rebuild.py" . --wait`. Say in one line that it was built now and
-   goes into git with the next documents' commit. No `documentation/` at all: say there
-   is nothing to show yet and stop. **A site another plugin version built** —
-   `documentation/_web-docs/assets/plugin-version.txt` missing, or not what
-   `python3 "${CLAUDE_SKILL_DIR}/../docs-site/scripts/build_site.py" --plugin-version` prints: rebuild it the same way (`rebuild.py . --api
-   --force`, then `--wait`) and say in one line that it was rebuilt for plugin <version> — a new plugin's site
-   features (a back button, a new page) appear only after a rebuild.
-3. **Serve and open**: `python3 "${CLAUDE_SKILL_DIR}/../docs-site/scripts/site_server.py"` prints
+1. **Wait, and build or rebuild when needed**:
+   `python3 "${CLAUDE_SKILL_DIR}/../docs-site/scripts/rebuild.py" . --if-outdated`. It waits for a rebuild in
+   flight, so the page is not a version behind; builds a missing site and rebuilds one another plugin version built
+   (its new features — a back button, a new page — appear only after a rebuild), both through the rebuild queue,
+   never `build_site.py` beside it (`docs-site` → step 1). Its one line says which — «собран сейчас», «пересобран
+   для плагина <version>» or «актуален»; give it to the user when the site was built or rebuilt, and that it goes
+   into git with the next documents' commit. Exit 1 (no `documentation/` at all): say there is nothing to show yet
+   and stop.
+2. **Serve and open**: `python3 "${CLAUDE_SKILL_DIR}/../docs-site/scripts/site_server.py"` prints
    `http://127.0.0.1:<port>/index.html` and reuses a server already running for this site. Open that address in
    the built-in browser yourself — the built-in browser shows a page given as a file without its menu and
-   search, so never open the file — and give the address as a link in the chat: the user's one click back. The
-   server forbids caching, so a page already open shows the current site on its next load.
-4. Without a built-in browser (a terminal): open the file in the user's own browser yourself — `open
+   search, so never open the file, and never point at it in the file tree, which shows the HTML source — and give
+   the address as a link in the chat: the user's one click back. The server forbids caching, so a page already open shows the current site on its next load.
+3. Without a built-in browser (a terminal): open the file in the user's own browser yourself — `open
    documentation/_web-docs/index.html` on macOS, `xdg-open documentation/_web-docs/index.html` on Linux (`uname`
    tells which) — and give its full path as the link; where neither command exists, the full path alone. Any
    ordinary browser shows the file whole.
 
-Answer in one line: the link, and «собран сейчас» when step 2 ran. Nothing else — no report, no checks; those
+Answer in one line: the link, and step 1's line when it built or rebuilt the site. Nothing else — no report, no checks; those
 are `docs-site`.
 
 ## Stop

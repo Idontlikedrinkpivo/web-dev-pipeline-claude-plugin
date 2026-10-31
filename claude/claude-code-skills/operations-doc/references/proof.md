@@ -35,6 +35,13 @@ document is committed, and a test keeps the queries true afterwards.
 
 ## The query test
 
+Do not write it from this prose: copy the reference test and adapt only the
+lines it marks `ADAPT` (the path to the repo root, the schema the document
+names, the database connection) — `assets/test_operations_queries.py` for
+a Python backend (pytest), `assets/operations-queries.test.ts` for a
+TypeScript one (vitest and the `postgres` driver). Both do what follows,
+and the shape checks run without a database too.
+
 A test in the project's own suite, beside `deploy-topology`'s sync test,
 that reads `documentation/operations/operations.md`, takes every ` ```sql `
 block and asks the test database to prepare it without running it — for

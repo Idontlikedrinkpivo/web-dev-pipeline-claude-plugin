@@ -1,16 +1,37 @@
 # Images: what each container's image holds and how they are handed over
 
-Read this at Step 2 and Step 8. The rules reproduce a reference build the
-owner accepted: an SPA frontend on unprivileged nginx and a Node backend,
-handed over as one tar. Match it; do not "improve" it with extra labels or
-ports. The additions are the ones the owner asked for: the tag carries the
-app version and the build date, nginx's upload size and timeouts come from
-the SRS NFRs, the backend image carries the SQL migrations from
-`documentation/db/migrations/` (the reference copied a code-tree folder,
-`src/db/migrations`; migrations no longer live in the code tree), and —
-for a Kubernetes platform's preflight — a numeric non-root `USER`, a root
-filesystem the process never writes, healthchecks through the image's own
-runtime, and a variant without a shell when the project chose one.
+Read this at Step 2 and Step 8. The images are an SPA frontend on unprivileged nginx and a backend in
+its runtime, handed over as one tar. Match the shapes below; do not add labels or ports they do not have —
+each extra one is a fact the operators must check and nobody asked for. What every image holds, and why:
+
+- **An unprivileged process with a numeric `USER`** — a Kubernetes platform's preflight (`runAsNonRoot`)
+  can verify only a number.
+- **A root filesystem the process never writes** — the test and prod files run it `read_only`, as a
+  restricted namespace does.
+- **Pinned bases, checked against the registry** — a remembered or floating tag builds a different image
+  tomorrow.
+- **Healthchecks through the image's own runtime** — no `wget`/`curl` to install, and a shell-less image
+  has none.
+- **The SQL migrations at their repository path** — the backend image carries
+  `documentation/db/migrations/`, the one place migrations live, not a copy in the code tree.
+- **A tag with the app version and the build date**, nginx's upload size and timeouts from the SRS NFRs,
+  and a variant without a shell when the project chose one.
+
+Contents:
+
+- Which images
+- Shell or no shell — asked once per project
+- Checking a tag
+- A vulnerable base (Step 8.5)
+- Backend image — with a shell (TypeScript)
+- Backend image — with a shell (Python)
+- Backend image — without a shell
+- Healthchecks through the runtime
+- Frontend image — the reference (SPA)
+- Frontend image — without a shell
+- Version, date, tag
+- Architecture
+- Hand-over: one tar and the release folder
 
 ## Which images
 

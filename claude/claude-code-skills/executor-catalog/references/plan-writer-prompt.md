@@ -5,10 +5,11 @@ packet does not exist for it.
 
 The orchestrator fills every slot from
 `executor-catalog/references/plan-complexity.md` and the `plan` skill.
-The writer follows the **Writer** half of that skill, not the Orchestrator
-half. Documents go by path, every part of each; only what is on no disk
-is pasted — the code inventory, the user's answers (`executor-catalog` →
-Dispatch contract → Paths, not pasted documents).
+The writer follows the **Writer** half of that skill,
+`plan/references/writer.md`, not the Orchestrator steps of
+`plan/SKILL.md`. Documents go by path, every part of each; only what is
+on no disk is pasted — the code inventory, the user's answers
+(`executor-catalog` → Dispatch contract → Paths, not pasted documents).
 
 ## The packet
 
@@ -25,11 +26,11 @@ the typist's prompt. Writing OUTPUT PATH yourself is a failed print.
 
 SKILLS ROOT     <absolute folder holding the plugin's skills
                 (executor-catalog → Dispatch contract)>
-SKILL           <SKILLS ROOT>/plan/SKILL.md
-                Follow the Writer half, `plan/references/complexity.md`,
-                and `plan/references/modes.md` for MODE. Skip the
-                Orchestrator half. Do not run plan-review or pipeline.
-                Do not commit.
+SKILL           <SKILLS ROOT>/plan/references/writer.md
+                Follow it, `plan/references/complexity.md`, and
+                `plan/references/modes.md` for MODE; `plan/SKILL.md` only
+                for its Modes and Inputs tables — skip its Orchestrator
+                steps. Do not run plan-review or pipeline. Do not commit.
 
 COMPLEXITY      Low | Mid | High  (<greenfield / increment: why the plan
                  cascade fired; fix: the fix-plan grade; revise: the

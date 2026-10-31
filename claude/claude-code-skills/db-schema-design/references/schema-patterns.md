@@ -39,3 +39,26 @@ attributes jsonb NOT NULL DEFAULT '{}'   -- ✅ optional, schema-less metadata
 
 Never use JSONB for a field the SRS names (email, status, price) — those
 are columns.
+
+## Foreign keys in SQL
+
+Read when the slice has a many-to-many (a junction table) or you want the shape of a one-to-many: each
+reference a real `FOREIGN KEY` with its `ON DELETE` and an index on the FK column.
+
+```sql
+-- One-to-many
+CREATE TABLE orders (
+    id         bigint GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+    user_id    bigint NOT NULL REFERENCES users(id) ON DELETE CASCADE
+);
+CREATE INDEX idx_orders_user_id ON orders(user_id);
+
+-- Many-to-many (junction table)
+CREATE TABLE order_items (
+    id         bigint GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+    order_id   bigint NOT NULL REFERENCES orders(id) ON DELETE CASCADE,
+    product_id bigint NOT NULL REFERENCES products(id) ON DELETE RESTRICT,
+    quantity   int NOT NULL CHECK (quantity > 0),
+    UNIQUE (order_id, product_id)
+);
+```

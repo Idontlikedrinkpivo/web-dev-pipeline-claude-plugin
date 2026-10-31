@@ -13,10 +13,13 @@ Alembic) belongs to `fastapi-sqlalchemy`.
 
 ## Which layout governs — decide first
 
-- **An architecture document exists**: the layout is the foundation's §5 tree (`documentation/architecture/architecture.md`); entity and use-case file paths come from the headings of the domain model (`domain.md`) and the scenarios documents (`scenarios/<area>/<group>.md`). Routers are factories in `<area>/adapters/http/` — `build_<area>_router(<use cases>) -> APIRouter` — and `bootstrap/` constructs the use cases, calls the factories and includes the routers (clean-architecture-design, FastAPI row). A handler parses the request, calls one use case or query, and maps the result to the response schema; it holds no rule and builds no use case. `Depends` resolves only request-scoped things: the session (handed to a use-case factory from `bootstrap/` when the use case needs it) and the auth context.
-- **The level is Framework-first** (foundation §1 «Уровень»): no ports, use-case classes or mappers — a handler calls the one framework-free `domain/` module for the rules and the ORM directly; the contract, the error handlers and auth below hold unchanged.
-- **No architecture document, existing repo**: follow the repo's routers, modules and patterns for the change at hand; do not restructure the project or move code into new layers unasked. A new business rule goes into a function or class that imports neither FastAPI nor SQLAlchemy, not into the handler; say so in one line of the final answer.
-- **Contract**: paths, `operationId`, status codes, bodies, the error body, the validation status and its `code` and field list, JSON casing and the page shape come from `documentation/api/openapi.yaml` when it exists (`openapi-spec-generator` is their one source); this skill defines none of them. Change the spec first when the contract changes. Without a spec, keep the shapes the repo already returns.
+The cases (architecture document, Framework-first, existing repo) and the contract's authority are in
+`typescript/references/which-layout-governs.md`, shared by the backend and test skills of both stacks — read it
+first. FastAPI's placement in them:
+
+- **An architecture document exists**: routers are factories in `<area>/adapters/http/` — `build_<area>_router(<use cases>) -> APIRouter` — and `bootstrap/` constructs the use cases, calls the factories and includes the routers (clean-architecture-design, FastAPI row). A handler parses the request, calls one use case or query, and maps the result to the response schema; it holds no rule and builds no use case. `Depends` resolves only request-scoped things: the session (handed to a use-case factory from `bootstrap/` when the use case needs it) and the auth context.
+- **Framework-first**: a handler calls the `domain/` module and the ORM directly.
+- **Existing repo**: the repo's routers and modules; a new rule imports neither FastAPI nor SQLAlchemy.
 
 ## Use the `fastapi` CLI
 
@@ -86,7 +89,8 @@ reason to loosen the comparison.
 
 - uv for dependencies, Ruff for lint and format (enable its FastAPI rules), the type checker the quality gates name
   (`repo-scaffold/references/quality-gates.md`). Language rules: `python`.
-- Asyncer (`asyncify` / `syncify`) when mixing blocking and async code; prefer it over raw AnyIO or asyncio.
+- `asyncio.to_thread` for a blocking call that must run inside `async def` (Sync vs async above) — the one tool,
+  the same the conftest template uses, and no extra dependency.
 - HTTPX for outbound HTTP; prefer it over Requests.
 - SQLModel only if the user asks for it, and never beside an existing SQLAlchemy layer: that gives two model systems for one table.
 

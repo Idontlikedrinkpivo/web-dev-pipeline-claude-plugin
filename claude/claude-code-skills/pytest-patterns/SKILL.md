@@ -13,10 +13,14 @@ metadata:
 
 ## Which layout governs — decide first
 
-- **An architecture document exists**: tests follow its layers and the foundation's §6 test plan (`documentation/architecture/architecture.md`, one row per test file). Import from the foundation §5 package names and the paths the headings of the domain model (`domain.md`) and the scenarios documents (`scenarios/<area>/<group>.md`) give.
-- **The level is Framework-first** (foundation §1 «Уровень»): no ports, so no fakes and no mapper tests — the one `domain/` module gets plain unit tests, everything else is tested through HTTP against the real database.
-- **No architecture document, existing repo**: follow the repo's existing `tests/` layout, fixtures and naming for the change at hand; do not reorganise the suite unasked. With no tests yet, use the unit / integration split below with the repo's own module names.
-- **Expected statuses and bodies** come from `documentation/api/openapi.yaml` when it exists — the statuses, error `code`s, the validation answer, the casing and the page shape are the contract's, never typed from memory; otherwise from what the endpoint returns today.
+The cases (architecture document, Framework-first, existing repo) and the contract's authority over expected
+statuses and bodies are in `typescript/references/which-layout-governs.md`, shared by the backend and test skills of
+both stacks — read it first. The rules every test suite shares (mapper round-trip, race test, property test, grouping,
+mutants, no database reachable) are in `typescript/references/shared-test-rules.md`. pytest's placement in the cases:
+
+- **An architecture document exists**: tests follow its layers and the foundation's §6 test plan.
+- **Framework-first**: no ports, so no fakes and no mapper tests — the one `domain/` module gets plain unit tests, everything else is tested through HTTP against the real database.
+- **Existing repo**: its `tests/` layout, fixtures and naming; with no tests yet, the unit / integration split below with the repo's own module names.
 
 ## Test layout
 
@@ -39,11 +43,11 @@ tests/
 
 - **Entity tests** — one test per row of the domain model's invariant table (`domain.md` §4), named after the rule, asserting the named error, the resulting state or the derived value in the «Исход» column. No DB, no fakes needed.
 - **Use-case tests** — the use case built with in-memory fakes for every port it takes; assert what was saved, what was returned, which named error escaped. Never `MagicMock` / `AsyncMock` in place of a port.
-- **Mapper round-trip** — every field set to a non-default value, entity → record → entity equal, so a field added without its mapper line fails.
+- **Mapper round-trip** — shared rule 1, under `unit/<area>/persistence/`.
 - **Adapter tests** — the repository and query adapters against the real database: save and reload, filters, ordering, constraint violations mapped to the named error. With several tenants, one test proves tenant A never reads or writes B's rows.
 - **One end-to-end path** — at least one API test runs HTTP → use case → real repository for the primary action without overriding anything but the session, proving the `bootstrap/` wiring.
 - Name files `test_<module>.py`, classes `Test<Feature>` (no `__init__`), functions `test_<action>_<expected_outcome>`, fixtures as nouns (`db_session`, `authenticated_client`). A failure line should say what broke without opening the file.
-- Declare markers `unit`, `integration`, `slow` in `[tool.pytest.ini_options]` and run subsets with `-m`. Use `asyncio_mode = "auto"` so async tests need no per-test marker. With a session-scoped async engine also set `asyncio_default_test_loop_scope = "session"` and `asyncio_default_fixture_loop_scope = "session"` (pytest-asyncio 1.x runs each test in its own loop otherwise, and an unset fixture loop scope follows each fixture's own scope, so the engine breaks across loops); check the installed version. The test database gets its schema from the project's migration command (`alembic upgrade head` over the SQL files), never `create_all`: the CHECK constraints, the project schema and every object the files create take part, and a model that disagrees with the files fails here. `references/conftest-template.py` does it once per session.
+- Declare markers `unit`, `integration`, `slow` in `[tool.pytest.ini_options]` and run subsets with `-m`. Use `asyncio_mode = "auto"` so async tests need no per-test marker. With a session-scoped async engine also set `asyncio_default_test_loop_scope = "session"` and `asyncio_default_fixture_loop_scope = "session"` (pytest-asyncio 1.x runs each test in its own loop otherwise, and an unset fixture loop scope follows each fixture's own scope, so the engine breaks across loops); check the installed version. The test database gets its schema from the project's migration command (`alembic upgrade head` over the SQL files), never `create_all`: the CHECK constraints, the project schema and every object the files create take part, and a model that disagrees with the files fails here. `references/conftest-template.py` does it once per session. The one exception is a brownfield repo with no migration files at all: the template's commented `create_all` fallback stands in until the first migration file exists, and the report says so.
 - Put an autouse fixture that requests `db_session` only in `tests/integration/conftest.py`: autouse applies to every test under that directory, and at the root it would make each unit test connect to the database.
 
 ## Real database, not mocks
@@ -53,7 +57,7 @@ tests/
 - Mock only what leaves the process: HTTP APIs (`respx`), email/SMS, object storage, queues, time (`freezegun`), random/UUID. Do not mock the database, SQLAlchemy sessions, Pydantic validation, FastAPI dependency injection, or repositories in integration tests.
 - Never hand code a `MagicMock` / `AsyncMock` in place of an `AsyncSession`, in any test layer: it accepts every call, so a wrong query or a missing flush passes. Code that takes the session directly (a brownfield `service.py`, an adapter) is tested against the real database.
 - If the user explicitly requires SQLite (no Docker in CI), put the driver in the dev dependency group, check the SQLite item of `references/version-checks.md`, and say that these tests do not replace a PostgreSQL run.
-- **No PostgreSQL reachable here** (a sandbox without Docker): write the integration tests as they would run, run the unit tests, and report the integration run as owed — in a `work` packet a line in `CONCERNS` with the command to run. Never swap the database for SQLite or a mocked session to get a green run: that run proves nothing about the queries.
+- **No PostgreSQL reachable here**: shared rule 6 — the integration tests are written, the unit tests run, the integration run reported as owed.
 
 ## Fixtures
 
@@ -61,7 +65,7 @@ tests/
 - Auth: `auth_headers` / `admin_headers` sign a token with `sub=str(user.id)` for a persisted `sample_user` / `admin_user`; `authenticated_client` / `admin_client` are `client` with that header. A test states its role by the fixture it requests; plain `client` is how a 401 test proves an endpoint is protected.
 - Factories build storage records for adapter and API tests; entity tests construct entities directly. Leave primary keys to the database (a factory-assigned id does not advance the identity sequence, so the app's next insert collides). Use `.build()` in unit tests so they stay DB-free; in integration tests add or create through the session and `await db_session.flush()` yourself.
 - Do not `asyncio.gather` calls that share `db_session`: an `AsyncSession` is one transaction on one connection. A concurrency test needs one session per task, and that data is committed outside the per-test rollback, so clean it up explicitly.
-- A guard against a double action (a row lock, a conditional update, a unique key, an idempotency key) gets such a race test: `asyncio.gather` of two calls, each with its own session, then count the effect — exactly one refund, one row — and assert what the second caller got. Without it nothing shows that the lock is taken, or taken before the read it protects.
+- A guard against a double action gets the race test of shared rule 2: `asyncio.gather` of two calls, each with its own session.
 - Use pytest-asyncio as the only async test runner; do not also mark tests for the `anyio` plugin. One runner keeps one set of loop settings to reason about.
 
 ## API tests
@@ -99,12 +103,8 @@ error-path tests above, not by a percentage.
 
 ## Properties and mutants
 
-- An invariant over many values (a format, a range, a round trip, «whoever edits can see») gets a property test
-  with `hypothesis` beside its examples.
-- Group tests by behaviour, never by plan unit; shared fixtures live in `conftest.py`, never copied.
-- A surviving mutant named in a review finding points to the missing assertion: add one that fails on that mutant;
-  never change the mutated code or weaken a test to kill it. Mutation runs are `work`'s, at the run's close
-  (`work/references/health.md` → Mutation runs), never a unit's.
+Shared rules 3–5: a property test with `hypothesis`; tests grouped by behaviour, shared fixtures in `conftest.py`;
+a surviving mutant gets the assertion that kills it.
 
 ## The reviewer checks
 
@@ -114,8 +114,8 @@ error-path tests above, not by a percentage.
    then the `code` and the error content type.
 3. **A guard against a double action has a race test**: two calls through `asyncio.gather`, each with its own
    session, counting the effect.
-4. **The test schema comes from the migrations**, on PostgreSQL; no `create_all`, no SQLite stand-in unless the
-   user required it.
+4. **The test schema comes from the migrations**, on PostgreSQL; no `create_all` (unless the repo has no migration
+   files at all), no SQLite stand-in unless the user required it.
 5. **No autouse fixture at the root `conftest.py` that touches the database**; mutable data is never
    session-scoped.
 6. **A paged operation is tested past the first page**, the last page and a tampered cursor included.

@@ -9,19 +9,16 @@ description: >-
 
 ## Which layout applies
 
-- **An architecture document exists** (`clean-architecture-design`): follow its foundation §5 file tree.
-  Table definitions and records live in `adapters/persistence/`; the repository adapter implements
-  the port the use case owns and maps records to entities explicitly. The domain imports nothing
-  from `drizzle-orm`, HTTP, or validation libraries.
-- **The level is Framework-first** (foundation §1 «Уровень»): no ports, repository adapters or mappers — a
-  route or a small service queries the tables directly; the rules sit in the one framework-free `domain/`
-  module, which takes and returns plain values, never a record. Migrations, keyset pages, transactions,
-  driver-error classification and race tests below hold unchanged.
-- **No architecture document, existing repo:** follow the repo's layout (for example
-  `src/db/schema.ts`, `src/<feature>/<feature>.repository.ts`), its return types (rows or
-  entities), and its error classes for the change at hand. Do not restructure or introduce
-  mappers unasked. A new business rule still goes into a module that imports no Drizzle, Fastify,
-  or Zod, not into the repository or a route — say so in one line of the final answer.
+The cases (architecture document, Framework-first, existing repo) are in
+`typescript/references/which-layout-governs.md`, shared by the backend and test skills of both stacks — read it
+first. Drizzle's placement in them:
+
+- **An architecture document exists**: table definitions and records live in `adapters/persistence/`; the
+  repository adapter implements the port the use case owns and maps records to entities explicitly. The domain
+  imports nothing from `drizzle-orm`, HTTP, or validation libraries.
+- **Framework-first**: a route or a small service queries the tables directly.
+- **Existing repo**: its layout (for example `src/db/schema.ts`, `src/<feature>/<feature>.repository.ts`), its
+  return types (rows or entities) and its error classes; no mappers introduced unasked.
 
 ## Rules
 
@@ -37,16 +34,16 @@ description: >-
 3. **Mapping lives in the repository adapter.** A mapper module beside the repository has
    `toEntity(record)` and `toRecord(entity)`; the entity has no `fromRow` / `toRow` and never sees a
    record type. Reconstitute through the entity's restore factory, not its create factory, so
-   loading an old row does not re-run creation rules. One round-trip test per mapper: every field
-   set to a non-default value, entity → record → entity equal.
+   loading an old row does not re-run creation rules. One round-trip test per mapper
+   (`typescript/references/shared-test-rules.md` → 1).
 4. **A repository answers in domain terms.** It returns entities or read models, never records or
    HTTP bodies. "Not found" is `null` or a named error, as the port signature says. A constraint
    violation it can expect (duplicate email, dangling reference) becomes a named domain or
    application error; the HTTP status is mapped later by the error handler. It never throws an
    HTTP error class. Brownfield: reuse the error class the repo already throws for that case, but
    keep the classification in the repository or a db-error helper it calls, not in a route.
-5. **The database enforces what races, and a race test proves it** (`vitest`, house rule on guards against a
-   double action). A unique index, FK, or CHECK holds under concurrent writes; an app-side "check,
+5. **The database enforces what races, and a race test proves it** (`typescript/references/shared-test-rules.md`
+   → 2, written by `vitest`). A unique index, FK, or CHECK holds under concurrent writes; an app-side "check,
    then insert" does not. Keep the pre-check if it gives a nicer error, and
    also classify the constraint violation, because two instances can pass the check together.
 6. **Classify driver errors by SQLSTATE read from the wrapped error** (walk the `cause` chain), not

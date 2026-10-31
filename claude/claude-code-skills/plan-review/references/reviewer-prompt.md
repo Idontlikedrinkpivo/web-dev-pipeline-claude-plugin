@@ -165,7 +165,8 @@ Every citation finding names the document and the id that did not resolve.
     when they are equal, no bump unit is needed, and a fix plan adds none.
   Plan hygiene — U-ids unique and unrenumbered, no progress state (status:,
     checkboxes, "done"), repo-relative paths, version pins present, Open
-    Questions blocking named units rather than absorbed as guesses.
+    Questions blocking named units rather than absorbed as guesses; the plan
+    body has no open-questions section of its own.
 ```
 
 ## Judgment lenses — `plan-review-hard`

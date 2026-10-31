@@ -6,7 +6,7 @@
 > agree with it; native-platform (iOS, Android, visionOS) and WCAG AAA rules
 > were removed — see `VENDORED.md`.
 
-Load this file for a UI review pass or when you need every rule of a category. Most rules also appear, with their rationale and code, in `data/ux-guidelines.csv` (`--domain ux`); this file is a static index for scanning without a search.
+This file is a search index — load it when you need every rule of a category at once. It is not a review checklist: frames are reviewed by `ux-patterns`, code by `web-design-guidelines`. Most rules also appear, with their rationale and code, in `data/ux-guidelines.csv` (`--domain ux`); this file is a static index for scanning without a search.
 
 ## Quick Reference
 

@@ -18,9 +18,11 @@ original licence; `VENDORED.md` lists every change against the original.
 | `ui-design`, step «Визуальное направление» | `--design-system`; `--domain color`, `typography`, `google-fonts`, `style`, `landing` | two or three directions (palette, fonts, style, density) for the user to choose from; landing patterns when the SRS has a public page; suggested effects as proposals |
 | `figma-opus` (`MODE direction`, `MODE draw`), `figma-sonnet` (`MODE restyle`) | the chosen direction as the packet states it | style tiles; the token set; rebinding existing frames |
 
-Used directly, it also gives implementation notes for a stack (`--stack
-react`, `nextjs`, `shadcn`, `html-tailwind`; `--domain react`) and the short
-form of every rule with its `UX-n` (`references/quick-reference.md`).
+Rules for front-end code are not here: `react` and `frontend` own them,
+`web-design-guidelines` the UI-code rules. The stack notes (`--stack`,
+`--domain react`) are a secondary index — search them only for a detail
+those skills lack. `references/quick-reference.md` is the short form of
+every rule with its `UX-n`, a search index, not a review checklist.
 
 **A choice made here is not yet the project's.** Asked straight for a
 palette, a typeface or a style («подбери палитру», «какой шрифт»), give the
@@ -51,8 +53,8 @@ Choose the smallest mode that fits:
 1. **A product-wide visual direction** → `--design-system`.
 2. **One concern** (a palette, a font, a chart, a UX question) → one
    explicit `--domain`.
-3. **Implementation in a known stack** → `--stack`; a design question in
-   the same task is a separate `--domain` search.
+3. **A stack detail `react` or `frontend` lacks** → `--stack`; a design
+   question in the same task is a separate `--domain` search.
 
 Build each query around one intent, in 2–5 meaningful English terms (the
 data is in English, so Russian words match nothing) with one useful

@@ -48,15 +48,20 @@ session dispatches the typist only for a print defect (step 4).
    Follow the catalog dispatch contract: `subagent_type` is `dev-pipeline:<row>`
    and the call passes no `model` (the agent file holds it) unless the
    user named one. A missing agent or a rejected alias is a stop.
-4. Inspect the files on disk. A DBML table without a table-level `Note`,
-   or a column without `note:`, is a print defect: dispatch `doc-typist`
-   `MODE revise` with one `SETTLEMENT` line per missing note, its text
-   taken from the SRS (`executor-catalog` → Nesting), until none is
-   missing. A missing `documentation/db/diagrams/er.d2`, or a slice
+4. Inspect the files on disk. Run
+   `python3 "${CLAUDE_SKILL_DIR}/scripts/table_docs.py" . --check`: a
+   missing or name-echoing table `Note` or column `note:` is a print
+   defect — dispatch `doc-typist` `MODE revise` with one `SETTLEMENT` line
+   per line it prints, the text taken from the SRS (`executor-catalog` →
+   Nesting), until none is left. Its migration lines (§0's schema header)
+   send the writer back for a file this slice wrote; on an older, committed
+   file they go into the report only, since that file is frozen. Then run
+   `python3 "${CLAUDE_SKILL_DIR}/../doc-versioning/scripts/doc_check.py" . --only documentation/db/`:
+   each `migrations` line (a file the main branch has, changed or deleted;
+   `migration:` behind the newest file) sends the writer back — that change
+   is a new file. A missing `documentation/db/diagrams/er.d2`, or a slice
    whose tables have no new file in `documentation/db/migrations/` (not in
-   `MODE as-is`: no migration is written there), sends the writer back. A diff that edits a migration file already committed
-   (`git diff HEAD -- documentation/db/migrations/`) sends the writer
-   back: that change is a new file.
+   `MODE as-is`: no migration is written there), sends the writer back.
    When that `.d2` exists and the `.svg` does not, run the render command
    in `references/er-diagram.md` once. Do not edit the `.d2`. Then
    regenerate the table documents (Output, item 3):
@@ -208,10 +213,10 @@ CREATE TABLE tbl_usr_prof (...);
 
 ### Primary Keys
 
-| Strategy | When |
+| Column | On which tables |
 |---|---|
-| `bigint GENERATED ALWAYS AS IDENTITY` | Internal tables, FK join targets never exposed in an API |
-| `uuid` (v7 by default; v4 when the SRS says creation time must not leak) | Any ID that appears in the API contract (matches the OpenAPI step) |
+| `id bigint GENERATED ALWAYS AS IDENTITY` — the primary key and every FK's target | Every table, always |
+| `public_id uuid NOT NULL UNIQUE` (v7 by default; v4 when the SRS says creation time must not leak) — the id the API shows | Added to every table whose rows appear in the API contract |
 
 ```sql
 CREATE TABLE orders (
@@ -262,23 +267,8 @@ Every reference is a real `FOREIGN KEY` with an explicit `ON DELETE`
 is an orphan waiting to happen. In DBML it is a standalone `Ref: … [delete:
 …]` line: an inline `ref:` cannot carry the action.
 
-```sql
--- One-to-many
-CREATE TABLE orders (
-    id         bigint GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
-    user_id    bigint NOT NULL REFERENCES users(id) ON DELETE CASCADE
-);
-CREATE INDEX idx_orders_user_id ON orders(user_id);
-
--- Many-to-many (junction table)
-CREATE TABLE order_items (
-    id         bigint GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
-    order_id   bigint NOT NULL REFERENCES orders(id) ON DELETE CASCADE,
-    product_id bigint NOT NULL REFERENCES products(id) ON DELETE RESTRICT,
-    quantity   int NOT NULL CHECK (quantity > 0),
-    UNIQUE (order_id, product_id)
-);
-```
+`references/schema-patterns.md` → Foreign keys in SQL holds a one-to-many and a junction-table example;
+read it when the slice has a many-to-many.
 
 | `ON DELETE` | When |
 |---|---|
@@ -397,7 +387,19 @@ Emit all four, and make sure they agree. The DBML and the ER live in
 `documentation/db/schema.md` and `documentation/db/diagrams/`; the SQL
 lives only in migration files — the document has no SQL block:
 
-1. **DBML** — table definitions with relationships. **Comments are mandatory, not optional.** Every table has a table-level `Note` that says why the table exists (the entity or use-case state it stores). Every column has a `note:` that says what the attribute is. **The first sentence of a column note is its description for readers** — plain, whole on its own, ids at its end; the table documents show only it, so details (which trigger sets it, why there is no index) come after. A table `Note` opens with one or two such sentences — what a row is — before any detail. A Note that only repeats the identifier (`orders` → "orders", `id` → "id") does not count. Notes come from the SRS — do not invent a purpose the inputs did not decide. A Note says what the data means, never how a screen shows it, and no column exists only to drive a widget or a layout (a menu order, a colour, an icon) unless the SRS requires it as data (`doc-versioning` → What, not how it looks).
+1. **DBML** — table definitions with relationships, each table and column with its note, because the table documents
+   and every later stage read the meaning from these notes:
+   - **Every table has a table-level `Note`** that opens with one or two plain sentences on what a row is — the entity
+     or use-case state it stores — before any detail.
+   - **Every column has a `note:`** whose first sentence is its description for readers — plain, whole on its own, ids
+     at its end — because the table documents show only that sentence; details (which trigger sets it, why there is no
+     index) come after it.
+   - **No note that echoes the name** (`orders` → "orders", `id` → "id") — it tells the reader nothing and counts as
+     missing.
+   - **Notes come from the SRS** — do not invent a purpose the inputs did not decide.
+   - **No UI data** — a note says what the data means, never how a screen shows it, and no column exists only to drive
+     a widget or a layout (a menu order, a colour, an icon) unless the SRS requires it as data (`doc-versioning` →
+     `references/writing-rules.md` → What, not how it looks).
 
 ```dbml
 Table holds {
@@ -484,7 +486,7 @@ and outputs — the API-contract step reads directly off these names.
 - [ ] Every SQL-expressible rule is a constraint; every other rule has none — §4
 - [ ] `## Закрытые наборы значений` for every closed-set column — §5
 - [ ] No raw secret column — §6
-- [ ] Every table and column has a note that says more than its name; DBML, migration SQL, and ER agree; names match the SRS — Output
+- [ ] Every table and column has a note that says more than its name (`table_docs.py --check` prints no line); DBML, migration SQL, and ER agree; names match the SRS — Output
 - [ ] Every named `CHECK` has a `COMMENT ON CONSTRAINT` sentence in its migration — Output
 - [ ] Each column note opens with a plain sentence a reader understands alone; `documentation/db/tables/` regenerated (`table_docs.py`) and matches the DBML — Output
 

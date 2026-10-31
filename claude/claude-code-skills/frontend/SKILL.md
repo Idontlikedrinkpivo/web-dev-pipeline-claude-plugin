@@ -124,21 +124,14 @@ the project is used as is, whether or not it meets the criterion.
    letting the browser fall back to a system font, because a fallback changes every text width and weight on
    the screen.
 8. **Behaviour follows `ux-patterns`** (load it; the variant from the
-   frames register's **Тип продукта**) where the spec and the frame leave the
-   mechanics open: validation on blur and again on submit, the error
-   clears once fixed, the error summary takes focus after a failed submit
-   and values are kept [UX-20, UX-22]; Save stays enabled and shows the
-   errors [UX-14]; a running request shows progress on its control and
-   ignores repeat presses [UX-15]; skeletons by the response thresholds,
-   data stays visible on refresh [UX-25, UX-26]; toasts only for success,
-   errors never auto-dismiss [UX-27]; URL holds filters, tab and page
-   [UX-32]; unsaved changes are guarded [UX-35]; dialogs per WAI-ARIA
-   [UX-34]. B2C adds Core Web Vitals budgets and the consent rules
-   [UX-48, UX-53, UX-54]. Section 8 of `ux-patterns` holds for every
-   screen: layout, performance, touch, `Intl` [UX-74 – UX-77]; Section 9
-   for every text the code adds, such as an `aria-label` [UX-78, UX-79].
-   A test that pins one of these names the rule id. Where the screen spec
-   records an «Исключение UX-<n>», build what it says — it was reviewed.
+   frames register's **Тип продукта**) wherever the spec and the frame
+   leave the mechanics open: sections 2–6 for actions, forms, feedback,
+   navigation, dialogs and data states, section 7 on B2C, section 8 for
+   every screen, section 9 for every text the code adds, such as an
+   `aria-label`. The rules are not restated here, because a copy drifts
+   when `ux-patterns` renumbers or rewrites one. A test that pins one of
+   them names the rule id. Where the screen spec records an «Исключение
+   UX-<n>», build what it says — it was reviewed.
 9. **Texts** come from the frame's «Тексты» table (as quoted in the screen
    spec) and live where the project keeps UI strings (i18n catalog keyed by
    `S-n`, or a per-feature messages module); tests assert them verbatim. A
@@ -162,36 +155,24 @@ API and tests are tied to them, so a guess in code silently forks the
 design. Inside `work`: report `BLOCKED` with the gap. Outside `work`: name
 the gap and the stage, write no code for it.
 
-**Called directly, outside `work`** — a change asked for in the chat
-between runs. It gets what a plan unit gets before it is committed or
-merged: a review of the diff (`/code-review`) and the tests it touches run
-on the branch — the component tests and the user test cases of its screen
-(`ui-test-cases`) when the suite exists. The report ends with one line
-«Ревью: … · тесты: …», and a skipped one is named there with why. Without
-this, chat fixes reached commit and push with neither, four times in one
-evening of a real project. In a project the pipeline built (it has
-`documentation/`), the order is `work` → A change asked in chat outside a
-run (`work/references/chat-change.md`): an executor writes the change and
-`code-review-unit` reviews it — follow that instead of `/code-review`.
+**Called directly, outside `work`.** In a project the pipeline built (it
+has `documentation/`), a change asked in the chat goes through `work` → A
+change asked in chat outside a run (`work/references/chat-change.md`).
+Outside a pipeline project (no `documentation/`), the change still gets
+what a plan unit gets: a review of the diff (`/code-review`) and the tests
+it touches run on the branch — the component tests and its screen's user
+test cases (`ui-test-cases`) when the suite exists — and the report ends with one line «Ревью: …
+· тесты: …», a skipped one named with why — chat fixes once reached commit
+and push with neither, four times in one evening.
 
 ## Accessibility baseline
 
-Target from the frames register header (default WCAG 2.2 AA). Semantic elements first
-(`button`, `a`, `form`, `label`, headings in order, `dialog` with a labelled
-title); every input has a visible label; every action works from the keyboard
-in a logical focus order; focus is visible and trapped inside an open modal
-and restored on close; a control the frame shows as an icon only carries the
-action's name from the spec as its accessible name; colours and contrast come from the design tokens, not ad-hoc values.
-Tests query by role and accessible name, so the suite checks this too.
-**Contrast is checked, not assumed.** Every colour pair the screen uses —
-text on its background in each variant and state, and each control's
-boundary (outline borders, input borders, focus ring) — meets 4.5:1 for text
-and 3:1 for boundaries and large text. Kit defaults do not always: in stock
-shadcn/ui the light destructive variant and neutral outline borders fall
-below it. When the frame overrides a library style to pass (its annotation
-or a value that differs from the kit), implement the frame's value in the
-project's theme or variant, not as a one-off class; when the frame does not
-and a pair fails, fix it the same way and name it in the report.
+The target comes from the frames register header (default WCAG 2.2 AA); the
+semantics, keyboard and focus rules are `web-design-guidelines`, contrast is
+`ux-patterns` UX-7. Contrast is checked, not assumed: a colour pair that
+fails — a kit default (`references/version-checks.md` → UI kit defaults) or a
+frame's override of one — is fixed in the project's theme or variant, never
+as a one-off class, and named in the report.
 
 ## Verification
 

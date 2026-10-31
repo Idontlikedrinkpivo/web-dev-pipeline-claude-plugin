@@ -29,18 +29,19 @@ only for a print defect (step 4).
    One question per message (`pipeline/references/question-format.md`);
    each answer goes into the packet's ANSWERS.
    A single-file spec is split here, before dispatch (writers and the
-   typist do not commit): `npx --yes @redocly/cli split
-   documentation/api/openapi.yaml --outDir <tmp>`, its output moved into
-   `documentation/api/` in the layout of Step 8. The split changes no
-   operation, schema, version or changelog row: bundle the old file and
-   the new root (`npx --yes @redocly/cli bundle … -o …`) and compare —
-   they must match. Without Node or the network, split by hand into the
-   same layout — each path item and each component moved into its file
-   and replaced in the root by its `$ref`, nothing else touched — and say
-   in the close that the bundle comparison did not run. Commit the move
-   on its own («docs: OpenAPI разложен по файлам»); it is a move, not a
-   version event, and the change that follows is committed by the stamp
-   when the stage closes.
+   typist do not commit): run
+   `python3 "${CLAUDE_SKILL_DIR}/scripts/split_spec.py" .` — it splits with
+   redocly into the layout of Step 8, bundles the old file and the new
+   root, and moves the files in only when the two bundles match, since the
+   split must change no operation, schema, version or changelog row. Exit
+   0: commit the move on its own («docs: OpenAPI разложен по файлам»); it is
+   a move, not a version event, and the change that follows is committed by
+   the stamp when the stage closes. Exit 1: the bundles differ — show the
+   lines it printed and stop. Exit 3 (no Node or network): split by hand
+   into the same layout — each path item and each component moved into its
+   file and replaced in the root by its `$ref`, nothing else touched — say
+   in the close that the bundle comparison did not run, and commit the same
+   way.
 3. Read `executor-catalog` and
    `executor-catalog/references/design-complexity.md`. Dispatch
    exactly one writer with
@@ -94,7 +95,7 @@ fact once, in plain sentences; why an error comes lives in that response; how th
 architecture: `references/descriptions.md`. They say what a field or
 an operation means, never how a client shows it: no «для выпадающего
 списка», «показывается в модалке», colour or icon fields the SRS does not
-require as data (`doc-versioning` → What, not how it looks).
+require as data (`doc-versioning` → `references/writing-rules.md` → What, not how it looks).
 
 ## Workflow
 
@@ -371,9 +372,9 @@ changes stored data in a transaction; `500` always. `409` appears only as
 a named use-case error: a uniqueness clash is the use case's named error,
 never a bare 409.
 
-**This file is the one source** for the error body, the validation status,
+**`documentation/api/openapi.yaml` is the one source** for the error body, the validation status,
 the casing, and the page shape. Stack skills (`typescript-fastify`,
-`fastapi`, test skills) implement what `documentation/api/openapi.yaml` says and do not
+`fastapi`, test skills) implement what it says and do not
 define their own. A code the operation
 cannot return misleads `screen-spec` and every generated client.
 

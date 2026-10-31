@@ -87,7 +87,8 @@ result goes into the chat in a line.
 5. **Keep it true with a test** — `references/proof.md` → The query test: a
    test in the project's suite that prepares every SQL block of the
    document against the test database, so a renamed column fails the build,
-   not the operator at night.
+   not the operator at night. Copy it from `assets/` (pytest or vitest) and
+   adapt the lines marked `ADAPT`; do not rebuild it from the prose.
 6. **Hand it over.** When `release/<version>/` exists, copy the document
    there as `OPERATIONS.md`; `scripts/build-images.sh` copies it on every
    rebuild (`deploy-topology` → Step 8). When the folder does not exist

@@ -1,6 +1,6 @@
 # A filled unit
 
-Read at Step 4, for calibration: match its density, not its domain.
+Read at writer Step 4 (`writer.md`), for calibration: match its density, not its domain.
 
 ```markdown
 ### U4. Добавить переход заказа Draft → Paid

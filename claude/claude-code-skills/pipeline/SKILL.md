@@ -27,14 +27,11 @@ architecture change»). A working note to yourself is not printed.
 
 ## Parent session and nested sessions
 
-In Claude Desktop the session the user opens is the iteration's **parent**: it runs no stage itself, opens
-each stage in a **nested session** with a fresh context (`mcp__ccd_session__start_session`, often deferred —
-load it with ToolSearch first), and opens the next one when a nested session reports its stage closed or
-handed over. A session whose first message names a parent is a nested one: it runs its stage and, on the
-user's answer to the transition question, opens the next stage's nested session itself (the app lets a
-session open one only in a turn the user began) and reports to the parent. For the turns without the user,
-the parent keeps a reserve of waiting sessions, opened in the user's turns and woken by message. Without that tool the
-session runs the stages itself. All of it: `references/parent-session.md`.
+In Claude Desktop the session the user opens is the iteration's **parent**: it runs no stage itself and opens
+each stage in a **nested session** with a fresh context, while a session whose first message names a parent is
+a nested one and runs its stage. Read `references/parent-session.md` before the first step — which one you are,
+the session tool and how to load it, the reserve, and the app's rule on who may open a session; without that
+tool the session runs the stages itself.
 
 ## Two kinds of transition
 
@@ -147,31 +144,22 @@ One number, `MAJOR.MINOR.PATCH`, names the release: the manifest's
 `version`, the folder `documentation/plans/<version>/`, the branch
 `iteration/<version>`, and the tag `v<version>` that closes the iteration.
 MAJOR is the owner's call on a big new capability; MINOR and PATCH are
-computed from the iteration's typed changes. Levels, the re-check in
-`plan`, `plans/` out of git and the API's own version:
-`references/service-version.md` — read it when a stage opens an iteration.
+computed from the iteration's typed changes.
 
 **The iteration opens at its first stage that commits anything or writes
 into `plans/`** (`brainstorm` on its document, else usually `srs-writer`);
-an open `plans/<version>/` (no `summary.md`) is the current iteration and
-every later stage reuses it. So is an iteration branch with no tag and no
-folder here — a fresh clone, or work another person pushed —
-`scripts/where_am_i.py` names it, and `open_iteration.py <version>` only
-switches to it and creates the folder: no number is proposed. Opening it: the number (greenfield `0.1.0`
-unasked, otherwise proposed with its level and one question), then
-`python3 "${CLAUDE_SKILL_DIR}/scripts/open_iteration.py" <version>` — it
-updates `main`, creates or switches to `iteration/<version>`, creates the
-folder and keeps `plans/` out of git. Its exit 2 or 3 is a question for
-the user (an earlier iteration not merged, another one open, no git
-repository yet), never something to work around. Then, for a product with screens, the one question who runs
-the design (`references/design-owner.md`).
+an open `plans/<version>/` (no `summary.md`), or an iteration branch
+`scripts/where_am_i.py` names, is the current iteration, and every later
+stage reuses it. Read `references/service-version.md` before opening one:
+it owns the steps — the number and its question,
+`python3 "${CLAUDE_SKILL_DIR}/scripts/open_iteration.py" <version>` and its
+exits, who runs the design — and the levels, the re-check in `plan`,
+`plans/` out of git and the API's own version.
 
 **One branch per iteration.** Every stage of the iteration, by everyone who
 works on it (`references/team.md`), commits on `iteration/<version>`;
-nothing is committed to `main` during the iteration. Only that branch is
-pushed — by the plugin itself once a document of the stages before `work`
-is final (its reviews and their fixes done), by the user for the rest — and `main` receives the iteration
-once, when the user merges it on GitHub.
+nothing is committed to `main` during the iteration. What is pushed, when and
+by whom: "Commit each document as soon as it is written".
 
 ## End of the pipeline
 
@@ -206,25 +194,15 @@ stage that ran last hands over to this section; it does not end the sitting itse
 Its shape, where each number comes from, and the two tables the user fills:
 `references/summary.md`.
 
-No skill in this pipeline opens a PR or merges on its own. It pushes only
-the iteration's branch, and only finished documents of the stages before
-`work` — after their reviews and fixes (`scripts/push_branch.py`) — so that
-people working on the branch see each other's documents once they are final. The code of `work`, the tag and the
-iteration's close are pushed by the user, who reviews the whole result first;
-the user merges the branch into `main` on GitHub.
-
 ## Where am I
 
 When asked «где я», «что дальше» or «на чём остановились» with no stage just
 closed in this sitting — a fresh session, after a compaction, `continue` —
 read the state before answering; memory of an earlier session is not
 evidence. Run `python3 "${CLAUDE_SKILL_DIR}/scripts/where_am_i.py"` from the
-project's root and answer from its output, by `references/where-am-i.md`:
-two open iterations are a question first; a `resume.md` is read first and
-its run continued; a progress file with unfinished rows is a stage not
-done; a stale document's stage comes before the next one; unrun gates are
-options, never the only way forward. Ask the answer as one transition
-("Asking before a transition"); do not list every remaining stage.
+project's root and answer from its output by `references/where-am-i.md` →
+The answer, which owns the order of the open points. Ask the answer as one
+transition ("Asking before a transition"); do not list every remaining stage.
 
 ## Increments
 
@@ -310,7 +288,12 @@ from `upgrade-docs` is born complete: `docs: <документ> <version> — к
 есть`, its stamp). A document of several
 files (the schema with its migration, the API's parts) is one commit; each
 architecture document, screen spec and test-case section is its own. Gate
-fixes are committed as they land. The stamp (`doc-versioning` →
+fixes are committed as they land. When the project has
+`documentation/_web-docs/`, every commit that carries documents first waits
+for the site's rebuild —
+`python3 "${CLAUDE_SKILL_DIR}/../docs-site/scripts/rebuild.py" . --wait` —
+and stages `documentation/_web-docs` with them, so each commit holds the site
+of its own documents (`docs-site` → Built at the first document). The stamp (`doc-versioning` →
 `references/version-birth.md`; the frames register and test cases plainly)
 follows at the stage's close — once its gates ran or were skipped, or when
 the user stops at a gate's or transition's question (the stop line names
@@ -326,13 +309,18 @@ passes before the stamp commit (its lines are fixed first); only then run
 after the stamp, all its documents at once (the architecture's three too); a
 changed decision is final at its own commit;
 `docs-consistency`, when its fixes are committed. Drafts stay committed on
-this machine until then. Only the stages before `work` push this way. The
+this machine until then, so people on the branch see each other's documents
+once they are final. Only the stages before `work` push this way; the code of
+`work`, the tag and the iteration's close are pushed by the user, who reviews
+the whole result first, and the user merges the branch into `main` on GitHub
+— no skill opens a PR or merges. The
 script pushes `iteration/<version>` to `origin` when the project has one,
 after taking the others' commits (`git pull --rebase`); never `main`, never a
 tag, never `--force`. Its one line goes into the message. Exit 1 (no access,
 no network) is no stop — say it with the command it prints; exit 2 (the
 others' commits conflict with these) is a question to the user before
-anything else.
+anything else; exit 3 (a document the push carries fails `doc_check.py`;
+nothing was pushed) — fix the lines it prints, commit, and run it again.
 
 For a **gate**, three options, always these letters:
 
@@ -432,56 +420,15 @@ scan).
 
 ## References
 
-- `references/question-format.md` — how every question is shown and what
-  counts as an answer.
-- `references/service-version.md` — the number, opening an iteration
-  (`scripts/open_iteration.py`), the branch, the level re-check, `plans/`
-  out of git.
-- `references/where-am-i.md` — reading `scripts/where_am_i.py` and
-  building the answer.
+The references named above are read where the text names them. Three more,
+read when their case comes up:
+
 - `references/convergence.md` — fix-and-check cycles repeat until they
-  pass; what keeps a round cheap and when lack of progress stops it.
-- `references/gates.md` — why each gate sits on its stage and what its
-  question says about cost.
+  pass; what keeps a round cheap and when lack of progress stops it. Read
+  whenever a check sends work back.
 - `references/progress-files.md` — which stages keep a progress file in
   `plans/<version>/`, its shape, and the chat line `scripts/progress_link.py`
-  prints for it.
+  prints for it. Read before a stage that keeps one creates it.
 - `references/pause-and-resume.md` — the resume note a long run (`work`,
   `ui-test-cases` mode run, `security-audit`) keeps current, and what a
   session that picks up a stopped run reads first.
-- `references/decision-changes.md` — a decision changed after its stage
-  closed: the owner, the cascade, the commit, where it happens.
-- `references/team.md` — an iteration shared with other people: any stage of 1–9 handed over and picked up from
-  the branch.
-- `references/closing-cleanup.md` — the working files a closed iteration drops.
-- `references/context.md` — what a stage session lets into its context
-  (short reports, checks summarised, long output in files) and when it
-  hands over to a fresh session (over 300,000 tokens at a safe boundary).
-- `references/unattended.md` — several iterations without the user: the
-  standing answers before the first, the child's «закрыта» message, checking
-  instead of answering from memory; a parent session that runs no stage and
-  opens nested sessions with a fresh context (`start_session`).
-- `reflect` (skill) — the plugin's own failures in the iteration's sessions.
-- `references/branch-order.md` — the order of the two branches after the
-  SRS, and both branches in one session.
-- `references/design-owner.md` — who runs the design, asked at the start.
-- `references/maintaining.md` — changing the order, a gate or a stage, and
-  the asymmetries that are on purpose.
-- `doc-versioning` (skill) — the increment/greenfield decision, the canonical
-  path per document type, the downstream verdict this file reads,
-  the unversioned business-requirements draft, and document language
-  (Russian prose, untranslated cited tokens).
-- `ui-design` (skill) — mockups straight from the SRS (stage 7) and the
-  frames register; `screen-spec` (skill) — one front-end spec per screen
-  from the frames and the API (stage 8).
-- `ui-test-cases` (skill) — user test cases from the screen specs (stage 9)
-  and their run through the interface after `work` (stage 13).
-- `security-audit` (skill) — the whole application's security (stage 14).
-- `ux-patterns` (skill) — the checkable UI/UX rules (`UX-<n>`, B2B/B2C
-  variants) and the completeness checklist that `ui-design`, the Figma
-  builders, `frontend` and the design lens apply; the product type comes
-  from the frames register.
-- `executor-catalog` (skill) — the same one-table discipline for models; every
-  gate that dispatches a subagent resolves it there and dispatches the row's
-  agent by name, with no `model` on the call. A dispatch on `general-purpose`
-  or with a typed `model` is a failed dispatch, same as a rejected alias.

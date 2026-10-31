@@ -181,11 +181,15 @@ def check_migrations(root: Path, ref: str | None, schema: "w.Doc | None", out: l
     folder = root / "documentation/db/migrations"
     if not folder.is_dir():
         return
-    if ref:
-        for line in git(root, "diff", "--name-status", ref, "--", "documentation/db/migrations").splitlines():
+    seen: set[str] = set()
+    # against the main branch (a released migration changed) and against HEAD (one committed earlier on this
+    # iteration's branch changed) — both are edits of a committed migration
+    for base in [b for b in (ref, "HEAD") if b]:
+        for line in git(root, "diff", "--name-status", base, "--", "documentation/db/migrations").splitlines():
             st, _, name = line.partition("\t")
-            if st[:1] in ("M", "D", "R"):
-                out.append(f"{name}: миграция из {ref} {'изменена' if st[0] == 'M' else 'удалена или переименована'} "
+            if st[:1] in ("M", "D", "R") and name not in seen:
+                seen.add(name)
+                out.append(f"{name}: миграция из {base} {'изменена' if st[0] == 'M' else 'удалена или переименована'} "
                            "— файлы миграций только добавляются (doc-versioning → Registry)")
     nums = sorted(int(m.group(1)) for f in folder.glob("*.sql") for m in [re.match(r"(\d+)_", f.name)] if m)
     mig = schema.meta.get("migration") if schema else None

@@ -15,21 +15,12 @@
 ## Pagination
 
 ### Cursor-based (recommended for large datasets)
+
+The page schema `ResourcePage` has one copy: `base-schemas.md` → Collection page. Here only its query
+parameters:
+
 ```yaml
 components:
-  schemas:
-    ResourcePage:            # the default page shape, same as base-schemas.md
-      type: object
-      required: [items, next_cursor]
-      properties:
-        items:
-          type: array
-          items: {}
-        next_cursor:
-          type: string
-          nullable: true
-          example: "eyJpZCI6MTAwfQ"
-
   parameters:
     CursorParam:
       name: cursor
