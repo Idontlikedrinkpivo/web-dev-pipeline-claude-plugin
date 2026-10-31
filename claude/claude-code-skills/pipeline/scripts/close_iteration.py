@@ -10,7 +10,8 @@ One line per step, ✅ done or ✗ what is missing, in order:
   2 site      documentation/ (the site included) has nothing uncommitted
   3 summary   documentation/plans/<version>/summary.md exists
   4 tag       v<version> exists — and points at a commit that has steps 1–3 in it
-  5 reflect   ~/.claude (or ~/.codex)/dev-pipeline-feedback/<project>.md mentions <version>
+  5 reflect   ~/.claude (or ~/.codex)/dev-pipeline-feedback/<project>.md has a section of <version> whose «Окно»
+              ends at or after the iteration's last commit (the tag's, else HEAD's) — a part of it does not count
   6 servers   no progress or documentation-site server of this project still running
 
 The first ✗ is the next thing to do; a later step that is ✅ while an earlier one is ✗ is reported as out of order.
@@ -21,6 +22,7 @@ from __future__ import annotations
 
 import os
 import re
+from datetime import datetime, timezone
 import subprocess
 import sys
 from pathlib import Path
@@ -76,10 +78,25 @@ def main() -> None:
     steps.append(("4 метка", tagged and not late, late or (f"нет метки v{version}" if not tagged else "")))
     feedback = [d / "dev-pipeline-feedback" / f"{root.name}.md" for d in
                 {Path.home() / ".claude", Path(os.environ.get("CODEX_HOME", Path.home() / ".codex"))}]
-    head = re.compile(rf"^#+ .*(?<![\d.]){re.escape(version)}(?![\d.])", re.M)   # a section of this version
-    reflected = any(f.exists() and head.search(f.read_text(encoding="utf-8", errors="replace")) for f in feedback)
-    steps.append(("5 reflect", reflected, "в разборе сессий нет раздела этой версии — запустите reflect"
-                  if not reflected else ""))
+    # a section of this version whose window («Окно: <start> — <end>», UTC) reaches the iteration's last commit:
+    # a part written mid-iteration («часть 1, до перезапуска») does not cover the rest — it once passed this step,
+    # and the close went on without reflect (ai-initiatives 2.2.0, 2026-10-31)
+    head = re.compile(rf"^## .*(?<![\d.]){re.escape(version)}(?![\d.]).*$", re.M)
+    _, last = git(root, "log", "-1", "--format=%ct", f"v{version}" if tagged else "HEAD")
+    last_utc = datetime.fromtimestamp(int(last), timezone.utc).strftime("%Y-%m-%d %H:%M") if last else ""
+    ends = []
+    for f in feedback:
+        text = f.read_text(encoding="utf-8", errors="replace") if f.exists() else ""
+        for m in head.finditer(text):
+            nxt = re.search(r"^## ", text[m.end():], re.M)
+            body = text[m.end(): m.end() + nxt.start()] if nxt else text[m.end():]
+            ends += re.findall(r"Окно: [\d\- :T]+ — (\d{4}-\d\d-\d\d[ T]\d\d:\d\d)", body)
+    newest = max((e.replace("T", " ") for e in ends), default="")
+    reflected = bool(newest) and newest >= last_utc[:15]   # ten-minute slack; a run after the tag ends later anyway
+    why = ("в разборе сессий нет раздела этой версии — запустите reflect" if not ends else
+           f"разбор этой версии кончается {newest} UTC, а итерация шла до {last_utc} — запустите reflect с этого места"
+           if not reflected else "")
+    steps.append(("5 reflect", reflected, why))
     running = [m for m in (folder / ".progress-server", root / "documentation" / "_web-docs" / ".site-server")
                if m.exists() and alive(m)]
     steps.append(("6 серверы", not running, "работают: " + ", ".join(str(m.parent.relative_to(root)) for m in running)
