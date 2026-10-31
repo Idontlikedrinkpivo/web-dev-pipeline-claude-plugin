@@ -1,5 +1,7 @@
 # Adding a change to changes.json
 
+For the plugin's maintainer, when cutting a release. A session upgrading a project does not read this file.
+
 Add a row when a release changes what files the pipeline already wrote in a project should look like: a new
 document or stage whose output older projects lack, a new section in a document, a new rule for existing text, a
 renamed folder, a generated artifact that must be rebuilt. Not for a change inside a skill that leaves the

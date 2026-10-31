@@ -31,7 +31,7 @@ The container, and any run the platform stops, starts through the production ent
 
 ### Parameters and dependencies
 
-- **`Annotated` everywhere.** Declare `Path`, `Query`, `Header`, `Body` and `Depends` inside `Annotated[...]`, not as default values: signatures stay callable outside FastAPI and the types stay honest.
+- **`Annotated` everywhere** — machine-checked (Ruff `FAST002`, `python` → The machine checks); the why: signatures stay callable outside FastAPI and the types stay honest.
 - **Dependency aliases.** Give each reusable dependency a type alias named as a noun without suffix — `DbSession = Annotated[AsyncSession, Depends(get_db)]`, `CurrentUser = Annotated[User, Depends(get_current_user)]`, `CurrentAdmin` — and use the alias in every signature, unless asked not to. Reuse the names the repo already has; the same names appear in `fastapi-sqlalchemy`.
 - **No class dependencies.** Do not pass a class to `Depends()`. Write a function dependency that takes the parameters and returns the instance (a dataclass is fine), so the request parameters are explicit. The one exception is FastAPI's own `OAuth2PasswordRequestForm` in the login route (`Annotated[OAuth2PasswordRequestForm, Depends()]`, `references/jwt-auth.md`): it is the framework's parser of the login form, and its fields are fixed by the OAuth2 spec.
 

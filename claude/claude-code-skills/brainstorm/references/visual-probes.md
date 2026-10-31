@@ -70,13 +70,13 @@ Label the artifact as directional. State what the user should judge and what the
 
 ## Display Helper
 
-Use the bundled display-only helper when the current platform can run a bundled skill script. Invoke it via the `SKILL_DIR` anchor: set `SKILL_DIR` to the absolute path of the directory containing the `brainstorm` `SKILL.md` you loaded (the Bash tool's cwd is the user's project, not the skill dir), and re-set it in the same command on each call since shell vars don't persist between Bash invocations. Do not resolve the helper from the user's project CWD.
+Use the bundled display-only helper when the current platform can run a bundled skill script. Invoke it via `SKILL_DIR="${CLAUDE_SKILL_DIR}"` — the brainstorm skill's folder, because the Bash tool's cwd is the user's project — and re-set it in the same command on each call, since shell vars don't persist between Bash invocations.
 
 Start (detached):
 
 ```bash
-SKILL_DIR="<absolute path of the brainstorm skill directory>";
-SCRATCH_ROOT="/tmp/brainstorm-$(id -u)";
+SKILL_DIR="${CLAUDE_SKILL_DIR}";
+SCRATCH_ROOT="${TMPDIR:-/tmp}"; SCRATCH_ROOT="${SCRATCH_ROOT%/}/brainstorm-$(id -u)";
 if [ -L "$SCRATCH_ROOT" ]; then echo "unsafe scratch root symlink: $SCRATCH_ROOT" >&2; exit 1; fi;
 (umask 077; mkdir -p "$SCRATCH_ROOT") || exit 1;
 if [ -L "$SCRATCH_ROOT" ] || [ ! -O "$SCRATCH_ROOT" ]; then echo "scratch root is not owned by the current user: $SCRATCH_ROOT" >&2; exit 1; fi;
@@ -88,8 +88,8 @@ node "$SKILL_DIR/scripts/visual-probe-server.mjs" start --root "$PROBE_DIR"
 Append `--foreground` to that `start` command for foreground mode. Status and stop take the same anchor — and because `SKILL_DIR` does not persist between Bash invocations, each must re-set it in its own call rather than reuse the `start` block's value:
 
 ```bash
-SKILL_DIR="<absolute path of the brainstorm skill directory>";
-SCRATCH_ROOT="/tmp/brainstorm-$(id -u)";
+SKILL_DIR="${CLAUDE_SKILL_DIR}";
+SCRATCH_ROOT="${TMPDIR:-/tmp}"; SCRATCH_ROOT="${SCRATCH_ROOT%/}/brainstorm-$(id -u)";
 if [ -L "$SCRATCH_ROOT" ]; then echo "unsafe scratch root symlink: $SCRATCH_ROOT" >&2; exit 1; fi;
 (umask 077; mkdir -p "$SCRATCH_ROOT") || exit 1;
 if [ -L "$SCRATCH_ROOT" ] || [ ! -O "$SCRATCH_ROOT" ]; then echo "scratch root is not owned by the current user: $SCRATCH_ROOT" >&2; exit 1; fi;

@@ -40,22 +40,20 @@ The dispatched writer settles the sitting's documents and nests
 `DELEGATED` is not `doc-typist` comes back until it is. The session does not
 dispatch the typist.
 
-1. **Gather inputs.** Stop without `documentation/requirements/srs/srs.md`;
-   when the product stores data, without `documentation/db/schema.md` (name
-   `db-schema-design`); when it has HTTP, without `openapi.yaml` (name
-   `openapi-spec-generator`) — one question: whether to run the named stage.
-   From `upgrade-docs` (`MODE as-is`, `upgrade-docs/references/as-is.md`)
-   the code stands in for a missing one. Screens are not an input: the architecture
-   places use cases, rules and ports, and none of those depends on how a
-   screen looks. When any of the three documents already exists, read
-   `doc-versioning`, every existing one and its diagrams (`.d2`, `.puml`),
-   and treat this as an increment — unless it is this iteration's
-   greenfield left open after its writer (no `version` yet, «этап не
-   закрыт»): it resumes as greenfield with only the documents not written
-   yet, the written ones as inputs. A `.d2` the user edited and asked to
-   apply: `references/architecture-diagram.md` (diagram → architecture) in
-   the foundation packet; a `.d2` and its document that disagree with no
-   word on which is newer: ask once.
+1. **Gather inputs.**
+   - Missing input: stop without `documentation/requirements/srs/srs.md`; when the product stores data, without
+     `documentation/db/schema.md` (name `db-schema-design`); when it has HTTP, without `openapi.yaml` (name
+     `openapi-spec-generator`) — one question: whether to run the named stage. Screens are not an input: the
+     architecture places use cases, rules and ports, and none of those depends on how a screen looks.
+   - As-is: from `upgrade-docs` (`MODE as-is`, `upgrade-docs/references/as-is.md`) the code stands in for a
+     missing document.
+   - Increment or resumed greenfield: when any of the three documents already exists, read `doc-versioning`,
+     every existing one and its diagrams (`.d2`, `.puml`), and treat this as an increment — unless it is this
+     iteration's greenfield left open after its writer (no `version` yet, «этап не закрыт»): it resumes as
+     greenfield with only the documents not written yet, the written ones as inputs.
+   - Edited `.d2`: one the user asked to apply goes into the foundation packet with
+     `references/architecture-diagram.md` (diagram → architecture); a `.d2` and its document that disagree
+     with no word on which is newer: ask once.
 2. **Pick the modes.** Greenfield runs all three in this stage, in
    order: `foundation` → `domain` → `scenarios:<area>` for every area
    the SRS groups name. An increment picks only the documents what
@@ -277,7 +275,7 @@ so a diff-only version leaves them reading half a design.
 Read `references/architecture-level.md`: the levels (Framework-first,
 Modest, Full), the triggers for each, and how the level is recorded.
 
-### Step 2b. Propose the stack — then write only what the user picked
+### Step 2b (orchestrator, in chat). Propose the stack — then write only what the user picked
 
 The tree, wiring and linter are stack-shaped, so the stack is never a
 silent default. A fact (a manifest, or named by the user / SRS) or the
@@ -300,7 +298,7 @@ depend on how a screen looks. «Клиент вне документа» leaves 
 screens and nowhere to put them.
 
 - **§1 Состав системы is tables, one fact per row.** «Решения по
-  безопасности» (always — eleven sub-items) and «Решения по NFR»:
+  безопасности» (always — all its sub-items) and «Решения по NFR»:
   `references/nfr-decisions.md`. «Ключевые решения» opens with
   «Уровень» and «Стек». Why: `plan`, `code-review-full`, and later
   increments each read one row here, so a fact left in prose reaches
@@ -440,10 +438,8 @@ and the domain model; this document cites both and restates neither.
 
 - **A heading or term outside the template.** Each document uses only
   the headings of its template. Anything else is either the writer's
-  working or a second copy of a fact another place owns. The user
-  rejected past documents for such headings and terms, so they stay
-  banned; the remembered examples are in `references/final-check.md` →
-  Banned headings and terms.
+  working or a second copy of a fact another place owns, so it stays out;
+  examples: `references/final-check.md` → Banned headings and terms.
 - **Anemic entity + fat service.** A `…Service` holds the rules while the
   entity holds fields. Move the behavior into the entity.
 - **Rules inside use cases.** A threshold, state, or count comparison in
@@ -477,7 +473,7 @@ Read each file at the step named; skip the rest.
 - `references/output-template-scenarios.md` — scenarios template, per-section rules, what makes a scenario key. Mode `scenarios`, before writing or editing.
 - `references/final-check.md` — the final checklist, by mode. Before you finish.
 - `references/increment.md` — which modes run and what changes when the documents exist (orchestrator step 2, Step 1b).
-- `references/nfr-decisions.md` — the eleven security sub-items; «Решения по NFR» (foundation §1).
+- `references/nfr-decisions.md` — the security sub-items; «Решения по NFR» (foundation §1).
 - `references/writing.md` — how every document reads: short cells, lists, one home per fact; `doc-versioning/scripts/facts_check.py` proves a rewrite kept its facts.
 - `references/stack-proposal.md` — constraints, cards, chat prompt, after the pick (Step 2b).
 - `references/rich-entities.md` — entity vs ORM model, invariants, value objects, when anemic is fine (mode `domain`).

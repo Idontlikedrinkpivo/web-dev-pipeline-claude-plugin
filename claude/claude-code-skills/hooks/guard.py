@@ -13,7 +13,8 @@ Refused:
   `iteration/<version>` (pipeline → One branch per iteration);
 - Bash `git commit` whose `Plan-Unit:` line is split from the next trailer by a blank line or another `-m` — git
   then drops it from the trailers and the unit reads as unmapped (run-hygiene → Commits);
-- Bash `sed -i` — BSD sed on macOS takes the next argument as the backup suffix and corrupts files; Edit instead;
+- Bash `sed -i` without a suffix argument (`sed -i ''` and `sed -i.bak` pass) — BSD sed on macOS takes the next
+  argument as the backup suffix and corrupts files; Edit instead;
 - Bash that writes a progress file (documentation/plans/…/progress*.md, test-run.md, security-audit.md) — the page
   is redrawn only after Edit/Write or by the progress scripts (pipeline → references/progress-files.md → How);
 - Bash `git stash`, `git reset --hard`, `git clean`, `git checkout -- .` / `git restore .` in the main working tree

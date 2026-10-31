@@ -43,7 +43,8 @@ this stage (`pipeline` → `references/team.md`): the version comes from the
 branch `iteration/<version>`, inputs arrive by `git pull --rebase`, only this
 stage's documents are written — each committed the moment it is finished
 and pushed by the plugin once final, at the stage's close (`pipeline` →
-Commit each document) — and the stage closes as usual, its stamp included. After the last stage this person took, the «готовы и запушены»
+Commit each document) — and the stage closes as usual, its stamp included.
+After the last stage this person took, the «готовы и запушены»
 line replaces the offer of a stage someone else has.
 
 ## Inputs
@@ -103,7 +104,7 @@ The sections, in order (template in `references/template.md`):
    (параметры)»: when the screen calls what, in the order the front makes
    the calls. When a call's input comes from an earlier call's response, its
    item names that earlier item and the field it takes: «2. После ответа 1 →
-   `getCourseProgram` (`program_id` из ответа 1)». A reload after a mutation
+   `getRoom` (`room_id` из ответа 1)». A reload after a mutation
    is not such a dependency. The list is Frontend ↔ API only: no services,
    databases or internal hops behind the API. A screen spec has no diagram;
    the numbered items carry the order.
@@ -166,8 +167,8 @@ An action that needs an operation the API lacks is written as
 ### What a file never contains
 
 - **A description of the look.** No colours, sizes, borders, icons or
-  positions in words. «Пройден: зелёная обводка, бейдж с галочкой» becomes
-  «вариант `Урок=Пройден` (12:340)». The frame and the variant name carry it.
+  positions in words. «Своя бронь: зелёная заливка, значок человека» becomes
+  «вариант `Слот=Своя` (16:781)». The frame and the variant name carry it.
 - **Wording that is not on the frame.** Every text in «» is copied verbatim
   from the frame: from the «Тексты» table on the screen's `S-n · Аннотация`
   frame, or — in a designer's file the register marks **Слои по действиям:
@@ -187,7 +188,7 @@ An action that needs an operation the API lacks is written as
   `BOOKING_STARTED` → `cancelBooking` `409`). A flow that maps to no
   declared status, or a status no flow explains, is a Разрыв.
 - **Backend internals.** No services behind the API, no SQL, no «бэкенд
-  объединяет прогресс с подпиской». The API is the boundary the front sees.
+  сверяет бронь с календарём переговорной». The API is the boundary the front sees.
 - **An implementation choice.** No library or component name («Sonner»,
   «MUI Dialog») and no timing the frame does not state: the stack and
   `ux-patterns` decide those; the spec names the outcome («сообщение об
@@ -196,9 +197,9 @@ An action that needs an operation the API lacks is written as
   ring, no «кнопка показывает загрузку» — `ux-patterns` holds those for every
   screen. Only a screen-specific departure is written, with its
   «Исключение UX-<n>» from the frame's annotation.
-- **A restated business rule.** «Урок доступен, если пройден предыдущий» is
+- **A restated business rule.** «Начавшуюся бронь отменить нельзя» is
   the SRS's; the spec cites `BR-4` and, when the API computes it, the field
-  (`is_available`). The front never recomputes a rule the API already
+  (`can_cancel`). The front never recomputes a rule the API already
   returns; when the API does not return it and computing it on the front
   would duplicate a business rule, that is a Разрыв (`API`).
 - **A column name.** A field path is from the API response, not the table.

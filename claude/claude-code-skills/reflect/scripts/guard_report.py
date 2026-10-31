@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 """What the plugin's command guard (hooks/guard.py) refused in a project, for reflect's «### Отказы хука».
 
-    python3 guard_report.py <project dir> [--since YYYY-MM-DD]
+    python3 guard_report.py <project dir> [--since YYYY-MM-DD[THH:MM]]
 
 Reads ~/.claude (or ~/.codex)/dev-pipeline-feedback/.guard/<project folder>.jsonl — one line per refusal, written by
 the hook — and prints a block to paste unchanged: the count per rule and, for each rule, up to three distinct

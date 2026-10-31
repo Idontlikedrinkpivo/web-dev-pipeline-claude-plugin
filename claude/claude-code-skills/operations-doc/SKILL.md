@@ -30,8 +30,10 @@ operationIds, event names, paths or ids.
 | The code | the event names the logger really writes, job schedules, metrics endpoints — the code wins over a document; a difference goes to the report |
 | `.claude/skills/verify/` | how to start the test stand for the proof |
 
-Missing SRS or schema: stop and name the stage that writes it. No storage:
-the journals section says so and the rest still applies.
+Missing SRS or schema: stop and name the stage that writes it. No test
+stand — neither a verify skill nor `deploy-topology`'s test compose: stop
+and name `deploy-topology`, because step 4 proves every query on a stand.
+No storage: the journals section says so and the rest still applies.
 
 ## Steps
 
@@ -72,13 +74,8 @@ result goes into the chat in a line.
    write the query, mark the row «только SQL — экрана нет», and list it in
    the report. Never invent a screen or an operation.
 3. **Write `documentation/operations/operations.md`** per
-   `references/template.md`: sections, row shapes, the rules for queries
-   (read-only, schema-qualified, bounded, numbered parameters, personal data
-   only where the task needs it) and for log filters (JSON lines on the
-   container's stdout, whatever collects them). Each row names what is
-   behind it (table, `file`, operationId) in its own column — the duty
-   developer's way in; the operator reads the rest. No requirement ids
-   (FR, NFR, BR, UC, actors, frames) — the facts themselves, screens by title.
+   `references/template.md`: its sections and row shapes, and its Rules —
+   queries, log filters, «Где в системе», no requirement ids.
 4. **Prove it on the test stand** per `references/proof.md`: start the stand
    (the verify skill's doctor first), make one record of each kind through
    the API or the UI, run every query and every command of the document,
@@ -93,7 +90,10 @@ result goes into the chat in a line.
    there as `OPERATIONS.md`; `scripts/build-images.sh` copies it on every
    rebuild (`deploy-topology` → Step 8). When the folder does not exist
    yet, say that the next build carries it.
-7. **Commit** the document and the test (`docs: эксплуатация`), then close
+7. **Commit** the document and the test on the iteration's branch
+   (`docs: эксплуатация`); when the project has a documentation site, wait
+   for its rebuild first (`docs-site` → `rebuild.py . --wait`) and stage
+   `documentation/_web-docs` too. Then close
    per `pipeline` → "Asking before a transition": the report first —
    the document as a link, a required record the system does not keep or
    keeps shorter than its basis first, how many records, jobs, events and alarms it

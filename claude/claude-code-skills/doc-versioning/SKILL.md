@@ -38,9 +38,16 @@ Before writing anything, look for the canonical document for this stage
 | Found | Mode | What the stage does |
 |---|---|---|
 | nothing | **greenfield** | the writer skill creates the file at `version: <iteration version>` — the open `plans/<version>/` folder's name, `0.1.0` on a new product — with one «первый выпуск» row typed «—». The gates that follow leave both alone |
-| a document for this system | **increment** | edit that file in place. Leave `version`, `updated`, and the changelog untouched — writer, grill, and review alike. Grill still sets `grilled:` and review sets `reviewed:` when its gate closes, except on an SRS, which has neither field. `doc-versioning` types the changes once, when the stamp runs: at the stage's close or on the user's request (`references/version-birth.md`). An unversioned row (Registry): edit in place, no rows, no version |
+| a document for this system | **increment** | edit that file in place, leaving `version`, `updated`, and the changelog untouched (below the table) |
 | a document for a *different* system in the same repo | greenfield for this system | monorepo: canonical path is per system, not per repo — each system has its own `documentation/` tree |
-| several candidates | **stop and ask** | never guess which one is canonical — picking wrong makes the real one stale invisibly. Follow `pipeline` → `references/question-format.md`: explain each file in the chat, one question, then stop |
+| several candidates | **stop and ask** | never guess which one is canonical — picking wrong makes the real one stale invisibly. Ask by `pipeline` → `references/question-format.md`, explaining each file |
+
+**In increment mode** the writer, the grill, and the review alike leave
+`version`, `updated`, and the changelog alone. Grill still sets `grilled:`
+and review sets `reviewed:` when its gate closes, except on an SRS, which has
+neither field. `doc-versioning` types the changes once, when the stamp runs:
+at the stage's close or on the user's request (`references/version-birth.md`).
+An unversioned row (Registry): edit in place, no rows, no version.
 
 Increment mode is the default in any repo with a `documentation/` tree. A
 stage that writes `documentation/requirements/billing-srs/` while
@@ -113,7 +120,7 @@ rows nobody decided.
 
 Everything under `documentation/plans/` — plan, plan review, progress, the
 stage reports and the summary — is out of git (`.gitignore`); see `pipeline` →
-Plans stay out of git. When an iteration closes, its folder keeps only
+`references/service-version.md` → Plans stay out of git. When an iteration closes, its folder keeps only
 `summary.md`; the rest is removed on the user's yes (`pipeline` →
 `references/closing-cleanup.md`).
 
@@ -266,8 +273,9 @@ sources:              # what this doc was built from, pinned by the source's ver
 **Pin field is `sources:` (plural), always, except on an SRS.** Every other
 writer emits it on a new document (`updated:` today, at least one pin or
 the literal `stated-directly`); versioned writers also emit
-`version: <iteration version>` with its «первый выпуск» row. An SRS emits
-`title`, `date`, `updated`, and `version` only. There is no `source:`
+`version: <iteration version>` with its «первый выпуск» row. An SRS's header
+is `title`, `date`, `updated`, and `version` only — no `status`, `grilled:`,
+`reviewed:`, or `sources`. There is no `source:`
 field; a document with only legacy `source:` is Origin `none` until someone
 migrates the key. `doc-review` treats a trailing `@<version>` (or a legacy
 `@vN`) as a pin, not part of the path. `documentation/api/openapi.yaml` has
@@ -277,9 +285,7 @@ no frontmatter: its pins are `info.x-sources`, beside `info.x-reviewed`.
 `references/exceptions.md` → DB schema.
 
 **`grilled:` records that the stage's exit gate closed.** Business
-requirements carry it. An SRS does not: its header is
-`title`, `date`, `updated`, and `version` only — no `status`, `grilled:`,
-`reviewed:`, or `sources`. Its value on the documents that have it is
+requirements carry it; an SRS does not (its header is above). Its value is
 the date the frontier emptied and the user confirmed the shared understanding.
 
 Two rules make the field worth having:
@@ -296,7 +302,7 @@ Every other document omits the field: those stages are gated by
 `doc-review` or `plan-review`, and an empty `grilled:` reads as a failed gate.
 
 **`reviewed:` records that `doc-review` closed** on the architecture
-documents, the screen specs, and the DB schema. An SRS does not carry it. OpenAPI has no frontmatter, so it
+documents, the screen specs, and the DB schema. OpenAPI has no frontmatter, so it
 carries `info.x-reviewed` instead. Without it a new session cannot tell a
 reviewed document from one whose review never ran. `doc-review` sets it to
 the day every finding was applied, waived, or parked by the user; a review
@@ -400,10 +406,9 @@ The changelog is only verifiable if the diff matches it.
   feature contradicts it.
 - **A contradiction is a product decision, not an edit.** When the new feature
   cannot coexist with an existing requirement, stop and ask the user which one
-  wins. Follow `pipeline` → `references/question-format.md`: the chat says what each
-  requirement means and what breaks if the other wins. One question, then
-  stop. The user answers by sending a message. Do not open a question
-  card. Then record it as a «ломает» row with the reason. Silently rewriting the old
+  wins — ask by `pipeline` → `references/question-format.md`, saying what each
+  requirement means and what breaks if the other wins. Then record it as a
+  «ломает» row with the reason. Silently rewriting the old
   requirement is the failure this whole convention exists to prevent.
 - **A live `operationId` is never broken silently.** When only the
   project's own client calls the API, a breaking change ships in any

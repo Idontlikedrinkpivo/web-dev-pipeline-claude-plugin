@@ -16,12 +16,11 @@ Dispatches specialist reviewers through `executor-catalog` (Phase 2),
 silently applies one-right-answer fixes, and asks what to do with
 everything else.
 
-**This is a pipeline gate the stage asks about.** The document stages offer
-it before they are done — SRS, DB schema, API contract, the architecture
-documents, the screen specs. On a yes,
+**This is a pipeline gate the stage asks about.** The document stages
+`pipeline` names offer it before they are done. On a yes,
 the stage is done when this review ran and its findings are applied or
 explicitly waived; on a skip, the stage says so in its report, the document
-stays as written, and the stage goes on to its next transition. The `pipeline` skill owns which stages those are; this file
+stays as written, and the stage goes on to its next transition. This file
 owns what happens once it starts. It is also run directly whenever the user asks to
 review, critique, or improve an existing document.
 
@@ -34,9 +33,9 @@ review, critique, or improve an existing document.
 - The user asks to improve, critique, or find gaps in a named file
 
 **NOT for:**
-- Exploring what to build — that is a separate requirements-writing step
+- Exploring what to build — that is `brainstorm`, then `srs-writer`
 - Interviewing the user to surface silent assumptions in something already
-  written — that is a separate grilling step
+  written — that is `grill-me`
 - Writing architecture, API, or database design from scratch
 - Reviewing an implementation plan — that is `plan-review`, whose lenses are
   commit atomicity, dependency graph, and grade calibration; no persona here
@@ -60,21 +59,21 @@ Non-interactive without a path: stop with
 
 1. **Explicit path** — read it. If unreadable, stop and name the path.
    Do not dispatch reviewers.
-2. **No path, interactive** — look under `<repo-root>/documentation/` for
-   the newest file of a reviewable type (`doc-versioning` → Registry):
+2. **No path, interactive** — under `<repo-root>/documentation/`, take the
+   most recently committed file of a reviewable type (`doc-versioning` →
+   Registry; `git log -1 --format=%cI -- <file>` per candidate):
    `requirements/srs/srs.md`,
    `requirements/business-requirements/business-requirements.md`,
    `architecture/architecture.md`, `architecture/domain.md`,
    `architecture/scenarios/<area>/<group>.md`, `ui/screen-specs/S-*.md`,
-   `db/schema.md`, or `api/openapi.yaml`. If several candidates exist, or
-   none do, ask which file to review. Do not invent a path.
+   `db/schema.md`, or `api/openapi.yaml`. Name it and ask the user to
+   confirm or name another; with none, ask which file to review. Do not
+   invent a path.
 3. **No path, non-interactive** — already handled in Phase 0.
 
 Resolve `<repo-root>` via `git rev-parse --show-toplevel`; fall back to cwd.
-The documents live only under `documentation/`: do
-not read another workflow's config or docs root (for example a
-compound-engineering config, or `docs/plans/`) — a file found there is
-not a pipeline document.
+The documents live only under `documentation/`; a file found elsewhere
+is not a pipeline document.
 
 ### Classify the document
 
@@ -132,7 +131,8 @@ the misses into Phase 3 and merge them with persona findings.
 `references/convention-checks.md` also says which misses may be fixed
 silently.
 
-A silent fix, or any other fix this review applies, edits the body only.
+A silent fix, or any other fix this review applies, edits the body only;
+the frontmatter is touched once, by Closing, which sets `reviewed:`.
 Leave `version`, `updated`, and the changelog exactly as they are, in every
 mode. A review is not a new version. A restamped `updated` makes the
 document look re-published when nothing was decided. Only `doc-versioning`
@@ -355,21 +355,6 @@ yourself after the report. Do not present a menu of other skills.
 
 ## References
 
-- `executor-catalog` (skill) — persona → executor → agent, and the
-  dispatch contract. This skill owns which personas fire; that file owns
-  who runs them.
-- `doc-versioning` (skill) — language, changelog table, change types
-  (ломает / добавляет / уточняет), and the parking lot. Convention checks copy that file; they do
-  not re-decide it.
-- `references/convention-checks.md` — the session's convention checks, each
-  row tagged with the skill that owns the rule. Read before dispatch.
-- `references/subagent-template.md` — the packet each persona receives.
-- `references/findings-format.md` — passed by path as `{format_path}`; the
-  labelled text every reviewer returns.
-- `references/synthesis.md` — merge, prior rounds, confidence gate, silent
-  `safe_auto`. Read after every reviewer returns.
-- `references/routing.md` — what to ask after the report (interactive),
-  Defer, and the re-review question. Read after the report is shown.
 - `references/personas/*.md` — one file per persona, passed by path as
   `{persona_path}` to the personas selected in "Select personas":
   - `references/personas/coherence-reviewer.md` — always

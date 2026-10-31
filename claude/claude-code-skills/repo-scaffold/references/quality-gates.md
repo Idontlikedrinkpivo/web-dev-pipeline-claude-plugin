@@ -48,9 +48,8 @@ The numbers are the defaults; foundation §6 may tighten them, never loosen them
   `return-await` (`in-try-catch`), `no-unnecessary-condition`; core `preserve-caught-error` with
   `requireCatchParameter: true` and `errorClassNames` listing the project's own error classes (by default it checks
   only the built-in `Error` types; a plain name assumes the options object is the constructor's second argument —
-  `typescript` → «Every named error is its own type»). `errorClassNames` exists from ESLint 10.7: older versions
-  refuse the option and the whole lint fails, which is why 10.7 is the floor — pin it with every plugin's peer range
-  checked. An existing repo that cannot leave an older ESLint configures the rule without the option, and the
+  `typescript` → «Every named error is its own type»). Whether the installed ESLint has `errorClassNames` is a version check (the plugin could not confirm the release that added it): run `npx eslint --print-config` on a file with the option set, and when it is unknown, keep `requireCatchParameter` alone and say so in the closing report.
+  An existing repo that cannot leave an older ESLint configures the rule without the option, and the
   reviewer checks the cause on the project's own classes;
   `no-restricted-syntax` against an empty error subclass, an empty `catch` block and `TSEnumDeclaration`; on the frontend
   `no-restricted-syntax` against a regex literal in components and `no-restricted-imports` / `no-restricted-globals`

@@ -16,11 +16,11 @@ executor invent the design it was supposed to follow.
 
 `plan` runs its own quality gate before closing. This skill is the independent
 pass over the result — the same relationship `code-review-unit` has to `work`.
+Self-checks catch what the author remembered to look for; this catches what the
+author's own framing hid.
 Write findings in Russian. Do not translate U-ids, executor names, file paths,
 verdict tokens, or the report's `Verdict:` line and headings (`doc-versioning`
 → `references/writing-rules.md` → Document language).
-Self-checks catch what the author remembered to look for; this catches what the
-author's own framing hid.
 
 ## Not this skill's job
 
@@ -137,9 +137,11 @@ parallel, because the two halves fail differently:
 | `plan-review-medium` | the structural lenses — dependency graph, parallel safety, files completeness, citation integrity, coverage, executor validity, existing work, service version, plan hygiene. These are checkable against the text, the tree and a search for the changed symbols, and they are where volume lives. |
 | `plan-review-hard` | the judgment lenses — commit atomicity, grade calibration, test-first writability. Deciding that a unit *cannot* land alone, or that a Low unit is really Mid, is the same kind of reasoning that graded it, so it needs a tier that can hold the cascade and argue with it. |
 
-First run `python3 "${CLAUDE_SKILL_DIR}/../plan/scripts/plan_lint.py" <plan>` and paste its lines into the
-structural packet's LINT: fields, executors, the dependency graph, parallel pairs sharing a file, model names,
-citations of missing ids — decided by code, so the reviewer starts from them instead of re-deriving them.
+Fill the structural packet's LINT with `plan_lint.py`'s lines: fields, executors, the dependency graph, parallel
+pairs sharing a file, model names, citations of missing ids — decided by code, so the reviewer starts from them
+instead of re-deriving them. When `plan` invoked this review, its Orchestrator step 7 already reached exit 0, so
+LINT is that run's warnings; when the user opened this review directly, run
+`python3 "${CLAUDE_SKILL_DIR}/../plan/scripts/plan_lint.py" <plan>` yourself first.
 Build both from `references/reviewer-prompt.md`. Each packet names its
 inputs by path and pastes only the ledger, which exists nowhere on disk
 (`executor-catalog` → Dispatch contract → Paths, not pasted documents);
@@ -276,14 +278,19 @@ a wrong grade shows up only as cost.
 
 ## Before you finish
 
-- Every lens produced a finding, an explicit clean line, or a stated reason it
-  has no surface in this plan — Step 2.
-- Every invariant row and AC from the ledger has a named unit or a P0 — Step 1.
-- Every `Документы` citation was resolved against the actual document — Step 2.
-- `Исполнитель` / `Вложенный` names were checked against the assignable list, not
-  the full catalog Name column — Step 2.
-- The version's level was checked against the iteration's typed changes,
-  and the bump unit is last — Step 2.
+The reviewers' reports show:
+
+- every lens with a finding, an explicit clean line, or a stated reason it
+  has no surface in this plan — Step 2;
+- every invariant row and AC from the ledger with a named unit or a P0 — Step 1;
+- every `Документы` citation resolved against the actual document — Step 2;
+- `Исполнитель` / `Вложенный` names checked against the assignable list, not
+  the full catalog Name column — Step 2;
+- the version's level checked against the iteration's typed changes,
+  and the bump unit last — Step 2.
+
+The session checks:
+
 - Exactly one verdict, no P0/P1 left unclassified; a design defect is `STOP`,
   not a finding — Steps 4–5.
 - The plan file is byte-identical to how the review found it — Step 5.

@@ -8,6 +8,16 @@ deliberately the opposite of narrow.
 
 ## The packet
 
+Its parts, in order, so a slot is found without reading the whole block:
+
+- **Inputs** — PLAN, DEFINITION OF DONE, THE FULL DIFF, DEFINITION-OF-DONE OUTPUT, DEAD-CODE REPORT, CODE
+  HEALTH, DESIGN DOCUMENTS, DECLARED NFR AND CONFIGURATION DECISIONS, DECLARED SECURITY REQUIREMENTS, RUN
+  REPORT, CROSS-UNIT WATCH, PRIOR FULL-PLAN FINDINGS.
+- **LENSES TO APPLY** — the cross-unit ones (Drift, Aggregate coverage, Wiring, Declared NFR and
+  configuration, Superseded code, Stale docs), then Security and Undeclared surface (the longest part), then
+  Code health and Cross-unit watch resolution.
+- **DO NOT REPORT**, **SEVERITY**.
+
 ```
 You review the full diff of a completed implementation plan, after every unit
 in scope has been committed. You do not edit, stage, or commit anything.

@@ -38,9 +38,10 @@ done
 open=${open# }
 [ -n "$open" ] || exit 0
 
+# keep in step with FILES in pipeline/scripts/progress_page.py (pipeline → references/progress-files.md)
 stage_of() {
   case "$1" in
-    progress.md) echo "work" ;;
+    progress.md|progress-mutation.md) echo "work" ;;
     progress-design.md) echo "ui-design" ;;
     progress-screen-specs.md) echo "screen-spec" ;;
     progress-test-cases.md) echo "ui-test-cases (write)" ;;

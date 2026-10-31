@@ -6,7 +6,8 @@ Use when the project already validates with Zod (`zod` in the manifest). Follow 
 - Declare Zod schemas in the route `schema` through the project's Zod type provider; do not
   call `safeParse` in handlers, because there must be one validation path and one error format.
 - Set the provider's validator and serializer compilers once, where the app is built, and reuse
-  them; never mix them with TypeBox/JSON Schema routes in the same route.
+  them; never mix them with TypeBox/JSON Schema routes in one app, because a second schema style is a second
+  validation path and error shape.
 - Translate the provider's validation errors in the existing global error handler into the
   contract's error body (SKILL.md, Errors); do not answer them from the route.
 - When the OpenAPI document is generated from the routes, wire the provider's schema transform

@@ -86,9 +86,11 @@ builder made to an option and carry them into the question.
 
 One question, per `grill-me` → "How a question is shown". Link each tile:
 `https://www.figma.com/design/<fileKey>/?node-id=<nodeId with - for :>`.
+`N` is the next number of the sitting: 2 after the entry question, 1 when
+it was not asked.
 
 ```text
-**Вопрос 2. Какое визуальное направление взять**
+**Вопрос N. Какое визуальное направление взять**
 
 Направление — общий вид всех экранов: цвета, шрифт, скругления и
 плотность. Его увидят на каждом макете, а потом в коде. Образцы — на

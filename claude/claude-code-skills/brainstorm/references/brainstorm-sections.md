@@ -63,8 +63,8 @@ Skip document creation when **both** hold:
 
 - The user only needs brief alignment — no exploration produced novel scope,
   framing, or decisions worth preserving in IDed shape.
-- Any durable decisions made during the dialogue can flow naturally to
-  downstream artifacts (the commit message) without a brainstorm doc as an intermediary.
+- Any durable decisions made during the dialogue can reach the SRS stage
+  (`srs-writer` reads them from the chat) without a brainstorm doc as an intermediary.
 
 The trigger for creating a doc is when the dialogue surfaced enough
 structural decisions, scope boundaries, or acceptance criteria that
@@ -367,9 +367,8 @@ fields, as YAML frontmatter at the top of the file.
   `@<version>` pin (this document has no version). Never a singular `source:` key.
 - **`grilled`** — ISO date the grill gate closed; omit until it has.
 
-Do **not** emit `version`. Do **not** emit a `## Журнал изменений` table. The
-business-requirements document is a working draft; the SRS is the first
-versioned contract (`doc-versioning`).
+No `version`, no `## Журнал изменений` table: the document is unversioned
+(SKILL.md → Artifact Root).
 
 ### No status field
 
@@ -398,10 +397,7 @@ these exact names and never repurposes one, because other stages and
 - **No process exhaust.** No "captured at Phase X" notes, no `## Next Steps`
   section, no italic provenance lines. Engineering process metadata belongs
   in commit messages and tool output, not the artifact.
-- **No implementation details by default.** Libraries, schemas, endpoints,
-  file layouts, code structure stay out unless the brainstorm itself is
-  inherently about a technical or architectural change and those details are
-  the subject of the decision.
+- **No implementation details by default** — SKILL.md → Core Principles 4.
 
 ## Discipline: Summary vs Problem Frame
 

@@ -41,7 +41,7 @@ states the rule; fix the document there, not here.
   table match it. The stack was already a fact, or the user picked it in
   chat — Step 2b. The DBMS row copies `schema.md` «Решения по базе» (name
   and major), never a second choice — `stack-proposal.md`.
-- The security table covers all eleven sub-items: a concrete decision,
+- The security table covers every sub-item of `nfr-decisions.md`: a concrete decision,
   or `Не применимо` with a reason naming the absent surface. Every NFR-ID
   is the `NFR-<n>` from the SRS named in `sources`. Schema and OpenAPI
   decisions are not reopened — `nfr-decisions.md`.

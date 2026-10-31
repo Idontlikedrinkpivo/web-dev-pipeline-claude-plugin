@@ -75,15 +75,15 @@ only for a print defect (step 4).
 
 ## Writer (dispatched)
 
-`MODE as-is` (`upgrade-docs/references/as-is.md` §5): paths, statuses and error bodies come from the code; Step 3's
-problem+json rule, Step 6's status list and `references/base-schemas.md` do not apply.
-
 You settle the contract. You do not print it. When every decision this
 template needs is settled, nest `doc-typist` per `executor-catalog` →
 Nesting, packet `executor-catalog/references/doc-typist-prompt.md`. A
 gap this skill calls BLOCKED returns before that dispatch. Read the
 file back. One correction dispatch, then the report. Do not type the
 correction, and do not paste the finished spec into the typist's prompt.
+
+`MODE as-is` (`upgrade-docs/references/as-is.md` §5): paths, statuses and error bodies come from the code; Step 3's
+problem+json rule, Step 6's status list and `references/base-schemas.md` do not apply.
 
 Translate already-decided use cases into an HTTP contract. The algorithm
 lives in the SRS use case. This skill only names the route, the
@@ -109,7 +109,8 @@ sends that gap back.
 runs before this skill, and its column names and types are the contract this
 spec must agree with — a schema written afterwards against an already-published
 spec has to either rename columns or carry a translation layer nobody asked
-for. If storage exists but no schema document does, say so and stop; the one
+for. If storage exists but no schema document does, return `STATUS BLOCKED`
+naming `db-schema-design`; the one
 exception is a storage-free surface (pure computation, proxy, webhook relay),
 where there is nothing to agree with.
 
@@ -118,7 +119,6 @@ answer and is not in the packet is STATUS BLOCKED with the question:
 
 | Question | Why it matters |
 |---|---|
-| What does this API do? | Sets `info.title`, `info.description`, tags |
 | Which use cases / queries are in scope? | One operation per use case or query |
 | Authentication type(s)? | `securitySchemes`. The SRS security NFR, or the answer in ANSWERS. What to emit — Step 4 |
 | Existing partial spec to extend? | Merge rather than overwrite |
@@ -188,7 +188,8 @@ on 3.1 with a blank page, while the file itself stays valid. Do not
 raise the version to make a 3.1 keyword available.
 
 `info.x-sources` is this file's `sources:` — YAML has no frontmatter, so
-the pins live in `info`, next to `info.x-reviewed`. Pin the SRS and, when
+the pins live in `info`, next to `info.x-reviewed` (set by `doc-review`; do not
+write it). Pin the SRS and, when
 the schema stage ran, the schema, each as `path@<version>` — the version
 it was built from. Without them nobody can see that the API went stale
 after an SRS or schema change. On an increment, move a pin only when this
@@ -267,7 +268,7 @@ contract.
 ### Step 3 — Schemas and Models
 
 - **Always use `$ref`** for any schema used in more than one place.
-- Include `example` or `examples` on every schema and response body.
+- Include `example` or `examples` on every request and response body.
 - Mark required fields with the `required` array.
 - Use `nullable: true` on a single `type` for a field that may be absent as JSON null. Do not use `type: [string, "null"]`: that is OpenAPI 3.1, and this spec is 3.0.
 - Prefer `format` keywords: `int32`, `int64`, `float`, `date`, `date-time`, `uuid`, `email`, `uri`, `byte`, `binary`.
@@ -357,7 +358,7 @@ Status vocabulary — pick per operation, never copy the whole table:
 | `401` | Missing or invalid auth |
 | `403` | Authenticated but not authorized |
 | `404` | Resource not found |
-| `409` | Conflict (duplicate, state mismatch) |
+| `409` | Only as a named use-case error (below) |
 | `422` | A body, query, or path field fails its schema (`code: VALIDATION_ERROR` with `errors`), or a named use-case error the SRS sets to 422 |
 | `429` | Rate limited |
 | `500` | Internal server error |
@@ -397,12 +398,10 @@ Before delivering the spec, verify:
 - [ ] Every operation has a unique camelCase `operationId` matching a use case or query — Step 1
 - [ ] Every operation has exactly the codes Step 6 derives: a success code, `500`, one response per use-case failure with the Step 1 status
 - [ ] Success bodies and field names match the use case and the schema's DBML — Step 1
-- [ ] All `$ref` targets exist in `components/`
-- [ ] `required` and at least one `example` on every body — Step 3
+- [ ] `required` and an `example` on every request and response body — Step 3
 - [ ] Security per Step 4; every `callbacks:` entry has a signature header
 - [ ] Tags defined at root level to match operation tags
-- [ ] No orphaned schemas (everything in `components/schemas` is referenced)
-- [ ] `redocly lint` (recommended) reports no `error`, or the close says why it could not run
+- [ ] `redocly lint` (recommended) reports no `error` (an unresolved `$ref` is one) and no `no-unused-components` warning (an orphaned schema), or the close says why it could not run
 
 ### Step 8 — Output
 

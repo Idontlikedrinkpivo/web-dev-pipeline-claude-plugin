@@ -180,24 +180,17 @@ vibe: `Файлы` count and ring spread, whether `Подход` still contains 
 decision, whether `Образец` names a precedent, whether `Тестовые сценарии` has
 error and integration rows, whether `Документы` fully specifies the outcome.
 
-**The risk floor is not the only route to High.** The cascade's compound gate
-(rule 2) exists for work that is hard without being dangerous: an open
-mechanism, a first-of-its-kind cross-ring shape, an outcome that needs time
-control or a second worker to prove. A plan whose only High units touch auth or
-money is usually a plan where that gate was skipped, and its hardest unit
-got the Mid packet («close local decisions») and one review pass instead
-of the High packet («design the missing part») with the adversarial
-review and its risk pass — the implementers share a model, the packet and
-the review are what the grade buys.
+**The risk floor is not the only route to High.** Run the compound gate
+(`references/complexity.md` → The cascade, rule 2) too — it routes work that is
+hard without being dangerous, and the grade buys the High packet and review.
 
 The two floors — risk (auth, authorization, money, migrations on existing data, secrets, a published contract)
 and spec (`Документы` that do not fully determine the outcome) — are `references/complexity.md` → The cascade,
 rules 1 and 4, worded only there so the two texts cannot drift; no file count argues either down.
 
 Put the deciding signal in `Почему` in under twelve words. If `Почему` reads
-"seems complex" or restates the goal, the cascade was not run. The same holds
-for the plan as a whole: every unit Mid, or every unit High, means Step 5 was
-skipped — grades that do not spread defeat the routing.
+"seems complex" or restates the goal, the cascade was not run. Then check the
+plan's spread — `references/complexity.md` → Sanity-check the distribution.
 
 ### Step 6. Assign executors from the assignable list
 

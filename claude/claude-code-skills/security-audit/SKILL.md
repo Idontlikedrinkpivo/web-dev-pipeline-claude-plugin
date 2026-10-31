@@ -32,7 +32,7 @@ names.
 | Deciding which security requirements exist | the SRS security checklist, the architecture's security decisions, `doc-review`'s security lens |
 | Scanning the built Docker images | `deploy-topology` Step 8, where the images exist |
 | Attacking a running server, load, fuzzing, infrastructure | outside this pipeline |
-| Code quality, dead code, debt | `code-review-full` per run |
+| Code quality, dead code, debt | `code-review-full` per run; across the whole code: `upgrade-code` → Code audit |
 
 ## Inputs
 
@@ -182,12 +182,8 @@ archive while this report holds one, unless the user says to build anyway
 
 ## Severity
 
-| | Meaning | Example |
-|---|---|---|
-| **P0** | exploitable from outside with no special access, data or accounts at stake | an operation returns any user's bookings by id; a live secret in the repo or its history; SQL injection |
-| **P1** | exploitable by a signed-in user beyond their role, or a declared security requirement not met | a resident can cancel another resident's booking; no rate limit where an NFR demands one; a known CVE reachable from the app's code |
-| **P2** | weakens defence, not exploitable alone | verbose errors with stack traces; a missing security header; a CVE in a dev-only dependency |
-| **P3** | hygiene | an outdated but unaffected dependency; a TODO about auth in a comment |
+P0 to P3 with examples: `references/auditor-prompt.md` → Severity — one copy, so the
+auditors and this session grade on the same scale.
 
 A finding the documents cause — two readings of who may do what, a missing
 rule — is owned by the document: it goes to the SRS or the architecture
@@ -205,6 +201,8 @@ decides.
 - `resume.md` is gone once the verdict line is written — Progress and report.
 - The report's first line is the verdict; every open P0/P1 has the user's
   choice — Step 5.
+- Every accepted risk is written into architecture §1 «Принятые риски» with
+  its reason and date — Step 5.
 
 ## References
 

@@ -8,8 +8,7 @@ description: >-
 # Reflect
 
 The plugin improves when what went wrong in real work reaches the people
-who maintain it. Until now that was a person copying chat fragments by
-hand; most of what went wrong was never copied. This skill reads the
+who maintain it. This skill reads the
 iteration's sessions and writes the plugin's failures down, with evidence,
 in one place the maintainer reads.
 
@@ -40,7 +39,8 @@ rules (check them — the session may have run an older version).
    iteration being closed is not the current branch's) prints the window's start as `--since <…>` — the
    iteration's first commit, or the end of the last «Окно» already in the feedback file when that is later (a
    part read before a restart, a run by hand mid-iteration), so no moment is read twice; exit 1 means neither a
-   branch nor a folder names the iteration: ask the user from which date. That `--since` goes into every command
+   branch nor a folder names the iteration: ask the user from which date (`YYYY-MM-DD`, or
+   `YYYY-MM-DDTHH:MM` for a time). That `--since` goes into every command
    below. List this project's sessions in it:
    `python3 "${CLAUDE_SKILL_DIR}/scripts/sessions.py" list "$PWD" --since <the window's start>`.
    Only this project's sessions — never another project's. The script finds
@@ -59,7 +59,7 @@ rules (check them — the session may have run an older version).
    — the user's typed messages, Claude's replies, the skills and agents
    run, and the compaction marks, in order; tool output is left out. Then
    the failed calls of the whole window, the agents' own logs included:
-   `python3 "${CLAUDE_SKILL_DIR}/scripts/sessions.py" errors "$PWD" <tmp>/errors.md --since <the same date>`
+   `python3 "${CLAUDE_SKILL_DIR}/scripts/sessions.py" errors "$PWD" <tmp>/errors.md --since <the same start>`
    (and the same `--also`) — an agent that fixed its own failed command
    never told the session, and a wrong flag or path a skill gave shows up
    only there.
@@ -78,7 +78,7 @@ rules (check them — the session may have run an older version).
    that already says the right thing is marked «уже в правилах с <version>,
    нарушено» rather than proposed again.
 5. **Measure.**
-   `python3 "${CLAUDE_SKILL_DIR}/scripts/measure.py" "$PWD" --since <the same date>` (and the same `--also`)
+   `python3 "${CLAUDE_SKILL_DIR}/scripts/measure.py" "$PWD" --since <the same start>` (and the same `--also`)
    plus `--progress documentation/plans/<version>/progress.md` for each iteration of the window — at the close
    the file is still there, and the script keeps its numbers outside the project for a later run after the
    cleanup — and `--units <previous tag>..HEAD` — what the iteration's sessions and agents spent, from Claude
@@ -87,7 +87,7 @@ rules (check them — the session may have run an older version).
    under «### Расход»: the maintainer tunes unit size, reviews and packets from these numbers, and a paraphrase
    loses them. A flag becomes a finding only when a skill caused it (a stage pasting whole documents, a
    session kept for days on a huge context).
-   Then `python3 "${CLAUDE_SKILL_DIR}/scripts/guard_report.py" "$PWD" --since <the same date>` — what the
+   Then `python3 "${CLAUDE_SKILL_DIR}/scripts/guard_report.py" "$PWD" --since <the same start>` — what the
    plugin's command guard (`hooks/guard.py`) refused, per rule with sample commands; its block goes under «###
    Отказы хука» unchanged. Read the samples: a refused command that was right is a finding on the hook (the rule
    is too wide); one rule firing again and again is a finding on the skill that keeps asking for that command.
@@ -130,3 +130,7 @@ runs per version, `measure.py --json` and `scripts/compare.py`.
 **Asked only what the iteration cost** («сколько стоила итерация», «куда ушли токены за итерацию»): run step 5
 alone, from the iteration's first commit or the date the user names, and answer with its tables and flags in plain
 words; nothing is written. What this one session spent is `explain-usage`, not this skill.
+
+**`scripts/context_size.py`** is not a step of this skill: it lives beside the other session readers, and
+`pipeline` → `references/context.md` and `work` → `references/run-hygiene.md` run it to measure a session's
+context.

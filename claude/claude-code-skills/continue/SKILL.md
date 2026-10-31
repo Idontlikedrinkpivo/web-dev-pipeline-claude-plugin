@@ -14,7 +14,8 @@ back at the right stage.
    evidence — never what an earlier session seemed to say. When it names an iteration open only by its branch
    («Итерация … открыта по ветке» — a fresh clone, or a colleague's pushed work), run the `open_iteration.py` command
    it prints and the script again: switching to that branch and creating the ignored `plans/` folder is part of
-   reading where the project is — nothing is committed — and the documents live on that branch.
+   reading where the project is, and the documents live on that branch. The only commit it can make is the
+   `.gitignore` line for `plans/` when that branch still lacks it; its output says so.
 2. Read the output by `pipeline` → `references/where-am-i.md` (`${CLAUDE_SKILL_DIR}/../pipeline/references/where-am-i.md`):
    it owns which open point comes first.
 3. Answer in plain Russian: where the project is, what is done, what is stale or waiting, and the next step — asked as

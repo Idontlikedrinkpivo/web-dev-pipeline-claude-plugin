@@ -183,6 +183,7 @@ headings and ids. The session does not read it.
   (writer Step 7).
 - `references/unit-example.md` — one filled unit, for calibration (writer
   Step 4).
+- `references/files-field.md` — the five cases of «Файлы» (writer Step 4).
 - `references/complexity.md` — the unit grading cascade, the six signals,
   the anti-inflation and anti-deflation gates, the split rule, and
   calibrated examples per grade. The writer runs this. The session does

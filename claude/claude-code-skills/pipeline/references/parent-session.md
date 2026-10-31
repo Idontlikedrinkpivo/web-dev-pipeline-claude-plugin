@@ -14,8 +14,8 @@ next one, and for the turns without the user the parent keeps a reserve of waiti
 own turns and woken by message later.
 
 **Which one am I.** A session whose first message names a parent («родительская сессия — …», «ты — подсессия») is a
-nested session: follow «The nested session» below. Any other session in a project with `documentation/` or
-`documentation/.dev-pipeline.json` is the parent — when the host can start sessions: Claude Desktop's
+nested session: follow «The nested session» below. Any other session in a project with `documentation/.dev-pipeline.json` or
+`documentation/plans/` (the session-start hook's test) is the parent — when the host can start sessions: Claude Desktop's
 `mcp__ccd_session__start_session`, often deferred (load it with ToolSearch `select:mcp__ccd_session__start_session`
 before deciding it is absent); the Codex app's equivalent is a separate chat, `mcp__codex_app__create_thread`
 (the Codex build's glossary maps the rest). Without such a tool (a terminal) there is no parent: the session runs

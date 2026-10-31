@@ -24,7 +24,7 @@ From the project's root:
    and stop.
 2. **Serve and open**: `python3 "${CLAUDE_SKILL_DIR}/../docs-site/scripts/site_server.py"` prints
    `http://127.0.0.1:<port>/index.html` and reuses a server already running for this site. Open that address in
-   the built-in browser yourself — the built-in browser shows a page given as a file without its menu and
+   the built-in browser yourself (its `preview_start` tool with `url`, or `navigate` when the pane is open) — the built-in browser shows a page given as a file without its menu and
    search, so never open the file, and never point at it in the file tree, which shows the HTML source — and give
    the address as a link in the chat: the user's one click back. The server forbids caching, so a page already open shows the current site on its next load.
 3. Without a built-in browser (a terminal): open the file in the user's own browser yourself — `open

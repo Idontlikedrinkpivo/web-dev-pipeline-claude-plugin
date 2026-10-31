@@ -5,7 +5,8 @@ the foundation writer before recording «Уровень».
 
 Every system this pipeline designs gets the same shape: rich entities in
 `domain/`, use cases in `application/`, frameworks in `adapters/`, the
-edge linted. **Modest is the floor**, plain CRUD included. Why: an agent
+edge linted. **Modest is the floor**, plain CRUD included; only a named
+throwaway prototype goes below it. Why: an agent
 copies the pattern it finds, so the same layers in every repository are
 worth more than the few files a framework-first CRUD saves; a CRUD
 entity at Modest is short (constructor checks, no service), not

@@ -12,7 +12,7 @@ description: >-
 Every browser task is the same loop: snapshot → ref → action → verify, repeated, then close.
 
 1. **Open.** `playwright-cli open <url>`. The browser lives in a background daemon between commands, so each later command acts on the same page.
-2. **Snapshot.** Read the snapshot the last command returned (the `[Snapshot](...)` file), or run `playwright-cli snapshot`. It is the page as a text accessibility tree with refs (`e15`): cheaper than a screenshot and where refs come from. On a large page run `find "<text>"` (if your build has it, see Version-sensitive behaviour), or `snapshot --depth=4` and then `snapshot <ref>`, instead of reading the whole tree (see Snapshots).
+2. **Snapshot.** Read the snapshot the last command returned (the `[Snapshot](...)` file), or run `playwright-cli snapshot`. It is the page as a text accessibility tree with refs (`e15`): cheaper than a screenshot and where refs come from. On a large page run `find "<text>"` (†: some releases only, see Version-sensitive behaviour), or `snapshot --depth=4` and then `snapshot <ref>`, instead of reading the whole tree (see Snapshots).
 3. **Ref.** Take the target's ref from the newest snapshot. A ref belongs to the snapshot it came from; after a navigation or re-render it may point at nothing or at another element.
 4. **Action.** Run one command per action (`fill e5 "..."`, `click e7`, `press Enter`), so the snapshot it returns shows the effect of that action alone.
 5. **Verify.** Check the expected change in the returned snapshot: URL, heading, message, field value. Use `find` or `eval` when it is not visible there. A command that exits cleanly only proves the event fired, not that the app reacted. If the check fails, read `console` and `requests` before retrying (see Example: Debugging with DevTools). If it passes, go back to step 2 for the next action.
@@ -58,7 +58,7 @@ playwright-cli check e12
 playwright-cli uncheck e12
 playwright-cli snapshot
 # search the snapshot instead of reading it all - see Snapshots below
-# (depends on the installed playwright-cli version - check --help)
+# (†)
 playwright-cli find "Sign in"
 playwright-cli eval "document.title"
 playwright-cli eval "el => el.textContent" e5
@@ -120,14 +120,14 @@ playwright-cli state-save playwright/.auth/user.json
 playwright-cli state-load playwright/.auth/user.json
 ```
 
-Cookies (`cookie-list/get/set/delete/clear`), `localstorage-*` and `sessionstorage-*`: read [references/storage-state.md](references/storage-state.md) when a task reads or seeds cookies or web storage.
+Cookies and web storage: Specific tasks → Storage state.
 
 ### Mouse, WebMCP, open parameters
 
 Read [references/more-commands.md](references/more-commands.md) when:
 - a ref or locator cannot target the element and you need raw `mousemove` / `mousedown` / `mousewheel`;
-- you need a specific browser, mobile emulation (`open --mobile` gives smaller, cheaper snapshots; depends on the installed playwright-cli version — check `--help`), a persistent profile, a config file, or to `attach` to an already running browser;
-- the page status says `N webmcp tools available on the page` — one page-provided tool call may replace a sequence of clicks (`webmcp-*` commands depend on the installed playwright-cli version — check `--help`).
+- you need a specific browser, mobile emulation (`open --mobile` † gives smaller, cheaper snapshots), a persistent profile, a config file, or to `attach` to an already running browser;
+- the page status says `N webmcp tools available on the page` — one page-provided tool call may replace a sequence of clicks (`webmcp-*` commands †).
 
 ### Network
 
@@ -160,7 +160,7 @@ playwright-cli video-chapter "Chapter Title" --description="Details" --duration=
 playwright-cli video-stop
 
 # annotate each subsequent action (click, type, ...) with a callout naming the action and highlighting the target
-# (depends on the installed playwright-cli version - check --help)
+# (†)
 playwright-cli video-show-actions --duration=600 --position=top-right
 playwright-cli video-hide-actions
 
@@ -198,18 +198,6 @@ For structured output wrapping every reply as JSON, pass --json
 playwright-cli list --json
 ```
 
-## URLs with `&` on Windows
-
-On Windows, `cmd.exe` and PowerShell treat `&` as a command separator, so URLs with multiple query parameters get truncated before `playwright-cli` runs. Escape `&` with `^&` in `cmd.exe`, or use `--%` in PowerShell:
-
-```batch
-playwright-cli goto "https://example.com/?a=1^&b=2"
-```
-
-```powershell
-playwright-cli --% goto "https://example.com/?a=1&b=2"
-```
-
 ## Snapshots
 
 After each command, playwright-cli provides a snapshot of the current browser state.
@@ -243,7 +231,7 @@ playwright-cli snapshot e34
 playwright-cli snapshot --boxes
 
 # search a large snapshot instead of capturing it all — returns matching nodes
-# (depends on the installed playwright-cli version - check --help)
+# (†)
 # with 3 lines of context around each match (like grep -C)
 playwright-cli find "Add to cart"
 playwright-cli find --regex "\\$[0-9]+\\.[0-9]{2}"
@@ -271,20 +259,10 @@ playwright-cli click "getByTestId('submit-button')"
 A named session (`-s=<name>`) keeps its own browser, cookies, and storage, so parallel flows (two users, a scraper beside a test) do not share state. Use `kill-all` only when `close` hangs or `list` shows browsers you did not open, because it kills every daemon, including other agents' sessions.
 
 ```bash
-# create new browser session named "mysession" with persistent profile
-playwright-cli -s=mysession open example.com --persistent
-# same with manually specified profile directory (use when requested explicitly)
-playwright-cli -s=mysession open example.com --profile=/path/to/profile
-playwright-cli -s=mysession click e6
-playwright-cli -s=mysession close  # stop a named browser
-playwright-cli -s=mysession delete-data  # delete user data for persistent session
-
-playwright-cli list
-# Close all browsers
-playwright-cli close-all
-# Forcefully kill all browser processes
-playwright-cli kill-all
+playwright-cli -s=mysession open example.com   # then -s=mysession on every command
 ```
+
+Profiles, `list`, `close-all`, `delete-data`: Specific tasks → Browser session management.
 
 ## Installation
 
@@ -303,6 +281,8 @@ npm install -g @playwright/cli@latest
 ## Version-sensitive behaviour
 
 This skill does not pin library facts that change between releases (signatures, defaults, generated-artifact paths, "since version X"). The places where the silent pitfalls usually are — which binary and command set, where generated files land, the session daemon, `gh --attach`, Playwright Test options, the video overlay APIs — are in [references/version-checks.md](references/version-checks.md); it deliberately gives no answer, because the answer depends on the version. Before relying on one of them, read the installed version and check it there.
+
+A command marked † in this file exists only in some releases: check `playwright-cli --help` (or `<command> --help`) before relying on it.
 
 ## Example: Debugging with DevTools
 
@@ -328,14 +308,13 @@ playwright-cli show --annotate
 
 ## Attaching screenshots and videos to pull requests
 
-A recent `gh` uploads local images and videos with the repeatable `--attach` flag (check `gh pr comment --help` for `--attach` before relying on it) on `gh pr create`, `gh pr comment` and `gh issue comment`. Attach a screenshot or a short video when it saves the reviewer a checkout: a UI fix, a before/after pair, a new user-facing flow, or the failure state in a bug report.
+Attach a screenshot or a short video when it saves the reviewer a checkout (a UI fix, a before/after pair, a bug's failure state):
 
 ```bash
-playwright-cli screenshot --filename=settings-after.png
-gh pr comment 123 --body "Settings page after the fix." --attach ./settings-after.png
+gh pr comment 123 --body "Settings page after the fix." --attach ./settings-after.png   # † gh --attach
 ```
 
-See [references/pr-attachments.md](references/pr-attachments.md) for alt text, inline references, size limits and attaching test artifacts from CI (the upload rejects the workflow's `GITHUB_TOKEN`; CI needs a fine-grained PAT stored as a secret).
+Alt text, size limits, CI: Specific tasks → Attaching screenshots and videos.
 
 ## Specific tasks
 
@@ -347,9 +326,10 @@ Read the reference only when the task matches its trigger:
 * **Running Playwright code** [references/running-code.md](references/running-code.md) — read when no CLI command covers the action (permissions, geolocation, waiting on events) and you need `run-code`.
 * **Browser session management** [references/session-management.md](references/session-management.md) — read when running several browsers at once, reusing a named session, or attaching to a running browser.
 * **Storage state (cookies, localStorage)** [references/storage-state.md](references/storage-state.md) — read when reading, seeding, or clearing cookies, localStorage, or sessionStorage, or saving auth state.
-* **Test generation (plan / generate / heal)** [references/test-generation.md](references/test-generation.md) — read when asked to write new E2E specs from a scenario or to repair failing E2E tests. Repairing touches tests and specs, never app code: when the app itself looks wrong, stop and ask whether it is a regression. Inside the pipeline (the user test cases, a `work` unit) its «Inside dev-pipeline» block comes first and replaces the parts written for a person at the keyboard. Acceptance testing against the user test cases is `ui-test-cases` (mode run); this skill is a one-off check in the browser or a single test to write or fix.
+* **Test generation (plan / generate / heal)** [references/test-generation.md](references/test-generation.md) — read when asked to write new E2E specs from a scenario or to repair failing E2E tests. Repairing touches tests and specs, never app code.
+  Inside dev-pipeline (the user test cases, a `work` unit), read its «Inside dev-pipeline» block first: it replaces the parts written for a person at the keyboard, including what to do when the app itself looks wrong.
 * **Tracing** [references/tracing.md](references/tracing.md) — read when a failure needs the DOM, network, and console history of every step.
 * **Video recording** [references/video-recording.md](references/video-recording.md) — read when the deliverable is a video: a demo, a bug reproduction, or a PR walkthrough.
-* **Attaching screenshots and videos to pull requests** [references/pr-attachments.md](references/pr-attachments.md) — read before attaching artifacts with `gh --attach` (see the section above).
+* **Attaching screenshots and videos to pull requests** [references/pr-attachments.md](references/pr-attachments.md) — read before attaching artifacts with `gh --attach`: alt text, size limits, CI (the upload rejects the workflow's `GITHUB_TOKEN`).
 * **Inspecting element attributes** [references/element-attributes.md](references/element-attributes.md) — read when the snapshot lacks an `id`, `class`, `data-*`, or other DOM property you need.
-* **Mouse, open parameters, WebMCP** [references/more-commands.md](references/more-commands.md) — read in the cases listed under Commands → "Mouse, WebMCP, open parameters".
+* **Mouse, open parameters, WebMCP** [references/more-commands.md](references/more-commands.md) — read in the cases listed under Commands → "Mouse, WebMCP, open parameters", or for a URL with `&` on Windows.

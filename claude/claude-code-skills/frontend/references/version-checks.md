@@ -1,9 +1,8 @@
 # Frontend — version-sensitive points
 
-Facts that change between releases. The skill deliberately gives no answer here, because the answer depends on the
-installed version: read it from the lockfile, then check the point — `work` does it once per run through Context7
-(`work/references/context7.md`) and pastes the answers into the packet's `CURRENT LIB DOCS`; elsewhere, Context7 or
-a quick probe in the project.
+Facts that change between releases. Each point is a question for the installed version (read it from the
+lockfile); an answer written beside a point is a dated hint, so confirm it against that version before relying on it.
+`work` asks once per run (`work/references/context7.md`); elsewhere, Context7 or a quick probe in the project.
 
 - **Rendering and data fetching** — where data loads (server, client, both), what is cached, for how long, and how
   to invalidate after a mutation.
@@ -12,6 +11,8 @@ a quick probe in the project.
   is the one its resolver supports.
 - **OpenAPI client generator** — config file name and keys, output path, client flavour, how errors and non-2xx
   statuses are typed.
+- **React major** — whether the installed React takes `ref` as an ordinary prop (no `forwardRef`) and renders
+  `<Context>` as its own provider (both from React 19).
 - **UI kit defaults** — whether the installed shadcn/ui version's stock theme passes contrast: its light
   `destructive` variant and its neutral `outline` and input borders against their backgrounds (4.5:1 for text, 3:1
   for boundaries; earlier versions fell below it). A failing pair is fixed in the project's theme (`SKILL.md` →

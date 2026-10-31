@@ -9,16 +9,16 @@ description: >-
 
 Brainstorming helps answer **WHAT** to build through collaborative dialogue. The durable output is a **business requirements document** — a lightweight PRD / feature brief: goal, scope, R-requirements, key flows, and acceptance examples, so the SRS and the design after it do not need to invent product behavior, scope boundaries, or success criteria. Numbered FR / NFR / use cases are `srs-writer`'s job, the next reader of this document: a draft shaped like an SRS here gets rewritten there.
 
-This skill explores, clarifies, and documents decisions; it does not implement code. Its document feeds the stage `pipeline` names after this one. Architecture, API/DB design, and implementation come later in that chain: do not skip to the SRS's numbered requirements, architecture, or code as if the stages between did not exist.
+This skill explores, clarifies, and documents product decisions. Its document feeds the stage `pipeline` names after this one; numbered requirements, design, and code come later in that chain (Core Principles 3–4).
 
-**Implementation request.** If the user asks to write code, a service, controllers, or tests **now**, refuse. Do not start those skills. The next stage is still the one `pipeline` names after this one.
+**Implementation request.** If the user asks to write code, a service, controllers, or tests **now**, decline and name the stage `pipeline` names after this one: code written before the SRS and the design has to invent the behavior those stages settle, and is rewritten when they land. Do not start those skills.
 
 ## Core Principles
 
 1. **Assess scope first** - Match the amount of ceremony to the size and ambiguity of the work.
 2. **Be a thinking partner** - Suggest alternatives, challenge assumptions, and explore what-ifs instead of only extracting requirements.
-3. **Resolve product decisions here** - User-facing behavior, scope boundaries, and success criteria belong in this workflow. Detailed implementation belongs to the design stages after the SRS.
-4. **Keep implementation out of the Product Contract by default** - Do not include libraries, schemas, endpoints, file layouts, or code-level design unless the brainstorm itself is inherently about a technical or architectural change.
+3. **Resolve product decisions here** - User-facing behavior, scope boundaries, and success criteria belong in this workflow.
+4. **Keep implementation out by default** - Libraries, schemas, endpoints, file layouts, and code-level design belong to the design stages after the SRS; keep them out of the dialogue's decisions and the Product Contract unless the brainstorm itself is inherently about a technical or architectural change.
 5. **Right-size the artifact** - Simple work gets a compact business requirements document or brief alignment. Larger work gets a fuller Product Contract. Do not add ceremony that does not help the SRS stage (`srs-writer`).
 6. **Apply YAGNI to carrying cost, not coding effort** - Prefer the simplest approach that delivers meaningful value. Avoid speculative complexity and hypothetical future-proofing, but low-cost polish or delight is worth including when its ongoing cost is small and easy to maintain.
 7. **Do not turn coverage into decomposition** - For software brainstorms, treat named devices, providers, and data sources as coverage requirements, not automatically as separate integration workstreams. Split them only when a shared access path cannot satisfy a named requirement. Leave connector selection to the design stages unless that choice materially changes product scope or behavior.
@@ -62,10 +62,6 @@ is an increment.** Read the `doc-versioning` skill: keep the existing path,
 edit in place, extend the R namespace with unused numbers, set `updated:`
 to today. Do not write a second business requirements document for the same
 product — the resume path below is the mechanism.
-
-## Output Guidance
-
-- **Prioritize decision-relevant detail** - Preserve the facts, tradeoffs, and caveats needed for the next decision; trim introductions, repetition, and optional background first.
 
 ## Feature Description
 
@@ -290,7 +286,7 @@ Session-settled decisions land in the Product Contract's Key Decisions section c
 **Language.** Write the document in Russian. Do not translate cited tokens.
 Required section names and frontmatter keys stay as this skill specifies.
 
-**Write tight.** A section being material is not license to pad it. Hold every kept section to the prose-economy discipline in `references/brainstorm-sections.md`: lead with the decision or outcome, one idea per sentence, a requirement is intent plus at most one qualifier, defer forks to `open-questions.md` beside the file rather than specifying both arms, resolve superseded text in place rather than stacking strata.
+**Write tight.** A section being material is not license to pad it. Hold every kept section to the prose-economy discipline in `references/brainstorm-sections.md`: lead with the decision or outcome, one idea per sentence, a requirement is intent plus at most one qualifier, defer forks to `open-questions.md` beside the file rather than specifying both arms, resolve superseded text in place rather than stacking strata. The same holds for chat output: keep the facts, tradeoffs, and caveats the next decision needs; trim introductions, repetition, and optional background first.
 
 **As is** — from `upgrade-docs`, for a running system without business requirements: draft the document from the
 code and the project's own documents (`upgrade-docs/references/as-is.md`) — the goal, the users and the scope the
@@ -319,7 +315,7 @@ A paused run that never reached a document skips this gate: there is nothing set
 
 Once the business requirements document is written and its grill question has been answered (or the run ends without a document — brief alignment only), display a closing summary.
 
-After the grill ran, the summary includes what it changed; after a skip, it says the grill did not run. Then read `pipeline` and ask about the stage its table names after this one, per "Asking before a transition". A run with no document to grill asks about that stage the same way. Do not list every remaining stage, do not skip to architecture or implementation, and do not start the next stage without a yes.
+After the grill ran, the summary includes what it changed; after a skip, it says the grill did not run. Then read `pipeline` and ask about the stage its table names after this one, per "Asking before a transition". A run with no document to grill asks about that stage the same way. Do not list every remaining stage, do not skip past it (Core Principles 4), and do not start the next stage without a yes.
 
 Use absolute paths for chat-output file references — relative paths are not auto-linked as clickable in most terminals.
 

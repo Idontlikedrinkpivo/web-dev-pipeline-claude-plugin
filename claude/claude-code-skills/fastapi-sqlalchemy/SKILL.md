@@ -56,7 +56,7 @@ class SqlOrderRepository:                      # implements application.ports.Or
 - Create the sessionmaker with `expire_on_commit=False`, so returned objects stay readable after commit without implicit IO.
 - Commit explicitly at the unit-of-work boundary the design names: inside `repository.save` for a single-entity save, a `UnitOfWork` adapter when a scenario saves several. Brownfield: where the repo already commits.
 - The commit happens **before the response is sent**. Code after `yield` in a dependency may run after the response, so a failing commit there still answers 2xx. If a dependency owns commit / rollback, make it finish before the response (`references/version-checks.md` → `yield`-dependency timing), roll back and re-raise on an exception, and let the code inside call `flush()` (database ids exist before serialization) instead of `commit()`.
-- One alias per dependency, a noun without suffix, shared with `fastapi`: `DbSession = Annotated[AsyncSession, Depends(get_db)]`, `CurrentUser`, `CurrentAdmin`. Reuse the names the repo already has.
+- The session reaches a route through the `DbSession` alias (`fastapi` → Dependency aliases).
 
 ## Models and column types
 

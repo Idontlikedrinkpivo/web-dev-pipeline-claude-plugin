@@ -87,7 +87,7 @@ RULES
 - No library or component names and no timings the frame does not state.
 - «Загрузка и вызовы» is a numbered list in call order; a call whose input
   comes from an earlier response names that item and the field:
-  «2. После ответа 1 → getCourseProgram (program_id из ответа 1)». No
+  «2. После ответа 1 → getRoom (room_id из ответа 1)». No
   diagram file.
 - Greenfield: frontmatter version: <the open iteration's version, e.g.
   0.1.0>, updated today, sources (SRS and API pinned as path@<version> —

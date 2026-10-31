@@ -100,10 +100,6 @@ code then have to honour.
 
 ## Scope
 
-**Use for:** SRS entities and rules → tables for a new project or feature;
-primary and foreign keys, `ON DELETE`; the indexes a slice's declared
-queries need; a domain rule → a `CHECK` (or deciding it can't be).
-
 **Not for:** a multi-tenant isolation strategy (`tenant_id` + RLS only
 when the SRS calls for multi-tenancy); table partitioning (past ~100M
 rows, not a day-one decision); diagnosing slow queries on a live database
@@ -315,8 +311,8 @@ You decide the constraint. A rule that is a predicate SQL can check, a
 uniqueness, or a reference becomes a real `CHECK`, `UNIQUE`, or `FK` —
 not a comment. A rule that is a workflow, a permission, or a clock stays
 out of the schema. The column note names which of the two it is, so
-architecture can copy `none` or the constraint you wrote. Do not wait
-for a column called «Ограничение в схеме»; that column will copy you.
+architecture can copy `none` or the constraint you wrote. Architecture's
+invariant table copies your constraint; you decide it here.
 
 ```sql
 -- A numeric bound
@@ -417,12 +413,10 @@ Table holds {
 the table — pick one, not both.
 
 2. **Migration SQL** — files in `documentation/db/migrations/`, named
-   `NNNN_<snake_slug>.sql`. Greenfield: `0001_init.sql`, opening with
-   `CREATE SCHEMA IF NOT EXISTS <project_name>;` and
-   `SET search_path TO <project_name>;` (§0), then the actual `CREATE TABLE`
-   statements (with constraints and indexes from §3–4) for one vertical
-   slice. Increment: the next number, opening with `SET search_path TO
-   <project_name>;`, holding only this slice's DDL (`references/migration-safety.md`
+   `NNNN_<snake_slug>.sql`, each opening with §0's header. Greenfield:
+   `0001_init.sql`, then the actual `CREATE TABLE` statements (with
+   constraints and indexes from §3–4) for one vertical slice. Increment:
+   the next number, holding only this slice's DDL (`references/migration-safety.md`
    on a populated table). Carry the same note text as `COMMENT ON TABLE` /
    `COMMENT ON COLUMN` so the files and the DBML agree, and give every named
    `CHECK` a `COMMENT ON CONSTRAINT <name> ON <table> IS '<one plain sentence>'`
@@ -459,25 +453,23 @@ so far had run.
 line each with its reason. The first line is the DBMS and its major version
 («СУБД: PostgreSQL 18 — …»): decided at this stage, the one home of that
 decision; the architecture's §1 «Стек» and `repo-scaffold` take it from
-here. Then the namespace (`ai_portal`, not `public`) and who creates it;
+here. Then the namespace (§0) and who creates it;
 how migrations run (the files in number order, each once, what sets
 `search_path` — the runner itself is the stack's, named by the
-architecture); what makes keys (`gen_random_uuid()` — the DBMS version has
-no `uuidv7()`); collation or extensions the schema relies on. Not here: which SRS
+architecture); what makes keys (`uuidv7()` on PostgreSQL 18+, else what the
+note under Primary Keys decided); collation or extensions the schema relies on. Not here: which SRS
 requirements the tables serve (the column notes and the table documents
 carry them), what each migration changed (its changelog row and the header
 of its file), and how a release cuts over or rolls back (the deploy
-document, `deploy-topology`). Do not put the changelog at the end. The status table is the canonical list of codes; architecture
-§1 does not repeat it. Its «Подпись» column is the canonical human name
-of each code. Headings and columns are Russian; `DBML` and `ER` stay — terms
-of the trade.
+document, `deploy-topology`). Do not put the changelog at the end.
+Headings and columns are Russian; `DBML` and `ER` stay — terms of the trade.
 
 Field names in the DBML and the migration SQL must match the SRS use-case inputs
 and outputs — the API-contract step reads directly off these names.
 
 ## Before you finish
 
-- [ ] Project schema, not `public`: `0001_init.sql` opens with `CREATE SCHEMA` and `SET search_path`, every later file with `SET search_path`; the connection's `search_path` and the migration tool's version table point at it — §0
+- [ ] Project schema, not `public`: migration headers, connection `search_path`, and version table as §0 sets them — §0
 - [ ] This slice's DDL is a new numbered file in `documentation/db/migrations/` (as-is: none — `migrations:` names the project's folder); no committed file edited; `schema.md` has no SQL block, shows the whole current schema, and its `migration:` names the last file — Output
 - [ ] One table per stored entity; PKs, FKs with `ON DELETE`, `NOT NULL`, timestamps, and types as §1 says; reference columns named `<thing>_id` so the API names follow — §1
 - [ ] «Решения по базе» opens with the DBMS and its major version — Output

@@ -42,10 +42,10 @@ Find the set by `doc-versioning` → Registry, in chain order (paths under
 | Document | Required |
 |---|---|
 | SRS `requirements/srs/srs.md` | **yes** — without it there is nothing to trace to; say so and stop |
-| DB schema `db/schema.md` (+ the migration files in `db/migrations/`) | when stage 3 ran |
-| OpenAPI `api/openapi.yaml` | when stage 4 ran |
-| `architecture/architecture.md` (its diagrams embedded), `architecture/domain.md`, `architecture/scenarios/<area>/<group>.md` of every SRS group | when stage 5 ran |
-| `ui/frames-register.md` and every `ui/screen-specs/S-<n>-*.md` | when stage 8 ran |
+| DB schema `db/schema.md` (+ the migration files in `db/migrations/`) | when the DB schema stage (`db-schema-design`) ran |
+| OpenAPI `api/openapi.yaml` | when the API stage (`openapi-spec-generator`) ran |
+| `architecture/architecture.md` (its diagrams embedded), `architecture/domain.md`, `architecture/scenarios/<area>/<group>.md` of every SRS group | when the architecture stage (`clean-architecture-design`) ran |
+| `ui/frames-register.md` and every `ui/screen-specs/S-<n>-*.md` | when the screen-spec stage (`screen-spec`) ran |
 | Business requirements, `ui-wishes.md` | no — the SRS absorbed the first; wishes are never grounds for a finding |
 
 At least two contracts besides the SRS, or there is no set to check: say
@@ -182,7 +182,7 @@ Exactly one:
 
 | Verdict | When | Next move |
 |---|---|---|
-| `PASS` | no P0 / P1 | the offer of row 10 — `plan` — per `pipeline` → "Asking before a transition" |
+| `PASS` | no P0 / P1 | the offer of the next stage — `plan` — per `pipeline` → "Asking before a transition" |
 | `RETURN_TO_STAGE` | P0 / P1 whose fix is the owner stage's job, or a stale pin (Step 1) | name the **earliest** owner stage in chain order, with its findings — a later stage's fix may depend on it. Ask to run it per `pipeline` → "Asking before a transition"; after it, re-run this check |
 | `STOP` | a contradiction only a product decision closes: two readings of the SRS, both reasonable | one question to the user per `pipeline` → `references/question-format.md`; the answer is a changed decision — it goes to the SRS and every document that states the other reading, committed at once with no version change (`pipeline` → `references/decision-changes.md`), then the check re-runs. A fix that would reverse a decision a document made on purpose is asked the same way, with that decision quoted, never applied as a fix (`pipeline` → `references/decision-changes.md` → A finding against a settled decision) |
 
@@ -258,7 +258,7 @@ skipped: none
 - `references/checker-prompt.md` — the packet and the reply format.
 - `executor-catalog` — the `docs-consistency-checker` row.
 - `doc-versioning` → Registry (paths), Staleness and cascade (pins).
-- `pipeline` — this is stage 10, not a gate inside another stage: it
+- `pipeline` — this is a stage of its own, not a gate inside another stage: it
   closes like any stage, with the commit and then one transition question
   per `pipeline` → "Asking before a transition" — `plan` after `PASS`, the
   earliest owner stage after `RETURN_TO_STAGE` — whether `pipeline` offered

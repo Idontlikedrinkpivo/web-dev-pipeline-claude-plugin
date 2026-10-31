@@ -6,7 +6,8 @@
                                                          # place in the queue; --after <id>: the one after that id —
                                                          # how a change answered «позже» is passed over this time
     python3 project_format.py list  <project dir> [--kind docs|code]   # every pending change in full, of one kind
-                                                         # or of both (--json for a machine)
+                                                         # or of both (--json for a machine; --count: the counts
+                                                         # only, without the changes' text)
     python3 project_format.py check <project dir> <id>   # exit 0 when this change is no longer pending
     python3 project_format.py skip  <project dir> <id>   # the user declined it for good: never offered again
     python3 project_format.py stamp <project dir>        # record the installed version — only when nothing is pending
@@ -168,10 +169,12 @@ def main() -> None:
         print(f"plugin {installed()}; project stamp {st.get('plugin', 'none')}; skipped {st.get('skipped', [])}")
         if not todo:
             print("nothing pending" + (f" of kind {only}" if only else ""))
+        elif "--count" in sys.argv:
+            print(f"{len(todo)} pending" + (f" of kind {only}" if only else ""))
         rest = [c for c in pending(root) if only and kind(c) != only]
         if rest:
             print(f"also pending, for the {SKILL[kind(rest[0])]} skill: " + ", ".join(c["id"] for c in rest))
-        for c in todo:
+        for c in ([] if "--count" in sys.argv else todo):
             print(f"\n[{c['id']}] {c['title']} — {c['version']}\n  Что: {c['what']}\n  Чем исправить: {c['fix']}")
         return
     if cmd == "check":

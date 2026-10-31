@@ -24,7 +24,7 @@ export function sqlState(e: unknown): string | undefined {
 | `23505` | unique violation | the named error for that key (`EmailAlreadyTaken`), or re-reads the winner for an idempotency key |
 | `23503` | FK violation | the named error for the missing reference (`AuthorNotFound`) |
 | `23514` | check violation | usually a bug: the entity should have refused first; rethrow |
-| `40001`, `40P01` | serialization failure, deadlock | rethrow unchanged — the use case reruns its whole transaction a bounded number of times (below); what is left is the contract's 503 with `Retry-After` |
+| `40001`, `40P01` | serialization failure, deadlock | rethrow unchanged — the shared helper reruns the use case's whole transaction a bounded number of times (below); what is left is the contract's 503 with `Retry-After` |
 | anything else | | rethrow unchanged; the global handler logs it with its SQLSTATE and answers the contract's 500 |
 
 A uniqueness clash reaches the client only as its named error, never as a bare 409 (`typescript-fastify` → Errors,
@@ -106,7 +106,8 @@ if (updated.length === 0) throw new OrderChangedConcurrently(order.id)
 ```
 
 Zero rows means "gone or changed"; read once to tell which if the contract distinguishes them.
-The use case decides whether to retry; the repository never loops.
+A lost optimistic lock is a named error the contract answers, not a rerun: the user decides on the changed data.
+Only `40001` / `40P01` rerun, in the shared helper above; the repository and the use case never loop.
 
 ## Tenant predicate
 
@@ -140,9 +141,9 @@ Across aggregates only through the `UnitOfWork` port the architecture names.
 ## Tests
 
 - Mapper round-trip without a database (`typescript/references/shared-test-rules.md` → 1).
-- Repository against a real Postgres (container or the project's PGlite setup), one test per
-  classified SQLSTATE, produced by a real duplicate insert or FK violation. With no database
-  available, write those tests as they would run and report the run as owed
-  (`typescript/references/shared-test-rules.md` → 6); the classification itself can be shown meanwhile by throwing an error shaped like the
-  wrapped one (code on `cause`, not top level) from a stubbed insert.
+- Repository against a real Postgres reached through `TEST_DATABASE_URL` (`vitest` rule 11; an in-process PGlite has no
+  such URL for the guard to check, so it does not stand in), one test per classified SQLSTATE, produced by a real
+  duplicate insert or FK violation. With no database available, write those tests as they would run and report the run
+  as owed (`typescript/references/shared-test-rules.md` → 6); the classification itself can be shown meanwhile by
+  throwing an error shaped like the wrapped one (code on `cause`, not top level) from a stubbed insert.
 - Use-case tests use an in-memory fake of the port, never a mocked Drizzle client.

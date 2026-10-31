@@ -221,8 +221,8 @@ metadata fields. Common rules:
 
 - YAML at the top of the file, delimited by `---` on its own line above
   and below.
-- Field names in lowercase snake_case (`created_at`, `topic`, not
-  `CreatedAt`, `Topic`).
+- Field names in lowercase snake_case (`date`, `topic`, `updated`, not
+  `Date`, `Topic`, `Updated`).
 - **No status / lifecycle field.** Artifacts are point-in-time records
   (decision or discovery), not tracked work items. Do not introduce a
   mutable `status` field or an `active → completed` lifecycle — whether

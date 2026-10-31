@@ -26,7 +26,7 @@ shrink to zero with the plan.
 |---|---|
 | Reviewing one unit's diff before its commit | `code-review-unit` |
 | Generic PR/branch review outside this planning pipeline | Claude Code's built-in `/code-review` |
-| Auditing code no unit in this plan touched | for security, `security-audit`, once per iteration; for quality, nobody in this pipeline |
+| Auditing code no unit in this plan touched | for security, `security-audit`, once per iteration; for quality, `upgrade-code` → Code audit |
 | Deciding *whether* a security requirement should exist | the SRS's Security NFR checklist and the architecture's decisions table, reviewed by `doc-review`'s security lens |
 | Whether the design decision was right | the design documents — and the user |
 | Applying a fix | the named unit's executor, or `mechanical-worker` for the mechanical part |
@@ -153,10 +153,7 @@ everything at once; splitting it recreates the per-unit blind spot this skill
 exists to close.
 
 One pass, on every plan — High-heavy ones included. A second whole-run pass
-on another model was tried and removed: in the 2026-10-01 benchmark the first
-pass alone found the planted cross-unit defect in 9 of 9 runs across four
-levels of subtlety, and the second pass never found anything the first had
-missed, while costing 1.5–2 times as much. Do not add one back by
+found nothing new at 1.5–2× the cost; do not add one back by
 re-dispatching `review-full-plan` or another reviewer over the whole diff.
 The re-reviews over the fix commits (Step 5) are not a second pass: they
 repeat while each round makes progress.

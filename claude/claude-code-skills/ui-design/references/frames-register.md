@@ -62,9 +62,11 @@ Cell rules:
   frames, checked by Полнота макета, not listed here.
 - **Состояния** — every non-Default state frame: `Loading`, `Empty`,
   `Error`, `Forbidden`, and named ones for flows (`Отменена (UC-3 Alt-1)`).
-  A state the screen cannot have is absent, not `—`.
+  A state the screen cannot have is absent, not `—`. Each narrower width of
+  **Ширины** is a frame here too, as `<width> → nodeId` (`375 → 12:48`): the
+  table has no width column, and the number tells it from a state.
 - **Вложенные шаги** — `M<n> <назначение> → nodeId`, numbered per screen,
-  append-only. Each narrower-width frame goes in Состояния as `<width> → nodeId` (`375 → 12:48`).
+  append-only.
 - **Статус** — `черновик` until the frames resolve and the screen's
   completeness items pass; then `готово к разработке`. A screen dropped by a
   redesign keeps its row: `черновик`, «снят в редизайне YYYY-MM-DD», frames
@@ -90,6 +92,7 @@ sources:
 (`screen-spec`) ссылается сюда. Как выглядит экран — только в Figma.
 
 - **Figma:** https://www.figma.com/design/AbC123/Rooms (fileKey `AbC123`)
+- **Дизайн ведёт:** мы
 - **Кадры рисует:** ui-design
 - **Тип продукта:** B2B
 - **Ширины:** 1440, 375

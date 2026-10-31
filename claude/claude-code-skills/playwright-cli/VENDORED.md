@@ -15,7 +15,10 @@ Adapted for this plugin:
   `references/playwright-tests.md` (`work/references/stack-skills.md`), not this SKILL.md;
 - `SKILL.md` — the working loop, the version-sensitive checklist (its points in `references/version-checks.md`, a
   file of this plugin, so `work` can check them through Context7), the interactive session limited to a person in
-  the conversation; the global install of `@playwright/cli` asks the user first;
+  the conversation; the global install of `@playwright/cli` asks the user first; commands that exist only in some
+  releases marked †, said once under Version-sensitive behaviour; Storage, Browser Sessions and the PR-attachment
+  section cut to one command and a pointer to their reference; the Windows `&` section moved to
+  `references/more-commands.md`;
 - `references/test-config.md` — the config written for the pipeline's parallel stands: `testDir: './e2e'`, one
   worker, `fullyParallel: false`, the address from `E2E_BASE_URL`, no `webServer`;
 - `references/test-generation.md` — the «Inside dev-pipeline» block (only §0 and §3.1–3.3 apply to an agent working

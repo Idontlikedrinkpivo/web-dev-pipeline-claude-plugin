@@ -4,9 +4,6 @@ description: >-
   Internal: pytest rules for FastAPI backends (layers, real PostgreSQL, fixtures); read by work's executors before
   Python tests.
 compatibility: 'Python, pytest, pytest-asyncio, httpx, factory_boy; versions come from the project lockfile'
-metadata:
-  version: '2.0.0'
-  sdlc-phase: testing
 ---
 
 # Pytest Patterns
@@ -47,7 +44,10 @@ tests/
 - **Adapter tests** — the repository and query adapters against the real database: save and reload, filters, ordering, constraint violations mapped to the named error. With several tenants, one test proves tenant A never reads or writes B's rows.
 - **One end-to-end path** — at least one API test runs HTTP → use case → real repository for the primary action without overriding anything but the session, proving the `bootstrap/` wiring.
 - Name files `test_<module>.py`, classes `Test<Feature>` (no `__init__`), functions `test_<action>_<expected_outcome>`, fixtures as nouns (`db_session`, `authenticated_client`). A failure line should say what broke without opening the file.
-- Declare markers `unit`, `integration`, `slow` in `[tool.pytest.ini_options]` and run subsets with `-m`. Use `asyncio_mode = "auto"` so async tests need no per-test marker. With a session-scoped async engine also set `asyncio_default_test_loop_scope = "session"` and `asyncio_default_fixture_loop_scope = "session"` (pytest-asyncio 1.x runs each test in its own loop otherwise, and an unset fixture loop scope follows each fixture's own scope, so the engine breaks across loops); check the installed version. The test database gets its schema from the project's migration command (`alembic upgrade head` over the SQL files), never `create_all`: the CHECK constraints, the project schema and every object the files create take part, and a model that disagrees with the files fails here. `references/conftest-template.py` does it once per session. The one exception is a brownfield repo with no migration files at all: the template's commented `create_all` fallback stands in until the first migration file exists, and the report says so.
+- Declare markers `unit`, `integration`, `slow` in `[tool.pytest.ini_options]` and run subsets with `-m`.
+- Use `asyncio_mode = "auto"` so async tests need no per-test marker. A session-scoped async engine also needs the session loop scopes that `references/conftest-template.py` lists (a test in its own loop breaks the engine); check them against the installed pytest-asyncio (`references/version-checks.md` → Event-loop scope).
+- The test database gets its schema from the project's migration command (`alembic upgrade head` over the SQL files), never `create_all`: the CHECK constraints, the project schema and every object the files create take part, and a model that disagrees with the files fails here. `references/conftest-template.py` does it once per session. The one exception is a brownfield repo with no migration files at all: the template's commented `create_all` fallback stands in until the first migration file exists, and the report says so.
+- Group tests by behaviour, shared fixtures in `conftest.py` (shared rule 4).
 - Put an autouse fixture that requests `db_session` only in `tests/integration/conftest.py`: autouse applies to every test under that directory, and at the root it would make each unit test connect to the database.
 
 ## Real database, not mocks
@@ -103,8 +103,7 @@ error-path tests above, not by a percentage.
 
 ## Properties and mutants
 
-Shared rules 3–5: a property test with `hypothesis`; tests grouped by behaviour, shared fixtures in `conftest.py`;
-a surviving mutant gets the assertion that kills it.
+Shared rules 3 and 5: a property test with `hypothesis`; a surviving mutant gets the assertion that kills it.
 
 ## The reviewer checks
 

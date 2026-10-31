@@ -39,9 +39,9 @@ judgment made from inside one unit's packet.
 
 | Input | Required | Notes |
 |---|---|---|
-| Unit spec | **yes** | the `### U<n>.` block: Цель, Документы, Файлы, Подход, Тестовые сценарии, Проверка, Сложность (a plan before plugin 1.2.152 names them in English) |
+| Unit spec | **yes** | the `### U<n>.` block: Цель, Документы, Файлы, Подход, Тестовые сценарии, Проверка, Сложность |
 | Stack review rules | **yes** | the «The reviewer checks» sections of the unit's stack skills — `typescript`, `react`, `python` and the library skills `work/references/stack-skills.md` picks for its files — pasted into the packet's `STACK REVIEW RULES`; `none` only when no picked skill has such a section |
-| The diff | **yes** | `git diff HEAD` after `git add -N <unit «Файлы»>` (intent-to-add, so untracked files in scope show up) — the orchestrator commits per unit, so uncommitted work *is* this unit's work. A Low batch is built from commits instead (Low batch, Step 3). Handed to the reviewer as a file path under `$(git rev-parse --git-dir)/pipeline-work/`, not pasted: pasted text stays in the orchestrator's context for the whole run |
+| The diff | **yes** | a file path under `$(git rev-parse --git-dir)/pipeline-work/`, built as Step 1 says (a Low batch from commits, Step 3) — not pasted: pasted text stays in the orchestrator's context for the whole run |
 | Cited design excerpts | **yes** | the sections named in `Документы`, pasted, not linked — resolved under `documentation/` (`scenarios/orders` is the group's document under `architecture/scenarios/orders/`, `api` is `api/openapi.yaml`) |
 | Worker report | when there was one | `TESTS`, `RED OBSERVED`, `CONCERNS`, `OUT OF SCOPE` |
 | Prior findings this run | when any | so a known issue is not raised twice |
@@ -54,7 +54,8 @@ and it will invent expectations the plan never set. Say so and stop.
 ### Step 1. Bound the diff
 
 `git add -N <unit «Файлы»>` first — `git diff HEAD` omits untracked files
-otherwise. The diff itself goes into one file under `pipeline-work/`
+otherwise; the orchestrator commits per unit, so uncommitted work *is* this
+unit's work. The diff itself goes into one file under `pipeline-work/`
 (`git diff HEAD --stat`, then `git diff HEAD -U10`; `work` Step 5.4 has
 usually written it already), and the reviewer is the one who reads it. Bound
 it here from the paths alone — `git diff HEAD --name-status` and `git status

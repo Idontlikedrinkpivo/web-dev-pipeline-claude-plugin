@@ -61,7 +61,7 @@ contract operation is a plan's decision, never this stage's.
 | Database | local, in this compose file | local, in this compose file | **external**, no local service |
 | Object storage / queue / cache | local (e.g. SeaweedFS for S3), in this compose file | local, in this compose file | **external**, no local service |
 | Third-party APIs (payment, mail, external HR/LLM/etc.) | **mocked** — fixture-backed, no network call | **real** — real credentials, real network calls | **real** |
-| Port publishing | loopback or none — dev-only convenience | loopback or none | **loopback only**, behind a reverse-proxy/TLS terminator the user runs separately |
+| Port publishing | loopback or none | loopback or none | **loopback only**, behind a reverse-proxy/TLS terminator the user runs separately |
 | Concurrency / worker count | one worker process per container, as in prod (a stack that still runs several keeps prod's count here, or its concurrency bugs show up only in prod) | same as test | one per container; the operators scale by replicas |
 | Secrets | fixture/dummy values, safe to commit as defaults | real values, **never committed** | real values, **never committed** |
 
@@ -319,18 +319,20 @@ stand's proof).
 
 ### Step 8. The release for hand-over
 
-From `upgrade-docs` (`MODE as-is`, a project with its own containers and no deploy document): only item 2, from the project's own Dockerfiles and compose files as they are (`upgrade-docs/references/as-is.md`).
 The operators get one folder per release and nothing else — every file
 the plugin produces for them: the image archive, `DEPLOY.md`, the
 variables file and the API contract `openapi.yaml`. They do not get
 `docker-compose.prod.yml` — they run the images their own way, so they
-need the facts it holds, written down.
+need the facts it holds, written down. From `upgrade-docs` (`MODE as-is`,
+a project with its own containers and no deploy document): only item 2,
+from the project's own Dockerfiles and compose files as they are
+(`upgrade-docs/references/as-is.md`).
 
 1. **Check the security audit.** Read the first line of
    `documentation/plans/<version>/security-audit.md`. An open P0
    (`релиз заблокирован`) stops the stage before any release work: name the findings and ask —
    fix first (a fix plan), or build anyway, which goes into the report's
-   «Принятый риск» with the date. No report means stage 14 did not run:
+   «Принятый риск» with the date. No report means `security-audit` did not run:
    say so in one line and go on — a skipped stage blocks nothing.
 2. **Write `documentation/deploy/deploy.md`** per `references/deploy-doc.md`:
    «Карточка сервиса» first, then every section of its template — probes
@@ -438,6 +440,7 @@ release folder and what DEPLOY.md names); each line it prints is fixed first.
 - `.claude/skills/verify/` written and proven end to end — Step 7a.
 - `docker-compose.test.yml` copyable; `DEPLOY.md` names only files the release folder holds — Steps 4, 7, 8.
 - Everything this stage wrote is committed on the iteration branch, after the site rebuild — Step 9.
+
 ## References
 
 - `references/images.md` — the images with and without a shell, the shell

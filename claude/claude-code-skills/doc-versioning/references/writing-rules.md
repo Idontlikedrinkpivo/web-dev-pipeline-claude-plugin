@@ -42,7 +42,7 @@ read `Verdict:` as a gate, and a missing line means the gate did not pass. Later
 stages and the user find a report by its heading, so a translated heading
 reads as a missing report.
 
-This rule is the artifact, not the skill file and not the source code.
+These language rules apply to the documents and reports written, not to skill files or code.
 
 ## What, not how it looks
 

@@ -1,9 +1,8 @@
 # pytest for FastAPI / SQLAlchemy async — version-sensitive points
 
-Facts that change between releases. The skill deliberately gives no answer here, because the answer depends on the
-installed version: read it from the lockfile, then check the point — `work` does it once per run through Context7
-(`work/references/context7.md`) and pastes the answers into the packet's `CURRENT LIB DOCS`; elsewhere, Context7 or
-a quick probe in the project.
+Facts that change between releases. Each point is a question for the installed version (read it from the
+lockfile); an answer written beside a point is a dated hint, so confirm it against that version before relying on it.
+`work` asks once per run (`work/references/context7.md`); elsewhere, Context7 or a quick probe in the project.
 
 - **Async fixtures used by sync tests** — whether the installed pytest-asyncio, in the configured mode, runs them,
   warns, or fails.

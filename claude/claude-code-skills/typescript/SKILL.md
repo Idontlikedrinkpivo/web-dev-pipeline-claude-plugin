@@ -20,7 +20,7 @@ audit of a real project found. A rule a machine checks is one line here with its
 | no `as` on outside data, no `as unknown as`, no `!` | `no-unsafe-type-assertion`, `no-non-null-assertion` |
 | an error class is never empty — it carries a `readonly kind` | `no-restricted-syntax` (empty subclass) |
 | a union of errors or statuses is handled in an exhaustive `switch` with `assertNever` | `switch-exhaustiveness-check` |
-| an error made in a `catch` passes the caught one: `{ cause: e }`; a `catch` always names its variable | `preserve-caught-error` (`requireCatchParameter`; the project's error classes in `errorClassNames`, ESLint 10.7+) |
+| an error made in a `catch` passes the caught one: `{ cause: e }`; a `catch` always names its variable | `preserve-caught-error` (`requireCatchParameter`; the project's error classes in `errorClassNames` — check the installed ESLint has that option, `repo-scaffold/references/quality-gates.md`) |
 | no empty `catch`, not even with a comment inside | `no-empty`, `no-restricted-syntax` (empty catch block) |
 | throw and reject only `Error` and its subclasses; a `catch` variable is `unknown` and narrowed first | `only-throw-error`, `prefer-promise-reject-errors`, `use-unknown-in-catch-callback-variable` |
 | every promise is awaited or explicitly `void`ed with a reason | `no-floating-promises` |

@@ -29,7 +29,8 @@
 - Line length under 80 characters → 50–75 (Р17, UX-4).
 - Clusters: a sixth — the assistant's palette and props — restated from
   Impeccable (pbakaus/impeccable, Apache-2.0) and Taste Skill
-  (Leonxlnx/taste-skill, MIT); no text copied.
+  (Leonxlnx/taste-skill, MIT); no text copied. `SKILL.md` says only «these
+  six traits»; the attribution lives here.
 - Motion: one orchestrated moment only on a B2C first screen, none in B2B
   (Р1, UX-61).
 - The template tells and the six clusters cite UX-60; numbers use

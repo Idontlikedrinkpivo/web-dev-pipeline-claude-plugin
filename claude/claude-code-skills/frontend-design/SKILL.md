@@ -85,7 +85,7 @@ below.
 
 ## Process: plan, check against the brief, build, critique
 
-For calibration, generated design currently clusters around these traits (6 after Impeccable and Taste Skill, restated):
+For calibration, generated design currently clusters around these six traits:
 
 1. a warm cream background (near #F4F1EA) with a high-contrast serif and a
    terracotta or clay accent (near #D97757 — Anthropic's own accent, so on
@@ -127,9 +127,9 @@ Work in two passes. First a short plan:
   bold thing sits.
 
 Then check the plan against the brief before drawing: if a part reads like
-the default you would produce for any similar product (try a similar
-prompt and see whether you land in the same place), revise it and say what
-changed and why. Draw only after that, by the revised plan.
+the default you would produce for any similar product (ask: would this
+plan fit any booking or CRM product unchanged? If yes, it is a default),
+revise it and say what changed and why. Draw only after that, by the revised plan.
 
 ## Restraint and self-critique
 
@@ -138,9 +138,9 @@ disciplined; cut decoration that does not serve the brief. Build to the
 quality floor without announcing it: `ux-patterns` → «Полнота макета»,
 plus the items of «Проверка экрана перед сдачей» a frame can show —
 every width in the register, desktop first; contrast in every theme;
-long values; icons from one set; texts (its items 1, 3, 6, 7, 8). Critique your own work as you go
-with screenshots — a picture is worth a thousand tokens. Before handing
-over, look in the mirror and remove one accessory.
+long values; icons from one set; texts (its items on widths, contrast,
+value lengths, icons and texts). Screenshot each frame as you go and
+critique it; before handing over, remove one decorative element.
 
 The directions the user turned down are kept in the frames register's
 «Визуальное направление» line (`ui-design` writes it), so the next run does
@@ -153,4 +153,4 @@ the screen needs to say and how it helps the person get through it:
 describe what a thing is or does, do not sell it, and give each text one
 job. The rules for the words themselves — names, buttons, errors, empty
 states, typography — are `ux-patterns` Section 9 «Texts in Russian» with
-UX-12, UX-21, UX-44 and UX-45 it cites.
+UX-12, UX-21, UX-44, UX-45, UX-78 and UX-79 it cites.

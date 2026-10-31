@@ -37,7 +37,8 @@ The same rules as `typescript`, in Python's words. A machine-checked rule is one
 5. **Narrowing is real**: by `match`, `isinstance`, or a `TypeIs` / `TypeGuard` function whose body actually checks
    — a lying guard is worse than a `cast`, and `cast` on outside data is the same lie.
 6. **Independent awaits run together** (`asyncio.TaskGroup`, or `gather`); a sequence is a sequence only when one
-   needs the other. Not over one `AsyncSession`: a session is one connection (`pytest-patterns`).
+   needs the other. Not over one `AsyncSession`: a session is one connection (`fastapi-sqlalchemy` → Session and
+   unit of work).
 7. **Ids of different things are different types** (`NewType("UserId", UUID)` or a value object): a user id is
    not an email, and the checker refuses one where the other is expected.
 8. **Closed sets are `Literal` or `StrEnum`; value objects are `@dataclass(frozen=True, slots=True)`**; domain

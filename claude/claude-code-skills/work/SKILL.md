@@ -29,7 +29,9 @@ answers it land together. Splitting them into a `test:` commit and a `feat:`
 commit doubles the dispatch and breaks the one invariant the plan is built on.
 Tests are not nested either: choosing what to assert from an invariant row is
 judgment, and it belongs to the unit's own implementer — `mechanical-worker`
-may only replicate an assertion that implementer already wrote. Every line the user sees, between tool calls too, is in their language (`pipeline` → Names).
+may only replicate an assertion that implementer already wrote.
+
+Every line the user sees, between tool calls too, is in their language (`pipeline` → Names).
 
 ## Not this skill's job
 
@@ -234,12 +236,16 @@ Per unit, in this order, and never skip to the next unit on a broken tree:
    unit's `Файлы` is a scope breach: revert it. If the unit truly needed it,
    the plan mis-listed the footprint — record why in the run report and
    re-dispatch with the corrected `Файлы` (Step 6), so the review sees the file
-   inside the unit's scope instead of flagging it as a breach. A deleted or loosened earlier test, or a left `.only` / `.skip`, is a return.
+   inside the unit's scope instead of flagging it as a breach. A deleted or loosened earlier test, or a left
+   `.only` / `.skip`, is a return; let grep find them rather than the eye —
+   `git diff -U0 HEAD | grep -nE '^\+.*(\.(only|skip)\(|pytest\.mark\.(skip|xfail))|^-\s*((it|test)\(|def test_)'`
+   (a new untracked test file is in `git status`: open it).
 2. **Check the diff against the unit spec.** Does it implement the cited
    design, or something adjacent? Does it re-decide something the design
    already fixed?
-3. **Run the checks** (through `scripts/run_check.py`) — `lint`, `typecheck` (tests too) and the unit's tests plus what the plan names for
-   this ring (`repo-scaffold/references/quality-gates.md`). This run is authoritative; the worker's
+3. **Run the checks** — `lint`, `typecheck` (tests too) and the unit's tests plus what the plan names for
+   this ring (`repo-scaffold/references/quality-gates.md`), each through
+   `python3 "${CLAUDE_SKILL_DIR}/scripts/run_check.py" <name> -- <command>`. This run is authoritative; the worker's
    self-check is not. Then check the proof, not just the green: every scenario
    the plan listed exists as a test in the diff and asserts what the scenario
    names (a test named after a scenario that asserts nothing reports coverage
@@ -282,8 +288,8 @@ Per unit, in this order, and never skip to the next unit on a broken tree:
    commit for a changed decision (`references/fixes-and-decisions.md`).
 6. **Update the task list, the run report** (the unit's row, the worker's
    `DECISIONS`, «В работе» cleared) **and the resume note**, post the progress
-   line (Step 1), check the context (`references/run-hygiene.md` → Context), then move on. When the run stops on a unit instead (a
-   design gap, rounds that stopped making progress), set that row to
+   line (Step 1), check the context (`references/run-hygiene.md` → Context), then move on. When the run stops on
+   a unit instead (a design gap, rounds that stopped making progress), set that row to
    `⛔ остановлено: <причина>`.
 
 ### Step 6. Handle a bad return
@@ -350,9 +356,7 @@ round's fix commits until `PASS`, while each round makes progress.
 report (`references/run-report.md` — read it now), stop every watcher the run
 started, and delete `resume.md`. The run's last message is the progress line,
 then the question about the next stage: read `pipeline` → "Asking before a
-transition" now and ask it as that section says — stage 12's row offers
-`ui-test-cases` mode run when the product has screens, else
-`security-audit`. The reviews inside the run stayed automatic; this handoff
+transition" now and ask it as that section says. The reviews inside the run stayed automatic; this handoff
 is a question. No PR, no push, no CI watching: the branch stays local, and
 push and PR are the user's step after the whole pipeline.
 
@@ -393,10 +397,13 @@ change.
 
 ## References
 
-Each is named where it is read: `scripts/plan_state.py` (Step 1, the readiness gate), `references/run-state.md`
-and `references/progress-file.md` (Step 1), `references/parallel-waves.md` (3),
+Each is named where it is read: `scripts/plan_state.py` (Step 1, the readiness gate), `references/run-state.md`,
+`references/progress-file.md` and `references/run-hygiene.md` (Step 1; it runs `scripts/report_alarm.py` on a
+details file), `references/stack-skills.md` (Inputs, Step 4), `scripts/run_check.py` (5.3, and every suite),
+`references/parallel-waves.md` (3),
 `references/fixes-and-decisions.md` (6), `references/close.md` (7),
 `references/context7.md` (2b), `references/two-phase-dispatch.md` (4b), `references/two-approaches.md` (6),
-`references/health.md` and `references/run-report.md` (7), `references/chat-change.md`; the skills
+`references/health.md` and `references/run-report.md` (7; `health.md` runs `scripts/mutation_config.py`),
+`references/chat-change.md`; the skills
 `executor-catalog`, `code-review-unit`, `code-review-full`, and `pipeline` → `references/decision-changes.md`,
 `references/convergence.md`, `references/pause-and-resume.md`.

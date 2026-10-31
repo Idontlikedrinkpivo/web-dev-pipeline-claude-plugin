@@ -40,7 +40,8 @@ mode write (`pipeline` → `references/team.md`): the version comes from the
 branch `iteration/<version>`, inputs arrive by `git pull --rebase`, only this
 stage's documents are written — each committed the moment it is finished
 and pushed by the plugin once final, at the stage's close (`pipeline` →
-Commit each document) — and the stage closes as usual, its stamp included. After the last stage this person took, the «готовы и запушены»
+Commit each document) — and the stage closes as usual, its stamp included.
+After the last stage this person took, the «готовы и запушены»
 line replaces the offer of a stage someone else has.
 
 ## Mode write
@@ -328,7 +329,8 @@ report per run-report.md → How it is kept.
 **Dispatch:** resolve `ui-test-runner` through `executor-catalog` with
 `references/runner-prompt.md` — the one place for the runner's rules: a
 spec file per section file, the parts of `playwright-cli` it takes, the
-`test:e2e` script `ci-pipeline` runs, the cases one at a time, each frame
+`test:e2e` script `ci-pipeline` runs, the cases one at a time on each stand
+(`references/parallel-stands.md`), each frame
 compared once per `nodeId`, the `ux-patterns` screen-check items, the
 triage. Two of them bind the session too: the E2E folder and its config
 belong to this suite — `ui-test-cases` owns them, and a screen unit in
@@ -365,7 +367,7 @@ fix plan must turn green.
   user-causable response outcome and «Поля ввода» rule has a case; steps name actions, not widgets; expected texts are
   the ones the screen spec quotes, and each text it lacks is a spec gap for
   `screen-spec`, not a case marker.
-- run: the suite is committed-ready under the E2E folder with `test:e2e`;
+- run: the suite is ready to commit under the E2E folder with `test:e2e`;
   pass 1 reached 100% and every failed case went through pass 2; no
   application file changed; the `Verdict:` line under the last table is the
   verdict.
@@ -379,7 +381,7 @@ fix plan must turn green.
 - `references/parallel-stands.md` — several identical stands for a long
   run: what makes a stand copyable, how many the machine holds, the split.
 - `playwright-cli` — `references/test-config.md` (the stand-ready
-  config), and §0 and §3.1–3.3 of `references/test-generation.md` under its
-  «Inside dev-pipeline» block; locators, traces, screenshots.
+  config) and the parts of `references/test-generation.md` that
+  `references/runner-prompt.md` names; locators, traces, screenshots.
 - `ux-patterns` — what a frame comparison may flag besides the spec.
 - `pipeline` — where both modes sit.

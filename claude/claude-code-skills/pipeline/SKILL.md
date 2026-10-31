@@ -40,7 +40,7 @@ Inside `work`, the reviews in the Gates cell stay automatic.
 
 | Kind | Meaning |
 |---|---|
-| **gate** | the check listed for this stage (`grill-me`, `doc-review`). Ask before starting it; every question inside it — each grill question, each review finding — is the user's to answer. `plan-review` and the code reviews are not asked: they run on their own, because every product decision is already settled in the documents, so what the review finds is the pipeline's own work to fix. A recommendation, not a lock: the user runs it, skips it and goes on, or stops. A skipped gate is named in the stage's report and blocks nothing. |
+| **gate** | the check listed for this stage (`grill-me`, `doc-review`). Ask before starting it; every question inside it — each grill question, each review finding — is the user's to answer. `plan-review` and the code reviews are not asked: they run on their own, because every product decision is already settled in the documents, so what the review finds is the pipeline's own work to fix. A recommendation, not a lock — skipping is below. |
 | **offer** | the one next stage in the table. Ask before starting it. A declined offer stops the sitting. |
 
 Two exceptions, both reviews of the pipeline's own work: stage 11, where `plan-review` runs on the plan without
@@ -49,7 +49,7 @@ asking, its findings fixed round by round; and stage 12, where `work` invokes `c
 the offer after `work` are still questions.
 
 A skipped gate is not a passed gate, and it is not a stop either. Say
-which gate did not run, leave its field unset (`grilled:`, `reviewed:`,
+which gate did not run in the stage's report, leave its field unset (`grilled:`, `reviewed:`,
 `docs-consistency.md`), and ask the next transition. The user owns the
 trade-off: a small, fully specified change often has nothing for a gate
 to find, and making them sit through it anyway is the inflexibility the
@@ -166,14 +166,15 @@ by whom: "Commit each document as soon as it is written".
 The pipeline ends after stage 17, or after the last stage that ran when 14–17 were skipped. The
 stage that ran last hands over to this section; it does not end the sitting itself. In this order:
 
-1. **The last stamp.** First, what only a working file still holds moves into its owner document
-   through `references/decision-changes.md`: an accepted risk of `security-audit.md` missing from
-   architecture §1 «Принятые риски», a decision recorded only in a run report — those files are
-   removed in step 7, and the tag must carry what the project relies on. Then: a decision changed after
-   the plan, a fix after the UI run or the audit, sits in the contract documents unstamped; the tag
-   must carry its rows. Run the stamp over every contract document that differs from its last stamped
-   state (`doc-versioning` → `references/version-birth.md`, the iteration's close) — nothing differs,
-   nothing is committed.
+1. **The last stamp**, in two moves:
+   - **1a. Working files into owner documents.** What only a working file still holds moves into its
+     owner document through `references/decision-changes.md`: an accepted risk of `security-audit.md`
+     missing from architecture §1 «Принятые риски», a decision recorded only in a run report — those
+     files are removed in step 7, and the tag must carry what the project relies on.
+   - **1b. The stamp.** A decision changed after the plan, a fix after the UI run or the audit, sits in
+     the contract documents unstamped; the tag must carry its rows. Run the stamp over every contract
+     document that differs from its last stamped state (`doc-versioning` → `references/version-birth.md`,
+     the iteration's close) — nothing differs, nothing is committed.
 2. **The site.** Rebuild the documentation site (`docs-site`) and commit it when it changed.
 3. **The summary** — `references/summary.md`; on disk only, like the rest of `plans/`.
 4. **The tag** `v<version>` on the current commit — only when

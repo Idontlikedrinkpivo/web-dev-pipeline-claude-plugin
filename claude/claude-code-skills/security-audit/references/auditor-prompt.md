@@ -89,12 +89,14 @@ you keep it, sharpen the exploit request. Do not add new findings.
 
 ### Severity
 
-- **P0** — exploitable from outside with no special access; data or
-  accounts at stake; a live secret.
-- **P1** — exploitable by a signed-in user beyond their role; a declared
-  security requirement not met; a known CVE reachable from this code.
-- **P2** — weakens defence, not exploitable alone.
-- **P3** — hygiene.
+The one copy of the scale; `SKILL.md` → Severity points here.
+
+| | Meaning | Example |
+|---|---|---|
+| **P0** | exploitable from outside with no special access, data or accounts at stake | an operation returns any user's bookings by id; a live secret in the repo or its history; SQL injection |
+| **P1** | exploitable by a signed-in user beyond their role, or a declared security requirement not met | a resident can cancel another resident's booking; no rate limit where an NFR demands one; a known CVE reachable from the app's code |
+| **P2** | weakens defence, not exploitable alone | verbose errors with stack traces; a missing security header; a CVE in a dev-only dependency |
+| **P3** | hygiene | an outdated but unaffected dependency; a TODO about auth in a comment |
 
 ## The report
 

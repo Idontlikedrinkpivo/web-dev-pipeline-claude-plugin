@@ -22,7 +22,7 @@ Contents:
 - Which images
 - Shell or no shell — asked once per project
 - Checking a tag
-- A vulnerable base (Step 8.5)
+- A vulnerable base (Step 8, item 5)
 - Backend image — with a shell (TypeScript)
 - Backend image — with a shell (Python)
 - Backend image — without a shell
@@ -111,7 +111,7 @@ docker buildx imagetools inspect gcr.io/distroless/nodejs<major>-debian<N>:nonro
   the registry has for this runtime and the card's architecture (2026-10:
   `debian13`). An older branch keeps fixes later or never: on 2026-10-23
   `nodejs22-debian12` carried a CRITICAL in `libssl3` that Debian had
-  fixed, which stops every hand-over at Step 8.5, while `nodejs22-debian13`
+  fixed, which stops every hand-over at Step 8, item 5, while `nodejs22-debian13`
   had no HIGH or CRITICAL. The build stage sits on the same branch
   (`node:<pinned>-trixie-slim` for `debian13`, `bookworm` for `debian12`)
   so native modules link against the glibc the runtime has.
@@ -125,7 +125,7 @@ docker buildx imagetools inspect gcr.io/distroless/nodejs<major>-debian<N>:nonro
 No access to the registry here: say so and leave the placeholder for the
 user rather than a remembered tag.
 
-## A vulnerable base (Step 8.5)
+## A vulnerable base (Step 8, item 5)
 
 The scan finds a CRITICAL in a package of the base image, and a fixed
 version exists. First try what changes nothing in the app: a fresh digest

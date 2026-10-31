@@ -9,8 +9,8 @@ description: >-
 
 `frontend` says what a screen must do; this skill says how its React code stays changeable. The rules come from
 react.dev (Rules of React, You Might Not Need an Effect, Choosing the State Structure) and from what an audit of a
-real project found: a page of 687 lines with 19 `useState`, 17 `useRef` and 8 `useEffect`, network calls in
-components, a dictionary loaded four ways. Examples «так / не так»: `references/examples.md`.
+real project found: one oversized page holding all its state and effects, network calls in components, a reference
+list loaded several ways. Examples «так / не так»: `references/examples.md`.
 
 ## The machine checks — keep them green
 
@@ -34,7 +34,7 @@ components, a dictionary loaded four ways. Examples «так / не так»: `r
 2. **An effect synchronizes with an outside system** (a subscription, the DOM, a widget outside React) — never
    reacts to its own state. What a user did is handled in the event handler.
 3. **Server data only through the data layer**: one hook per read `operationId` (TanStack Query), a mutation per
-   write; the component never fetches. A dictionary has one hook, `useDictionary(name)`.
+   write; the component never fetches. A reference list (a dictionary) has one hook, shared by every screen.
 4. **Server data is not copied into `useState`** — except a form's initial values, reset with `key`.
 5. **State is minimal and grouped**: related values are one union object (`typescript` → «Impossible states are
    unrepresentable») or a `useReducer`. More than four or five `useState` in a component is a sign it does two
@@ -63,5 +63,5 @@ components, a dictionary loaded four ways. Examples «так / не так»: `r
 15. **Tests**: Testing Library through `renderWithProviders` from the shared test folder, the network mocked by
     MSW, the component's own hooks and modules never mocked, one behaviour per test (`vitest`).
 
-React 19: `ref` is an ordinary prop (no `forwardRef`), `<Context>` is its own provider. Check the installed
-version before relying on either.
+React-version facts (`ref` as an ordinary prop, `<Context>` as its own provider) are points to check:
+`frontend/references/version-checks.md` → React major.

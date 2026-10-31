@@ -5,6 +5,8 @@ description: >-
   assumption is left. Use for «допроси меня», «выжги допущения», «проверь мои допущения». Critique: doc-review.
 ---
 
+# Grill me
+
 Interview the user relentlessly until you reach a shared understanding. Map this as a **design tree**: every decision branches into the decisions that hang off it. Ask every question in Russian. Do not translate cited tokens when you quote them.
 
 Every question — each round and the close — is shown as "How a question is shown" says.
@@ -19,7 +21,7 @@ Prefer an existing artifact as the subject: a `brainstorm` Product Contract, a r
 - **An empty frontier on the first round is a pass — shown, not asserted.** A stage that settled nothing new — an increment touching one requirement — ends the session in one turn. A bare "nothing to ask" cannot be told apart from a lazy skip, so before declaring it, walk the document once against these branches, limited to this stage's subject, and mark each Clear / Partial / Missing: actors and roles; scope in/out; data and lifecycle (states, uniqueness, deletion); flows including error, empty, and concurrent cases; non-functional bounds (numbers, not adjectives); security and access; external dependencies and their failure modes; terminology; testability of acceptance criteria. A Partial or Missing branch that would change the document is a frontier question. The empty-frontier close lists each branch in one line (`Clear — <why>`). Do not manufacture questions for Clear branches; a fabricated frontier trains the user to skip the gate.
 - **The reversals land in that document, in place, once — at the close.** This rule's home is here; `brainstorm` and `srs-writer` cite it. The invoking stage applies the whole ledger after the user confirms the close: one pass, not one per round. A decision this grill overturned replaces the line it contradicts; it never sits beside it. When the reversal contradicts an *upstream* document, name that instead of silently editing it. The contradiction is the user's call; when the user rules that the upstream document changes, that is a changed decision for it, landed and committed at once with no version change (`pipeline` → `references/decision-changes.md`). This grill does not stamp either document: both stay on the last committed version. A number moves only in the commit that contains that file.
 
-The invoking stage then records `grilled: YYYY-MM-DD` on a business-requirements document. An SRS has no `grilled:` field; the gate on an SRS closes in the report and does not touch the header. Setting `grilled:` does not change `version` and does not add a changelog row.
+The invoking stage then records `grilled: YYYY-MM-DD` on a business-requirements document. An SRS has no `grilled:` field; the gate on an SRS closes in the report and does not touch the header. Any other document leaves `grilled:` out, because there it would read as a gate that failed. Setting `grilled:` does not change `version` and does not add a changelog row.
 
 ## When the user invoked this directly
 
@@ -30,7 +32,7 @@ No stage is waiting to finish the job, so this file does it after the user confi
    - another contract document or a plan — `doc-typist`, `MODE revise`, one `SETTLEMENT` line per reversal (`executor-catalog` → Nesting, `references/doc-typist-prompt.md`);
    - a business-requirements document — the session edits it, as `brainstorm` writes it.
    Resolve the row through `executor-catalog` and dispatch it by name; a missing agent is a stop (the user installs or updates the `dev-pipeline` plugin). Read the file back: every reversal landed, nothing else moved.
-2. **The file is a business-requirements document** — set `grilled:` to today yourself. An SRS gets no `grilled:`, `reviewed:`, `status`, or `sources`. On any other document leave `grilled:` out, because there it would read as a gate that failed.
+2. **The file is a business-requirements document** — set `grilled:` to today yourself; no other document gets it (the `grilled:` rule above).
 3. **Commit it** at once, as a changed decision is committed (`pipeline` → `references/decision-changes.md`, step 5): that document and its `open-questions.md` only, on the iteration's branch, opened first when none is (`pipeline` → Service version). A plan is out of git: nothing to commit. A contract document is not stamped here; its stage's next stamp types the change (`doc-versioning` → Commits that are not stamps).
 4. **Subject lives only in the chat** — there is nothing to write; list the settled decisions from the ledger in the chat as the result.
 5. **On a business-requirements document or an SRS** — read `pipeline` and ask about the next unrun transition in that stage's row, per "Asking before a transition". Otherwise end with the result: on any other document `grill-me` is not a gate in the chain, so there is no row to continue.
@@ -53,7 +55,7 @@ Answers held only in context are lost with a compaction or a cut-off session, so
 - **After each round:** `L add <the same selector> "<line>"`, one line per decision: `Раунд N · qK · <decision> · reverses <id or —>`, or `Раунд N · qK · отложено · <the question in one line>`.
 - **At the close,** apply reversals from `L show …`, not from memory, then `L close …` once they landed — a ledger left behind is read by the next grill of the same document as its own.
 
-**Do not touch `open-questions.md` before the close.** At any path, that file holds open questions and nothing else, and a round in progress has none yet. Do not create it, append to it, or edit a heading in it during the rounds — not to show a question, not to "repair" a grill heading already there. A grill round, `Гриль закрыт?`, and `ответьте в чате` never belong there. **At the close**, each deferred decision in the ledger becomes one row in `open-questions.md` beside the document (`doc-versioning` → Открытые вопросы), class `Отложено`, with the source `(допрос, YYYY-MM-DD)` — written by whoever applies the reversals, in the same pass, so a deferred question is kept rather than lost with the ledger.
+**Do not touch `open-questions.md` before the close.** At any path, that file holds open questions and nothing else, and a round in progress has none yet. Do not create it, append to it, or edit anything in it during the rounds, whatever is already there. A grill round, `Гриль закрыт?`, and `ответьте в чате` never belong there. **At the close**, each deferred decision in the ledger becomes one row in `open-questions.md` beside the document (`doc-versioning` → Открытые вопросы), class `Отложено`, with the source `(допрос, YYYY-MM-DD)` — written by whoever applies the reversals, in the same pass, so a deferred question is kept rather than lost with the ledger.
 
 ## Facts
 

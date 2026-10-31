@@ -50,11 +50,9 @@ is «позже»»: a non-answer counts as «позже»), the «The branch» 
 ## Code audit
 
 On «проведи аудит кода», «проверь код на соответствие плагину», «нужно ли переписывать», or offered once after
-`upgrade-docs` wrote the document set as it is: `references/audit.md`. Read-only `code-auditor` dispatches, one per
-module and one for the design documents' technical decisions (`references/auditor-prompt.md`); a report of every
-deviation with the rule, the fix, its cost and its risk; one question per item — fix (the document first, then the
-code through `plan` `MODE fix`), rewrite the module by its documents (characterization tests first), or keep it as
-an accepted deviation. Not the format of documents (`upgrade-docs`), not security in depth (`security-audit`).
+`upgrade-docs` wrote the document set as it is: read `references/audit.md` now and follow it — the dispatches,
+the report and the questions live there only. Not the format of documents (`upgrade-docs`), not security in depth
+(`security-audit`).
 
 ## Rules
 

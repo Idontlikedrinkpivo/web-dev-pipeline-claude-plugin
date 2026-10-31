@@ -18,14 +18,9 @@ This file is what a stage needs at dispatch time. Why each row has its model
 and effort: `references/model-economics.md`. How to add, retire, or re-point a
 row: `references/maintaining.md`. Neither is needed to dispatch.
 
-**A name belongs to its branch.** `impl-*` and `mechanical-worker` write code,
-`review-*` judge a diff against a unit spec, `plan-review-*` judge a plan,
-`doc-review-*` judge a finished document, `design-*` settle a design document,
-`plan-*` settle an implementation plan, `srs-author` settles the SRS,
-`doc-typist` prints any of those, `figma-*` draw frames, `screen-writer` writes
-screen specs from frames. A name borrowed from
-another branch because its tier looks right is a failed dispatch: it runs the
-right model on the wrong packet.
+**A name belongs to its branch** (the table's Branch column): a name borrowed
+from another branch because its tier looks right is a failed dispatch — it runs
+the right model on the wrong packet.
 
 ## Names: skills and agents carry the plugin prefix
 
@@ -34,9 +29,8 @@ any skill, a short name — `work`, `plan`, `screen-spec`, `impl-ui` — means
 the one from this plugin. Whenever a skill is **invoked** (the `Skill`
 tool) or an agent is **dispatched** (the `Agent` tool), use the full name:
 `dev-pipeline:work`, `dev-pipeline:impl-ui`. A short name in prose is for
-reading; a full name in a call is for routing. If another plugin or a
-personal skill has the same short name, the full name is the only way to
-be sure this set's version runs.
+reading; a full name in a call is for routing, so a same-named skill or
+agent from elsewhere never runs instead (Dispatch contract → `subagent_type`).
 
 ## The catalog
 
@@ -114,7 +108,7 @@ tool like this. Consumers point here instead of restating it.
   full Claude model id — dispatch the same row and pass that value as `model`
   on this call only; the file's effort, tools, and prompt still apply. The line
   says so: `design-medium | dev-pipeline:design-medium | model override:
-  sonnet (user; file: opus)`. Never a `gpt-*` model, `inherit`, or the session model, and never the
+  sonnet (user; file: opus)`. Never `inherit` or the session model, and never the
   implementer's alias on a review row — refuse those with the reason. The
   override is this dispatch only; an escalation goes back to the file.
 - **A rejected `subagent_type`:** retry once with the bare name. If both are
@@ -169,8 +163,7 @@ one — a model in a plan is a `plan-review` finding. If the harness rejects the
 alias in an agent file, that is a **stop**: do not edit the file to a
 neighbour, do not pass a different `model` on the call, and do not fall back
 to the session model or `general-purpose`. Report the file, the rejected
-alias, and the tier, and let the user re-point that file. A rejected alias is
-never replaced by a `gpt-*` one.
+alias, and the tier, and let the user re-point that file.
 
 **Scope.** This catalog routes pipeline dispatch only. Work outside the
 dispatching skills — a question, a debugging detour — runs on the session

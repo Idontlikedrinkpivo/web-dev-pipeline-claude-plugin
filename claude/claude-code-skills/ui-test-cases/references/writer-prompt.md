@@ -41,7 +41,7 @@ RULES
 - One case per reachable AC (main, Alt, Exc), per state row and per
   user-causable response outcome not yet covered, per «Поля ввода» rule,
   per forbidden action per role.
-- Two layers (ui-test-cases → What a case set must hold → Two readers):
+- Two layers (ui-test-cases → Mode write → Two readers, two layers):
   the body for a person — roles and screens by name, steps as actions by
   the label the user sees (never a widget, a gesture, or an element
   number), «Что должно быть» as the labelled texts a person sees, a

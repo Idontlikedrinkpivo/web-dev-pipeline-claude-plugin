@@ -82,7 +82,7 @@ would get neither folders nor a lint contract.
   `documentation/project-map/project-map.md`.
 - A §5 change that renames, moves, or deletes an existing folder is not
   scaffold work — it moves live code. Stop and name `plan`.
-- Run the Quality gate (lint with the canary, the service check), then 7.
+- Run the Quality gate (lint with the canary, the service check), then section 7.
   Commit and Closing.
 
 ## Progress file
@@ -164,8 +164,8 @@ system stores data — the host tests' own database, required, no default
 (`work` → `references/run-hygiene.md`). No `.env` committed, no values
 invented. `LOG_LEVEL` and `SHUTDOWN_TIMEOUT_SEC` are always there —
 optional, their defaults (`info`, `25`) named in the comment — because
-every service reads them (Step 5); a §4 table without them gets the two
-rows as a changed decision (Step 2).
+every service reads them (section 5); a §4 table without them gets the two
+rows as a changed decision (section 2).
 
 `.gitignore` carries `documentation/plans/` from the first commit: plans,
 reviews, progress files, reports and summaries are working files of this
@@ -341,12 +341,12 @@ SRS — `documentation/requirements/srs/srs.md`, OpenAPI —
 The one final check. Items 1–3 skip on a map-only run.
 
 1. Every folder foundation §5 names exists on disk under its real name,
-   each with its stub (Step 1); compare folders only — the files §5 lists
+   each with its stub (section 1); compare folders only — the files §5 lists
    (ports, adapters, entities) arrive with business code, not here. No
    top-level application folder exists that §5 does not name (tooling
    output — `node_modules/`, `.venv/`, build folders — and
    `documentation/` aside). Manifest and lockfile hold only the minimum
-   at the §1 majors (Step 2).
+   at the §1 majors (section 2).
 2. `lint-boundaries` (or equivalent) exits 0 — and it can fail. On an
    empty tree every rule is green, so green alone proves nothing. Write
    one throwaway file in the first area's `domain/` that imports that
@@ -356,7 +356,7 @@ The one final check. Items 1–3 skip on a map-only run.
    on the canary guards nothing: fix the config (unresolved alias, wrong
    root package, a layer missing from the config, a rule left at
    warning severity).
-3. Local run (Steps 4–5):
+3. Local run (sections 4–5):
    1. The service check passes, run on the server process itself — the
       manifest's start command without its `npm` / `uv run` wrapper
       (`node dist/src/index.js` after the build, or `node src/index.ts`
@@ -368,9 +368,9 @@ The one final check. Items 1–3 skip on a map-only run.
       id echoed and logged, JSON on every log line, then sends SIGTERM and
       expects exit 0 within `SHUTDOWN_TIMEOUT_SEC` + 5 s. Without a
       database `/health/ready` answers 503 and passes. Each `FAIL` is a
-      Step 5 defect to fix, not an environment quirk.
+      section 5 defect to fix, not an environment quirk.
    2. `.env.example` (with `LOG_LEVEL` and `SHUTDOWN_TIMEOUT_SEC`),
-      compose, and the migration runner match Step 4; the runner reads
+      compose, and the migration runner match section 4; the runner reads
       `documentation/db/migrations/` and nothing in the code tree holds a
       copy of a migration file.
    3. When §5 «Локальный запуск» says Compose and a migration file
@@ -382,7 +382,7 @@ The one final check. Items 1–3 skip on a map-only run.
    5. With no Docker, skip 3–4 and say «миграция не применялась» in
       Closing.
 4. No entity, use-case, repository, or OpenAPI handler files were added
-   (Step 5). `make test` is green, the contract test included — on the
+   (section 5). `make test` is green, the contract test included — on the
    scaffold it lists the contract's operations as not served yet and
    passes. The coverage threshold sits once, in each part's test-tool
    config (`references/quality-gates.md`, the Coverage gate); the scaffold's own
@@ -390,7 +390,7 @@ The one final check. Items 1–3 skip on a map-only run.
 5. No stack was chosen or changed here.
 6. `documentation/project-map/project-map.md` exists. Every path in it is a real
    file or the explicit «нет» / «нет UI» / «пусто». The body does not
-   paste foundation §5 or §2 (Step 6).
+   paste foundation §5 or §2 (section 6).
 
 If the app cannot be started in this environment (no runtime), say what
 was created and what was not verified. Do not skip the lint run or the

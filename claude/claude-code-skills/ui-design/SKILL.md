@@ -57,7 +57,8 @@ this stage (`pipeline` → `references/team.md`): the version comes from the
 branch `iteration/<version>`, inputs arrive by `git pull --rebase`, only this
 stage's documents are written — each committed the moment it is finished
 and pushed by the plugin once final, at the stage's close (`pipeline` →
-Commit each document) — and the stage closes as usual, its stamp included. After the last stage this person took, the «готовы и запушены»
+Commit each document) — and the stage closes as usual, its stamp included.
+After the last stage this person took, the «готовы и запушены»
 line replaces the offer of a stage someone else has.
 
 ## Inputs
@@ -124,14 +125,13 @@ installed; otherwise the MCP tools directly (`mcp__figma__*`, or
 
 **Figma limits.** Figma counts the MCP's reads (`get_metadata`,
 `get_screenshot`, `get_design_context`, …) against the user's seat: a View
-or Collab seat, or the Starter plan, gets about 20 a month — not enough for
-one screen set; a Full or Dev seat on a paid plan gets 200 a day (600 on
-Enterprise) and 10–20 a minute. Before the first Figma dispatch of a
+or Collab seat, or the Starter plan, cannot draw one screen set; a Full or
+Dev seat on a paid plan can. Before the first Figma dispatch of a
 sitting, say it in one line when `whoami` or the user shows a View or
 Collab seat or the Starter plan, and recommend a Full or Dev seat before
 drawing; a run cut off by the limit reports the screens left `черновик`.
 Keep reads to what a step needs — one `get_screenshot` per screen, not per
-element. The numbers are Figma's and change: developers.figma.com → Figma
+element. The current figures, which change: developers.figma.com → Figma
 MCP server → Rate limits.
 
 ## Artifact — the frames register
@@ -300,12 +300,8 @@ information; the dispatch does not wait.
 | Every in-scope screen is `без изменений` and the completeness check passes | nobody |
 
 One subagent for the whole set; do not parallelize edits to one file.
-Before the `Agent` call, write `Name | subagent_type` for the row and
-dispatch that agent (`subagent_type: "dev-pipeline:figma-opus"` or `"dev-pipeline:figma-sonnet"`)
-without asking which model, with no `model` unless the user named one. A
-dispatch on `general-purpose` or any other agent is a failed dispatch:
-discard its result. A missing agent or a rejected alias is a stop per the
-catalog's Dispatch contract and Slug hygiene.
+Dispatch the row's agent (`dev-pipeline:figma-opus` or
+`dev-pipeline:figma-sonnet`) per `executor-catalog` → Dispatch contract.
 
 **Verification.** The report is the builder's claim. Before writing any id,
 call `get_metadata` on each returned `nodeId`. An id that does not resolve,
@@ -334,15 +330,12 @@ Read `references/restyle-redraw.md` and follow it.
 
 - **Restyle** — the same frames take the direction (`figma-sonnet`, `MODE
   restyle`); structure, layer names, texts, annotations and every `nodeId`
-  stay, so the register and the screen specs stay valid. A linked library's
-  variables are not edited from here: a restyle of library-bound frames
-  stops and says so. Next stage, when the screens are already built:
-  `plan` (its theme unit).
+  stay, so the register and the screen specs stay valid.
 - **Redraw on a new page** — every screen drawn anew in the direction on a
   page `✅ Экраны · «<имя>»` (`figma-opus`, `MODE draw`), the old frames
-  untouched on theirs; S-ids, M-ids and element № stay. Next stage:
-  `screen-spec` for every screen (new nodeIds), then `ui-test-cases`
-  (write), then `plan`.
+  untouched on theirs; S-ids, M-ids and element № stay.
+
+The library-bound stop and the next stage after each are in that reference.
 
 ## Indexing (mode index)
 
@@ -433,7 +426,6 @@ redraw, the new page and the screens drawn on it.
 Then read `pipeline` and ask about the stage its table names after this one
 (normally `screen-spec`, which needs these frames and the OpenAPI contract;
 `pipeline` says what runs first when the contract is missing; after a
-restyle of screens already built, `plan`; after a redraw, `screen-spec`
-for every screen), per "Asking before a transition". A no stops the sitting. While frames are still
+restyle or a redraw, the stage `references/restyle-redraw.md` names), per "Asking before a transition". A no stops the sitting. While frames are still
 missing (a failed dispatch, a blocking header row), the last message is the
 blocker, not the next stage.

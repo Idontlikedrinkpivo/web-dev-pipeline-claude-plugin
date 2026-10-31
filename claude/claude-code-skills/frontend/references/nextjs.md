@@ -29,7 +29,7 @@ Name the `S-n` in the page file's first comment line.
 | Forms | React Hook Form + Zod; Zod again in a Server Action | schema typed against the generated request body |
 | Styling / UI kit | Tailwind CSS + shadcn/ui | |
 | Component tests | Vitest + Testing Library + jsdom, MSW | async Server Components are covered by the user test suite (`e2e/`) instead |
-| E2E | Playwright, the user test suite of `ui-test-cases`; the app runs as a stand started by the verify skill, not by `webServer` (`playwright-cli` → `references/test-config.md`) | `@axe-core/playwright` per state |
+| E2E | Playwright, the user test suite of `ui-test-cases`; the app runs as a stand started by the project's verify skill (`deploy-topology` → `references/verify-skill.md`), not by `webServer` (`playwright-cli` → `references/test-config.md`) | `@axe-core/playwright` per state |
 
 ## Stack conventions
 

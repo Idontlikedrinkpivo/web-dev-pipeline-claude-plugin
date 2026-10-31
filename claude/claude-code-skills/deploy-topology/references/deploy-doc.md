@@ -22,7 +22,7 @@ They do not receive `docker-compose.prod.yml` — they run the images in
 their own way (their compose, their orchestrator, their secrets store), so
 they need the facts, not this project's file. So `DEPLOY.md` names no file
 the folder does not hold: an operator told to fill `.env.prod.local` or to
-start `docker-compose.prod.yml` has neither (ai-initiatives, 2.1.0). The
+start `docker-compose.prod.yml` has neither. The
 compose file stays in the repo as the source those facts are taken from and
 as a way to run the prod shape locally; the sync test keeps the two from
 drifting.

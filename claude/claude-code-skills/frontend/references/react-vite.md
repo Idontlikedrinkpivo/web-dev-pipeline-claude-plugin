@@ -28,7 +28,7 @@ Name the `S-n` in the page file's first comment line so a search for `S-1` finds
 | Forms | React Hook Form + Zod via its resolver | schema typed against the generated request body |
 | Styling / UI kit | Tailwind CSS + shadcn/ui | Radix-based primitives bring dialog focus trap and keyboard handling |
 | Component tests | Vitest + Testing Library + jsdom, MSW at the network boundary | queries by role and accessible name |
-| E2E / a11y | Playwright, the user test suite of `ui-test-cases`; eslint-plugin-jsx-a11y | `@axe-core/playwright` scan of each state; whether jsx-a11y loads with the installed ESLint major — `version-checks.md` → «Profile: React + Vite» |
+| E2E / a11y | Playwright, the user test suite of `ui-test-cases`; the app runs as a stand started by the project's verify skill (`deploy-topology` → `references/verify-skill.md`), not by `webServer` (`playwright-cli` → `references/test-config.md`); eslint-plugin-jsx-a11y | `@axe-core/playwright` scan of each state; whether jsx-a11y loads with the installed ESLint major — `version-checks.md` → «Profile: React + Vite» |
 
 ## Stack conventions
 

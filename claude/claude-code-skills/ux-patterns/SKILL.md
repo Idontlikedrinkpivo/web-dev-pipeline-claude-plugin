@@ -19,6 +19,10 @@ Where the rules come from, and the disagreements already settled:
 Every rule is checkable on a screen-spec row, a frame screenshot, or a diff. A
 rule nobody can check is not in this file.
 
+Ids are append-only, so a later rule sits in its section out of numeric
+order: UX-57–62, 66 — Section 1; 63, 67 — 2; 69 — 3; 70, 80 — 4; 64, 65,
+68 — 5; 71–73 — 6; 74–77 — 8; 78, 79 — 9.
+
 ## Product type
 
 The frames register names it (`ui-design` → **Тип продукта**):

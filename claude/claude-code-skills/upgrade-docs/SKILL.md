@@ -18,16 +18,14 @@ The list has two kinds. Rows with `"kind": "code"` change the project's code and
 project's verify skill — and belong to `upgrade-code`, which follows these steps with its own differences. The rows without a kind are documents, and they are this skill's.
 
 The format changes apply only to documents the plugin wrote, so «nothing pending» says nothing about a project
-that has none of them — one started without the plugin got «документы соответствуют плагину» with ten documents
-missing. The **set** comes first: `project_format.py set` reads the code for what the documents describe (a
+that has none of them, so the **set** comes first: `project_format.py set` reads the code for what the documents describe (a
 database, an HTTP API, screens, containers), names each document of the set the project needs and whether it is
 there, and the missing ones are written from the code as it is (`references/as-is.md`).
 
 ## Steps
 
-The changes are shown **one at a time**: a list of every change explained at once got edited before anyone
-answered, and a question left unanswered was answered by the model itself («Вы не выбрали вариант, поэтому ставлю
-первый»). The script hands out one change per call, so the next one is not on screen until this one is settled.
+The changes are shown **one at a time**, one per message, so each is answered before the next appears; the script
+hands out one change per call.
 
 0. **The set.** `python3 "${CLAUDE_SKILL_DIR}/scripts/project_format.py" set .` — what the code shows, each
    document of the set with «есть», «нет», «неполный», «не нужен» or «пропущен», and how many files of the
@@ -49,8 +47,8 @@ answered, and a question left unanswered was answered by the model itself («В�
    `openapi.yaml` is there — one file per message: keep, or remove with `git rm` (it stays in the history); a file
    whose replacement was postponed waits for the next run (`references/as-is.md` → After the set). Then step 1.
 
-1. **What is pending.** `python3 "${CLAUDE_SKILL_DIR}/scripts/project_format.py" list . --kind docs` from the
-   project's root, for the count only — say in one line how many document changes the project lacks, and, when the
+1. **What is pending.** `python3 "${CLAUDE_SKILL_DIR}/scripts/project_format.py" list . --kind docs --count` from
+   the project's root — say in one line how many document changes the project lacks, and, when the
    output also names changes for `upgrade-code`, that they are the code's and `/dev-pipeline:upgrade-code` makes
    them; do not make them here. Do not explain them here. Nothing pending — go to step 4 (the stamp still lands
    in a commit). «Nothing pending» is about formats only: never say the project's documents match the plugin
