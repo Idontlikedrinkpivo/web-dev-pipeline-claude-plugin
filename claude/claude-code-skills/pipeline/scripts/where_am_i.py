@@ -30,7 +30,6 @@ except Exception:  # a broken neighbour must not break the answer
 PROGRESS = {  # file -> (stage, which statuses mean «not finished»)
     "progress-design.md": ("ui-design", "⏳🔄🔍🔁⛔"), "progress-screen-specs.md": ("screen-spec", "⏳🔄🔍🔁⛔"),
     "progress-test-cases.md": ("ui-test-cases write", "⏳🔄🔍🔁⛔"),
-    "progress-architecture.md": ("clean-architecture-design", "⏳🔄🔍🔁⛔"),
     "progress-scaffold.md": ("repo-scaffold", "⏳🔄🔍🔁⛔"), "progress.md": ("work", "⏳🔄🔍🔁⛔"),
     "progress-deploy.md": ("deploy-topology", "⏳🔄🔍🔁⛔"),
     "test-run.md": ("ui-test-cases run", "⏳🔄"), "security-audit.md": ("security-audit", "⏳🔄🔍"),
@@ -190,8 +189,9 @@ def pins(doc: Doc, by_path: dict) -> list:
 
 
 def srs_gates(root: Path) -> tuple:
-    """The SRS's last stamp commit: (subject, grill, review, commits after it, uncommitted)."""
-    log = git(root, "log", "--format=%H\t%s", "--", "documentation/requirements/srs/")
+    """The SRS's last stamp commit: (subject, grill, review, commits after it, uncommitted). The whole log, not the
+    folder's: a close commit with nothing to stamp is empty (doc-versioning → version-birth, step 2)."""
+    log = git(root, "log", "--format=%H\t%s", "-n", "3000")
     for line in log.splitlines():
         sha, _, subj = line.partition("\t")
         if re.match(r"docs: SRS \d", subj):
@@ -261,16 +261,57 @@ DOC_FILES = {"documentation/requirements/srs/srs.md": "documentation/requirement
 NOT_A_STAGE_COMMIT = re.compile(r"^docs: решение изменено|\(плагин \d")
 
 
+WRITTEN = re.compile(r"написан[аоы]?, этап не закрыт")
+# the stage-close commit of each document's stage: «docs: <документ> <version> · review: …», empty when nothing was
+# stamped — a first release, or nothing changed since the last stamp (doc-versioning → version-birth, step 2)
+CLOSE_KEY = (("requirements/srs/", r"\bSRS\b"), ("db/", r"схем\w* БД"), ("api/", r"\bAPI\b"),
+             ("architecture/", r"архитектур|доменн\w* модел|сценари"), ("screen-specs/", r"ТЗ на экран"))
+NOT_CLOSE = re.compile(r"этап не закрыт|^docs: решение изменено|— как есть|\(плагин \d")
+ALL_CLOSE = re.compile(r"^docs: документы \S+ перед тегом|^docs: publish document versions")
+
+
+def close_commit(root: Path, doc: Doc, span: str = "HEAD") -> tuple[str, str]:
+    """The newest commit in span that closed the document's stage — read from the whole log, since an empty close
+    commit touches no file: (sha, subject), or ("", "")."""
+    key = next((k for part, k in CLOSE_KEY if part in doc.rel), None)
+    if not key:
+        return "", ""
+    for line in git(root, "log", "--format=%H\t%s", "-n", "3000", span).splitlines():
+        sha, _, subj = line.partition("\t")
+        if ALL_CLOSE.search(subj) or (subj.startswith("docs: ") and re.search(key, subj)
+                                      and VERSION_RX.search(subj) and not NOT_CLOSE.search(subj)):
+            return sha, subj
+    return "", ""
+
+
+def gate_state(subject: str, gate: str) -> str:
+    """A gate's state named in a close commit — «grill: пропущен», «review: прошёл» — or ""."""
+    m = re.search(rf"{gate}:\s*([^·]+)", subject)
+    return m.group(1).strip() if m else ""
+
+
 def unstamped(root: Path, doc: Doc, version: str | None) -> bool:
-    """Written or changed on this iteration's branch by its stage, and not stamped with the iteration's version yet:
-    the stage is still open (its gates and its stamp). Decision changes and plugin-format commits do not count."""
-    if not version or doc.meta.get("version") == version or not doc.path.is_file():
+    """Written or changed on this iteration's branch by its stage, and its stage not closed yet (its gates and its
+    stamp). Decision changes and plugin-format commits do not count. A first release is written at the iteration's
+    version already: it is open from its writer's commit («написан, этап не закрыт») to its stage's close commit."""
+    if not version or not doc.path.is_file():
         return False
     into = main_ref(root)
     base = git(root, "merge-base", "HEAD", into) if into else ""
     span = f"{base}..HEAD" if base else "HEAD"
-    subjects = git(root, "log", "--format=%s", span, "--", DOC_FILES.get(doc.rel, doc.rel)).splitlines()
-    return any(s and not NOT_A_STAGE_COMMIT.search(s) for s in subjects)
+    log = git(root, "log", "--format=%H\t%s", span, "--", DOC_FILES.get(doc.rel, doc.rel)).splitlines()
+    if doc.meta.get("version") != version:
+        return any(l.partition("\t")[2] and not NOT_A_STAGE_COMMIT.search(l.partition("\t")[2]) for l in log)
+    written = {l.partition("\t")[0] for l in log if WRITTEN.search(l.partition("\t")[2])}
+    if not written:
+        return False
+    closed, _ = close_commit(root, doc, span)
+    for line in git(root, "log", "--format=%H", span).splitlines():   # newest first: which came last
+        if line == closed:
+            return False
+        if line in written:
+            return True
+    return False
 
 
 def plan_state(folder: Path) -> list:
@@ -394,7 +435,11 @@ def main() -> None:
             bits.append(meta["version"])
         if d.gate == "grill":
             g, u = meta.get("grilled"), meta.get("updated")
-            if not g:
+            said = re.search(r"^docs: бизнес-требования · допрос:\s*(.+)$",
+                             git(root, "log", "--format=%s", "-n", "3000"), re.M)
+            if not g and said and not said.group(1).strip().startswith("не запускался"):
+                bits.append(f"допрос: {said.group(1).strip()}")      # the commit says it: «пропущен»
+            elif not g:
                 bits.append("допрос: не запускался")
                 opens.append("допрос бизнес-требований (grill-me) не запускался")
             elif u and u > g:
@@ -417,19 +462,27 @@ def main() -> None:
                     if val.startswith("не запускался") or val == "в штампе не названо":
                         opens.append(f"{gate}: {val}")
         elif d.gate == "review":
-            bits.append(f"ревью: {meta['reviewed']}" if meta.get("reviewed") else "ревью: нет отметки (пропущено или не запускалось)")
+            said = gate_state(close_commit(root, d)[1], "review")
+            if meta.get("reviewed"):
+                bits.append(f"ревью: {meta['reviewed']}")
+            elif said:
+                bits.append(f"ревью: {said}")                         # the stage's close commit says it
+                if said.startswith("не запускался"):
+                    opens.append(f"ревью «{d.label}»: не запускался")
+            else:
+                bits.append("ревью: нет отметки (пропущено или не запускалось)")
         draft = d.gate == "review" and unstamped(root, d, it_version)
         for p in pins(d, by_path):
             bits.append(p)
             if p.startswith("устарел") and not draft:  # a draft of this iteration gets its pins with the stamp
                 opens.append(f"устарел документ «{d.label}» — этап {d.stage} обновляет его по журналу источника")
         if draft:
-            bits.append(f"написан в итерации {it_version}, этап не закрыт (нет отметки версии)")
+            bits.append(f"написан в итерации {it_version}, этап не закрыт (нет коммита закрытия этапа)")
             open_stages.setdefault(d.stage, []).append(d.label)
         print(f"  {d.stage}. {d.label}: " + " · ".join(bits))
     for stage, labels in open_stages.items():
         opens.append(f"этап {stage} не закрыт: {', '.join(labels[:4])}{' …' if len(labels) > 4 else ''} — написаны и "
-                     "закоммичены, проверка и отметка версии не сделаны")
+                     "закоммичены, проверка и закрытие этапа не сделаны")
     ui = sorted(doc.glob("ui/frames-register.md")) + sorted(doc.glob("ui/*/frames-register.md"))
     for reg in ui:
         owner = re.search(r"Дизайн ведёт:?\**:?\s*([^\n|]+)", read(reg))

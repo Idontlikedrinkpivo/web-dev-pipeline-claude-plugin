@@ -150,7 +150,7 @@ When they are clear:
 #### 0.4 Surface the Workflow Spine
 
 1. Skip this step for Lightweight.
-2. For Standard and Deep, look for the task-tracking tool (`TaskCreate`). If tools load on demand, search for it with `ToolSearch` before concluding there is none.
+2. For Standard and Deep, look for the task-tracking tool (`TaskCreate`; in Claude Desktop the app's own plan tool, `update_plan`, when the session has it). If tools load on demand, search for it with `ToolSearch` before concluding there is none — unless the app says its tool is not to be searched for.
 3. Found one: read `references/task-spine.md` and create the five-task spine it defines — here, not earlier, because the tier is unknown until 0.3.
 4. Found none: continue without simulating a task list in chat — a list the user cannot tick off is noise.
 
@@ -309,7 +309,7 @@ The document is written first, then interrogated. A written Product Contract is 
 
 A paused run that never reached a document skips this gate: there is nothing settled to interrogate. Say so in the pause summary.
 
-**Commit the document** on the iteration's branch once the gate closed, was skipped, or the user stopped at its question: the document, its `open-questions.md`, and on a new project `documentation/.dev-pipeline.json` — `docs: бизнес-требования · допрос: прошёл | пропущен | не запускался` (`не запускался` — the user stopped before answering the gate's question). When the project has a documentation site, wait for its rebuild first (`docs-site` → `rebuild.py . --wait`) and stage `documentation/_web-docs` too. Nothing of this stage stays uncommitted when the next one is offered.
+**Commit the document** on the iteration's branch once the gate closed, was skipped, or the user stopped at its question: the document, its `open-questions.md`, and on a new project `documentation/.dev-pipeline.json` — `docs: бизнес-требования · допрос: прошёл | пропущен | не запускался` (`не запускался` — the user stopped before answering the gate's question). The site is built by the plugin's hook from the first document, so on a new project it exists by now too: wait for its rebuild first (`docs-site` → `rebuild.py . --wait`) and stage `documentation/_web-docs` with the document — `git status` shows it. Nothing of this stage stays uncommitted when the next one is offered.
 
 ### Phase 4: Closing Summary
 

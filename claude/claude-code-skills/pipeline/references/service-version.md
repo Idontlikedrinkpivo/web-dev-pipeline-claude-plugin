@@ -20,7 +20,7 @@ release it last changed in (`doc-versioning` → What a version is).
 | PATCH | fixes only: behaviour brought to what the documents already say | computed: only «уточняет» changes and code fixes |
 
 A «ломает» alone makes a MINOR, not a MAJOR. Before the first release
-versions are `0.x.y` (a manifest with no version → `0.1.0`); the owner says
+versions are `0.x.y` (a new project: the number is asked, `0.1.0` recommended); the owner says
 when the first release, `1.0.0`, is.
 
 ## Opening the iteration
@@ -37,11 +37,16 @@ a fresh clone, or work another person pushed (`references/team.md`).
 switches to it and creates the folder. No number is proposed, and steps 1
 and 3 below are skipped when the branch already has documents.
 
-1. **The number.** Greenfield: `0.1.0`, without asking. Otherwise propose
-   the number after the manifest's, with its level and a one-line reason
-   («MINOR: новые UC-5, UC-6 в бронированиях»), as one question
-   (`references/question-format.md`):
+1. **The number.** Greenfield (no manifest version, no tag, no documents):
+   ask, as one question (`references/question-format.md`) — «Номер первой
+   версии?» `A. 0.1.0 (рекомендую)`, `B. 1.0.0 — сразу первый выпуск`, or
+   the user's own number. Otherwise the documents and the manifest decide:
+   propose the number after the manifest's, with its level and a one-line
+   reason («MINOR: новые UC-5, UC-6 в бронированиях»), as one question:
    `A. <версия> (рекомендую)`, `B. Остановиться`, or the user's own number.
+   A parent session asks it before anything else — its title, «iteration
+   <version>», and its sessions' titles carry the number
+   (`references/parent-session.md`).
 2. **Open it:**
    `python3 "<pipeline skill folder>/scripts/open_iteration.py" <version>`
    from the project's root. It updates `main` from `origin` when there is a

@@ -27,11 +27,13 @@ architecture change»). A working note to yourself is not printed.
 
 ## Parent session and nested sessions
 
-In Claude Desktop the session the user opens is the iteration's **parent**: it runs no stage itself and opens
-each stage in a **nested session** with a fresh context, while a session whose first message names a parent is
-a nested one and runs its stage. Read `references/parent-session.md` before the first step — which one you are,
-the session tool and how to load it, the reserve, and the app's rule on who may open a session; without that
-tool the session runs the stages itself.
+In Claude Desktop the session the user opens is the iteration's **parent**, titled «iteration <version>»: it runs
+no stage itself; at the iteration's start — or its continuation, on any machine — it opens one waiting **nested
+session** per job still left, each titled for it, with a fresh context, and starts each in turn by a message, while
+a session whose first message names a parent is a nested one and runs its stage. Read `references/parent-session.md` before the first
+step — which one you are (a new project counts), the session tool and how to load it, the list kept by
+`scripts/subsessions.py` and asked once, and the app's rule on who may open a session; without that tool the session
+runs the stages itself.
 
 ## Two kinds of transition
 
@@ -54,7 +56,8 @@ which gate did not run in the stage's report, leave its field unset (`grilled:`,
 trade-off: a small, fully specified change often has nothing for a gate
 to find, and making them sit through it anyway is the inflexibility the
 gate was never meant to buy. A later sitting can still run it. Where a
-record names the gate (the SRS stamp), a skip the user chose is
+record names the gate (the stage's close commit — `doc-versioning` →
+`references/version-birth.md`, empty when nothing is stamped), a skip the user chose is
 `пропущен`; a gate whose question was never answered — the sitting stopped
 first — is `не запускался`, and "Where am I" offers it again.
 

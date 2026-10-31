@@ -37,7 +37,7 @@ Before writing anything, look for the canonical document for this stage
 
 | Found | Mode | What the stage does |
 |---|---|---|
-| nothing | **greenfield** | the writer skill creates the file at `version: <iteration version>` — the open `plans/<version>/` folder's name, `0.1.0` on a new product — with one «первый выпуск» row typed «—». The gates that follow leave both alone |
+| nothing | **greenfield** | the writer skill creates the file at `version: <iteration version>` — the open `plans/<version>/` folder's name, the number asked at the start on a new product, usually `0.1.0` — with one «первый выпуск» row typed «—». The gates that follow leave both alone |
 | a document for this system | **increment** | edit that file in place, leaving `version`, `updated`, and the changelog untouched (below the table) |
 | a document for a *different* system in the same repo | greenfield for this system | monorepo: canonical path is per system, not per repo — each system has its own `documentation/` tree |
 | several candidates | **stop and ask** | never guess which one is canonical — picking wrong makes the real one stale invisibly. Ask by `pipeline` → `references/question-format.md`, explaining each file |

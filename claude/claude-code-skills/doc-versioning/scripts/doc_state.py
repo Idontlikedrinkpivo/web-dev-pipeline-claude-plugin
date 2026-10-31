@@ -13,8 +13,10 @@ dirty   For each contract document (SRS with areas/, DB schema, OpenAPI with pat
         the commits since that stamp, the decision-change and upgrade-docs ones marked (an upgrade-docs commit's
         hunks get no journal row; `git log <stamp>..HEAD -- <files>` lists the rest). A document whose version line was only ever written by its writer's commit
         («… написан, этап не закрыт») has never been stamped: it is its first release. --diff prints each
-        differing document's diff against its last stamp — what the stamp types. Exit 0 — nothing differs
-        (version-birth step 2: stop, commit nothing); 2 — something differs.
+        differing document's diff against its last stamp — what the stamp types. A stage's close commit — empty
+        when it stamped nothing, «docs: <документ> <version> · review: …» — counts as a stamp: the document is
+        compared with its state there. Exit 0 — nothing differs (version-birth step 2: no stamp; at a stage's
+        close only the empty close commit); 2 — something differs.
 stale   Every `path@<version>` pin under documentation/ (OpenAPI's info.x-sources, the frames register's and the
         test cases' README pins included) that is behind its source, as
         «document → source@<pin> (сейчас <version>): stale | behind | refresh» with the source's journal rows
@@ -24,6 +26,7 @@ Standard library only; reuses pipeline/scripts/where_am_i.py for the registry, t
 """
 from __future__ import annotations
 
+import itertools
 import re
 import subprocess
 import sys
@@ -56,9 +59,15 @@ def doc_files(root: Path, doc: "w.Doc") -> list[str]:
 
 
 def last_stamp(root: Path, doc: "w.Doc") -> tuple[str, str]:
+    """The newer of: the commit that last moved the version line, and the stage's close commit — empty when it had
+    nothing to stamp, as a first release has (version-birth, step 2); its state is the document's then."""
     pattern = r"^  version:" if doc.rel.endswith("openapi.yaml") else r"^version:"
     line = git(root, "log", "-1", "--format=%H\t%s", "-G", pattern, "--", doc.rel)
     sha, _, subject = line.partition("\t")
+    close, close_subject = w.close_commit(root, doc)
+    if close and close != sha and (not sha or subprocess.run(
+            ["git", "-C", str(root), "merge-base", "--is-ancestor", sha, close], capture_output=True).returncode == 0):
+        return close, close_subject
     return sha, subject
 
 
@@ -104,7 +113,8 @@ def dirty(root: Path, only: list[str], show_diff: bool) -> int:
     if clean:
         print(f"✓ не отличаются от последнего штампа: {', '.join(clean)}")
     if not differ:
-        print("doc_state: ни один документ не отличается от своего штампа — штамповать нечего, коммита нет")
+        print("doc_state: ни один документ не отличается от своего штампа — штамповать нечего; на закрытии этапа — "
+              "пустой коммит закрытия с состоянием ворот (version-birth, шаг 2)")
         return 0
     print(f"doc_state: отличаются {len(differ)} — их и штампует version-birth, шаг 4"
           + ("" if show_diff else "; разница: --diff или git diff <штамп> -- <файлы>"))
@@ -164,7 +174,10 @@ def main() -> None:
     if not (root / "documentation").is_dir():
         print(f"doc_state: в {root} нет documentation/")
         sys.exit(1)
-    only = [a for i, a in enumerate(args) if i and args[i - 1] == "--only"]
+    only = []   # every path after --only up to the next flag: «--only a b c» is three, not one
+    for i, a in enumerate(args):
+        if a == "--only":
+            only += itertools.takewhile(lambda x: not x.startswith("--"), args[i + 1:])
     sys.exit(dirty(root, only, "--diff" in args) if mode == "dirty" else stale(root))
 
 

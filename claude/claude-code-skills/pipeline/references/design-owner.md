@@ -64,7 +64,12 @@ iteration and can change at any message («дизайнер ушёл, рисуе
 
 In the frames register header, **Дизайн ведёт:** `мы` | `дизайнер с
 плагином` | `дизайнер без плагина`, written by the first session that has
-both the answer and the register, and committed with it. Before the
-register exists the answer lives in this session; a later session that
-finds neither the field nor a register asks again. It is separate from
+both the answer and the register, and committed with it. **Before the
+register exists** the answer goes into `documentation/.dev-pipeline.json`
+as `"design": "<the answer>"` (Edit, the file's other keys kept), committed
+with the stage's next document commit — each stage runs in its own session
+with a fresh context, so an answer kept only in the chat was asked again
+(live run 2026-10-31). `open_iteration.py` reads both places; `ui-design`
+copies the answer into the register's header when it creates the register.
+A session that finds neither asks again. It is separate from
 **Кадры рисует**, which says who draws the frames inside the design stage.

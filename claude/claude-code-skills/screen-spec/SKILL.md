@@ -79,7 +79,7 @@ product).
 
 Each file is a versioned document under `doc-versioning`: a new file is born
 at the open iteration's service version (the `documentation/plans/<version>/`
-folder; `0.1.0` on greenfield) with one «первый выпуск» row in
+folder; on greenfield the first iteration's number, usually `0.1.0`) with one «первый выпуск» row in
 `## Журнал изменений` (the SRS's Russian columns). After that, writers edit
 the body in place and never touch `version`, `updated`, or the journal; the
 stamping commit (`doc-versioning`) writes the version and the rows. `doc-review` sets `reviewed:`

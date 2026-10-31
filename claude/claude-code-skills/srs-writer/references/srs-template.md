@@ -133,7 +133,7 @@ documentation/requirements/srs/
   inside each file. Citations stay `srs.md@<version>`; a search for an id
   runs over the folder.
 
-`<версия>` is the service version of the open iteration, the name of its `documentation/plans/<version>/` folder (`0.1.0` on greenfield), given in the packet's `VERSION`. A greenfield SRS is born at it with the one «первый выпуск» row. An increment does not touch `version` or the changelog.
+`<версия>` is the service version of the open iteration, the name of its `documentation/plans/<version>/` folder (on greenfield the first iteration's number, usually `0.1.0`), given in the packet's `VERSION`. A greenfield SRS is born at it with the one «первый выпуск» row. An increment does not touch `version` or the changelog.
 
 ### 1. Кратко
 

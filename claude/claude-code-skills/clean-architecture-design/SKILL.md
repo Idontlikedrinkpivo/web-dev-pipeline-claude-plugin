@@ -72,15 +72,10 @@ dispatch the typist.
 4. **Level.** Decide the level (Step 2) far enough to grade. The
    foundation writer records it as the «Уровень» row of §1 «Ключевые
    решения»; domain and scenarios writers read it from there.
-5. **Dispatch one writer for the sitting.** First create
-   `documentation/plans/<version>/progress-architecture.md` per
-   `pipeline` → `references/progress-files.md` — one row per document in `MODE`, all `⏳ ждёт` —
-   and put its path in the packet's `PROGRESS FILE`: one dispatch writes
-   every document, and the file is where the user sees which one it is
-   on. The chat gets the line this prints (`--desktop` with the built-in
-   browser), pasted as it is — now, and after each document the session
-   inspects or reviews; never a link written by hand:
-   `python3 "${CLAUDE_SKILL_DIR}/../pipeline/scripts/progress_link.py" <that file>`.
+5. **Dispatch one writer for the sitting.** No progress file: one
+   writer settles every document at once and they move through its
+   steps together, so a row per document showed four rows in lockstep
+   and a percent that matched nothing on the page (live run 2026-10-31).
    Read `executor-catalog` and
    `executor-catalog/references/design-complexity.md`. Grade each picked
    document by its mode's rules there, and dispatch the highest grade
@@ -101,8 +96,7 @@ dispatch the typist.
    a greenfield with more than six areas goes in two dispatches,
    `foundation, domain` and then every `scenarios:<area>`; the second
    reads the first from disk.
-6. **Inspect each document** as it lands (its progress row `🔍
-   проверка`, then `✅ готово`): the file; for `foundation`,
+6. **Inspect each document** as it lands: the file; for `foundation`,
    each `.d2` in `diagrams/` it requires and its embed in the section;
    for `scenarios`, a `.puml` in the area's `diagrams/` for every
    scenario its «Последовательность» row links. A missing file is an
@@ -120,8 +114,7 @@ dispatch the typist.
    were untouched and why, and the level. Then ask, per `pipeline` →
    "Asking before a transition": first about `doc-review` on each
    document written or changed in this sitting (one gate question that
-   names them; a run reviews each, and each verdict goes into the
-   progress file's «Ревью» cell), then the one next stage the
+   names them; a run reviews each), then the one next stage the
    `pipeline` table names. The writers do not run those. `doc-review`
    edits the body and does not bump. See `doc-versioning`.
 

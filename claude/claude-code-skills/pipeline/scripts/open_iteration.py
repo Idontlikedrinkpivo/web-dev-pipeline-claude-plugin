@@ -22,6 +22,7 @@ changed); 3 not a git repository (rerun with --init after the user's yes). Pytho
 """
 from __future__ import annotations
 
+import json
 import re
 import subprocess
 import sys
@@ -116,6 +117,13 @@ def design_line(root: Path, picked_up: bool = False) -> str:
         if m and m.group(1).strip(" *`"):
             return (f"Design: «{m.group(1).strip(' *`')}» per {reg.relative_to(root)} — say it in one line, no "
                     "question (pipeline → references/design-owner.md).")
+    try:   # before the register exists the answer sits in the project's marker file, committed with the documents
+        early = json.loads((doc / ".dev-pipeline.json").read_text(encoding="utf-8")).get("design", "")
+    except (OSError, ValueError, AttributeError):
+        early = ""
+    if early:
+        return (f"Design: «{early}» per documentation/.dev-pipeline.json — say it in one line, no question "
+                "(pipeline → references/design-owner.md).")
     if picked_up:  # another session opened this iteration and asked it there; the answer is not on the branch yet
         return ("Design: not recorded on the branch — do not ask it now; `ui-design` asks it when it starts "
                 "(pipeline → references/design-owner.md → When to ask).")

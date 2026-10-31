@@ -27,11 +27,12 @@ never stamps.
 question after the document is written — the steps below run over that stage's documents
 only — the SRS, the schema (with its new migration files), the API, the
 three architecture documents, or the screen specs — with no question, and
-the commit message names them: `docs: <документ> <version>` («docs: SRS
-2.1.1», «docs: схема БД и миграция 0007 2.1.1»). An SRS stamp also names
-its two gates, so a later session reads them from `git log` (`pipeline` →
-Where am I): `docs: SRS <version> · grill: <state> · review: <state>`,
-each state one of `прошёл`, `пропущен` (the user chose B on the gate's
+the commit message names them and their gates, so a later session reads
+them from `git log` (`pipeline` → Where am I): `docs: <документ> <version> ·
+review: <state>` («docs: схема БД и миграция 0007 2.1.1 · review: прошёл»),
+an SRS with its two gates — `docs: SRS <version> · grill: <state> · review:
+<state>`. This **close commit** is made at every stage's close, even when
+nothing is stamped (step 2), each state one of `прошёл`, `пропущен` (the user chose B on the gate's
 question — not offered again) or `не запускался` (the question was not
 answered: the user stopped first, or the session ended — «где я» offers
 it again). A stop is never written as `пропущен`. A later change in the same
@@ -53,8 +54,15 @@ under the same version: rows of this version are amended, not doubled.
    differing document's diff against that stamp, which is what step 4
    types. Code, plans, migrations, the frames register and unversioned
    drafts are not in it.
-2. It exits 0 — nothing differs from its last stamped state: stop. Report
-   that nothing was stamped. Do not commit.
+2. It exits 0 — nothing differs from its last stamped state: nothing is
+   stamped; report it. At the iteration's close or on a request, commit
+   nothing. **At a stage's close, still make the close commit, empty**
+   (`git commit --allow-empty -m "docs: <документ> <version> · review:
+   <state>"`): it is the one record that the stage closed and what its
+   gates did — `where_am_i.py` and `doc_state.py` read it from the whole
+   log, and a skipped gate has nowhere else to be written. Measured: a new
+   document's stage had no close at all, and «где я» offered closed stages
+   again (live run 2026-10-31).
 3. Read the iteration's version: the name of the open
    `documentation/plans/<version>/` (no `summary.md`), and be on
    `iteration/<version>`. The stage that changed the document should have
@@ -81,9 +89,10 @@ under the same version: rows of this version are amended, not doubled.
    `python3 "${CLAUDE_SKILL_DIR}/scripts/doc_check.py" . --only <each stamped file>` (from another
    skill: the plugin's `doc-versioning/scripts/doc_check.py`): frontmatter, journal, pins, ids,
    migrations, OpenAPI — each line it prints is fixed before the commit.
-6. One commit — at a stage's close `docs: <документ> <version>` (an SRS
-   with its gates: `docs: SRS <version> · grill: <state> · review:
-   <state>`), at the iteration's close `docs: документы <version> перед
+6. One commit — at a stage's close `docs: <документ> <version> · review:
+   <state>` (an SRS with its gates: `docs: SRS <version> · grill: <state> ·
+   review: <state>`), with `--allow-empty` when steps 2 and 4 left nothing
+   to stage, at the iteration's close `docs: документы <version> перед
    тегом`, on the user's request `docs: publish document versions`. Stage
    only the files just stamped, plus a new file in `db/migrations/` or a
    rebuilt unversioned diagram that belongs to a dirty schema or
@@ -105,6 +114,8 @@ in this iteration stays «добавляет» however often it changed since.
 first commit sets that row's date and keeps it the only row; while it is
 the «первый выпуск» of the open iteration, later commits of that iteration
 add no rows either — everything in the file is still its first release.
+Its stage therefore closes with the empty close commit (step 2), and the
+document's state at that commit is its stamp for `doc_state.py`.
 
 `brainstorm` is not versioned. There is no visual-contract document: the look
 is the Figma file; the frames register lists its screens and `nodeId`s, and

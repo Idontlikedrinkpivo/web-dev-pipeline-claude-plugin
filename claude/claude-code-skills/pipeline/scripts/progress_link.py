@@ -36,7 +36,7 @@ sys.path.insert(0, str(HERE))
 LABEL = {
     "progress.md": "План", "progress-design.md": "Макеты", "progress-screen-specs.md": "ТЗ на экраны",
     "progress-test-cases.md": "Тест-кейсы", "test-run.md": "Проверка через интерфейс",
-    "security-audit.md": "Аудит безопасности", "progress-architecture.md": "Архитектура",
+    "security-audit.md": "Аудит безопасности",
     "progress-scaffold.md": "Каркас", "progress-deploy.md": "Релиз", "progress-mutation.md": "Мутации",
 }
 
@@ -73,8 +73,8 @@ def count_of(md: Path) -> str:
     return re.sub(r"^[^:·|]{1,40}:\s*", "", line).strip()  # «Сделано: 3 из 6» -> «3 из 6»
 
 
-DERIVED_NAMES = {"progress-design.md", "progress-screen-specs.md", "progress-test-cases.md",
-                 "progress-architecture.md", "security-audit.md", "progress-scaffold.md", "progress-deploy.md"}
+DERIVED_NAMES = {"progress-design.md", "progress-screen-specs.md", "progress-test-cases.md", "security-audit.md",
+                 "progress-scaffold.md", "progress-deploy.md"}
 
 
 def bar_mismatch(md: Path, count: str) -> str:
@@ -128,9 +128,10 @@ def repo_path(page: Path) -> str:
 
 def main() -> None:
     args = sys.argv[1:]
-    if not args or args[0].startswith("-"):
+    paths = [a for i, a in enumerate(args) if not a.startswith("-") and (not i or args[i - 1] != "--count")]
+    if not paths:   # flags go before or after the path: «--desktop <file>» works as «<file> --desktop»
         sys.exit(__doc__)
-    md = Path(args[0])
+    md = Path(paths[0])
     if md.suffix != ".md" or not md.is_file():
         sys.exit(f"progress_link: no progress file {md}")
     md = md.resolve()

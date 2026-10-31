@@ -35,23 +35,29 @@ project's root and answer from its output. It prints, in this order:
    stage is not a done one, even when its document exists. Give its line
    with `scripts/progress_link.py` when you name it.
 5. **The documents in chain order**, each with its version and gates:
-   - business requirements: `grilled:`; a document `updated:` after it was
-     grilled has an unrun grill for its current text;
-   - the SRS: its last stamp commit names both gates — `прошёл`,
+   - business requirements: `grilled:`, else the state its commit names
+     («docs: бизнес-требования · допрос: пропущен»); a document `updated:`
+     after it was grilled has an unrun grill for its current text;
+   - the SRS: its last close commit (empty when nothing was stamped —
+     `doc-versioning` → `references/version-birth.md`, step 2) names both
+     gates — `прошёл`,
      `пропущен` (the user chose to skip: not offered again), or
      `не запускался` (the session stopped before the question was
      answered: offer it). Commits or uncommitted edits after the stamp are
      named; a grill on them has not run;
    - every other document with a `doc-review` gate: `reviewed:`
-     (`info.x-reviewed` on OpenAPI); absent means skipped or never run —
+     (`info.x-reviewed` on OpenAPI), else the state its stage's close
+     commit names (`· review: пропущен`); neither — skipped or never run,
      the files cannot tell, so offer it rather than assume either;
    - **pins**: a pin behind its source with a «ломает» row after it is
      **stale** — that stage comes back first (`doc-versioning` →
      Staleness and cascade); behind by «добавляет» only is for stage 10,
      not a stale stage; «уточняет» only — the next stamp refreshes it;
    - **«написан в итерации …, этап не закрыт»** — the document was
-     committed on this iteration's branch and never stamped with its
-     version: its stage stopped after the writer (`SKILL.md` → Commit each
+     committed on this iteration's branch and its stage has no close
+     commit after it (a new document carries the version from its writer,
+     so the close commit, not the number, closes it): its stage stopped
+     after the writer (`SKILL.md` → Commit each
      document as soon as it is written), here or on another person's
      machine. That stage is open and resumes: the documents of its set not
      written yet (the architecture's scenarios per area, a screen spec per

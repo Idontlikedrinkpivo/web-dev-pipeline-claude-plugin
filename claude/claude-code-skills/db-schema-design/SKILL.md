@@ -437,7 +437,7 @@ the table — pick one, not both.
 
 The wrapping `documentation/db/schema.md` opens with
 frontmatter per `doc-versioning` → Frontmatter (`version:` the open
-iteration's service version on a new document — `0.1.0` on greenfield;
+iteration's service version on a new document — on greenfield the first iteration's number, usually `0.1.0`;
 `migration: 0001`, the last migration file the document covers;
 `updated:`; and `sources:` pinning the SRS by the version it was built
 from — `documentation/requirements/srs/srs.md@0.1.0`), then H1, then the

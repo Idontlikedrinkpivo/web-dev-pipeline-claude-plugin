@@ -20,7 +20,6 @@ without asking and can tell a slow step from a stuck one.
 | `ui-test-cases` write | `progress-test-cases.md` | section of the case set, plus «Без интерфейса» | the writer, as it finishes each section |
 | `ui-test-cases` run | `test-run.md` | case | the runner — `ui-test-cases` → Mode run |
 | `security-audit` | `security-audit.md` (the report itself) | scanner, area, the verify pass | the session — `security-audit` → `references/report.md` |
-| `clean-architecture-design` | `progress-architecture.md` | document | the writer as it settles and prints each document; the session as it inspects and reviews |
 | `repo-scaffold` | `progress-scaffold.md` | step | the session |
 | `work` | `progress.md` | unit, then fix | the session — `work` → `references/progress-file.md` |
 | `work` — mutation runs at the close | `progress-mutation.md` | part or share of the run, plus each part not measured | `scripts/progress_mutation.py` from the logs; the survivors section — the session (`work` → `references/health.md` → Progress) |
@@ -29,7 +28,8 @@ without asking and can tell a slow step from a stuck one.
 The stages that only ask questions (`grill-me`, `doc-review`,
 `docs-consistency`) keep no file: the chat is their progress, and each
 question names its place («Замечание 3 из 8»). A stage that writes one
-document keeps none.
+document keeps none, nor does the architecture: one writer settles all its
+documents at once, so their rows moved in lockstep and told the user nothing.
 
 ## Rules for every file
 
@@ -51,7 +51,7 @@ document keeps none.
   the main table, the first table with a «Статус» column under the file's
   first bar, by the status's words («✅ прошёл: 144») — then the file in
   full. **For the stage files whose rows are documents, screens or steps** —
-  design, screen specs, test cases, architecture, scaffold, deploy, the
+  design, screen specs, test cases, scaffold, deploy, the
   audit — **the page computes the bar and the count from those rows itself**:
   ✅ and ⏭ whole, 🔍 two thirds, 🔄 and 🔁 a third, ⏳ and ⛔ nothing. Measured:
   agents changed the rows and left the bar, so these pages stood at 0% through
@@ -318,32 +318,6 @@ over the set: не запускалось → идёт → its verdict.
 
 Statuses: `⏳ ждёт`, `🔄 в работе`, `✅ готово`. The «Без интерфейса» row
 counts the acceptance criteria listed there.
-
-### `clean-architecture-design` — `progress-architecture.md`
-
-````markdown
-# Прогресс архитектуры — итерация 0.1.0
-
-```text
-█████████████████████████████████░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░ 33%
-```
-
-Готово: 2 из 6 документов
-
-| Документ | Статус | Ревью |
-|---|---|---|
-| Основа — architecture.md | ✅ готово | — |
-| Доменная модель | ✅ готово | — |
-| Сценарии: бронирования | 🔄 в работе: печать | — |
-| Сценарии: переговорные | ⏳ ждёт | — |
-
-Состояние: пишет design-medium · обновлено 2026-10-07 14:20
-````
-
-Statuses: `⏳ ждёт`, `🔄 в работе: решения`, `🔄 в работе: печать`,
-`🔍 проверка` (the writer, then the session's inspection), `✅ готово`,
-`⛔ остановлено: <причина>` (the session). «Ревью» takes the `doc-review` verdict of that document when the
-gate runs. The page computes the bar from the rows (The page, above).
 
 ### `repo-scaffold` — `progress-scaffold.md` and `deploy-topology` — `progress-deploy.md`
 

@@ -25,8 +25,7 @@ import mdhtml  # noqa: E402
 # the files the stages keep (pipeline → references/progress-files.md), with the stage's name
 FILES = {
     "progress-design.md": "Макеты", "progress-screen-specs.md": "ТЗ на экраны",
-    "progress-test-cases.md": "Тест-кейсы", "progress-architecture.md": "Архитектура",
-    "progress-scaffold.md": "Каркас", "progress.md": "Код",
+    "progress-test-cases.md": "Тест-кейсы", "progress-scaffold.md": "Каркас", "progress.md": "Код",
     "test-run.md": "Проверка через интерфейс", "security-audit.md": "Аудит безопасности",
     "progress-deploy.md": "Релиз", "progress-mutation.md": "Мутации",
 }
@@ -64,10 +63,10 @@ def status_counts(lines: list[str], lo: int = 0, hi: int | None = None) -> list[
 
 
 # the files whose bar the page computes from the rows' statuses — agents change rows and forgot the bar (it stayed at
-# 0% through whole stages: architecture, screen specs, test cases); a row in progress counts in part, so the bar
+# 0% through whole stages: screen specs, test cases); a row in progress counts in part, so the bar
 # moves with every status, not only when a document is finished
-DERIVED = {"progress-design.md", "progress-screen-specs.md", "progress-test-cases.md", "progress-architecture.md",
-           "security-audit.md", "progress-scaffold.md", "progress-deploy.md"}
+DERIVED = {"progress-design.md", "progress-screen-specs.md", "progress-test-cases.md", "security-audit.md",
+           "progress-scaffold.md", "progress-deploy.md"}
 WEIGHT = {"✅": 1.0, "⏭": 1.0, "🔍": 2 / 3, "🔄": 1 / 3, "🔁": 1 / 3, "⏳": 0.0, "⛔": 0.0}
 
 

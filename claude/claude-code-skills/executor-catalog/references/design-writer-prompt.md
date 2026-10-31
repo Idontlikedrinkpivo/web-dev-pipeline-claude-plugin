@@ -124,11 +124,6 @@ POPULATED       <db-schema-design on an increment: one line per existing
                 the safe migration sequence (`migration-safety.md`).
                 Otherwise: none>
 
-PROGRESS FILE   <architecture: documentation/plans/<version>/progress-architecture.md;
-                otherwise none. With the Edit tool, set each document's
-                Статус cell as you go — `🔄 в работе: решения` when you start it,
-                `🔄 в работе: печать` when you hand it to doc-typist, `🔍 проверка`
-                when the typist returns it — and change nothing else there>
 STACK           <chosen row from ANSWERS, or: already a fact — the
                 foundation §1 «Стек» or the manifest named in READ FROM DISK>
                 If the architecture skill is waiting on a stack pick,

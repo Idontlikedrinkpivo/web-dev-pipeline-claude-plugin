@@ -53,8 +53,10 @@ project (the link stays). No Figma MCP or a failed call: say why, ask for
 a link (B).
 
 Record the answer as **Кадры рисует:** `ui-design` (B, **draw**) or
-`дизайнер` (A, **index**), with **Дизайн ведёт** when known, in the register
-header; a later run reads it and asks neither question again.
+`дизайнер` (A, **index**), with **Дизайн ведёт** when known — from the chat,
+or `"design"` in `documentation/.dev-pipeline.json` (`pipeline` →
+`references/design-owner.md`) — in the register header; a later run reads it
+and asks neither question again.
 
 The answer and the file disagree — they chose A and the file has no product
 frames, or chose B and the file already holds frames for these screens —

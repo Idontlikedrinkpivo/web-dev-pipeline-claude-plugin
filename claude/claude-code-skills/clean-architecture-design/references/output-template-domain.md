@@ -9,7 +9,7 @@ rule id; the foundation maps its named errors to HTTP.
 The notes under each heading are writer instructions, not text to copy.
 How to design an entity, row shapes of the invariant table, value
 objects, when anemic is fine: `rich-entities.md`. `<версия>` is the open
-iteration's service version (`0.1.0` on greenfield); each pin names the
+iteration's service version (on greenfield the first iteration's number, usually `0.1.0`); each pin names the
 version of the source it was read at.
 
 ```markdown

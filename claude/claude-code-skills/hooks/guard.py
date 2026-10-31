@@ -47,6 +47,9 @@ HEREDOC = re.compile(r"<<-?\s*(['\"]?)(\w+)\1[^\n]*\n(.*?)\n\s*\2(?=\s|$|\))", r
 PROGRESS_FILE = re.compile(r"documentation/plans/[^/\s'\"]+/(?:progress[\w-]*\.md|test-run\.md|security-audit\.md)$")
 PROGRESS_SCRIPTS = re.compile(r"progress_(?:set|e2e|mutation|link|page)\.py")
 PY_WRITES = re.compile(r"write_text|\.write\(|open\([^)]*['\"][wa]\+?['\"]")
+# a progress file named as a path of its own — a string literal that is the path and nothing else — not the name
+# mentioned inside prose the script writes elsewhere (a journal naming progress-architecture.md was refused)
+PY_PROGRESS_PATH = re.compile(r"""["']([^"'\s]*documentation/plans/[^/\s'"]+/(?:progress[\w-]*|test-run|security-audit)\.md)["']""")
 
 
 def deny(why: str) -> str:
@@ -134,7 +137,7 @@ def writes_progress(bare: str, bodies: list[str]) -> bool:
     targets = re.findall(r"(?:(?<![<>&\d])>{1,2}|\btee\s+(?:-a\s+)?)\s*['\"]?([^\s'\";|&)]+)", bare)
     if any(PROGRESS_FILE.search(t) for t in targets):
         return True
-    return any(PY_WRITES.search(b) and re.search(PROGRESS_FILE.pattern.rstrip("$"), b) for b in bodies
+    return any(PY_WRITES.search(b) and PY_PROGRESS_PATH.search(b) for b in bodies
                if re.search(r"\bpython3?\b", bare))
 
 

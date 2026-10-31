@@ -199,7 +199,7 @@ pass re-read that source's new version.
 
 - **Only the project's own client** (the default): no separate number.
   `info.version` is the service version — the open iteration's version on
-  a new spec (`0.1.0` on greenfield), afterwards stamped like any
+  a new spec (on greenfield the first iteration's number, usually `0.1.0`), afterwards stamped like any
   versioned document. No version in the path.
 - **External consumers** — the SRS names partners or third-party systems
   that call the API, or the architecture foundation lists the Full

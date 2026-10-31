@@ -1,0 +1,211 @@
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
+"""The iteration's nested sessions — each named for its job before it opens — in documentation/plans/<version>/sessions.md.
+
+    python3 subsessions.py <project dir> <version> plan <stage>... [--no-parts] [--no-fixes]
+    python3 subsessions.py <project dir> <version> set <row> <session id>
+    python3 subsessions.py <project dir> <version> mark <row | session id> <state>
+    python3 subsessions.py <project dir> <version> part <row>
+    python3 subsessions.py <project dir> <version> parent <session id>
+    python3 subsessions.py <project dir> <version> show
+    python3 subsessions.py <project dir> <version> whoami <session id>
+
+plan    the stages kept for this iteration (keys below, any order) become rows in chain order, each with its title:
+        a long stage gets its second part right after it («прогон · часть 2»), a check that can send work back gets
+        its fix plan, fix run and repeat («исправления UI · план», «… · прогон», «UI-тесты · повтор»). Rows already in
+        the file keep their ids and states, so a later plan — a continued iteration, a stage added — only adds rows.
+        A document stage whose documents all carry this version's stamp is closed and skipped, with a note: on a
+        fresh clone (sessions.md is out of git, with documentation/plans/) the list holds only the stages left.
+        Prints the rows still to open, in order: the parent opens them in this user turn with these titles.
+set     a row's session id, once opened (state → ждёт).
+mark    a row's state: ждёт · идёт · закрыт · передан · убран.
+part    one more part of the row's stage («· часть 3», …), right after its last part — when part 2 hands over too.
+parent  the parent's own session id, so a parent after a compaction or a new one on «продолжим» finds the list.
+show    the table, then: the stage in work, the next one to start, the rows not opened yet — the input of «продолжим».
+whoami  the row of a nested session by its own id: its stage, its skill, its part — for a session after a compaction.
+
+Stage keys, in chain order (pipeline → SKILL.md, the chain table): brd srs db api arch scaffold design specs cases
+check plan work ui audit deploy ops ci close. Standard library only.
+"""
+from __future__ import annotations
+
+import re
+import sys
+from pathlib import Path
+
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+try:
+    import where_am_i as w  # the document registry and its stamps
+except Exception:  # a broken neighbour must not break the list
+    w = None
+
+# key -> (title word, skill to run, a long stage that gets a part 2)
+STAGES = {
+    "brd": ("бизнес-требования", "brainstorm", False),
+    "srs": ("SRS", "srs-writer", False),
+    "db": ("схема БД", "db-schema-design", False),
+    "api": ("API", "openapi-spec-generator", False),
+    "arch": ("архитектура", "clean-architecture-design", False),
+    "scaffold": ("каркас", "repo-scaffold", False),
+    "design": ("макеты", "ui-design", True),
+    "specs": ("ТЗ на экраны", "screen-spec", True),
+    "cases": ("тест-кейсы", "ui-test-cases write", False),
+    "check": ("сверка документов", "docs-consistency", False),
+    "plan": ("план", "plan", False),
+    "work": ("прогон", "work", True),
+    "ui": ("UI-тесты", "ui-test-cases run", True),
+    "audit": ("аудит безопасности", "security-audit", False),
+    "deploy": ("релиз", "deploy-topology", False),
+    "ops": ("эксплуатация", "operations-doc", False),
+    "ci": ("CI", "ci-pipeline", False),
+    "close": ("закрытие", "pipeline — End of the pipeline", False),
+}
+# a check whose verdict can send work back: (fix name, its report)
+FIXES = {"ui": ("исправления UI", "test-run.md, строки дефектов"),
+         "audit": ("исправления аудита", "security-audit.md, строки FIX")}
+STATES = ("не открыта", "ждёт", "идёт", "закрыт", "передан", "убран")
+HEAD = "| # | Подсессия | Этап | Навык | Когда | Id | Состояние |"
+ROW = re.compile(r"^\|\s*(\d+)\s*\|(.*)\|(.*)\|(.*)\|(.*)\|(.*)\|(.*)\|\s*$")
+
+
+def rows_for(version: str, key: str, parts: bool, fixes: bool) -> list[dict]:
+    word, skill, long_ = STAGES[key]
+    out = [dict(title=f"{version} · {word}", stage=key, skill=skill, when="по очереди")]
+    if parts and long_:
+        out.append(dict(title=f"{version} · {word} · часть 2", stage=key, skill=skill,
+                        when="если часть 1 передаст работу"))
+    if fixes and key in FIXES:
+        name, report = FIXES[key]
+        cond = f"если после «{word}» есть что исправлять"
+        out += [dict(title=f"{version} · {name} · план", stage=key + "-fix", skill=f"plan MODE fix — {report}",
+                     when=cond),
+                dict(title=f"{version} · {name} · прогон", stage=key + "-fix", skill="work", when=cond),
+                dict(title=f"{version} · {word} · повтор", stage=key, skill=skill, when=cond)]
+    return out
+
+
+def read(path: Path) -> tuple[str, list[dict]]:
+    parent, rows = "", []
+    if not path.exists():
+        return parent, rows
+    for line in path.read_text(encoding="utf-8").splitlines():
+        m = re.match(r"^Родительская сессия:\s*(\S+)", line)
+        if m:
+            parent = m.group(1)
+        m = ROW.match(line)
+        if m:
+            _, title, stage, skill, when, sid, state = (c.strip() for c in m.groups())
+            rows.append(dict(title=title, stage=stage, skill=skill, when=when, id=sid.strip("`"), state=state))
+    return parent, rows
+
+
+def write(path: Path, version: str, parent: str, rows: list[dict]) -> None:
+    lines = [f"# Подсессии итерации {version}", "",
+             "Ведёт родительская сессия; правит только `pipeline/scripts/subsessions.py` "
+             "(pipeline → references/parent-session.md). В git не хранится.", "",
+             f"Родительская сессия: {parent or '—'}", "", HEAD, "|---|---|---|---|---|---|---|"]
+    for i, r in enumerate(rows, 1):
+        sid = f"`{r['id']}`" if r.get("id") else ""
+        lines.append(f"| {i} | {r['title']} | {r['stage']} | {r['skill']} | {r['when']} | {sid} | "
+                     f"{r.get('state') or 'не открыта'} |")
+    path.parent.mkdir(parents=True, exist_ok=True)
+    path.write_text("\n".join(lines) + "\n", encoding="utf-8")
+
+
+def stamped(root: Path, version: str) -> set[str]:
+    """Document stages closed in this iteration: every document of the stage carries the version's stamp."""
+    if w is None:
+        return set()
+    by_stage: dict[int, list] = {}
+    for d in w.registry(root):
+        if d.path.is_file():
+            by_stage.setdefault(d.stage, []).append(d.meta.get("version") == version)
+    number = {1: "brd", 2: "srs", 3: "db", 4: "api", 5: "arch", 8: "specs"}
+    return {number[n] for n, marks in by_stage.items() if n in number and marks and all(marks)}
+
+
+def order_key(stage: str) -> int:
+    keys = list(STAGES)
+    return keys.index(stage.removesuffix("-fix")) if stage.removesuffix("-fix") in keys else len(keys)
+
+
+def show(rows: list[dict]) -> None:
+    for i, r in enumerate(rows, 1):
+        print(f"{i:>2}. {r['title']} — {r.get('state') or 'не открыта'}" + (f" · {r['id']}" if r.get("id") else "")
+              + ("" if r["when"] == "по очереди" else f" ({r['when']})"))
+    busy = [r for r in rows if r.get("state") == "идёт"]
+    nxt = next((r for r in rows if r.get("state") == "ждёт" and r["when"] == "по очереди"), None)
+    unopened = [r for r in rows if r.get("state") in ("не открыта", "", None)]
+    print()
+    print("в работе: " + (", ".join(f"«{r['title']}» ({r['id']})" for r in busy) or "ничего"))
+    print("дальше: " + (f"«{nxt['title']}» ({nxt['id']}) — отправить «начинай»" if nxt else "очередных нет"))
+    if unopened:
+        print("не открыты (открыть в ход пользователя, с этими названиями): " + "; ".join(
+            f"{rows.index(r) + 1}. «{r['title']}»" for r in unopened))
+
+
+def main() -> None:
+    args = [a for a in sys.argv[1:] if not a.startswith("--")]
+    flags = {a for a in sys.argv[1:] if a.startswith("--")}
+    if len(args) < 3:
+        sys.exit(__doc__)
+    root, version, cmd, rest = Path(args[0]).resolve(), args[1], args[2], args[3:]
+    path = root / "documentation" / "plans" / version / "sessions.md"
+    parent, rows = read(path)
+
+    if cmd == "plan":
+        bad = [k for k in rest if k not in STAGES]
+        if bad or not rest:
+            sys.exit(f"sessions: неизвестные этапы {bad} — ключи: {' '.join(STAGES)}")
+        have = {r["title"] for r in rows}
+        done = stamped(root, version) - {r["stage"] for r in rows}
+        for key in sorted(done & set(rest), key=list(STAGES).index):
+            print(f"sessions: «{STAGES[key][0]}» уже закрыт в {version} (документы со штампом) — подсессия не нужна")
+        for key in sorted(set(rest) - done, key=list(STAGES).index):
+            for r in rows_for(version, key, "--no-parts" not in flags, "--no-fixes" not in flags):
+                if r["title"] not in have:
+                    rows.append(dict(r, id="", state="не открыта"))
+        rows.sort(key=lambda r: order_key(r["stage"]))   # stable: parts and fixes stay after their stage
+        write(path, version, parent, rows)
+        show(rows)
+    elif cmd == "set" and len(rest) == 2 and rest[0].isdigit() and 0 < int(rest[0]) <= len(rows):
+        r = rows[int(rest[0]) - 1]
+        r["id"], r["state"] = rest[1], "ждёт"
+        write(path, version, parent, rows)
+        print(f"sessions: {rest[0]}. «{r['title']}» — {rest[1]}, ждёт")
+    elif cmd == "mark" and len(rest) == 2 and rest[1] in STATES:
+        hit = [r for i, r in enumerate(rows, 1) if rest[0] in (str(i), r.get("id"))]
+        if not hit:
+            sys.exit(f"sessions: строки «{rest[0]}» нет — subsessions.py … show")
+        hit[0]["state"] = rest[1]
+        write(path, version, parent, rows)
+        print(f"sessions: «{hit[0]['title']}» — {rest[1]}")
+    elif cmd == "part" and len(rest) == 1 and rest[0].isdigit() and 0 < int(rest[0]) <= len(rows):
+        base = rows[int(rest[0]) - 1]
+        word = re.sub(r" · часть \d+$", "", base["title"])
+        same = [i for i, r in enumerate(rows) if re.sub(r" · часть \d+$", "", r["title"]) == word]
+        n = 1 + max(int(m.group(1)) if (m := re.search(r" · часть (\d+)$", rows[i]["title"])) else 1 for i in same)
+        rows.insert(same[-1] + 1, dict(base, title=f"{word} · часть {n}", when=f"если часть {n - 1} передаст работу",
+                                       id="", state="не открыта"))
+        write(path, version, parent, rows)
+        print(f"sessions: {same[-1] + 2}. «{word} · часть {n}» — открыть в ход пользователя (или карточкой)")
+    elif cmd == "parent" and len(rest) == 1:
+        write(path, version, rest[0], rows)
+        print(f"sessions: родительская сессия — {rest[0]}")
+    elif cmd == "show":
+        if not rows:
+            sys.exit(f"sessions: списка нет ({path.relative_to(root)}) — составьте: subsessions.py … plan <этапы>")
+        print(f"Родительская сессия: {parent or '—'}")
+        show(rows)
+    elif cmd == "whoami" and len(rest) == 1:
+        hit = next((r for r in rows if r.get("id") == rest[0]), None)
+        if not hit:
+            sys.exit(f"sessions: сессии {rest[0]} в списке нет — спросите родительскую ({parent or 'id неизвестен'})")
+        print(f"ты — «{hit['title']}»: этап {hit['stage']}, навык {hit['skill']}, {hit['when']}, состояние "
+              f"{hit['state']}; родительская сессия — {parent or '—'}")
+    else:
+        sys.exit(__doc__)
+
+
+if __name__ == "__main__":
+    main()

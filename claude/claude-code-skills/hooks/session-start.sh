@@ -23,7 +23,7 @@ if { [ -f "$dir/documentation/.dev-pipeline.json" ] || [ -d "$dir/documentation/
   echo "dev-pipeline: unless your first message names a parent session («ты — подсессия», «родительская сессия — …»), this session is the iteration's PARENT when the host can start sessions (Claude Desktop: mcp__ccd_session__start_session — often deferred, load it with ToolSearch first): run no stage here; open each stage in a nested session with a fresh context and open the next one when it reports (read dev-pipeline:pipeline → references/parent-session.md before the first step). Without that tool, run the stages here as usual."
 fi
 if [ "$src" = compact ]; then
-  echo "dev-pipeline: if this session is an iteration's parent (it opened nested sessions) or a nested one (its first message named a parent), it keeps that role after the compaction (pipeline → references/parent-session.md)."
+  echo "dev-pipeline: if this session is an iteration's parent (it opened nested sessions) or a nested one (its first message named a parent), it keeps that role after the compaction; a nested one unsure of its stage runs pipeline/scripts/subsessions.py <project> <version> whoami <its own session id> (pipeline → references/parent-session.md)."
 fi
 
 plans="$dir/documentation/plans"
@@ -46,7 +46,6 @@ stage_of() {
     progress-screen-specs.md) echo "screen-spec" ;;
     progress-test-cases.md) echo "ui-test-cases (write)" ;;
     test-run.md) echo "ui-test-cases (run)" ;;
-    progress-architecture.md) echo "clean-architecture-design" ;;
     progress-scaffold.md) echo "repo-scaffold" ;;
     progress-deploy.md) echo "deploy-topology" ;;
     security-audit.md) echo "security-audit" ;;

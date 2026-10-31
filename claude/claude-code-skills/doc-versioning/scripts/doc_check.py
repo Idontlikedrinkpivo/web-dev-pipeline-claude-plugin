@@ -28,6 +28,7 @@ document); push_branch.py and docs-consistency run it too. Standard library only
 """
 from __future__ import annotations
 
+import itertools
 import re
 import subprocess
 import sys
@@ -259,7 +260,10 @@ def check_questions(root: Path, out: list) -> None:
 def main() -> None:
     args = sys.argv[1:]
     root = Path(next((a for a in args if not a.startswith("--") and (Path(a) / "documentation").is_dir()), ".")).resolve()
-    only = [a for i, a in enumerate(args) if i and args[i - 1] == "--only"]
+    only = []   # every path after --only up to the next flag: «--only a b c» is three, not one
+    for i, a in enumerate(args):
+        if a == "--only":
+            only += itertools.takewhile(lambda x: not x.startswith("--"), args[i + 1:])
     docs = [d for d in w.registry(root) if d.path.is_file()]
     by_path = {d.rel: d for d in docs}
     out: list[str] = []
