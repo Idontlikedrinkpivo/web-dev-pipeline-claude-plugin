@@ -4,7 +4,7 @@
 
     python3 guard_report.py <project dir> [--since YYYY-MM-DD[THH:MM]]
 
-Reads ~/.claude (or ~/.codex)/dev-pipeline-feedback/.guard/<project folder>.jsonl — one line per refusal, written by
+Reads ~/.claude (or $CODEX_HOME, ~/.codex)/dev-pipeline-feedback/.guard/<project folder>.jsonl — one line per refusal, written by
 the hook — and prints a block to paste unchanged: the count per rule and, for each rule, up to three distinct
 commands it refused. Reflect reads those commands: a refusal of a command that was right is a finding on the hook
 (its rule is too wide); a rule that fires again and again in one session is a finding on the skill that keeps
@@ -14,6 +14,7 @@ from __future__ import annotations
 
 import collections
 import json
+import os
 import sys
 from pathlib import Path
 
@@ -30,8 +31,8 @@ def main() -> None:
     project = Path(args[0]).resolve().name
     since = args[args.index("--since") + 1] if "--since" in args else ""
     rows = []
-    for home in (".claude", ".codex"):
-        f = Path.home() / home / "dev-pipeline-feedback" / ".guard" / f"{project}.jsonl"
+    for home in {Path.home() / ".claude", Path(os.environ.get("CODEX_HOME", Path.home() / ".codex"))}:
+        f = home / "dev-pipeline-feedback" / ".guard" / f"{project}.jsonl"
         if f.exists():
             for line in f.read_text(encoding="utf-8").splitlines():
                 try:

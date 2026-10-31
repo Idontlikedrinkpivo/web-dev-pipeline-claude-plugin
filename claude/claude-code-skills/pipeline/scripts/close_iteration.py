@@ -74,7 +74,8 @@ def main() -> None:
         if after:
             late = f"после метки ещё коммиты в документах ({len(after.splitlines())}) — метка не несёт их"
     steps.append(("4 метка", tagged and not late, late or (f"нет метки v{version}" if not tagged else "")))
-    feedback = [Path.home() / d / "dev-pipeline-feedback" / f"{root.name}.md" for d in (".claude", ".codex")]
+    feedback = [d / "dev-pipeline-feedback" / f"{root.name}.md" for d in
+                {Path.home() / ".claude", Path(os.environ.get("CODEX_HOME", Path.home() / ".codex"))}]
     head = re.compile(rf"^#+ .*(?<![\d.]){re.escape(version)}(?![\d.])", re.M)   # a section of this version
     reflected = any(f.exists() and head.search(f.read_text(encoding="utf-8", errors="replace")) for f in feedback)
     steps.append(("5 reflect", reflected, "в разборе сессий нет раздела этой версии — запустите reflect"

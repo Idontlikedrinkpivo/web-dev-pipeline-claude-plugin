@@ -10,10 +10,12 @@
 # Narrow on purpose: it acts only where documentation/.dev-pipeline.json exists (the plugin's stamp, as in
 # ask-in-chat.sh), and only when a shape matches. Silent otherwise; without python3 it does nothing; never fails the
 # session.
-dir="${CLAUDE_PROJECT_DIR:-$PWD}"
+input=$(cat 2>/dev/null)
+dir="${CLAUDE_PROJECT_DIR:-}"
+[ -n "$dir" ] || dir=$(printf '%s' "$input" | python3 -c 'import json,sys; print(json.load(sys.stdin).get("cwd") or "")' 2>/dev/null)
+[ -n "$dir" ] || dir="$PWD"
 if [ ! -f "$dir/documentation/.dev-pipeline.json" ] || ! command -v python3 >/dev/null 2>&1; then
-  cat >/dev/null 2>&1
   exit 0
 fi
-python3 "$(dirname "$0")/secret_scan.py" 2>/dev/null
+printf '%s' "$input" | python3 "$(dirname "$0")/secret_scan.py" 2>/dev/null
 exit 0

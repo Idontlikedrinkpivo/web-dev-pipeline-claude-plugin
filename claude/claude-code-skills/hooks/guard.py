@@ -174,9 +174,17 @@ def decide(tool: str, inp: dict, cwd: str, *, branch: str = "", open_iteration: 
                         "tree wipe uncommitted work of other agents and of the user. Restore only the files you "
                         "changed, by name (`git checkout -- <file>`, `git stash push -- <paths>`), or ask the user "
                         "(work → references/run-hygiene.md → Executors in the shared tree).")
-    if tool in ("Edit", "Write", "MultiEdit", "NotebookEdit") and worktree_root and main_root:
-        path = str(inp.get("file_path") or inp.get("notebook_path") or "")
-        if path and os.path.isabs(path):
+    paths = []   # the files the edit writes: Claude Code's file_path, or the headers of Codex's apply_patch
+    if tool == "apply_patch":
+        patch = inp if isinstance(inp, str) else str(inp.get("command") or inp.get("input") or "")
+        paths = re.findall(r"^\*\*\* (?:(?:Add|Update|Delete) File|Move to): (.+?)\s*$", patch, re.M)
+    elif tool in ("Edit", "Write", "MultiEdit", "NotebookEdit"):
+        paths = [str(inp.get("file_path") or inp.get("notebook_path") or "")]
+    if worktree_root and main_root:
+        for path in paths:
+            if not path:
+                continue
+            path = os.path.join(cwd, path)   # a relative patch path is the worktree's; an absolute one stays
             real, wt, main = (os.path.realpath(p) for p in (path, worktree_root, main_root))
             inside = lambda root: real == root or real.startswith(root + os.sep)
             plans = os.path.join(main, "documentation", "plans")   # out of git: it lives only in the main tree
@@ -192,14 +200,22 @@ RULES = [("commit-chained", "chained to a test"), ("commit-on-main", "would land
          ("wipe-shared-tree", "git stash (of everything)"), ("edit-outside-worktree", "you work in the worktree")]
 
 
+def host_home() -> Path:
+    """The host's own folder: $CODEX_HOME, ~/.codex for the Codex build (its manifest is .codex-plugin), else
+    ~/.claude."""
+    if os.environ.get("CODEX_HOME"):
+        return Path(os.environ["CODEX_HOME"])
+    codex = (Path(__file__).resolve().parent.parent / ".codex-plugin").is_dir()
+    return Path.home() / (".codex" if codex else ".claude")
+
+
 def log_refusal(project: str, tool: str, inp: dict, why: str) -> None:
     """One line per refusal outside the project, for reflect's «Отказы хука» (reflect/scripts/guard_report.py): how
     often each rule fires in real work, and the commands to judge whether a refusal was wrong."""
-    home = ".codex" if "/.codex/" in str(Path(__file__).resolve()) else ".claude"
-    store = Path.home() / home / "dev-pipeline-feedback" / ".guard"
+    store = host_home() / "dev-pipeline-feedback" / ".guard"
     store.mkdir(parents=True, exist_ok=True)
     rule = next((code for code, mark in RULES if mark in why), "other")
-    what = str(inp.get("command") or inp.get("file_path") or inp.get("notebook_path") or "")
+    what = inp if isinstance(inp, str) else str(inp.get("command") or inp.get("file_path") or inp.get("notebook_path") or "")
     row = {"ts": datetime.now().isoformat(timespec="seconds"), "rule": rule, "tool": tool, "what": what[:240]}
     with (store / f"{Path(project).resolve().name}.jsonl").open("a", encoding="utf-8") as fh:
         fh.write(json.dumps(row, ensure_ascii=False) + "\n")
@@ -242,14 +258,16 @@ def main() -> None:
         data = json.load(sys.stdin)
     except Exception:
         return
-    project = os.environ.get("CLAUDE_PROJECT_DIR") or data.get("cwd") or os.getcwd()
-    if not os.path.isfile(os.path.join(project, "documentation", ".dev-pipeline.json")):
-        return
     tool, inp = data.get("tool_name", ""), data.get("tool_input") or {}
-    cwd = data.get("cwd") or project
+    # Codex runs a command in its own workdir; Claude Code names the project in CLAUDE_PROJECT_DIR
+    cwd = (inp.get("workdir") if isinstance(inp, dict) else None) or data.get("cwd") or os.getcwd()
     top = git(cwd, "rev-parse", "--show-toplevel")
     is_worktree = bool(top) and git(cwd, "rev-parse", "--absolute-git-dir") != os.path.realpath(
         git(cwd, "rev-parse", "--path-format=absolute", "--git-common-dir") or "-")
+    main_root = os.path.dirname(git(cwd, "rev-parse", "--path-format=absolute", "--git-common-dir")) if is_worktree else None
+    project = os.environ.get("CLAUDE_PROJECT_DIR") or main_root or top or cwd   # the stamp lives in the main tree
+    if not os.path.isfile(os.path.join(project, "documentation", ".dev-pipeline.json")):
+        return
     branch = ""
     if tool == "Bash" and "commit" in str(inp):
         target = commit_dir(str(inp.get("command", "")), cwd)
@@ -257,7 +275,6 @@ def main() -> None:
         if os.path.realpath(git(target, "rev-parse", "--show-toplevel") or "-") == \
                 os.path.realpath(git(project, "rev-parse", "--show-toplevel") or "+"):
             branch = git(target, "rev-parse", "--abbrev-ref", "HEAD")
-    main_root = os.path.dirname(git(cwd, "rev-parse", "--path-format=absolute", "--git-common-dir")) if is_worktree else None
     why = decide(tool, inp, cwd, branch=branch, open_iteration=open_iteration(project) if branch else None,
                  worktree_root=top if is_worktree else None, main_root=main_root)
     if why:

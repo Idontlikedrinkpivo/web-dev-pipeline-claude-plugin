@@ -52,7 +52,7 @@ def ver(v: str) -> tuple:
 
 def installed() -> str:
     for d in [HERE, *HERE.parents]:
-        for p in (d / ".claude-plugin" / "plugin.json", d / "plugin.json"):
+        for p in (d / ".claude-plugin" / "plugin.json", d / ".codex-plugin" / "plugin.json", d / "plugin.json"):
             if p.is_file():
                 try:
                     return json.loads(p.read_text(encoding="utf-8"))["version"]

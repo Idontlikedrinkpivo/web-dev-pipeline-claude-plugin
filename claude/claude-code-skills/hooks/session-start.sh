@@ -4,8 +4,11 @@
 # (documentation/plans/<version>/ without summary.md), and a line when the project lacks format changes of the
 # installed plugin (upgrade-docs and upgrade-code skills); prints nothing otherwise. Read-only.
 set -u
-dir="${CLAUDE_PROJECT_DIR:-$PWD}"
-src=$(cat 2>/dev/null | sed -n 's/.*"source"[[:space:]]*:[[:space:]]*"\([a-z]*\)".*/\1/p' | head -n 1)
+input=$(cat 2>/dev/null)
+dir="${CLAUDE_PROJECT_DIR:-}"
+[ -n "$dir" ] || dir=$(printf '%s' "$input" | python3 -c 'import json,sys; print(json.load(sys.stdin).get("cwd") or "")' 2>/dev/null)
+[ -n "$dir" ] || dir="$PWD"
+src=$(printf '%s' "$input" | sed -n 's/.*"source"[[:space:]]*:[[:space:]]*"\([a-z]*\)".*/\1/p' | head -n 1)
 
 # Format changes of the plugin the project's files do not have yet (upgrade-docs, upgrade-code): on a new session or /clear,
 # not after a compaction or a resume; silent when in line.

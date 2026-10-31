@@ -10,7 +10,9 @@ esac
 root="$(cd "$(dirname "$0")/.." && pwd)"
 script="$root/pipeline/scripts/progress_page.py"
 [ -f "$script" ] || script="$root/skills/pipeline/scripts/progress_page.py"   # the Codex layout
-dir="${CLAUDE_PROJECT_DIR:-$PWD}"
+dir="${CLAUDE_PROJECT_DIR:-}"
+[ -n "$dir" ] || dir=$(printf '%s' "$input" | python3 -c 'import json,sys; print(json.load(sys.stdin).get("cwd") or "")' 2>/dev/null)
+[ -n "$dir" ] || dir="$PWD"
 # every progress file the tool changed (an apply_patch can touch several), relative to the project: only the
 # changed files' paths — tool_input.file_path, or the patch's file headers — not paths named inside the edit's text
 printf '%s' "$input" | python3 -c '
