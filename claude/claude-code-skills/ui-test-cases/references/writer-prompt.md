@@ -33,8 +33,8 @@ ANSWERS
 RULES
 - Progress comes first in every section: before the section's first edit,
   set its row in PROGRESS FILE to `🔄 в работе` with the Edit tool; right
-  after its last edit, `✅ готово` with the case count, then the bar and
-  the line «Написано: N из M разделов · кейсов: K». The same for a section
+  after its last edit, `✅ готово` with the case count — the page computes
+  the bar and the count from the rows. The same for a section
   you only repair (a broken trace) and for the «Без интерфейса» row. The
   user watches this file while you work; a section edited without its row
   looks like a hang. Change nothing else there.

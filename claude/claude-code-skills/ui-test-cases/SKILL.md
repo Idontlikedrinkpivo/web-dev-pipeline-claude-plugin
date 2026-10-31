@@ -331,9 +331,10 @@ it is each time a runner dispatch returns and after each repeat. A
 run resumed after a break or a context compaction keeps the report: every
 case without a result in the current pass goes back to `⏳ ждёт`, the line
 is pasted again, and only then the runner goes on. The runner changes the
-report with the Edit tool the moment a case changes status — never from
-the shell (`python`, `sed`, `cat >`): the plugin's hook rebuilds the page
-the user watches only after an Edit or Write call.
+report the moment a case changes status: the row with Edit, the bars with
+`progress_set.py` (`references/run-report.md` → How it is kept) — never
+otherwise from the shell (`python`, `sed`, `cat >`): the page is rebuilt
+only after Edit, Write or the progress scripts.
 
 **Dispatch:** resolve `ui-test-runner` through `executor-catalog` with
 `references/runner-prompt.md`. The runner:

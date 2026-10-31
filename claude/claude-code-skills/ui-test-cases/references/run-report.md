@@ -191,8 +191,8 @@ app defect, mockup mismatch, spec gap or screen-check breach remains,
 
 With the Edit tool, one Edit per status change — the row in the section
 that is running — then the bars it moves (its section's and «Общий итог»)
-with `progress_set.py`. Never from the shell (`python`, `sed`, `cat >`):
-the plugin's hook rebuilds the report's `.html` page — the one the user
-watches — only after an Edit or Write call, so a shell write leaves that
-page stale (`pipeline` → `references/progress-files.md` → Rules for every
+with `progress_set.py` (it redraws the page itself). Nothing else from the
+shell (`python`, `sed`, `cat >`): the plugin's hook rebuilds the report's
+`.html` page — the one the user watches — only after an Edit or Write call,
+so a shell write leaves that page stale, and the guard hook refuses it (`pipeline` → `references/progress-files.md` → Rules for every
 file, «The page» and «How»).

@@ -76,7 +76,10 @@ under the same version: rows of this version are amended, not doubled.
    commit of the API does not add a row to the architecture journal, the
    schema journal, or the SRS journal.
 5. In the same files, refresh each pin whose source rows after the pin are
-   all «уточняет» (Staleness and cascade). Move no other pin.
+   all «уточняет» (Staleness and cascade). Move no other pin. Then run
+   `python3 "${CLAUDE_SKILL_DIR}/scripts/doc_check.py" . --only <each stamped file>` (from another
+   skill: the plugin's `doc-versioning/scripts/doc_check.py`): frontmatter, journal, pins, ids,
+   migrations, OpenAPI — each line it prints is fixed before the commit.
 6. One commit — at a stage's close `docs: <документ> <version>` (an SRS
    with its gates: `docs: SRS <version> · grill: <state> · review:
    <state>`), at the iteration's close `docs: документы <version> перед

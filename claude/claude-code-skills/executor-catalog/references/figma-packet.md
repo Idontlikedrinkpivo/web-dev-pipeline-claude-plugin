@@ -128,11 +128,9 @@ RULES
   can return null — check it before use.
 - Progress. Keep PROGRESS FILE current with the Edit tool, one row or line
   per call: a screen's row `🔄 в работе` when you start it, `✅ готово`
-  with its frame's nodeId when its frames and annotation are done — and
-  right after that row, in the same turn, the bar line and the «Готово»
-  count. A row without its bar and count is half an update: the user reads
-  the bar first. Print the bar rather than counting cells by hand:
-  `python3 -c "d,t=<done>,<total>;p=d*100//t;print('█'*p+'░'*(100-p),f'{p}%')"`; in MODE direction, each tile's row
+  with its frame's nodeId when its frames and annotation are done. Only
+  the rows: the page computes the bar and the count from them
+  (`pipeline` → `references/progress-files.md` → The page); in MODE direction, each tile's row
   `🔄 в работе` → `✅ готово` with its nodeId. Change nothing else in
   the file: the user watches it while you work.
 - One file. Do not split the work across parallel agents.

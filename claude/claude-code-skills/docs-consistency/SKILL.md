@@ -91,10 +91,13 @@ changelog rows after the pin (`doc-versioning` → Staleness and cascade):
   home in the dependant or the document that should hold it.
 - **only «уточняет»** — nothing; the dependant's next stamp refreshes the pin.
 
+**Then the documents' form**, always: run
+`python3 "${CLAUDE_SKILL_DIR}/../doc-versioning/scripts/doc_check.py" .` over the whole set. Each line it prints is
+a P1 finding of this stage, routed to the stage that owns that document (its fix is that document's own edit and
+stamp, as in Step 4) — never patched here in passing.
+
 **Then the test cases' trace**, when the set has user test cases: run
 `python3 "${CLAUDE_SKILL_DIR}/../ui-test-cases/scripts/check_trace.py" --docs documentation --quiet`
-(and `python3 "${CLAUDE_SKILL_DIR}/../doc-versioning/scripts/doc_check.py" .` over the whole set: each line of
-its is a P1 finding of this stage — the form every later stage reads)
 and fix what it finds before the dispatch, without asking: dispatch
 `ui-test-writer` (`ui-test-cases` → its writer packet, `MODE increment`)
 with the broken cases, to rewrite each one's trace from the current spec,

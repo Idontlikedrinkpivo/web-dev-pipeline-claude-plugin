@@ -62,8 +62,8 @@ under «Принятый риск» with the date. A scanner that did not run ad
 `· не запускался: <сканер>` to the verdict line.
 
 Rows: `⏳ ждёт`, `🔄 в работе` (a scanner), `🔍 аудит` (an auditor
-dispatched), `✅ готово`, `⛔ остановлено: не запускался — <причина>`. The bar counts
-`✅` and `⛔ остановлено: не запускался`. «Решение» per finding: `исправить`, `риск принят`,
+dispatched), `✅ готово`, `⏭ пропущено: не запускался — <причина>`. The page computes the bar
+from the rows: `✅` and `⏭ пропущено: не запускался` count whole, `🔍` two thirds, `🔄` a third. «Решение» per finding: `исправить`, `риск принят`,
 `отложено`, `в отчёт` (P2/P3).
 
 `deploy-topology` adds a section «Образы» when it scans the built images

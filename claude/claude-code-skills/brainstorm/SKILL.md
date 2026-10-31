@@ -13,10 +13,6 @@ This skill explores, clarifies, and documents decisions; it does not implement c
 
 **Implementation request.** If the user asks to write code, a service, controllers, or tests **now**, refuse. Do not start those skills. The next stage is still the one `pipeline` names after this one.
 
-## Setup
-
-Once, at the start of this invocation and before any subagent dispatch, read `references/setup.md` and run its context fence exactly as written there — it prints directives this run follows.
-
 ## Core Principles
 
 1. **Assess scope first** - Match the amount of ceremony to the size and ambiguity of the work.

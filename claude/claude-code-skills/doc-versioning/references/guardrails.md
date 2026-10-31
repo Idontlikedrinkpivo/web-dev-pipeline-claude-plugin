@@ -40,3 +40,4 @@ with its date set; do not add a second row.
 - [ ] One row per changed cited token or tight group, newest first, `Версия` matching `version`, no placeholder in any cell; a token already rowed in this version has its row amended, not duplicated — Changelog · `references/changelog.md`
 - [ ] Every «ломает» row's `Кого затрагивает` holds a verdict per downstream consumer; every «добавляет» row names where the new thing lands — Staleness and cascade
 - [ ] No row per correction pass — When a version is born
+- [ ] `scripts/doc_check.py . --only <the stamped files>` exits 0 — version-birth step 5

@@ -118,7 +118,7 @@ check, not "kept history".
 ### When a version is born
 
 Read `references/version-birth.md` when this run may create a document's
-first version or stamp a new one.
+first version or stamp a new one; `scripts/doc_check.py` checks the form before the stamp commit.
 
 ### Commits that are not stamps
 

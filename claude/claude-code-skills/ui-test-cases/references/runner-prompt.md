@@ -115,13 +115,16 @@ RULES
   documentation/, and you alone fold each result into the report as it
   arrives — one bar over all stands and a line per stand under the count.
   A timeout under load is re-run alone before it counts as a failure.
-- Keep the report live with the Edit tool — one Edit per status change,
-  the bars and the count line it touches in the same Edit, the update time
-  on the Verdict line (run-report.md → The bars, Statuses). The main bar is
-  the share of automated cases that pass, not the share checked. Never
-  write the report from the shell (python, sed, cat >): the plugin's hook
-  rebuilds the page the user watches only after an Edit or Write call, so a
-  shell write leaves that page stale. Set the Verdict only after the
+- Keep the report live: each status change is one Edit of the row in the
+  section that is running, with the update time on the Verdict line; then
+  the bars it moves — that section's and «Общий итог» — and their count
+  lines with `python3 <SKILLS ROOT>/pipeline/scripts/progress_set.py
+  documentation/plans/<version>/test-run.md <done> <total> [--section
+  "<heading>"]`, never a hand-copied bar (run-report.md → How it is kept).
+  The main bar is the share of automated cases that pass, not the share
+  checked. Nothing else writes the report from the shell (python, sed,
+  cat >): the plugin's hook rebuilds the page only after Edit, Write or the
+  progress scripts, and refuses other shell writes to it. Set the Verdict only after the
   run's разбор; when anything runs again (a repeat, a run after fixes),
   first turn it to «идёт перепрогон · прошлый: <verdict>, коммит <sha>».
   «Общий итог» counts each case by its latest result in any section.
