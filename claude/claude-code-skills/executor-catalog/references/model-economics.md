@@ -97,14 +97,17 @@ writes long, exact tables; the decisions were made on the frames.
 cases are transcription from the documents, and the runner writes test
 code, which stays on the code alias. Not measured.
 
-## Writers: Sonnet and Opus — printed by Sonnet
+## Writers: Sonnet and Opus — Opus's documents printed by Sonnet
 
 Design and plan writers: Low is `sonnet`, Mid is `opus` at `high`, High is
 `opus` at `xhigh`;
 `srs-author` is `sonnet`. There are at most three writer dispatches per
 greenfield run. A long contract's output tokens are the expensive part, so
-the file is printed by `doc-typist` on `sonnet`, nested after the decisions
-exist. Haiku stays off that row. Measured 2026-10-07 with a blind audit of
+an Opus writer's file is printed by `doc-typist` on `sonnet`, nested after
+the decisions exist. A writer already on `sonnet` (`srs-author`,
+`design-lite`, `plan-lite`) prints itself: the nest saved nothing there and
+cost a fresh agent's start, about 64,000 tokens, and two minutes a
+document (live run 2026-10-31: 2 min 18 s of a 6.5-minute OpenAPI stage). Haiku stays off that row. Measured 2026-10-07 with a blind audit of
 each print against its packet: Haiku 5.5 printed the SRS and OpenAPI as
 faithfully as Sonnet 5.5 (9–10 of 10 both, nothing major), but an
 architecture with 15 minor slips against Sonnet's one — table rows turned

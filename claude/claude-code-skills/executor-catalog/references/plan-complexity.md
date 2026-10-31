@@ -77,7 +77,7 @@ plan.
 
 | Grade | Executor | The writer is expected to |
 |---|---|---|
-| **Low** | `plan-lite` | slice a fully bounded increment along seams the design already drew. `doc-typist` prints it |
+| **Low** | `plan-lite` | slice a fully bounded increment along seams the design already drew. Prints it itself |
 | **Mid** | `plan-medium` | close the remaining slice and grade decisions inside the skill's rules. `doc-typist` prints it |
 | **High** | `plan-hard` | hold Full-trigger, security, or cross-section slicing. `doc-typist` prints it |
 

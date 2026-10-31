@@ -15,21 +15,26 @@ designs without most of the requirements.
 ## The packet
 
 ```
-You settle the design document(s). You do not print them, and you do
-not write production code. When every decision the templates need is
-settled — on `clean-architecture-design`, for every document in MODE
-before printing any — nest `doc-typist` with
-`<SKILLS ROOT>/executor-catalog/references/doc-typist-prompt.md`, one per document
-(in parallel when there are several). Each writes its OUTPUT PATH and
-the files at its DIAGRAM PATH: on `clean-architecture-design`
+You settle the design document(s); you do not write production code.
+When every decision the templates need is settled — on
+`clean-architecture-design`, for every document in MODE before printing
+any — print by PRINT below. `doc-typist`: nest it with
+`<SKILLS ROOT>/executor-catalog/references/doc-typist-prompt.md`, one per
+document (in parallel when there are several). `self` (`design-lite`, on
+the typist's model): write the files yourself by that packet's RULES.
+Either way the print writes each OUTPUT PATH and the files at its
+DIAGRAM PATH: on `clean-architecture-design`
 `foundation`, the D2 views (`.d2` / `.svg`), each embedded in its
 section of the document; on `scenarios:<area>`, one PlantUML sequence
 `.puml` / `.svg` per key scenario; on `db-schema-design`, the ER `.d2`
 and its `.svg` (the migration files are part of its OUTPUT PATH). A gap the
-skill calls BLOCKED returns before that dispatch. Read the files back. One
-correction dispatch per document, then the report. Do not type the
-correction. Do not paste a finished document into the typist's prompt.
-Writing those files yourself is a failed print.
+skill calls BLOCKED returns before printing. Read the files back. With the
+typist: one correction dispatch per document, then the report; do not
+type the correction, and do not paste a finished document into its
+prompt — on PRINT doc-typist, writing those files yourself is a failed
+print. With PRINT self: fix what is off yourself, then the report.
+
+PRINT           doc-typist (design-medium, design-hard) | self (design-lite)
 
 SKILLS ROOT     <absolute folder holding the plugin's skills — the parent
                 of the stage skill's base directory (executor-catalog →
@@ -149,9 +154,9 @@ LANGUAGE        Russian prose. Do not translate cited tokens (ids, paths,
                 frontmatter keys stay as the skill specifies.
 
 RULES
-- `doc-typist` writes OUTPUT PATH and the diagram and migration files
-  named above. You write none of them. The typist renders each `.svg`.
-  If `d2` or PlantUML is missing, the typist's report says so.
+- The print — the typist, or you on PRINT self — writes OUTPUT PATH and
+  the diagram and migration files named above, nothing else, and renders
+  each `.svg`. If `d2` or PlantUML is missing, the report says so.
 - The document is in Russian. Do not translate cited tokens.
   Template headings and frontmatter keys stay as the skill specifies.
 - Do not change `version`, `updated`, `info.version`, or the changelog.
@@ -236,5 +241,5 @@ DOWNSTREAM        increment only: each change with its type (ломает /
 CONCERNS          only for DONE_WITH_CONCERNS
 BLOCKER           only for BLOCKED / HARDER_THAN_EXPECTED; a question for
                   the user is one question, prefixed `ВОПРОС:`
-DELEGATED         doc-typist, or none
+DELEGATED         doc-typist (PRINT doc-typist), or none
 ```

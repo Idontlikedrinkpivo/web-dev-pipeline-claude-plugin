@@ -125,15 +125,16 @@ It runs its stage as the stage's skill says, with the user, in this session. Wha
   its job, the skill to run, the version, the parent's id. After a compaction, on «продолжай», or when unsure which
   stage it is, it takes its own id (`mcp__ccd_session_mgmt__get_session` with `self`) to `scripts/subsessions.py
   <project> <version> whoami <id>` and goes on with that row's stage from `resume.md` and the progress file.
-- **At the stage's close** it asks the transition question as usual (`SKILL.md` → Asking before a transition), then
-  sends the parent «ЭТАП <stage> ЗАКРЫТ · дальше: <the answer's stage>» (two, for the branches after the SRS; «·
+- **At the stage's close** it asks the transition question as usual (`SKILL.md` → Asking before a transition), runs
+  the handover check — a read-only agent compares this chat with the files and names a decision no file holds
+  (`references/handover-check.md`); each one is written down and committed — then sends the parent «ЭТАП <stage> ЗАКРЫТ · дальше: <the answer's stage>» (two, for the branches after the SRS; «·
   остановиться» when the user stops) and ends with one line to the user: «Дальше — «<version> · <stage>» в
   боковом списке». It opens no session, offers no card for one (a card clicked later opened a second session of one
   stage — live run 2026-10-31), and does not run the next stage here.
 - **What the next session must know is on disk before the close**: every decision made in this chat is in its
   document (`references/decision-changes.md`) or in the stage's report — the next session starts from the files and
   git, not from this chat.
-- **Over the context limit** it hands over: it tells the parent «<stage> ПЕРЕДАН · после <item> · контекст <N> тыс. ·
+- **Over the context limit** it hands over, after the same handover check: it tells the parent «<stage> ПЕРЕДАН · после <item> · контекст <N> тыс. ·
   продолжать с <item>» and stops (`references/context.md` → When to hand over); the parent starts the stage's «·
   часть 2».
 - In the sidebar every session of the iteration shows as one list under the parent, in the order they opened (seen

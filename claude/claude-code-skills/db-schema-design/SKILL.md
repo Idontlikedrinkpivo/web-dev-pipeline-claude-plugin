@@ -10,9 +10,11 @@ description: >-
 ## Orchestrator (session)
 
 The session writes no DBML, no migration file, and no ER `.d2`. The
-dispatched writer settles them and nests `doc-typist` to print them. A
-report whose `DELEGATED` is not `doc-typist` comes back until it is. The
-session dispatches the typist only for a print defect (step 4).
+dispatched writer settles them; a writer on Opus nests `doc-typist` to
+print them, `design-lite` prints them itself (`executor-catalog` →
+Nesting). A Mid or High report whose `DELEGATED` is not `doc-typist` comes
+back until it is. The session dispatches the typist only for a print
+defect or a check's lines (step 4).
 
 1. Stop if the SRS is missing — no actors, no use cases, no rules. Name
    `srs-writer`. Do not wait for
@@ -53,7 +55,7 @@ session dispatches the typist only for a print defect (step 4).
    missing or name-echoing table `Note` or column `note:` is a print
    defect — dispatch `doc-typist` `MODE revise` with one `SETTLEMENT` line
    per line it prints, the text taken from the SRS (`executor-catalog` →
-   Nesting), until none is left. Its migration lines (§0's schema header)
+   Nesting; one or two lines you fix yourself), until none is left. Its migration lines (§0's schema header)
    send the writer back for a file this slice wrote; on an older, committed
    file they go into the report only, since that file is frozen. Then run
    `python3 "${CLAUDE_SKILL_DIR}/../doc-versioning/scripts/doc_check.py" . --only documentation/db/`:
@@ -79,13 +81,14 @@ session dispatches the typist only for a print defect (step 4).
 
 ## Writer (dispatched)
 
-You settle the schema. You do not print it. When every decision this
-template needs is settled, nest `doc-typist` per `executor-catalog` →
-Nesting, packet `executor-catalog/references/doc-typist-prompt.md`. That
-row writes the schema document, the migration file(s), and the ER `.d2` / `.svg`. A gap this skill calls
-BLOCKED returns before that dispatch. Read the files back. One
-correction dispatch, then the report. Do not type the correction, and
-do not paste the finished schema into the typist's prompt.
+You settle the schema, then print it by the packet's PRINT
+(`executor-catalog` → Nesting, packet
+`executor-catalog/references/doc-typist-prompt.md`): `doc-typist` nested,
+or yourself as `design-lite`. The print writes the schema document, the
+migration file(s), and the ER `.d2` / `.svg`. A gap this skill calls
+BLOCKED returns before printing. Read the files back. With the typist:
+one correction dispatch, then the report; do not type the correction, and
+do not paste the finished schema into its prompt.
 
 Translate the SRS into a concrete relational schema, one slice at a
 time (Context Required). ORM-agnostic, PostgreSQL-flavored SQL (principles apply to

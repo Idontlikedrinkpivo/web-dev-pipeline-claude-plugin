@@ -49,6 +49,7 @@ table, holds the model and effort.
 | **Mid** | review | `review-medium` | `code-review-unit` | a Mid unit's diff against its unit spec; also the batched pass over accumulated Low units |
 | **High** | review | `review-hard` | `code-review-unit` | adversarial review of a High unit — deliberately not the implementer's alias |
 | **Run** | review | `review-full-plan` | `code-review-full` | once per run: cross-unit drift, aggregate invariant/AC coverage, критерии готовности, over the whole branch diff |
+| **Handover** | docs | `handover-checker` | a nested session of `pipeline`, at its stage's close or hand-over | the stage's conversation (a digest) against the files it wrote: each decision the user settled in the chat that no file holds, quoted. Read-only, one dispatch per close (`pipeline` → `references/handover-check.md`) |
 | **Feedback** | plugin | `session-reviewer` | `reflect` | at the iteration's close: one dispatch per session digest, finding where the plugin itself worked badly, with the user's quotes. Read-only |
 | **Audit** | security | `security-auditor` | `security-audit` | once per iteration, over the whole application: one dispatch per area tracing each operation from route to data, one for the application-wide settings and the scanner findings, one `MODE verify` that tries to disprove the P0/P1. Read-only |
 | **Audit** | code | `code-auditor` | `upgrade-code` | on request, over an existing project: one dispatch per module and one for the design documents, judging technical decisions against the plugin's design and stack rules — every deviation with file:line, the rule, how it should be and what fixing it touches. Read-only |
@@ -58,14 +59,14 @@ table, holds the model and effort.
 | **Mid** | docs-review | `doc-review-medium` | `doc-review` | design language and scope, when those signals are present — not whether the premise is right |
 | **High** | docs-review | `doc-review-hard` | `doc-review` | premise, security decisions, or falsifying the document |
 | **Set** | docs-review | `docs-consistency-checker` | `docs-consistency` | the finished document set read together: traceability both ways and one meaning per name, field, enum, number, status, error, and role. Read-only, one dispatch per check |
-| **Write** | requirements | `srs-author` | `srs-writer`; `grill-me` called directly on an SRS (`MODE grill-reversal`, at the close); the session for a decision changed after the SRS was finished (`pipeline` → `references/decision-changes.md`) | settles the SRS, including a grill-reversal pass. No grade cascade. The session asks and grills. `doc-typist` prints the file |
-| **Low** | design | `design-lite` | `clean-architecture-design` (every mode: foundation, domain model, scenarios of an area), `db-schema-design`, `openapi-spec-generator` | judgment for a bounded one-table / few-operation / plain-CRUD document. `doc-typist` prints it |
+| **Write** | requirements | `srs-author` | `srs-writer`; `grill-me` called directly on an SRS (`MODE grill-reversal`, at the close); the session for a decision changed after the SRS was finished (`pipeline` → `references/decision-changes.md`) | settles the SRS, including a grill-reversal pass. No grade cascade. The session asks and grills. Prints the file itself (Nesting → `doc-typist`) |
+| **Low** | design | `design-lite` | `clean-architecture-design` (every mode: foundation, domain model, scenarios of an area), `db-schema-design`, `openapi-spec-generator` | judgment for a bounded one-table / few-operation / plain-CRUD document. Prints it itself |
 | **Mid** | design | `design-medium` | same three | close local design decisions for a Modest / one-slice document. `doc-typist` prints it |
 | **High** | design | `design-hard` | same three | Full-trigger, security-heavy, or cross-section design judgment. `doc-typist` prints it |
-| **Low** | plan-writer | `plan-lite` | `plan` | slice a fully bounded increment along seams the design already drew. `doc-typist` prints the plan |
+| **Low** | plan-writer | `plan-lite` | `plan` | slice a fully bounded increment along seams the design already drew. Prints the plan itself |
 | **Mid** | plan-writer | `plan-medium` | `plan` | close the remaining slice and grade decisions. `doc-typist` prints the plan |
 | **High** | plan-writer | `plan-hard` | `plan` | Full-trigger, security, or cross-section slicing. `doc-typist` prints the plan |
-| **Print** | docs | `doc-typist` | nested by `srs-author`, the three `design-*` rows, and the three `plan-*` rows; dispatched by the session for a changed decision or a print defect, and by `grill-me` called directly on another contract document or a plan (Nesting) | prints a document those rows already settled, including sibling D2 and `open-questions.md` rows the settlement named, or edits a finished document for a decision the user changed or a print defect the session spelled out (`MODE revise`). No new decision |
+| **Print** | docs | `doc-typist` | nested by `design-medium`, `design-hard`, `plan-medium`, `plan-hard`; dispatched by the session for a changed decision, a print defect or a check's lines, and by `grill-me` called directly on another contract document or a plan (Nesting) | prints a document those rows already settled, including sibling D2 and `open-questions.md` rows the settlement named, or edits a finished document for a decision the user changed or a print defect the session spelled out (`MODE revise`). No new decision |
 | **Read-only** | any | `code-explorer` | `plan` (inventory of the code an increment or a brownfield plan reaches), `grill-me` (facts), `brainstorm` (scout and claim verifier) | locating patterns, files, and call sites in a repo whose code *is* the design; never edits |
 | **Edit** | figma | `figma-sonnet` | `ui-design` | elements added or changed on frames that already exist, or those frames restyled to a chosen visual direction. Not a new screen and not a redesign |
 | **Build** | figma | `figma-opus` | `ui-design` | frames from an empty file, a new screen, or a redesign of an existing screen, from the SRS; the style tiles of a visual direction |
@@ -184,11 +185,17 @@ Dispatch contract like any other, with no `model`.
   named in the plan's `Что делает вложенный` and keep the decision. `plan` may name only
   this nested target. It pays off when the mechanical part is settled and
   repetitive; two files is not worth the dispatch.
-- **`doc-typist`** — `srs-author`, the three `design-*` rows, and the three
-  `plan-*` rows hand the printing here after the document's decisions are
-  settled. Packet: `references/doc-typist-prompt.md`. The session does not
-  ask about it, and a plan file never names it. Two direct dispatches, both
-  `MODE revise` with one `SETTLEMENT` line per change:
+- **`doc-typist`** — the writers on Opus (`design-medium`, `design-hard`,
+  `plan-medium`, `plan-hard`) hand the printing here after the document's
+  decisions are settled: a long document's output tokens are the expensive
+  part, and the typist prints them on Sonnet. Packet:
+  `references/doc-typist-prompt.md`. The writers already on Sonnet —
+  `srs-author`, `design-lite`, `plan-lite` — **print the document
+  themselves**, by that packet's RULES, and report `DELEGATED none`: the
+  same model printing gains nothing, and a nest cost a fresh agent's start
+  (~64,000 tokens) and two minutes a document (live run 2026-10-31). The
+  session does not ask about it, and a plan file never names it. Direct
+  dispatches, all `MODE revise` with one `SETTLEMENT` line per change:
   - a decision changed after its document was finished — the user already
     settled it (`pipeline` → `references/decision-changes.md`); the
     reversals of a `grill-me` called directly on a contract document or a
@@ -199,11 +206,19 @@ Dispatch contract like any other, with no `model`.
     the SRS, a `redocly lint` error with its fix at the JSON pointer, a
     missing diagram embed. Sending such a defect back to the writer pays an
     Opus round for typing. A defect whose fix needs a decision — a missing
-    response, a table, a rule — goes back to the writer.
+    response, a table, a rule — goes back to the writer;
+  - **a check's lines** — `doc_check.py`, `redocly lint`, `table_docs.py
+    --check`, `check_spec.py` — three or more in a document's body, each
+    sent as one `SETTLEMENT` line with the check's text and the fix it
+    names; the session reruns the check on the report. One or two lines the
+    session fixes itself (a dispatch costs more than two Edits), and so it
+    does lines in what it wrote itself — the stamp's `version`, `updated`,
+    journal rows and pins. A line whose fix needs a decision is the
+    writer's, as above.
 
 | Rule | Why |
 |---|---|
-| Only those two are nested targets | anything else has judgment that does not delegate cleanly |
+| Only those two are nested targets, and the typist only under a writer on Opus | anything else has judgment that does not delegate cleanly |
 | Nesting never raises capability | a harder document gets a higher writer, not a smarter typist; a harder unit gets a higher `Исполнитель` |
 | The parent owns the output | it reads the file and may re-dispatch the typist once. It does not type the correction |
 | The parent does not paste the finished document | that spends the output tokens the nest exists to save. The prompt carries a settlement — one line per decision — plus paths to read |
@@ -301,7 +316,7 @@ place.
 ### SRS-writer routing
 
 Every SRS goes to `srs-author`; no grade. Grill reversals are a second
-dispatch of the same row, which nests `doc-typist` to edit the file: one
+dispatch of the same row, which edits the file itself: one
 dispatch at the grill's close carrying the whole ledger — every reversal in
 `REVERSALS`, every deferred question in `DEFERRED` — never one per round.
 Packet: `references/srs-writer-prompt.md`.
@@ -314,8 +329,9 @@ Packet: `references/srs-writer-prompt.md`.
 | Mid | `design-medium` |
 | High | `design-hard` |
 
-The writer settles the document and its D2 files and nests `doc-typist` to
-print them. Packet: `references/design-writer-prompt.md`.
+The writer settles the document and its D2 files and prints them by the
+packet's `PRINT`: Mid and High nest `doc-typist`, Low prints itself
+(Nesting). Packet: `references/design-writer-prompt.md`.
 
 ### Plan-writer routing
 
@@ -325,8 +341,9 @@ print them. Packet: `references/design-writer-prompt.md`.
 | Mid | `plan-medium` |
 | High | `plan-hard` |
 
-The writer settles the units and nests `doc-typist` to print the file.
-Packet: `references/plan-writer-prompt.md`.
+The writer settles the units and prints the file by the packet's `PRINT`:
+Mid and High nest `doc-typist`, Low prints itself (Nesting). Packet:
+`references/plan-writer-prompt.md`.
 
 A revise after `plan-review` is graded separately, by its blocking
 findings, not by the plan: `references/plan-complexity.md` → Grading a

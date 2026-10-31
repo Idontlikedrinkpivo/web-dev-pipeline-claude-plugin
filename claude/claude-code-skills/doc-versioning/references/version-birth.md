@@ -88,7 +88,10 @@ under the same version: rows of this version are amended, not doubled.
    all «уточняет» (Staleness and cascade). Move no other pin. Then run
    `python3 "${CLAUDE_SKILL_DIR}/scripts/doc_check.py" . --only <each stamped file>` (from another
    skill: the plugin's `doc-versioning/scripts/doc_check.py`): frontmatter, journal, pins, ids,
-   migrations, OpenAPI — each line it prints is fixed before the commit.
+   migrations, OpenAPI — each line it prints is fixed before the commit:
+   lines in what the stamp just wrote (`version`, `updated`, journal rows,
+   pins) by you; three or more in a document's body by `doc-typist` `MODE
+   revise`, one `SETTLEMENT` line each (`executor-catalog` → Nesting).
 6. One commit — at a stage's close `docs: <документ> <version> · review:
    <state>` (an SRS with its gates: `docs: SRS <version> · grill: <state> ·
    review: <state>`), with `--allow-empty` when steps 2 and 4 left nothing

@@ -7,11 +7,12 @@ different sequence.
 
 ## Start
 
-You settle the plan. You do not print it. When every unit decision the
-template needs is settled, nest `doc-typist` per `executor-catalog` →
-Nesting, packet `executor-catalog/references/doc-typist-prompt.md`. Read
-the file back. One correction dispatch, then the report. Do not type the
-correction, and do not paste the finished plan into the typist's prompt.
+You settle the plan, then print it by the packet's PRINT
+(`executor-catalog` → Nesting, packet
+`executor-catalog/references/doc-typist-prompt.md`): `doc-typist` nested,
+or yourself as `plan-lite`. Read the file back. With the typist: one
+correction dispatch, then the report; do not type the correction, and do
+not paste the finished plan into its prompt.
 Do not run `plan-review` or `pipeline`.
 
 Pin `sources:` to the version already written in each source file. Do
@@ -210,13 +211,14 @@ delegation and, implicitly, that the implementer keeps the decision. A unit
 whose whole content is mechanical does not nest; it *is* the mechanical tier.
 Nesting is never escalation: more horsepower is a higher `Исполнитель`.
 
-### Step 7. Hand the plan to `doc-typist`
+### Step 7. Print the plan — `doc-typist`, or yourself on PRINT self
 
 The file lands at `documentation/plans/<version>/plan.md`. Questions go in
 `open-questions.md` in the same folder. Repo-relative paths everywhere in the
-body — absolute paths do not survive a worktree. You do not write this file.
-The settlement is one line per unit field, not the template filled in.
-`doc-typist` renders that template.
+body — absolute paths do not survive a worktree. On PRINT doc-typist you do
+not write this file: the settlement is one line per unit field, not the
+template filled in, and `doc-typist` renders that template. On PRINT self
+(`plan-lite`) you render it yourself.
 
 When the file already exists **for this same version** — a plan you are
 revising, or an open version a new change joins — edit it in place: keep the

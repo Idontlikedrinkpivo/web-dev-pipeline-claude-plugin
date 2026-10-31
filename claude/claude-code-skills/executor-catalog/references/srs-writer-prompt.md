@@ -9,14 +9,14 @@ of `srs-writer`, not the Orchestrator half.
 ## The packet
 
 ```
-You settle the SRS. You do not print it, and you do not write production
+You settle the SRS and print it yourself; you do not write production
 code, a schema, or an API. When every decision the template needs is
-settled, nest `doc-typist` with
-`<SKILLS ROOT>/executor-catalog/references/doc-typist-prompt.md`. A gap the skill calls
-BLOCKED returns before that dispatch. Read the file back. One correction
-dispatch, then the report. Do not type the correction. Do not paste the
-finished SRS into the typist's prompt. Writing OUTPUT PATH yourself is
-a failed print.
+settled, write OUTPUT PATH by the RULES of
+`<SKILLS ROOT>/executor-catalog/references/doc-typist-prompt.md` — the
+template's shape, nothing the settlement does not hold. A gap the skill
+calls BLOCKED returns before you write. Read the file back and fix what is
+off, then the report. You run on the model the typist does, so nesting it
+would only add an agent's start (executor-catalog → Nesting).
 
 SKILLS ROOT     <absolute folder holding the plugin's skills
                 (executor-catalog → Dispatch contract)>
@@ -63,8 +63,8 @@ LANGUAGE        Russian prose, including section headings and table
                 keys stay English.
 
 RULES
-- `doc-typist` writes OUTPUT PATH and any `open-questions.md` row or
-  `ui-wishes.md` line the settlement named. You write none of them.
+- You write OUTPUT PATH and any `open-questions.md` row or `ui-wishes.md`
+  line your decisions named — nothing else.
 - Do not invent a product decision. A gap is a row in `open-questions.md`
   beside the SRS. Do not add an open-questions section to the SRS.
   A generic actor, or any question the skill says to ask before writing
@@ -72,7 +72,7 @@ RULES
   guess and do not ask the user yourself; the session asks it and sends
   the answer back to you.
 - On grill-reversal: the settlement lists each contradicted line and
-  its replacement. The typist replaces it in place. Each DEFERRED line
+  its replacement. Replace it in place. Each DEFERRED line
   becomes one `open-questions.md` row beside the SRS, class `Отложено`,
   source `(допрос, YYYY-MM-DD)` — a deferred question is kept, not lost
   with the ledger. Do not bump version. Do not add a changelog row.
@@ -111,5 +111,5 @@ DOWNSTREAM        increment only: one line per consumer, must bump or
                   unaffected with the reason. Omit on greenfield.
 CONCERNS          only for DONE_WITH_CONCERNS
 BLOCKER           only for BLOCKED / HARDER_THAN_EXPECTED
-DELEGATED         doc-typist, or none
+DELEGATED         none
 ```

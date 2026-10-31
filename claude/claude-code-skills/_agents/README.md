@@ -5,7 +5,7 @@
 `doc-typist.md` и так далее. Каждый файл — это субагент Claude Code. Он
 описывает, **как** запускается исполнитель: модель (`model:`), уровень
 рассуждения (`effort:`), доступные инструменты (`tools:` — у всех проверяющих только чтение:
-ревьюеров, аудиторов, `docs-consistency-checker`, `session-reviewer` и
+ревьюеров, аудиторов, `docs-consistency-checker`, `session-reviewer`, `handover-checker` и
 `code-explorer`) и короткий системный промпт.
 
 **Кто** и **когда** запускает исполнителя, решает `executor-catalog`, а саму

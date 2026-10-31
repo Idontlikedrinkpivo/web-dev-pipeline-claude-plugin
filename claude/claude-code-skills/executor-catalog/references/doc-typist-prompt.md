@@ -1,7 +1,8 @@
 # Doc-typist packet and report
 
-The parent is `srs-author`, a `design-*` row, or a `plan-*` row. It has already settled the
-document. This row prints. The parent is the session in two cases, both
+The parent is `design-medium`, `design-hard`, `plan-medium` or `plan-hard`. It has already
+settled the document. This row prints. `srs-author`, `design-lite` and `plan-lite` print
+themselves by this packet's RULES (`executor-catalog` → Nesting). The parent is the session in two cases, both
 `MODE revise` with one `SETTLEMENT` line per change: a decision the user
 changed after the document was finished (`pipeline` →
 `references/decision-changes.md`), and a print defect the session found
@@ -28,7 +29,7 @@ SKILL           <SKILLS ROOT>/<stage>/SKILL.md
                 Skip the Orchestrator half. Do not run grill-me,
                 doc-review, or pipeline.
 
-PARENT          srs-author | design-lite | design-medium | design-hard | plan-lite | plan-medium | plan-hard | session (a changed decision, a print defect)
+PARENT          design-medium | design-hard | plan-medium | plan-hard | session (a changed decision, a print defect, a check's lines)
 OUTPUT PATH     <repo-relative path; db schema: documentation/db/schema.md
                 plus each documentation/db/migrations/<NNNN>_<slug>.sql
                 the parent settled (an as-is schema: in the folder its

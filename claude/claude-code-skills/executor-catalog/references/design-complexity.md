@@ -86,7 +86,7 @@ settles all documents of the sitting, so the dispatch takes the
 
 | Grade | Executor | The writer is expected to |
 |---|---|---|
-| **Low** | `design-lite` | confirm a fully bounded slice fits the template. `doc-typist` prints it |
+| **Low** | `design-lite` | confirm a fully bounded slice fits the template. Prints it itself |
 | **Mid** | `design-medium` | close the remaining local design decisions inside the skill's rules. `doc-typist` prints it |
 | **High** | `design-hard` | hold Full-trigger / security / cross-section judgment. `doc-typist` prints it |
 

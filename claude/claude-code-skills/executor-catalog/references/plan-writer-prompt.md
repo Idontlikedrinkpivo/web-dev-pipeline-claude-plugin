@@ -14,15 +14,19 @@ on no disk is pasted — the code inventory, the user's answers
 ## The packet
 
 ```
-You settle the implementation plan. You do not print it, and you do not
-write production code. When every unit decision the template needs is
-settled, nest `doc-typist` with
-`<SKILLS ROOT>/executor-catalog/references/doc-typist-prompt.md`. That row
-writes OUTPUT PATH and DIAGRAM PATH. A gap the skill calls a design
-question goes to `open-questions.md` through the typist, as a named row —
-not into a unit. Read the file back. One correction dispatch, then the
-report. Do not type the correction. Do not paste the finished plan into
-the typist's prompt. Writing OUTPUT PATH yourself is a failed print.
+You settle the implementation plan; you do not write production code.
+When every unit decision the template needs is settled, print by PRINT
+below: `doc-typist` — nest it with
+`<SKILLS ROOT>/executor-catalog/references/doc-typist-prompt.md`; `self`
+(`plan-lite`, on the typist's model) — write the files yourself by that
+packet's RULES. The print writes OUTPUT PATH and DIAGRAM PATH. A gap the
+skill calls a design question goes to `open-questions.md` as a named row —
+not into a unit. Read the file back. With the typist: one correction
+dispatch, then the report; do not type the correction, do not paste the
+finished plan into its prompt, and do not write OUTPUT PATH yourself. With
+PRINT self: fix what is off yourself, then the report.
+
+PRINT           doc-typist (plan-medium, plan-hard) | self (plan-lite)
 
 SKILLS ROOT     <absolute folder holding the plugin's skills
                 (executor-catalog → Dispatch contract)>
@@ -90,8 +94,9 @@ LANGUAGE        Russian prose. Do not translate U-ids, paths, or
                 specifies.
 
 RULES
-- `doc-typist` writes OUTPUT PATH, DIAGRAM PATH and any
-  `open-questions.md` row the settlement named. You write none of them.
+- The print — the typist, or you on PRINT self — writes OUTPUT PATH,
+  DIAGRAM PATH and any `open-questions.md` row the settlement named,
+  nothing else.
 - `Исполнитель` is only a name from
   `<SKILLS ROOT>/executor-catalog/references/assignable-implementers.md`.
   `Вложенный` is `—` or `mechanical-worker`. Never write a model slug, a
@@ -129,5 +134,5 @@ COUNTS            units, grade spread, wave count, blocking questions
 NEW UNITS         fix and revise: the U-ids added or changed; otherwise all
 CONCERNS          only for DONE_WITH_CONCERNS
 BLOCKER           only for BLOCKED / HARDER_THAN_EXPECTED
-DELEGATED         doc-typist, or none
+DELEGATED         doc-typist (PRINT doc-typist), or none
 ```

@@ -18,9 +18,9 @@ A short, messy, or differently headed description is still input: write the SRS 
 
 ## Orchestrator (session)
 
-The session writes no SRS file. `srs-author` settles it and nests
-`doc-typist` to print it. A report whose `DELEGATED` is not `doc-typist`
-comes back until it is.
+The session writes no SRS file. `srs-author` settles it and prints it
+itself — it runs on the typist's model (`executor-catalog` → Nesting); its
+report says `DELEGATED none`.
 
 1. Resolve the source (Input Resolution, steps 1–4). From `upgrade-docs` for a running system without an SRS: `MODE as-is`, the source is the code and the project's own documents, and no iteration is opened (`upgrade-docs/references/as-is.md`). Only when there is no file, no description and no business-requirements document (Input Resolution, step 3), route to `brainstorm`. Do not invent the product.
 2. **Be in the iteration before the dispatch** (not in `MODE as-is` — step 1): reuse the open one, or open it as `pipeline` → Service version says (it owns the steps, the number's question — MAJOR is proposed when the increment adds a new capability group to §3 — and the script's exits, asked before anything else). A new project — `documentation/` did not exist when this stage started — also runs `python3 "${CLAUDE_SKILL_DIR}/../upgrade-docs/scripts/project_format.py" born .` and commits `documentation/.dev-pipeline.json` with the document (the script's `born` line says why). Put the version in the packet's `VERSION`. A greenfield SRS is born at it; an increment leaves `version` to the stamping commit.
@@ -42,12 +42,10 @@ Read `references/srs-template.md` in full before settling anything: it
 holds where the SRS lives and how an increment resumes it, the sections and
 ids, the writing rules, the quality gate and the report.
 
-You settle the SRS. You do not print it. When every decision this
-template needs is settled, nest `doc-typist` per `executor-catalog` →
-Nesting, packet `executor-catalog/references/doc-typist-prompt.md`. A
-gap this skill calls BLOCKED returns before that dispatch. Read the
-file back. One correction dispatch, then the report. Do not type the
-correction, and do not paste the finished SRS into the typist's prompt.
+You settle the SRS and print it yourself, by the RULES of
+`executor-catalog/references/doc-typist-prompt.md` (`executor-catalog` →
+Nesting): no typist. A gap this skill calls BLOCKED returns before you
+write. Read the file back and fix what is off, then the report.
 
 ## Scope
 

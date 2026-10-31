@@ -14,6 +14,10 @@ usage:
                      ~/.claude/dev-pipeline-feedback/<project>.md when that ends after it, so no moment is read
                      twice. UTC, as the logs and the «Окно» line keep time. The version: --version, else the
                      iteration branch, else the newest plans/ folder without summary.md
+  sessions.py mine   <project-dir> <marker> <out.md>
+                     the digest of the newest session of this project whose opening messages hold the marker —
+                     a nested session's title, «0.1.0 · SRS»: the session finds its own conversation for the
+                     check before its stage closes (pipeline → references/parent-session.md → At the stage's close)
   sessions.py errors <project-dir> <out.md> [--since YYYY-MM-DD[THH:MM]] [--also <old-project-dir> ...]
                      the failed tool calls of the main sessions AND of every agent they ran
                      (<session>/subagents/), grouped by kind and shape, most repeated first
@@ -163,6 +167,26 @@ def cmd_list(cwd: str, since: str | None, also: list[str]) -> None:
             print(f"# повтор {dup.stem[:8]}: {p}")
             continue
         print(f"{p}\t{a}\t{b}\t{p.stat().st_size // 1024} KB")
+
+
+def cmd_mine(cwd: str, marker: str, out: str) -> None:
+    dirs, roots = session_dirs(cwd, [])
+    exact = {sanitized(r) for r in roots if len(sanitized(r)) <= MAX_NAME}
+    found = [p for d in dirs for p in d.glob("*.jsonl") if d.name in exact or ours(p, roots)]
+    for p in sorted(found, key=lambda p: p.stat().st_mtime, reverse=True):
+        with open(p, errors="ignore") as fh:
+            for n, line in enumerate(fh):
+                if n > 60:
+                    break
+                try:
+                    d = json.loads(line)
+                except json.JSONDecodeError:
+                    continue
+                if d.get("type") == "user" and marker in text_of(d.get("message", {}).get("content")):
+                    cmd_digest(str(p), out)
+                    return
+    print(f"no session of {cwd} opens with «{marker}»", file=sys.stderr)
+    sys.exit(1)
 
 
 def cmd_digest(src: str, out: str, since: str | None = None) -> None:
@@ -355,6 +379,8 @@ if __name__ == "__main__":
         cmd_list(sys.argv[2], since, also)
     elif len(sys.argv) >= 4 and sys.argv[1] == "digest":
         cmd_digest(sys.argv[2], sys.argv[3], sys.argv[sys.argv.index("--since") + 1] if "--since" in sys.argv else None)
+    elif len(sys.argv) >= 5 and sys.argv[1] == "mine":
+        cmd_mine(sys.argv[2], sys.argv[3], sys.argv[4])
     elif len(sys.argv) >= 3 and sys.argv[1] == "window":
         cmd_window(sys.argv[2], sys.argv[sys.argv.index("--version") + 1] if "--version" in sys.argv else None)
     elif len(sys.argv) >= 4 and sys.argv[1] == "errors":

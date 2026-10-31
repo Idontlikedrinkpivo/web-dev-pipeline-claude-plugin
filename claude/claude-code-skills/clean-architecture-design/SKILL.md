@@ -35,10 +35,12 @@ fact lives once, no decision dates in the body — `references/writing.md`.
 
 The session writes no architecture document. Same reason `work` writes no
 code: the grade is worthless if the chat model does the expensive part.
-The dispatched writer settles the sitting's documents and nests
-`doc-typist` to print them, including their diagrams. A report whose
-`DELEGATED` is not `doc-typist` comes back until it is. The session does not
-dispatch the typist.
+The dispatched writer settles the sitting's documents; a writer on Opus
+nests `doc-typist` to print them, including their diagrams, and
+`design-lite` prints them itself (`executor-catalog` → Nesting). A Mid or
+High report whose `DELEGATED` is not `doc-typist` comes back until it is.
+The session dispatches the typist only for a check's lines (`executor-catalog`
+→ Nesting).
 
 1. **Gather inputs.**
    - Missing input: stop without `documentation/requirements/srs/srs.md`; when the product stores data, without
@@ -124,19 +126,19 @@ You settle the documents MODE names, in order: foundation → domain →
 each area's scenarios. You do not print them. Settle all of them before
 printing any: the scenarios tell you which port methods, named errors
 and cross-area types the foundation and the domain model must hold, so
-those two are final only after the scenarios are sketched. Then nest
-`doc-typist` per `executor-catalog` → Nesting, packet
-`executor-catalog/references/doc-typist-prompt.md`, one typist per
-document, in parallel; each gets only its document's decisions and
-diagrams. A gap this skill calls BLOCKED returns before that dispatch.
-Read the files back. One correction dispatch per document, then the
-report. Do not type the correction, and do not paste a finished
-document into the typist's prompt.
+those two are final only after the scenarios are sketched. Then print by
+the packet's PRINT (`executor-catalog` → Nesting, packet
+`executor-catalog/references/doc-typist-prompt.md`): `doc-typist`, one per
+document, in parallel, each with only its document's decisions and
+diagrams — or yourself as `design-lite`. A gap this skill calls BLOCKED
+returns before printing. Read the files back. With the typist: one
+correction dispatch per document, then the report; do not type the
+correction, and do not paste a finished document into its prompt.
 
 A document outside MODE that lacks a name your documents need — a port
 method, a named error and its HTTP row, a config variable, a file line,
 an entity method or an invariant row for a rule the SRS states — joins
-your sitting: settle the added lines, print it with its own typist, and
+your sitting: settle the added lines, print it (its own typist, or yourself on PRINT self), and
 list it under `ALSO CHANGED`. A fundamental change it would need (a new
 port, external system, store, transaction model, or stack) is not a
 name: return `HARDER_THAN_EXPECTED` with it.

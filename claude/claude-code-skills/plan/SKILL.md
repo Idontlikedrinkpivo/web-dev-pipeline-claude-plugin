@@ -134,8 +134,10 @@ written in each source file.
    agent is a stop per the Dispatch contract, a rejected alias per Slug
    hygiene. Do not write the plan on the session model. Do not dispatch
    `doc-typist`.
-6. Inspect the report. A `DELEGATED` that is not `doc-typist` (the writer
-   typed the plan itself) comes back, until it is right; model slugs and
+6. Inspect the report. From `plan-medium` or `plan-hard`, a `DELEGATED`
+   that is not `doc-typist` (the writer typed the plan itself) comes back,
+   until it is right; `plan-lite` prints the plan itself (`executor-catalog`
+   → Nesting) and reports `none`; model slugs and
    executor names are `plan_lint.py`'s, in step 7. A `BLOCKED` with a
    question for the user is asked and sent back to the same row; any
    other `BLOCKED` / `HARDER_THAN_EXPECTED` escalates one tier per failure

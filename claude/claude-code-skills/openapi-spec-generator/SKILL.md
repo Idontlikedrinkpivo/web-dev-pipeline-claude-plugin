@@ -9,10 +9,11 @@ description: >-
 
 ## Orchestrator (session)
 
-The session writes no OpenAPI spec. The dispatched writer settles it
-and nests `doc-typist` to print it. A report whose `DELEGATED` is not
-`doc-typist` comes back until it is. The session dispatches the typist
-only for a print defect (step 4).
+The session writes no OpenAPI spec. The dispatched writer settles it; a
+writer on Opus nests `doc-typist` to print it, `design-lite` prints it
+itself (`executor-catalog` → Nesting). A Mid or High report whose
+`DELEGATED` is not `doc-typist` comes back until it is. The session
+dispatches the typist only for a print defect or a check's lines (step 4).
 
 1. Stop if the SRS is missing. Name `srs-writer`. If the slice persists
    state and there is no schema document, stop and name `db-schema-design`.
@@ -57,7 +58,8 @@ only for a print defect (step 4).
    `error` whose fix you can state as a finished line (a missing
    `description`, a broken `$ref` path, a stray key) is a print defect:
    `doc-typist` `MODE revise`, one `SETTLEMENT` line per error with its
-   JSON pointer (`executor-catalog` → Nesting). An error whose fix needs a
+   JSON pointer; one or two such errors you fix yourself, a dispatch costs
+   more (`executor-catalog` → Nesting). An error whose fix needs a
    decision (a missing response, a schema shape) sends the writer back
    with the rule ids and pointers. When no linter can run
    (no Node, no network), say in the stage close that the spec was not
@@ -75,12 +77,13 @@ only for a print defect (step 4).
 
 ## Writer (dispatched)
 
-You settle the contract. You do not print it. When every decision this
-template needs is settled, nest `doc-typist` per `executor-catalog` →
-Nesting, packet `executor-catalog/references/doc-typist-prompt.md`. A
-gap this skill calls BLOCKED returns before that dispatch. Read the
-file back. One correction dispatch, then the report. Do not type the
-correction, and do not paste the finished spec into the typist's prompt.
+You settle the contract, then print it by the packet's PRINT
+(`executor-catalog` → Nesting, packet
+`executor-catalog/references/doc-typist-prompt.md`): `doc-typist` nested,
+or yourself as `design-lite`. A gap this skill calls BLOCKED returns
+before printing. Read the file back. With the typist: one correction
+dispatch, then the report; do not type the correction, and do not paste
+the finished spec into its prompt.
 
 `MODE as-is` (`upgrade-docs/references/as-is.md` §5): paths, statuses and error bodies come from the code; Step 3's
 problem+json rule, Step 6's status list and `references/base-schemas.md` do not apply.
