@@ -163,7 +163,8 @@ RULES
   worktree: no `cd` out of it, no `for` / `;` chains around git, no
   variable in an option's place; a longer script is a file you Write first,
   then one call. The harness refuses what it cannot verify stays inside.
-- The shell is zsh on macOS: change files with Edit, not `sed -i`; quote
+- The shell is zsh on macOS: change files with Edit, not `sed -i` (a hook refuses `sed -i` without a suffix
+  argument — BSD sed takes the next word as one); quote
   every argument with `*`, `?` or `[` — an unquoted glob stops the command.
 - A long command (Stryker, an e2e suite, the full test suite) runs with
   `run_in_background: true`, and you wait for its end — never `sleep N;

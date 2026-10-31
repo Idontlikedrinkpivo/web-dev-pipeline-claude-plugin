@@ -1,5 +1,5 @@
 {
-  "description": "dev-pipeline hooks. SessionStart re-anchors a session on the pipeline. PreToolUse on AskUserQuestion refuses the choice card only in a project with documentation/.dev-pipeline.json: there every question is a chat message, and a card closed without a pick was read as the first option (hooks/ask-in-chat.sh says why). UserPromptSubmit, in such a project, tells the model when the user's message carries what looks like a secret, by kind and never by value (hooks/secret-in-prompt.sh). PostToolUse on edits rebuilds the progress pages and the documentation site.",
+  "description": "dev-pipeline hooks. SessionStart re-anchors a session on the pipeline. PreToolUse on AskUserQuestion refuses the choice card only in a project with documentation/.dev-pipeline.json: there every question is a chat message, and a card closed without a pick was read as the first option (hooks/ask-in-chat.sh says why). UserPromptSubmit, in such a project, tells the model when the user's message carries what looks like a secret, by kind and never by value (hooks/secret-in-prompt.sh). PreToolUse on Bash and edits, in such a project, refuses the few commands that broke real runs (hooks/guard.py says which and why). PostToolUse on edits rebuilds the progress pages and the documentation site.",
   "hooks": {
     "SessionStart": [
       {
@@ -29,6 +29,15 @@
           {
             "type": "command",
             "command": "sh \"${CLAUDE_PLUGIN_ROOT}/hooks/ask-in-chat.sh\""
+          }
+        ]
+      },
+      {
+        "matcher": "Bash|Edit|Write|MultiEdit|NotebookEdit",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "sh \"${CLAUDE_PLUGIN_ROOT}/hooks/guard.sh\""
           }
         ]
       }

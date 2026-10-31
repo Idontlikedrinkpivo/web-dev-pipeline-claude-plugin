@@ -29,6 +29,10 @@ orchestrator, the executors and the reviewers, and nothing else keeps them apart
 
 ## Commits
 
+The plugin's hook (`hooks/guard.py`) refuses the three commit mistakes below before they land — a commit chained
+to a check, a `Plan-Unit:` line git cannot read, a commit on `main` while an iteration is open — and says why.
+A refusal is not an error to work around: fix the command as it says.
+
 - **Commit only after reading the checks.** `git commit` is its own call, after
   the output of Step 5.3 has been read and is green — never chained in one
   command with a test run (`npm test && git commit`, `…; git commit`): a red line
@@ -149,6 +153,8 @@ The packet says it (`executor-catalog/references/worker-prompt.md` → RULES); t
 orchestrator checks it when the unit returns:
 
 - in the main tree an executor never runs `git stash`, `git reset`, `git checkout --`
+  (the hook refuses `git stash` of everything, `reset --hard`, `clean -f`, `checkout -- .`, and an edit from a
+  worktree into the main tree; `git checkout -- <file>` by name passes)
   or `git clean`;
 - a link to installed dependencies (`ln -s …/node_modules`) is made only inside the
   executor's own worktree, and only where no folder of that name exists;

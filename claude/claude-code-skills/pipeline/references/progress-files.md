@@ -99,7 +99,8 @@ document keeps none.
   paste the script's line each time its dispatch returns.
 - **How.** Change it with the **Edit** tool the moment a row changes — one
   call per row or line, the bar and the count together with the row — and
-  **Write** only to create it. Never from the shell (`python`, `sed`,
+  **Write** only to create it (a shell write to a progress file is refused by the plugin's hook,
+  `hooks/guard.py`). Never from the shell (`python`, `sed`,
   `cat >`), and never by a script that rewrites the file on a timer: the
   page is rebuilt by the plugin's hook on Edit and Write only, so a file
   changed any other way is fresh on disk and stale on the page the user
