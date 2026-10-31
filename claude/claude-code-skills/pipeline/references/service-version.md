@@ -68,8 +68,9 @@ Every stamp of the iteration writes that number.
 
 Every stage of the iteration, by everyone who works on it
 (`references/team.md`), commits on `iteration/<version>`; nothing is
-committed to `main` during the iteration. Only that branch is pushed — the
-plugin gives the command, the user runs it — and `main` receives the
+committed to `main` during the iteration. Only that branch is pushed — by
+the plugin itself once the documents of a stage before `work` are final
+(`SKILL.md` → Commit each document), by the user for the rest — and `main` receives the
 iteration once, at the end, when the user merges it on GitHub. A stage
 that finds itself on another branch with an open iteration runs
 `open_iteration.py` with that version: it only switches.

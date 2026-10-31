@@ -56,9 +56,9 @@ skipped; `pipeline` names what follows.
 **Handed to another person?** In the session of a person who took
 this stage (`pipeline` → `references/team.md`): the version comes from the
 branch `iteration/<version>`, inputs arrive by `git pull --rebase`, only this
-stage's documents are written — each committed the moment it is finished,
-with the push command after it — and the stage closes as usual, its stamp
-included. After the last stage this person took, the «готовы и запушены»
+stage's documents are written — each committed the moment it is finished
+and pushed by the plugin once final, at the stage's close (`pipeline` →
+Commit each document) — and the stage closes as usual, its stamp included. After the last stage this person took, the «готовы и запушены»
 line replaces the offer of a stage someone else has.
 
 ## Inputs
