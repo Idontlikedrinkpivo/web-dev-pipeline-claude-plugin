@@ -444,36 +444,31 @@ scan — and the next stage, per `pipeline` → "Asking before a transition".
 
 ## Before you finish
 
+`python3 "${CLAUDE_SKILL_DIR}/scripts/deploy_check.py" .` passes — it checks the compose, image and release items
+below that code can decide (hardening, healthcheck, no stateful service in prod, numeric USER, .dockerignore, the
+release folder and what DEPLOY.md names); each line it prints is fixed first.
+
 - Three compose files, each readable on its own — "The three environments".
-- One Dockerfile per container, matching `references/images.md`: a
-  numeric non-root `USER`, the shell answer from the card (asked at most
-  once per project), every base reference checked against its registry,
-  plus `.dockerignore` — Step 2.
-- App containers in the test and prod files hardened (read-only root,
-  `/tmp` tmpfs, no capabilities, no new privileges), `backend`'s
-  healthcheck on `/health/ready` through the runtime, and the test stand's
-  two database accounts — Step 4.
-- The service check passed against the `backend` container, and «Ресурсы»
-  holds the stand's numbers with the date and how, or «Не замерено» — Step 7b.
-- `documentation/deploy/deploy.md` opens with «Карточка сервиса» and covers
-  every section of `references/deploy-doc.md` — probes, resources,
-  dependencies, «Для DBA», logs, metrics, shutdown, pod security,
+- One Dockerfile per container, matching `references/images.md`: a numeric non-root `USER`, the shell answer from
+  the card (asked at most once per project), every base reference checked against its registry, plus `.dockerignore`
+  — Step 2.
+- App containers in the test and prod files hardened (read-only root, `/tmp` tmpfs, no capabilities, no new
+  privileges), `backend`'s healthcheck on `/health/ready` through the runtime, and the test stand's two database
+  accounts — Step 4.
+- The service check passed against the `backend` container, and «Ресурсы» holds the stand's numbers with the date
+  and how, or «Не замерено» — Step 7b.
+- `documentation/deploy/deploy.md` opens with «Карточка сервиса» and covers every section of
+  `references/deploy-doc.md` — probes, resources, dependencies, «Для DBA», logs, metrics, shutdown, pod security,
   tracing — Step 8.
-- `scripts/build-images.sh` ran for the card's platform: `release/<version>/`
-  holds the tar with every image under the `<version>-<date>` tag,
-  `DEPLOY.md`, `<project>.env.example` and `openapi.yaml` (one file) —
-  Step 8.
+- `scripts/build-images.sh` ran for the card's platform: `release/<version>/` holds the tar with every image under
+  the `<version>-<date>` tag, `DEPLOY.md`, `<project>.env.example` and `openapi.yaml` (one file) — Step 8.
 - Mock gate enforced in application config — Steps 3 and 5.
-- Prod file has no local stateful service; `up-test` runs the suite with
-  zero outbound network calls — Step 4.
+- Prod file has no local stateful service; `up-test` runs the suite with zero outbound network calls — Step 4.
 - Bootstrap and `up-<environment>` targets for all three — Step 6.
 - A passing compose-contract test for every Step 7 invariant — Step 7.
 - `.claude/skills/verify/` written and proven end to end — Step 7a.
-- `docker-compose.test.yml` copyable; `DEPLOY.md` names only files the
-  release folder holds — Steps 4, 7, 8.
-- Everything this stage wrote is committed on the iteration branch, after
-  the site rebuild — Step 9.
-
+- `docker-compose.test.yml` copyable; `DEPLOY.md` names only files the release folder holds — Steps 4, 7, 8.
+- Everything this stage wrote is committed on the iteration branch, after the site rebuild — Step 9.
 ## References
 
 - `references/images.md` — the images with and without a shell, the shell

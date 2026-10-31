@@ -188,7 +188,9 @@ stage that ran last hands over to this section; it does not end the sitting itse
    nothing is committed.
 2. **The site.** Rebuild the documentation site (`docs-site`) and commit it when it changed.
 3. **The summary** — `references/summary.md`; on disk only, like the rest of `plans/`.
-4. **The tag** `v<version>` on the current commit — the baseline the next iteration's pins and
+4. **The tag** `v<version>` on the current commit — only when
+   `python3 "${CLAUDE_SKILL_DIR}/scripts/close_iteration.py" .` shows steps 1–3 ✅; run it again after step 7: exit 0
+   is the iteration closed, a ✗ names the step left. The tag is the baseline the next iteration's pins and
    diffs read against. Steps 1–4 also run when the user asks «итог», «как отработал пайплайн» or
    «сводка» after `work`. They close the version: a folder with `summary.md` is done.
 5. **`reflect`**, unasked.
