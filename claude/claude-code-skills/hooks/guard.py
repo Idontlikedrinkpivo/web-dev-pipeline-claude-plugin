@@ -202,6 +202,21 @@ def log_refusal(project: str, tool: str, inp: dict, why: str) -> None:
         fh.write(json.dumps(row, ensure_ascii=False) + "\n")
 
 
+def commit_dir(cmd: str, cwd: str) -> str:
+    """The folder whose repository the commit lands in: `git -C <dir> commit`, else the last `cd <dir>` before the
+    commit, else the session's cwd — a live refusal came from reading the branch of the session's folder while the
+    command had changed into the project («cd <project> && … git commit» on the iteration branch)."""
+    bare = heredocs(cmd)[0]
+    at = COMMIT.search(bare)
+    if not at:
+        return cwd
+    m = re.search(r"\bgit\s+-C\s+(['\"]?)([^'\"\s]+)\1\s+commit\b", bare)
+    if m:
+        return os.path.join(cwd, os.path.expanduser(m.group(2)))
+    cds = re.findall(r"(?:^|[;&|(]\s*)cd\s+(['\"]?)([^'\"\s;&|]+)\1", bare[: at.start()])
+    return os.path.join(cwd, os.path.expanduser(cds[-1][1])) if cds else cwd
+
+
 def git(cwd: str, *args: str) -> str:
     try:
         return subprocess.run(["git", "-C", cwd, *args], capture_output=True, text=True, timeout=5).stdout.strip()
@@ -232,7 +247,13 @@ def main() -> None:
     top = git(cwd, "rev-parse", "--show-toplevel")
     is_worktree = bool(top) and git(cwd, "rev-parse", "--absolute-git-dir") != os.path.realpath(
         git(cwd, "rev-parse", "--path-format=absolute", "--git-common-dir") or "-")
-    branch = git(cwd, "rev-parse", "--abbrev-ref", "HEAD") if tool == "Bash" and "commit" in str(inp) else ""
+    branch = ""
+    if tool == "Bash" and "commit" in str(inp):
+        target = commit_dir(str(inp.get("command", "")), cwd)
+        # the iteration rule is about this project's repository only, not another one the command commits to
+        if os.path.realpath(git(target, "rev-parse", "--show-toplevel") or "-") == \
+                os.path.realpath(git(project, "rev-parse", "--show-toplevel") or "+"):
+            branch = git(target, "rev-parse", "--abbrev-ref", "HEAD")
     main_root = os.path.dirname(git(cwd, "rev-parse", "--path-format=absolute", "--git-common-dir")) if is_worktree else None
     why = decide(tool, inp, cwd, branch=branch, open_iteration=open_iteration(project) if branch else None,
                  worktree_root=top if is_worktree else None, main_root=main_root)

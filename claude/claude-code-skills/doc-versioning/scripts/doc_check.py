@@ -233,7 +233,7 @@ def check_questions(root: Path, out: list) -> None:
         if not t.strip():
             out.append(f"{rel}: пустой — файл создаётся с первым вопросом")
             continue
-        if not re.search(r"^# Открытые вопросы(?:\s+—.*)?\s*$", t, re.M):
+        if not re.search(r"^# Открытые вопросы(?: и допущения)?(?:\s+—.*)?\s*$", t, re.M):   # architecture: «и допущения»
             out.append(f"{rel}: заголовок не «# Открытые вопросы»")
         lines = t.splitlines()
         at = next((i for i, l in enumerate(lines) if l.startswith("|") and "Вопрос" in l), None)
