@@ -140,7 +140,8 @@ written in each source file.
    other `BLOCKED` / `HARDER_THAN_EXPECTED` escalates one tier per failure
    (lite → medium → hard), and that dispatch asks again; the rounds go on
    while each makes progress (`pipeline` → `references/convergence.md`).
-7. Report the plan path and the writer's counts. Then run `plan-review` at
+7. Run `python3 "${CLAUDE_SKILL_DIR}/scripts/plan_lint.py" <plan>`: each error goes back to the writer
+   (`revise`, those lines) until it exits 0. Report the plan path and the writer's counts. Then run `plan-review` at
    once, without asking — on `fix`, over the appended units (the report's
    NEW UNITS): every product decision is already settled in the documents, so what the review finds is the pipeline's own work to fix (`pipeline` → `references/gates.md`).
    It returns without asking the next stage. Branch on its verdict:

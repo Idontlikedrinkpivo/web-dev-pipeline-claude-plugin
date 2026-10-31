@@ -26,6 +26,11 @@ MODE                greenfield | increment | fix | brownfield
 UNITS               <the U-ids to review: all, or on a fix plan the appended
                     units, on a re-review the changed ones>
 
+LINT                (structural packet only) the lines of plan/scripts/plan_lint.py over
+                    this plan, or «чисто». Each ✗ line is a P1 finding as it stands —
+                    copy it into FINDINGS with its unit; do not re-check those
+                    rules by hand. ⚠ lines are leads to judge.
+
 SERVICE VERSION     (structural packet only) the folder's version, the
                     manifest's current `version`, the iteration's typed
                     changes (changelog rows of this version, OpenAPI

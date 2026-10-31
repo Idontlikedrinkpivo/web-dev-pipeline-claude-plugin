@@ -134,6 +134,9 @@ parallel, because the two halves fail differently:
 | `plan-review-medium` | the structural lenses — dependency graph, parallel safety, files completeness, citation integrity, coverage, executor validity, existing work, service version, plan hygiene. These are checkable against the text, the tree and a search for the changed symbols, and they are where volume lives. |
 | `plan-review-hard` | the judgment lenses — commit atomicity, grade calibration, test-first writability. Deciding that a unit *cannot* land alone, or that a Low unit is really Mid, is the same kind of reasoning that graded it, so it needs a tier that can hold the cascade and argue with it. |
 
+First run `python3 "${CLAUDE_SKILL_DIR}/../plan/scripts/plan_lint.py" <plan>` and paste its lines into the
+structural packet's LINT: fields, executors, the dependency graph, parallel pairs sharing a file, model names,
+citations of missing ids — decided by code, so the reviewer starts from them instead of re-deriving them.
 Build both from `references/reviewer-prompt.md`. Each packet names its
 inputs by path and pastes only the ledger, which exists nowhere on disk
 (`executor-catalog` → Dispatch contract → Paths, not pasted documents);

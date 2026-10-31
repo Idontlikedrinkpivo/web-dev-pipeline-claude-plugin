@@ -6,6 +6,7 @@ Prints one line per fact:
 
     plan      the plan, its version, how many units it has
     where     the branch the done units are read from; a wrong branch or a linked worktree is named
+    lint      plan/scripts/plan_lint.py over the plan: its mechanical errors stop the run like a failed gate
     review    the plan-review gate: plan-review.md says «Verdict: PASS» and its «checked:» line is the sha256 of
               plan.md as it is now — or why the gate does not pass (no review, another verdict, the plan changed)
     done      units with a «Plan-Unit: <version>/U<n>» trailer on the iteration branch (git log <base>..<branch>)
@@ -125,6 +126,15 @@ def main() -> int:
     print(f"plan      {plan} · version {version} · units {len(units)}")
 
     problems = 0
+    lint = Path(__file__).resolve().parents[2] / "plan" / "scripts" / "plan_lint.py"
+    if lint.exists():
+        r = subprocess.run([sys.executable, str(lint), str(plan)], capture_output=True, text=True)
+        last = (r.stdout.strip().splitlines() or ["?"])[-1]
+        if r.returncode:
+            problems += 1
+            print(f"lint      {last} — fix the plan (plan_lint.py prints each line), then plan-review again")
+        else:
+            print(f"lint      {last}")
     branch = f"iteration/{version}"
     head = git(cwd, "rev-parse", "--abbrev-ref", "HEAD")
     ref = branch if has_ref(cwd, branch) else "HEAD"
