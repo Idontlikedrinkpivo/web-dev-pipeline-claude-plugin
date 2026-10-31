@@ -65,6 +65,12 @@ stages itself, as before, and hands over by asking the user (`references/context
      every turn of that session — a closed stage's session spent its turns retelling the next one's work (live run
      2026-10-31). The reports below come by `SendMessage`; a note that a nested session's turn ended, when one comes
      anyway, gets no reply and no retelling.
+     **The parent's own model and effort** (`mcp__ccd_session_mgmt__get_session` with `self` gives both): pass the
+     model to the session tool, and right after opening set the effort the same
+     (`mcp__ccd_session_mgmt__set_session_effort` — the parent's own level asks the user nothing) when the new
+     session reports another. The user picks them once, on the parent; left to the defaults, the live run's stages
+     ran on two models chosen by nobody (2026-10-31). The same for every session opened later — a «· часть 3», a job
+     outside the chain.
   5. Send the stage to start «начинай» (`mark <row> идёт`) — on a continued iteration, with «продолжи с <item>» from
      `resume.md` — and tell the user in one line where to work: «Работаем в «<title>» — она в боковом списке».
   If the host refuses or limits the number of sessions, open what it allows in the list's order and the rest later,

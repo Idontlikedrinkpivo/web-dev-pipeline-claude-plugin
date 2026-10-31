@@ -33,7 +33,8 @@ section of test cases, an audited area, a unit committed) — run
    deferred — load it with ToolSearch `select:mcp__ccd_session__start_session` first). In a turn the user began it
    starts at once; in an automated turn the host only offers a card (`references/parent-session.md` → The host's
    rule) — offer it, tell the user one click continues, and stop. Start it locally, in this
-   folder, with a fresh context and no worktree, titled «<version> · <stage> · часть <n>», prompt «продолжи
+   folder, with a fresh context and no worktree, on this session's model and effort (`references/parent-session.md`
+   → step 4), titled «<version> · <stage> · часть <n>», prompt «продолжи
    <stage> <version>; родительская сессия — <this session>; по закрытии, остановке или передаче пиши ей». This
    session becomes its parent (`references/parent-session.md`).
 4. **Neither:** one line to the user — open a new session in this folder and write «продолжи» — and stop.
