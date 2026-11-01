@@ -75,6 +75,25 @@ LOG_LEVEL=info
 POSTGRES_PASSWORD=
 ```
 
+**The values that differ by environment** close that comment line: `{test: <value>, dev: <value>, prod:
+<value>}`, `—` for «not in this environment»; the key's own value is the one every environment not named gets.
+
+```bash
+# [required] среда приложения {test: test, dev: dev, prod: prod}
+APP_ENV=
+# подробность логов {test: warn}
+LOG_LEVEL=info
+# frontend — plain | secure {test: —, dev: —, prod: secure}
+SECURE_MODE=
+```
+
+**Every environment's file is built from this one template** — `scripts/env_files.py . build` writes
+`.env.test.local`, `.env.dev.local` (gitignored; a secret already filled in stays) and
+`documentation/deploy/prod.env.example` (prod values, secrets empty, no `[infra]` key), all in the template's order
+with its comments; `env_files.py . check` (run by `deploy_check.py`) fails on a file that differs in names or
+order. Never write or patch one of them by hand: a hand-made prod file and local files copied once and never
+rebuilt drifted apart in order, names and stale variables (ai-initiatives, four files, four shapes).
+
 | Marker | Means |
 |---|---|
 | `[required]` | the config layer refuses to start without it in prod — «Обязательна: да» in DEPLOY.md |

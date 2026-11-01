@@ -256,9 +256,10 @@ file fixes the `DATABASE_URL` schema option for every environment.
   safe-to-mock environment" is not something a stray `.env.*.local` edit
   can quietly override.
 - Provide bootstrap targets (Makefile, `package.json` scripts, or the
-  stack's task runner) that copy `.env.example` → `.env.<environment>.local`
-  on first use and patch the handful of keys that differ from the template
-  by convention, plus `up-<environment>` targets that bring the stack up and
+  stack's task runner) that run `scripts/env_files.py . build` — every
+  environment's file from the one template, the per-environment values in
+  its `{test: …, dev: …, prod: …}` maps (`references/env-and-config-contract.md`),
+  a filled secret kept — plus `up-<environment>` targets that bring the stack up and
   remove the exited one-shot containers so they do not linger.
 
 ### Step 7. Compose-contract tests
@@ -345,7 +346,7 @@ from the project's own Dockerfiles and compose files as they are
    architecture and SRS do not say how the first admin or seed data
    appears) — naming only the files the release folder holds. Beside it,
    `documentation/deploy/prod.env.example`, the variables file the
-   operators fill. Facts come from the prod compose file, the Dockerfiles,
+   operators fill — built by `scripts/env_files.py . build` from `.env.example`, never by hand. Facts come from the prod compose file, the Dockerfiles,
    `.env.example`, the schema and the measurement; Step 7's sync test holds
    them together.
 3. **Write `scripts/build-images.sh`** and a `build-images` target per

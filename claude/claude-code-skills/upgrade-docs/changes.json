@@ -934,5 +934,64 @@
       ]
     },
     "fix": "pytest-patterns → references/conftest-template.py (_refuse_unsafe_test_database) и vitest → правило 11; ci-pipeline → TEST_DATABASE_URL в задачах тестов; repo-scaffold → TEST_DATABASE_URL в .env.example; deploy-topology → references/verify-skill.md (строка doctor «test db … ≠ stand …»). Это изменение кода, поэтому сначала спросить пользователя — сделать сейчас (в ветке открытой итерации, если она идёт, иначе отдельной веткой chore/plugin-<версия>) или первым юнитом ближайшей итерации. Создать отдельную тестовую базу на тестовом сервере (<project>_test_host), прописать её в локальных настройках тестов и в CI; убрать адрес по умолчанию из помощника; прогнать тесты с базой. Данные стенда не трогать."
+  },
+  {
+    "id": "env-from-template",
+    "version": "1.2.241",
+    "title": "Файлы переменных всех сред — из одного шаблона",
+    "kind": "code",
+    "what": "Файлы переменных тестовой, dev- и прод-среды больше не пишутся руками и не копируются однажды: скрипт собирает их из .env.example — те же переменные в том же порядке, со своими несекретными значениями среды; вписанные секреты сохраняются. Раньше они расходились по составу, порядку и устаревшим переменным.",
+    "applies": {
+      "all": [
+        {
+          "exists": ".env.example"
+        },
+        {
+          "any": [
+            {
+              "exists": "documentation/deploy/prod.env.example"
+            },
+            {
+              "exists": "deploy/prod.env.example"
+            }
+          ]
+        }
+      ]
+    },
+    "behind": {
+      "any": [
+        {
+          "all": [
+            {
+              "exists": "documentation/deploy/prod.env.example"
+            },
+            {
+              "not": {
+                "grep": {
+                  "path": "documentation/deploy/prod.env.example",
+                  "pattern": "Собрано из .env.example"
+                }
+              }
+            }
+          ]
+        },
+        {
+          "all": [
+            {
+              "exists": "deploy/prod.env.example"
+            },
+            {
+              "not": {
+                "grep": {
+                  "path": "deploy/prod.env.example",
+                  "pattern": "Собрано из .env.example"
+                }
+              }
+            }
+          ]
+        }
+      ]
+    },
+    "fix": "deploy-topology → references/env-and-config-contract.md (Markers): в шаблоне .env.example добавить переменные, которых в нём нет, но которые есть в prod.env.example или в compose (с пометками), и в конце строки-комментария — значения по средам {test: …, dev: …, prod: …} там, где они различаются (взять из текущих .env.test.local, .env.dev.local, prod.env.example и compose; секреты не переносить). Переменные, записанные закомментированными («# KEY=» — их задаёт compose), — либо значение среды в карте, либо «—». Затем python3 <deploy-topology>/scripts/env_files.py . build и env_files.py . check; цели bootstrap в Makefile/package.json — на env_files.py . build вместо копирования. Сверить, что приложение стартует в test и dev."
   }
 ]

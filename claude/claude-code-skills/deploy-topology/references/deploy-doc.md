@@ -484,8 +484,8 @@ with the card's «Ресурсы» row the same.
 `documentation/deploy/prod.env.example`, in git beside `deploy.md`,
 unversioned like it; `scripts/build-images.sh` copies it into the release
 folder as `<project>.env.example`. It is what the operator fills — or copies
-into their secrets store — so it holds the prod variables only, grouped by
-container, each with one comment line:
+into their secrets store — so it holds the prod variables only, in the template's order with its comment lines
+(the container named in each), built by `scripts/env_files.py . build` from `.env.example` — never by hand:
 
 ```bash
 # [required] [secret] backend — учётка backend (только данные). Формат: postgres://user:***@host:5432/db
@@ -501,9 +501,9 @@ The markers are `.env.example`'s (`env-and-config-contract.md` → Markers
 in `.env.example`): `[required]` and `[secret]` where they apply, nothing
 for an optional plain value.
 
-No real value of a secret; a non-secret default is written as the value. Not
+No real value of a secret; a non-secret value is prod's from the template's map. Not
 the repository's `.env.example`, which documents test, dev and prod together
-and is read by the bootstrap targets.
+and is the source every environment's file is built from.
 
 ## The sync test
 

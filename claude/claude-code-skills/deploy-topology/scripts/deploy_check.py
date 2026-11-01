@@ -10,6 +10,8 @@ decide, so the stage closes on facts.
               healthcheck on /health/ready; prod runs no local stateful service (Postgres, MySQL, Redis, MinIO, …).
   images      every Dockerfile the compose files build: the stage they build ends with a numeric USER other than 0;
               a .dockerignore sits in the build context.
+  env         every environment's variables file matches .env.example in names and order (env_files.py check):
+              built from the one template, never written by hand.
   release     release/<version>/ (the given version, else the newest) holds a .tar, DEPLOY.md, an .env.example and
               one openapi.yaml; every file name DEPLOY.md cites in backticks is in that folder.
 
@@ -170,6 +172,11 @@ def main() -> None:
     builds = check_compose(root, out)
     check_images(root, builds, out)
     check_release(root, version, out)
+    if (root / ".env.example").exists():   # the variables files against their one template
+        import subprocess
+        env = subprocess.run([sys.executable, str(Path(__file__).with_name("env_files.py")), str(root), "check"],
+                             capture_output=True, text=True)
+        out += [l.lstrip("✗ ").strip() for l in env.stdout.splitlines() if l.startswith("✗")]
     for line in out:
         print("✗", line)
     print(f"deploy_check: сборок {len(set(builds))}, проблем {len(out)}")
