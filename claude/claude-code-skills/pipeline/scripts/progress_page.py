@@ -179,6 +179,7 @@ def page(md: Path) -> None:
     text = md.read_text(encoding="utf-8", errors="replace")
     pct = percent(text)
     count, state = lines_of(text)
+    own_count = count   # the file's own count line: shown in the header, or replaced by the computed one below
     computed = derived(text) if md.name in DERIVED else None
     if computed:
         pct, count = computed
@@ -194,8 +195,10 @@ def page(md: Path) -> None:
     lead = (found[0]["label"] or "Общий итог") if len(found) > 1 else ""
     # the bar and the count line are drawn in the header, not repeated in the body
     body_md = re.sub(r"```text\n[█░\s\d%]+\n```\n*", "", text, count=1)
-    if count:
-        body_md = body_md.replace(count, "", 1) if count in body_md else body_md
+    # the header already shows the count and the state: their lines leave the body — the file's own count too, which
+    # on a page that computes its bar is stale («Готово: 0 из 6» under «Готово: 4 из 6»)
+    drop = {x for x in (own_count, count, state) if x}
+    body_md = "\n".join(l for l in body_md.split("\n") if re.sub(r"[*`]", "", l).strip() not in drop)
     body = mdhtml.convert(body_md).html
     # a section's own bar (a re-run, pass 2, the fixes after the final review) is drawn as a bar too
     body = re.sub(r'<pre><code class="language-text">[█░\s]+?(\d{1,3})\s*%\s*</code></pre>',
