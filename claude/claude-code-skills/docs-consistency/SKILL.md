@@ -249,6 +249,12 @@ skipped: none
   printed: `docs: сверка документов — <что выровнено>`, those files only
   (and `documentation/_web-docs` after its rebuild, when the project has
   the site). Nothing it changed is left uncommitted.
+- The branch is pushed after that commit, before the transition question —
+  `python3 "${CLAUDE_SKILL_DIR}/../pipeline/scripts/push_branch.py"` — on every
+  verdict, also with nothing changed: the set the plan will be built on is
+  then on the remote for everyone on the branch (`pipeline` → Commit each
+  document as soon as it is written: «a finished document is sent»). Its
+  exit 3 (a document `doc_check.py` refuses) is fixed before the question.
 - `documentation/plans/<version>/docs-consistency.md` exists with `Verdict:`
   on line 1 and the `checked:` block `scripts/checked.py` printed — Step 0,
   Report.

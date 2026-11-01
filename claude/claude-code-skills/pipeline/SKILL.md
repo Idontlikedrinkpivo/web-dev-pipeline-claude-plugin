@@ -319,7 +319,8 @@ passes before the stamp commit (its lines are fixed first); only then run
 `python3 "${CLAUDE_SKILL_DIR}/scripts/push_branch.py"`: at the stage's close,
 after the stamp, all its documents at once (the architecture's three too); a
 changed decision is final at its own commit;
-`docs-consistency`, when its fixes are committed. Drafts stay committed on
+`docs-consistency` pushes at its close, after its fixes are committed — on
+every verdict, also with nothing to fix. Drafts stay committed on
 this machine until then, so people on the branch see each other's documents
 once they are final. Only the stages before `work` push this way; the code of
 `work`, the tag and the iteration's close are pushed by the user, who reviews

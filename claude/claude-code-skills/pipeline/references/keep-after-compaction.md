@@ -82,7 +82,8 @@ stage skill, its heading the skill's folder name; a stage with no section gets �
 ## docs-consistency
 
 - One `docs-consistency-checker` dispatch; its findings are the user's to settle, each into its document.
-- Then the plan is offered, not started.
+- At the close: its own edits committed, then `push_branch.py` — on every verdict — then the plan is offered, not
+  started.
 
 ## plan
 
