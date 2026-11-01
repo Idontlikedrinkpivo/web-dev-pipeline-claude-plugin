@@ -12,7 +12,7 @@ Three lines, from the SRS and `ui-wishes.md`, before any search:
   переговорных в офисе»).
 - **Аудитория:** who uses it, how often, in what situation (the actors and
   the NFR).
-- **Тип и ширины:** from the register header.
+- **Тип и размеры:** from the register header.
 
 Add what pins the look: brand colours or a brand book named in the SRS or
 by the user; on a restyle, the current look (one `get_screenshot` of two or

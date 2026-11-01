@@ -175,7 +175,7 @@ otherwise guess them per screen.
 | Line | From | When the SRS cannot tell |
 |---|---|---|
 | **Тип продукта** | the SRS actors: `B2B` (internal or business tool), `B2C` (public consumer web), or per area (`публичный сайт — B2C, админка — B2B`). It picks the variant of every `ux-patterns` rule that has one | row classed `Блокирует старт`, asked in the chat |
-| **Ширины** | the NFR on devices and platforms (`1440, 375`); the desktop width always first (UX-74) | row classed `Блокирует старт`, asked in the chat with a proposal: B2B `1440, 375`; B2C `1440, 768, 375` |
+| **Размеры** | the NFR on devices, screens and aspect ratios, as width × height (`1920×1080, 1680×1050, 2560×1080`); the main one first, drawn and built first (UX-74). An older register's «Ширины» (widths only) still holds | row classed `Блокирует старт`, asked in the chat with a proposal: B2B and dashboards `1920×1080 (16:9), 1680×1050 (16:10), 2560×1080 (21:9)`, a phone `375×812` only when asked; B2C `1440×900, 768×1024, 375×812` |
 | **Доступность** | the accessibility NFR | default `WCAG 2.2 AA`; say so in one line, no question |
 
 Ask each missing line as its own question, per `grill-me` → "How a question
@@ -391,7 +391,7 @@ row named in Closing.
 4. No `без изменений` screen was redrawn, moved, or renamed; no frame in
    `EXISTING FRAMES` changed outside the run's `SCREENS`; after a redraw on
    a new page, no old frame changed at all.
-5. The header has **Тип продукта**, **Ширины** and **Доступность**, or the
+5. The header has **Тип продукта**, **Размеры** (or an older **Ширины**) and **Доступность**, or the
    run stopped on their `Блокирует старт` rows.
 6. The register cites no `operationId`, column, or HTTP status — those
    belong to `screen-spec`.

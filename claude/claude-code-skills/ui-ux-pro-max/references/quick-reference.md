@@ -92,7 +92,7 @@ This file is a search index — load it when you need every rule of a category a
 
 - `viewport-meta` - width=device-width initial-scale=1 (never disable zoom) → UX-55
 - `desktop-first` - Design and build the desktop width first; the narrow width must work → UX-74
-- `breakpoint-consistency` - Test at every width in the frames register, desktop first → UX-74
+- `breakpoint-consistency` - Test at every size (width×height) in the frames register, the main one first → UX-74
 - `readable-font-size` - Minimum 16px body text on mobile (avoids iOS auto-zoom) → UX-59
 - `line-length-control` - 50–75 characters per line for running text → UX-4
 - `horizontal-scroll` - No sideways page scroll at any width; a table scrolls inside itself → UX-74

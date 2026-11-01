@@ -96,8 +96,8 @@ they are Разрывы rows inside the screen's own file.
 The sections, in order (template in `references/template.md`):
 
 1. **Экран** — actors with their conditions, UC ids, where the actor comes
-   from, which `S-n` and `M<n>` it leads to, the narrow-width frame (the
-   register's `375 → nodeId`), and the **Фокус** table built from the
+   from, which `S-n` and `M<n>` it leads to, the other sizes' frames (the
+   register's `<Ш×В> → nodeId`), and the **Фокус** table built from the
    annotation's Фокус line: where focus lands at entry, after a nested
    step closes, and after a failed submit, named by element number.
 2. **Загрузка и вызовы** — an ordered list «условие → `operationId`
@@ -221,8 +221,8 @@ The writer runs it while writing, not afterwards; each miss is a Разрывы 
    shows data the SRS never asked for.
 5. Every state in the register's «Состояния» has a frame, and every state the
    screen can reach has a row. Missing frame → `design`. Which frame applies
-   at which width comes from the register's «Ширины»; a width between two
-   drawn frames with no stated switch point → `design`.
+   at which size comes from the register's «Размеры» (an older «Ширины»); a
+   size between two drawn frames with no stated switch point → `design`.
 6. Every placeholder in a quoted text (`{interval}`, `{N}`) has a source: a
    response or error-body field, a value the screen already holds, or a
    derived value. A text that needs data no response returns → `API`.

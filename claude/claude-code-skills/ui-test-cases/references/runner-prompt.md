@@ -80,9 +80,15 @@ RULES
   against the seat's limit and as many images in your context). A
   mismatch fails that first case and gets its line in «Сверка с макетом».
   No Figma access: skip the comparison and say so.
+- The cases run once, in a window of the main size (the first of the
+  register's «Размеры»). Then **«Просмотр размеров»**: each screen, once, in
+  a window of every other size — no sideways page scroll, nothing clipped or
+  overlapping, the title, the filters and the main table or chart visible
+  without scrolling, nothing stretched into thin lines on an ultrawide one
+  (UX-74). A case is never re-run at another size: behaviour does not
+  depend on it, and the suite would run three times as long.
 - On the same screens, check the `ux-patterns` → «Проверка экрана перед
-  сдачей» items a browser can show: every width of the frames register
-  with no sideways page scroll (UX-74), the case's path by keyboard with
+  сдачей» items a browser can show: the case's path by keyboard with
   visible focus (UX-63, UX-64), no motion with reduced motion emulated
   (UX-61), icons from one set and no emoji (UX-57), Russian typography in
   the texts (UX-78). A breach goes into the «Проверка экрана» list under

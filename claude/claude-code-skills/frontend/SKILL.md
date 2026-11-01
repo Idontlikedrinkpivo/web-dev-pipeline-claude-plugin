@@ -83,9 +83,10 @@ ships over a third-party package. A library already in the project is used as is
 6. **Shape the code to stay changeable** by the `react` skill: server data through the one data layer, a page as a data
    hook plus its view, shared Loading / Error / Empty, no second copy of a component. The quality gates hold it
    (`repo-scaffold/references/quality-gates.md`).
-7. **Focus** follows the frame and `ux-patterns` (dialog focus, error summary). **Widths** go desktop first: the desktop
-   width of the frames register is built first, then each narrower width follows the frame drawn at it, with no sideways
-   page scroll at any width (UX-74). **Theme** comes from the Figma variables (`get_variable_defs`): each one maps to
+7. **Focus** follows the frame and `ux-patterns` (dialog focus, error summary). **Sizes** go main first: the first size of the frames
+   register's «Размеры» (an older register's desktop width) is built first, then each other size follows the frame drawn
+   at it — at its height the key content is visible without scrolling, on an ultrawide one nothing stretches — with no
+   sideways page scroll at any size (UX-74). **Theme** comes from the Figma variables (`get_variable_defs`): each one maps to
    the project's theme variable for the same role — on shadcn/ui its theme variable of the same name; in a project with
    its own names (`--color-surface`, `--text-strong`) the one for that role — light and dark, in the project's one theme
    file; radius, shadows and fonts likewise. A restyle in Figma is a theme unit: the theme file changes, and the screens
@@ -142,7 +143,7 @@ Read the real commands from `package.json` (dev, build, lint, typecheck, test); 
    a check, not a committed spec. The E2E folder (`e2e/`) and its config belong to the user test suite of
    `ui-test-cases`, built from the test cases one spec per section; a per-screen spec beside it would test the same path
    twice and drift from the cases.
-3. When the spec cites a `nodeId`: run the app, `playwright-cli resize` to each width in the frames register,
+3. When the spec cites a `nodeId`: run the app, `playwright-cli resize <width> <height>` to each size in the frames register,
    `screenshot` the page and each state, get the frame with `get_screenshot`, and list the visible differences (layout,
    spacing, colour, missing element). If Figma or the running app is not reachable, say the comparison was not done.
    Never report "matches the mockup" without that comparison: a reviewer cannot tell an unchecked screen from a checked

@@ -376,9 +376,13 @@ Checked in the code by `frontend` and the `code-review-unit` UI lens. The
 code-level detail of each rule — the attributes, CSS properties and
 anti-patterns to flag — is in `web-design-guidelines`, marked with these ids.
 
-- **UX-74 Layout:** desktop first — the main width is the desktop one (the
-  first in the register's **Ширины**), drawn and built first, and the
-  narrow width must work; the page never scrolls sideways (a table scrolls
+- **UX-74 Layout:** desktop first — the main size is the first in the
+  register's **Размеры** (width × height; an older **Ширины**: widths only),
+  drawn and built first, and every other size must work: at a lower height
+  the title, the filters and the main table or chart are visible without
+  scrolling; on an ultrawide screen (21:9) content does not stretch into thin
+  lines — a maximum width or more columns; the narrow width must work; the
+  page never scrolls sideways (a table scrolls
   inside itself, UX-40); `dvh` instead of `100vh`; full-bleed layouts keep
   `env(safe-area-inset-*)`; fixed bars never cover content; one `z-index`
   scale; `overscroll-behavior: contain` in modals and drawers; images never
@@ -463,8 +467,10 @@ screen unit over and reports each item; the `code-review-unit` UI lens
 checks it; `ui-test-cases` covers the items a screenshot shows when it
 compares a screen with its frame. An item that cannot apply is skipped.
 
-1. **Every width** in the register's **Ширины**, the desktop one first:
-   nothing clipped, no sideways page scroll (UX-74).
+1. **Every size** in the register's **Размеры** (or width in an older
+   **Ширины**), the main one first: nothing clipped, no sideways page
+   scroll, the key content visible without scrolling, nothing stretched on
+   an ultrawide screen (UX-74).
 2. **Keyboard only:** the whole screen works without a pointer; focus is
    always visible and never covered (UX-63, UX-64, UX-65).
 3. **Contrast** of text and controls in every theme the product has (UX-7,

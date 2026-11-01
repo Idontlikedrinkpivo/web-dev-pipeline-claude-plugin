@@ -910,7 +910,7 @@ def format_ascii_box(design_system: dict) -> str:
         "[ ] Text contrast 4.5:1 in every theme (UX-7, UX-62)",
         "[ ] Focus visible and never covered (UX-63, UX-65)",
         "[ ] prefers-reduced-motion respected (UX-61)",
-        "[ ] Every width in the frames register, desktop first (UX-74)"
+        "[ ] Every size (width×height) in the frames register, the main one first (UX-74)"
     ]
     for item in checklist_items:
         lines.append(f"│     {item}".ljust(BOX_WIDTH) + "│")
@@ -1043,7 +1043,7 @@ def format_markdown(design_system: dict) -> str:
     lines.append("- [ ] Text contrast 4.5:1 in every theme (UX-7, UX-62)")
     lines.append("- [ ] Focus visible and never covered (UX-63, UX-65)")
     lines.append("- [ ] prefers-reduced-motion respected (UX-61)")
-    lines.append("- [ ] Every width in the frames register, desktop first (UX-74)")
+    lines.append("- [ ] Every size (width×height) in the frames register, the main one first (UX-74)")
     lines.append("")
 
     return "\n".join(lines)
@@ -1503,7 +1503,7 @@ def format_master_md(design_system: dict) -> str:
     lines.append("- [ ] Text contrast 4.5:1 in every theme (UX-7, UX-62)")
     lines.append("- [ ] Focus visible and never covered by fixed bars (UX-63, UX-65)")
     lines.append("- [ ] `prefers-reduced-motion` respected (UX-61)")
-    lines.append("- [ ] Every width in the frames register, desktop first (UX-74)")
+    lines.append("- [ ] Every size (width×height) in the frames register, the main one first (UX-74)")
     lines.append("- [ ] No sideways page scroll at any width (UX-74)")
     lines.append("")
     

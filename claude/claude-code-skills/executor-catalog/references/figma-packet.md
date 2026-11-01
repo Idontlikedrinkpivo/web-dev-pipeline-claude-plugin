@@ -65,7 +65,8 @@ PAGE            <the page new frames go on: the page that holds the
                 the whole interface is redrawn>
 SRS             documentation/requirements/srs/srs.md@v<N>
 PRODUCT TYPE    <B2B | B2C | per area: …>
-VIEWPORTS       <the Ширины line: the desktop width first, then the narrower ones>
+VIEWPORTS       <the Размеры line, width×height, the main size first (an older
+                register's Ширины: widths, the desktop one first)>
 ACCESSIBILITY   <the Доступность line, e.g. WCAG 2.2 AA>
 DESIGN SYSTEM   <linked library name | local variables in this file | none | not checked>
 VISUAL DIRECTION <draw, edit, restyle: the chosen direction — its name;
@@ -219,12 +220,18 @@ RULES
     frames do not move.
 - Name each screen frame `S-1 · <ScreenName>`, each state frame
   `S-1 · Empty`, each nested step `S-1 · M1 · <StepName>`, each
-  narrower-width frame `S-1 · <width>` (`S-1 · 375`), and each app-wide state
+  other-size frame `S-1 · <Ш×В>` (`S-1 · 1680×1050`; widths only: `S-1 · 375`), and each app-wide state
   `Общее · Сессия истекла`. The session finds frames by these names.
-- Draw each screen at the first width in VIEWPORTS, the desktop one. Draw
-  a frame at each narrower width in VIEWPORTS where the screen's layout
-  changes (table → cards, a side panel → its own screen); that decision is
-  yours.
+- Draw each screen, with its states, at the first size in VIEWPORTS, the
+  main one, as a frame of exactly that width and height. Then one frame per
+  screen at every other size, exactly that width and height, clipping what
+  falls below it — the screen as that monitor shows it: at a lower height the
+  title, the filters and the main table or chart stay visible without
+  scrolling; on an ultrawide one (21:9) the content does not stretch into
+  thin lines — a maximum width or more columns, as the direction allows; on
+  a narrow width the layout changes as it must (table → cards, a side panel
+  → its own screen) (UX-74). VIEWPORTS with widths only: a frame at each
+  narrower width where the layout changes; that decision is yours.
 - When the file or a linked library has components and variables, build
   from them (figma-generate-design, Step 2). Do not hardcode a colour or
   spacing a variable already holds. A component the library lacks (for
@@ -369,7 +376,7 @@ TILES             MODE direction only, per option: <letter> <nodeId> — as
                   planned | changed: what and why
 SCREENS           one line per frame drawn or touched, for example:
   S-1               <nodeId>
-  S-1.375           <nodeId>
+  S-1.1680×1050     <nodeId>
   S-1.Empty         <nodeId>
   S-1.M1            <nodeId>   Отмена брони
   S-1.Аннотация     <nodeId>

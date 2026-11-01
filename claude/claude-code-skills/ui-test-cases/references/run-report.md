@@ -180,7 +180,8 @@ app defect, mockup mismatch, spec gap or screen-check breach remains,
   reason and the manual steps — they are not a defect, but nobody has
   checked them yet;
 - «Проверка экрана» names each breach of the screen check with its screen
-  and `UX-n` («S-2 · 375 — страница прокручивается вбок — UX-74»). A
+  and `UX-n` («S-2 · 2560×1080 — таблица растянута на всю ширину — UX-74»; «Просмотр
+  размеров» goes here too, one line per screen and size that breaks). A
   breach is an app defect: it makes the verdict `DEFECTS` without changing
   any case's status;
 - «Сверка с макетом» — one line per frame compared (`nodeId` · the cases
