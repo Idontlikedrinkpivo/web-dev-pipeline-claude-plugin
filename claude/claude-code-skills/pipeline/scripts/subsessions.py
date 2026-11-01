@@ -11,7 +11,8 @@
     python3 subsessions.py <project dir> <version> whoami <session id>
 
 plan    the stages kept for this iteration (keys below, any order) become rows in chain order, each with its title:
-        one row per stage — no part opened in advance: a stage that hands over gets its next part then (`part`).
+        one row per stage — no part opened in advance: a stage that hands over gets its next part then (`part`). A stage
+        already in the list under an older title («прогон») is not added again.
         The fixes a check sends back (UI tests, the audit) run inside that check's own session, by agents. Rows already in
         the file keep their ids and states, so a later plan — a continued iteration, a stage added — only adds rows.
         A document stage whose documents all carry this version's stamp is closed and skipped, with a note: on a
@@ -53,7 +54,7 @@ STAGES = {
     "cases": ("тест-кейсы", "ui-test-cases write", False),
     "check": ("сверка документов", "docs-consistency", False),
     "plan": ("план", "plan", False),
-    "work": ("прогон", "work", True),
+    "work": ("разработка", "work", True),   # «прогон» read as a test run; the user named it so
     "ui": ("UI-тесты", "ui-test-cases run", True),
     "audit": ("аудит безопасности", "security-audit", False),
     "deploy": ("релиз", "deploy-topology", False),
@@ -152,8 +153,9 @@ def main() -> None:
         for key in sorted(done & set(rest), key=list(STAGES).index):
             print(f"sessions: «{STAGES[key][0]}» уже закрыт в {version} (документы со штампом) — подсессия не нужна")
         for key in sorted(set(rest) - done, key=list(STAGES).index):
+            staged = {r["stage"] for r in rows if " · часть " not in r["title"]}   # an older title of the stage counts
             for r in rows_for(version, key):
-                if r["title"] not in have:
+                if r["title"] not in have and key not in staged:
                     rows.append(dict(r, id="", state="не открыта"))
         rows.sort(key=lambda r: order_key(r["stage"]))   # stable: a part stays after its stage
         write(path, version, parent, rows)

@@ -107,8 +107,8 @@ stages itself, as before, and hands over by asking the user (`references/context
   git, `subsessions.py show`) — never from memory.
 
 **Titles** come from `subsessions.py` — the same words every time, so the sidebar reads as the chain: бизнес-требования ·
-SRS · схема БД · API · архитектура · каркас · макеты · ТЗ на экраны · тест-кейсы · сверка документов · план · прогон ·
-UI-тесты · аудит безопасности · релиз · CI · эксплуатация · закрытие, with «· часть 2». The requirements document is «SRS» — never «ТЗ», which the user keeps for the screen specs
+SRS · схема БД · API · архитектура · каркас · макеты · ТЗ на экраны · тест-кейсы · сверка документов · план · разработка
+(the plan's run, `work`) · UI-тесты · аудит безопасности · релиз · CI · эксплуатация · закрытие, with «· часть 2». The requirements document is «SRS» — never «ТЗ», which the user keeps for the screen specs
 («ТЗ на экраны»).
 
 **The waiting prompt of a session** (Russian, as the user reads it):
