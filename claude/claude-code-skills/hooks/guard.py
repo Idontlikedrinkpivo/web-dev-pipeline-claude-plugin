@@ -120,6 +120,28 @@ def commit_issue(cmd: str, bare: str, bodies: list[str], branch: str, open_itera
     return None
 
 
+MOVES_MAIN = re.compile(r"\bgit\s+(?:-C\s+\S+\s+)?(?:fetch\s+\.\s+\S+:(?:refs/heads/)?(?:main|master)\b"
+                        r"|update-ref\s+refs/heads/(?:main|master)\b|push\s+\S+\s+\S*:(?:refs/heads/)?(?:main|master)\b)")
+MERGE = re.compile(r"\bgit\s+(?:-C\s+\S+\s+)?merge(?![\w-])(?!\s+--abort)")   # not merge-base
+TO_MAIN = re.compile(r"\bgit\s+(?:-C\s+\S+\s+)?(?:checkout|switch)\s+(?:-\S+\s+)*(?:main|master)\b")
+
+
+def merge_issue(bare: str, branch: str, open_iteration: str | None, tagged: bool) -> str | None:
+    """main/master moved — a local merge or fast-forward, a push to it — or the iteration branch deleted while the
+    open iteration has no tag: the close (audit, summary, tag) has not run (pipeline → End of the pipeline). A
+    command that tags the iteration first passes."""
+    if not open_iteration or tagged or re.search(rf"\bgit\s+tag\s+(?:-\S+\s+)*v{re.escape(open_iteration)}\b", bare):
+        return None
+    drop = re.search(rf"\bgit\s+(?:-C\s+\S+\s+)?branch\s+(?:-\S+\s+)*-[dD]\w*\s+(?:\S+\s+)*"
+                     rf"iteration/{re.escape(open_iteration)}(?![\w.])", bare)   # this iteration's branch only
+    if MOVES_MAIN.search(bare) or drop or (MERGE.search(bare) and (branch in ("main", "master") or TO_MAIN.search(bare))):
+        return deny(f"iteration {open_iteration} is not closed (no tag v{open_iteration}): moving main/master or "
+                    "deleting the iteration branch now skips its close — the audit, the summary, the tag. Run "
+                    "close_iteration.py, tell the user the steps it marks ✗ and ask «Слить как есть или сначала "
+                    "закрыть итерацию?» (pipeline → End of the pipeline); merging as it is stays the user's, on GitHub.")
+    return None
+
+
 def bad_sed(cmd: str) -> bool:
     """`sed -i` written the GNU way: on macOS the next word becomes the backup suffix. `sed -i ''`, `sed -i.bak` pass."""
     for m in re.finditer(r"(?:^|[\s;&|(])sed\s+((?:-[A-Za-z]+\s+)*)-i(\S*)(?:\s+(\S+))?", cmd):
@@ -195,7 +217,7 @@ def decide(tool: str, inp: dict, cwd: str, *, branch: str = "", open_iteration: 
     return None
 
 
-RULES = [("commit-chained", "chained to a test"), ("commit-on-main", "would land on"),
+RULES = [("commit-chained", "chained to a test"), ("commit-on-main", "would land on"), ("merge-before-close", "is not closed (no tag"),
          ("plan-unit-trailer", "Plan-Unit"), ("sed-i", "sed -i"), ("progress-from-shell", "progress file from the shell"),
          ("wipe-shared-tree", "git stash (of everything)"), ("edit-outside-worktree", "you work in the worktree")]
 
@@ -269,6 +291,22 @@ def main() -> None:
     if not os.path.isfile(os.path.join(project, "documentation", ".dev-pipeline.json")):
         return
     branch = ""
+    if tool == "Bash" and re.search(r"\b(?:merge|fetch|update-ref|push|branch)\b", str(inp.get("command", ""))):
+        cmd = str(inp.get("command", ""))
+        target = commit_dir(cmd, cwd)
+        if os.path.realpath(git(target, "rev-parse", "--show-toplevel") or "-") == \
+                os.path.realpath(git(project, "rev-parse", "--show-toplevel") or "+"):
+            it = open_iteration(project)
+            tagged = bool(it) and bool(git(project, "rev-parse", "-q", "--verify", f"refs/tags/v{it}"))
+            why = merge_issue(heredocs(cmd)[0], git(target, "rev-parse", "--abbrev-ref", "HEAD"), it, tagged)
+            if why:
+                try:
+                    log_refusal(project, tool, inp, why)
+                except Exception:
+                    pass
+                print(json.dumps({"hookSpecificOutput": {"hookEventName": "PreToolUse", "permissionDecision": "deny",
+                                                         "permissionDecisionReason": why}}, ensure_ascii=False))
+                return
     if tool == "Bash" and "commit" in str(inp):
         target = commit_dir(str(inp.get("command", "")), cwd)
         # the iteration rule is about this project's repository only, not another one the command commits to

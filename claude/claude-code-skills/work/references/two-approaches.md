@@ -37,7 +37,7 @@ decision is a stop for the user, never two approaches. A UI unit
    round.
 2. **Restore the base.** Save the current attempt as a patch, new files
    included — `git add -N` them, `mkdir -p` the folder, then `git diff HEAD --binary >
-   "$(git rev-parse --git-dir)/pipeline-work/<version>/U<n>-attempt.patch"`
+   "$(git rev-parse --path-format=absolute --git-common-dir)/pipeline-work/<version>/U<n>-attempt.patch"`
    (`pipeline` → `references/pause-and-resume.md` → Pausing) — and reset the
    tree to the last commit: both attempts start from the same commit.
 3. **Dispatch two `impl-critical`** with the unit's packet, every previous

@@ -189,6 +189,11 @@ stage that ran last hands over to this section; it does not end the sitting itse
 6. **The closing lines**, in Russian: the work is done and committed on `iteration/<version>`; the
    command that pushes the branch and its tag (`git push origin iteration/<version> v<version>`); the
    merge into `main` is the user's, on GitHub. Offer no other stage.
+   **A request to merge before the close** («сливаем», «влей в main») while the iteration is open: run
+   `scripts/close_iteration.py`, name the steps it marks ✗ (the audit, the summary, the tag…) and ask «Слить как есть
+   или сначала закрыть итерацию?». Never delete `iteration/<version>` before its tag. The plugin's guard refuses
+   moving `main`/`master` or deleting the iteration branch while the iteration has no tag (ai-initiatives 2.2.0: a
+   merge on «Да, сливаем» came before the audit and the release).
 7. **The working files** — `references/closing-cleanup.md`: one question, below the closing lines; it
    ends the message with its own last line (`references/question-format.md`) and stops the servers.
    With nothing to remove there is no question, and the closing lines end the message.

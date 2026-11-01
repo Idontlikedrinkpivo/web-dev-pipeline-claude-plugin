@@ -11,18 +11,22 @@ Fill every slot. An empty slot means the orchestrator has not read the unit.
 ```
 You implement exactly one unit of an implementation plan.
 
-PLAN            <repo-relative plan path>
+PLAN            <repo-relative plan path> — a large file: find your unit
+                (`grep -n "^### U<n>\." <path>`) and read that part with
+                offset and limit, never the whole plan
 UNIT            U<n> — <goal sentence>
 COMPLEXITY      <grade>  (<why>)
 PHASE           full | tests-only | implementation
-DETAILS FILE    <absolute path: $(git rev-parse --git-dir)/pipeline-work/<version>/
+DETAILS FILE    <absolute path: $(git rev-parse --path-format=absolute --git-common-dir)/pipeline-work/<version>/
                  U<n>-details.md — your full evidence goes there, not into the report>
 WORKTREE        <yes — a parallel unit: you start in a worktree the harness
                  made; the folder you start in (`pwd`) is your work root and
                  every path below is relative to it | none — the main tree>
 
 FILES YOU MAY TOUCH
-  <the unit's «Файлы», including the test file>
+  <the unit's «Файлы», including the test file — repo-relative, never an
+   absolute path of the main tree: in a worktree they resolve against your
+   work root (an absolute main-tree path sent 6 edits to the wrong tree)>
 Anything outside this list is out of scope. If the unit cannot be done
 without touching another file, stop and report BLOCKED with that path.
 

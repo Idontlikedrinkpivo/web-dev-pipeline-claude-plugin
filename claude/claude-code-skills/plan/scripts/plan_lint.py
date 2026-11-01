@@ -14,7 +14,9 @@ Errors (exit 1), one line each with the unit and what to fix:
   - two units with Параллельно yes, neither depending on the other, that list the same file;
   - Образец naming a path that is neither in the repository nor in any unit's Файлы;
   - a model name (opus, sonnet, haiku, gpt-…) anywhere in a unit;
-  - Документы citing an FR / BR / NFR / UC id the requirements do not have, or an operationId the API lacks.
+  - Документы citing an FR / BR / NFR / UC id the requirements do not have, or an operationId the API lacks;
+  - no unit «Обновление поверх v<prev>» while the branch adds a migration since the last tag v<prev>
+    (plan → references/writer.md → Step 2, «Upgrade over the last release»).
 Warnings (exit 0 when only these):
   - an acceptance criterion of a use case the plan cites that no unit names in Документы or Тестовые сценарии.
 
@@ -127,6 +129,16 @@ def operation_ids(docs: Path) -> set[str]:
     return out
 
 
+def upgrade_needed(repo: Path) -> str:
+    """The last release tag when this branch adds a file under documentation/db/migrations/ since it, else ""."""
+    run = lambda *a: subprocess.run(["git", "-C", str(repo), *a], capture_output=True, text=True).stdout.strip()
+    tag = run("describe", "--tags", "--abbrev=0", "--match", "v[0-9]*")
+    if not tag:
+        return ""
+    added = run("diff", "--name-only", "--diff-filter=A", f"{tag}...HEAD", "--", "documentation/db/migrations")
+    return tag if added else ""
+
+
 def main() -> None:
     args = sys.argv[1:]
     if not args:
@@ -144,6 +156,11 @@ def main() -> None:
     warnings: list[str] = []
     err = lambda u, msg: errors.append(f"U{u['id']} (строка {u['line']}): {msg}")
 
+    prev = upgrade_needed(repo)
+    if prev and us and not any(re.search(r"поверх\s+v?\d", u.get("title", ""), re.I) for u in us):
+        errors.append(f"нет задачи «Обновление поверх {prev}»: в итерации новые миграции, а релиз {prev} уже есть — "
+                      "последней перед подъёмом версии поставьте установку поверх него с проверкой, что данные "
+                      "сохранились (plan → references/writer.md → Step 2)")
     seen: set[int] = set()
     for u in us:
         if u["id"] in seen:

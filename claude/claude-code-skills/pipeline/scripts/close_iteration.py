@@ -6,6 +6,9 @@ skipped and none runs out of order (a tag before the last stamp, a risk recorded
     python3 close_iteration.py [<project dir>] [--version <v>]
 
 One line per step, ✅ done or ✗ what is missing, in order:
+  0 audit     security-audit.md says PASS, or the summary's «Безопасность» row has a verdict or «пропущен — <причина>»
+              (the user's skip): the audit ran or was declined, not forgotten (ai-initiatives 2.2.0 went to the release
+              without it; the owner's question found a P1)
   1 stamp     no contract document changed on the iteration branch since its last stamp (where_am_i.unstamped)
   2 site      documentation/ (the site included) has nothing uncommitted
   3 summary   documentation/plans/<version>/summary.md exists
@@ -15,7 +18,7 @@ One line per step, ✅ done or ✗ what is missing, in order:
   6 servers   no progress or documentation-site server of this project still running
 
 The first ✗ is the next thing to do; a later step that is ✅ while an earlier one is ✗ is reported as out of order.
-Exit 0 — all six done; 2 — something left (the first ✗ says what). The version: --version, else the iteration branch.
+Exit 0 — all seven done; 2 — something left (the first ✗ says what). The version: --version, else the iteration branch.
 Standard library only.
 """
 from __future__ import annotations
@@ -58,6 +61,19 @@ def main() -> None:
         sys.exit(1)
     folder = root / "documentation" / "plans" / version
     steps: list[tuple[str, bool, str]] = []
+
+    audit = folder / "security-audit.md"
+    first = audit.read_text(encoding="utf-8", errors="replace").splitlines()[:1] if audit.exists() else []
+    verdict = first[0] if first else ""
+    row = re.search(r"^\| Безопасность \|[^|]*\|([^|]*)\|", (folder / "summary.md").read_text(encoding="utf-8")
+                    if (folder / "summary.md").exists() else "", re.M)
+    said = row.group(1).strip() if row else ""
+    audited = ("PASS" in verdict and "заблокирован" not in verdict) or \
+              bool(said) and ("PASS" in said or said.lower().startswith("пропущен"))
+    steps.append(("0 аудит", audited, "" if audited else
+                  f"аудит безопасности: {verdict.strip() or 'отчёта нет'} — проведите security-audit (или исправьте "
+                  "находки), а если пользователь от него отказался, запишите в итоге строку «| Безопасность | … | "
+                  "пропущен — <причина> |»"))
 
     open_docs = [d.label for d in w.registry(root)   # business requirements carry no version: never stamped
                  if d.path.is_file() and "business-requirements" not in d.rel and w.unstamped(root, d, version)]
@@ -112,7 +128,7 @@ def main() -> None:
     if first is None:
         print(f"close: итерация {version} закрыта")
         sys.exit(0)
-    print(f"close: дальше — шаг «{steps[first][0]}»" + (" — метку ставить только после шагов 1–3" if first < 3 else ""))
+    print(f"close: дальше — шаг «{steps[first][0]}»" + (" — метку ставить только после шагов 0–3" if first < 4 else ""))
     sys.exit(2)
 
 

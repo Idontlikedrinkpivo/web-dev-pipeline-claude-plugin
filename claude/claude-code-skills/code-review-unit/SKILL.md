@@ -41,7 +41,7 @@ judgment made from inside one unit's packet.
 |---|---|---|
 | Unit spec | **yes** | the `### U<n>.` block: Цель, Документы, Файлы, Подход, Тестовые сценарии, Проверка, Сложность |
 | Stack review rules | **yes** | the «The reviewer checks» sections of the unit's stack skills — `typescript`, `react`, `python` and the library skills `work/references/stack-skills.md` picks for its files — pasted into the packet's `STACK REVIEW RULES`; `none` only when no picked skill has such a section |
-| The diff | **yes** | a file path under `$(git rev-parse --git-dir)/pipeline-work/`, built as Step 1 says (a Low batch from commits, Step 3) — not pasted: pasted text stays in the orchestrator's context for the whole run |
+| The diff | **yes** | a file path under `$(git rev-parse --path-format=absolute --git-common-dir)/pipeline-work/`, built as Step 1 says (a Low batch from commits, Step 3) — not pasted: pasted text stays in the orchestrator's context for the whole run |
 | Cited design excerpts | **yes** | the sections named in `Документы`, pasted, not linked — resolved under `documentation/` (`scenarios/orders` is the group's document under `architecture/scenarios/orders/`, `api` is `api/openapi.yaml`) |
 | Worker report | when there was one | `TESTS`, `RED OBSERVED`, `CONCERNS`, `OUT OF SCOPE` |
 | Prior findings this run | when any | so a known issue is not raised twice |

@@ -121,7 +121,7 @@ starts. By hand, outside `run_check`, the same takes three commands:
 
 ```bash
 npx playwright test --list | tail -1          # «Total: 616 tests in 28 files» → --total
-npx playwright test --reporter=list > "$(git rev-parse --git-dir)/pipeline-work/e2e.log" 2>&1   # in the background
+npx playwright test --reporter=list > "$(git rev-parse --path-format=absolute --git-common-dir)/pipeline-work/e2e.log" 2>&1   # in the background
 python3 "${CLAUDE_SKILL_DIR}/../pipeline/scripts/progress_e2e.py" <that log> documentation/plans/<version>/progress.md \
   --total 616 --stand "<режим входа · образы · стенд>"   # every minute or two; once more with --done
 ```

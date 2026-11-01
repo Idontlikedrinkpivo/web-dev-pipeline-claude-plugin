@@ -15,7 +15,7 @@ is the session's own; this check is a second reader that did not write the stage
 ## How
 
 1. The conversation, as a digest, by this session's title (its first message names it):
-   `python3 "${CLAUDE_SKILL_DIR}/../reflect/scripts/sessions.py" mine "$PWD" "<the session's title>" "$(git rev-parse --git-dir)/pipeline-work/handover-<stage>.md"`.
+   `python3 "${CLAUDE_SKILL_DIR}/../reflect/scripts/sessions.py" mine "$PWD" "<the session's title>" "$(git rev-parse --path-format=absolute --git-common-dir)/pipeline-work/handover-<stage>.md"`.
    A non-zero exit — the session's transcript not found — skip the check and say so in one line.
 2. Dispatch `handover-checker` (`executor-catalog` → Dispatch contract, `subagent_type:
    "dev-pipeline:handover-checker"`, no `model`) with the packet below.

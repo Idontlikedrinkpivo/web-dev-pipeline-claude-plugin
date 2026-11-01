@@ -128,6 +128,10 @@ RULES
   run's разбор; when anything runs again (a repeat, a run after fixes),
   first turn it to «идёт перепрогон · прошлый: <verdict>, коммит <sha>».
   «Общий итог» counts each case by its latest result in any section.
+- Your own browser only: launch it with its own profile on a free port; never connect to a
+  debugging port or take «the first tab» of a browser you did not start — another runner's or
+  the user's. Close the browser and any launcher script (`node launch.mjs`) when you finish and
+  when you stop on an error; list what you started in the report.
 - Do not commit.
 ```
 

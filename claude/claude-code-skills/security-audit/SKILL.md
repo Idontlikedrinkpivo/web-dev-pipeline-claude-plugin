@@ -87,7 +87,7 @@ not write it here: on a first iteration the test stand does not exist yet
 `references/scanners.md` over the repository root,
 through its Docker image (nothing installed on the machine); without
 Docker, the local tool, then say which way it ran. Save each raw output
-under `$(git rev-parse --git-dir)/pipeline-work/security/`, never paste it.
+under `$(git rev-parse --path-format=absolute --git-common-dir)/pipeline-work/security/`, never paste it.
 
 | Scanner | Finds |
 |---|---|

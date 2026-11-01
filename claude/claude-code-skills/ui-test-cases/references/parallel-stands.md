@@ -104,7 +104,7 @@ as they are. The report names the number and what limited it («3 стенда:
   suite in `work`. Several stands never mean several reports, per-stand
   files in `documentation/`, or no live report at all. A stand's raw
   Playwright output (`--reporter=list`) goes to
-  `$(git rev-parse --git-dir)/pipeline-work/e2e/stand-<n>.log` — working
+  `$(git rev-parse --path-format=absolute --git-common-dir)/pipeline-work/e2e/stand-<n>.log` — working
   output nobody opens, removed after the run; the stands never touch the
   report. The runner (the session, for `work`) is its only writer, woken by
   the journals (the Monitor tool on them, or a background `sleep 30`) and

@@ -218,7 +218,7 @@ file's name. This file is the only thing this skill writes — the plan
 itself is never edited.
 
 **Two reports, one file — by the script.** Save each half's report, as it
-came back, to a file under `$(git rev-parse --git-dir)/pipeline-work/`
+came back, to a file under `$(git rev-parse --path-format=absolute --git-common-dir)/pipeline-work/`
 (`plan-review-structural.md`, `plan-review-judgment.md`), then run
 
 ```bash

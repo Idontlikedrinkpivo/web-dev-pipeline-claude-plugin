@@ -14,7 +14,7 @@ question.
 |---|---|
 | `documentation/plans/<version>/summary.md` | **stays** — the iteration's numbers and the mark that it is closed |
 | the rest of `documentation/plans/<version>/`: `plan.md`, `plan-review.md`, every `progress*.md` and its `.html` page, `.progress-server`, `test-run.md`, `docs-consistency.md`, `security-audit.md`, inventories and other working files | removed |
-| `$(git rev-parse --git-dir)/pipeline-work/` files of this iteration's runs (diffs, run reports, stand logs) | removed |
+| `$(git rev-parse --path-format=absolute --git-common-dir)/pipeline-work/` files of this iteration's runs (diffs, run reports, stand logs) | removed |
 | contract documents — SRS, schema, API, architecture, screen specs, test cases — and everything else in git | never touched here |
 
 Earlier closed folders that still hold more than `summary.md` get the

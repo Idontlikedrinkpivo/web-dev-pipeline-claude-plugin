@@ -257,7 +257,7 @@ Per unit, in this order, and never skip to the next unit on a broken tree:
    and not a note in the report.
 4. **Review by grade** — first set the unit's row to `🔍 ревью` (the page shows the user where the run
    is); then `code-review-unit` does the review, and your part is its inputs and its verdict:
-   1. Write the diff to a file under `$(git rev-parse --git-dir)/pipeline-work/`.
+   1. Write the diff to a file under `$(git rev-parse --path-format=absolute --git-common-dir)/pipeline-work/`.
       Never paste it: pasted text stays in your context for the rest of the
       run and brings on the compaction Step 1 exists to survive.
    2. Invoke `code-review-unit` with the unit spec, that diff path, the cited
@@ -328,7 +328,7 @@ unit, and a plan carrying scars stops being a decision artifact.
 When every unit in scope is committed, first run the close checks yourself — the plan's §5 критерии готовности
 (a browser suite with its verify skill and parallel stands), health and mutants, and the dead-code report — as
 `references/close.md` → The checks lists them; read it now. Save each output under
-`$(git rev-parse --git-dir)/pipeline-work/`.
+`$(git rev-parse --path-format=absolute --git-common-dir)/pipeline-work/`.
 
 Then invoke the `code-review-full` skill once over the whole run: the plan, the full diff `BASE...HEAD` (BASE from
 Step 1, handed over as a file path, as in Step 5.4), the design documents
@@ -356,7 +356,9 @@ round's fix commits until `PASS`, while each round makes progress.
 report (`references/run-report.md` — read it now), stop every watcher the run
 started, and delete `resume.md`. The run's last message is the progress line,
 then the question about the next stage: read `pipeline` → "Asking before a
-transition" now and ask it as that section says. The reviews inside the run stayed automatic; this handoff
+transition" now and ask it as that section says — the stage the chain table names after `work` (the UI run, else
+the security audit), never «merge, push and prod are the owner's steps»: that line ended a run with the audit not
+offered at all (ai-initiatives 2.2.0). The reviews inside the run stayed automatic; this handoff
 is a question. No PR, no push, no CI watching: the branch stays local, and
 push and PR are the user's step after the whole pipeline.
 

@@ -5,7 +5,7 @@ lives, and when each is written. Where the run stands is still read from git (`p
 git cannot — who is dispatched now, what was decided, and what the user sees.
 
 **The run report** (`references/run-report.md`) is a file at
-`$(git rev-parse --git-dir)/pipeline-work/<version>-run.md` — outside the
+`$(git rev-parse --path-format=absolute --git-common-dir)/pipeline-work/<version>-run.md` — outside the
 tree, so the plan stays byte-identical and no unit's `Файлы` grows; a second
 run in the iteration adds its own section under its own BASE. Append to it
 after every commit and read it back after a compaction. Its «В работе» line

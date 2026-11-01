@@ -35,7 +35,10 @@ SRS excerpt does not contain.
 
 SKILL           The Figma skills (figma-use, figma-generate-design) exist
                 for you only when their names are in your list of skills —
-                look once; never call Skill on them blindly. Not listed:
+                look once; never call Skill on them blindly. A Skill call
+                that answers «Unknown skill» counts as not listed: read the
+                skill once as the MCP resource `skill://figma/figma-use/SKILL.md`
+                (`…/figma-generate-design/…`), never call it again. Not listed:
                 work through the Figma MCP tools directly
                 (`mcp__plugin_dev-pipeline_figma__*`, or `mcp__figma__*`)
                 with the Plugin API rules under RULES; neither available:

@@ -15,7 +15,7 @@ Over the run's diff `BASE...HEAD`, with the tools of `repo-scaffold/references/q
 | surviving mutants — in the lines of units that enforce an invariant row or are graded High | Stryker incremental / `mutmut` on those lines only — **Mutation runs** below |
 | dead code — exports, files and dependencies nothing uses | `knip` for TypeScript, `vulture` for Python, another stack's usual unused-code tool; the repo's config when it has one, otherwise defaults (say so in the run report); check the tool's current flags against the installed version |
 
-Save the table under `$(git rev-parse --git-dir)/pipeline-work/` and into the run report as «Здоровье кода»:
+Save the table under `$(git rev-parse --path-format=absolute --git-common-dir)/pipeline-work/` and into the run report as «Здоровье кода»:
 each figure at BASE and at HEAD. The dead-code output is also saved whole as its own file: `code-review-full`
 takes it by path as the dead-code report, and a detector that could not run is that file's one line with the
 reason — noted, never skipped silently.
@@ -63,7 +63,7 @@ stream are the default to avoid, not the safe choice.
    the same servers: a test database `<project>_test_mut_<k>` (the name holds «test» and differs from
    `DATABASE_URL`, so the test helper accepts it — `references/run-hygiene.md`), migrated before the start; its own
    bucket, queue or temp folder when the tests touch one. All of it through environment variables and temporary
-   configs under `$(git rev-parse --git-dir)/pipeline-work/<version>/mutation/` — never a change in the repository.
+   configs under `$(git rev-parse --path-format=absolute --git-common-dir)/pipeline-work/<version>/mutation/` — never a change in the repository.
    Stryker processes side by side share nothing on disk either: each share's config names its own
    `tempDirName`, `incrementalFile` and report files there, or one process's cleanup removes another's sandbox and
    the last one to finish overwrites the others' results. mutmut writes its mutants beside the code, so its shares

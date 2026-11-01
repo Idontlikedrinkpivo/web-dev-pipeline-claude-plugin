@@ -51,7 +51,7 @@ saying they are leaving with the run unfinished:
    its own):
 
    ```bash
-   d="$(git rev-parse --git-dir)/pipeline-work/<version>"; mkdir -p "$d"
+   d="$(git rev-parse --path-format=absolute --git-common-dir)/pipeline-work/<version>"; mkdir -p "$d"
    git ls-files --others --exclude-standard -z | xargs -0 git add --intent-to-add --
    git diff --binary > "$d/<item>.patch"
    git reset -q                       # undo the intent-to-add; the files stay

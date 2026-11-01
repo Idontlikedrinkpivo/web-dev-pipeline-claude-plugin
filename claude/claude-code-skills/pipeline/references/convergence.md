@@ -72,7 +72,13 @@ Stop the cycle and ask — what is open, what was tried, the options «ещё
 3. **a finding survived a fix at the top tier** of its ladder
    (`impl-critical`, `design-hard`, `plan-hard`, the Figma builder);
 4. **the verdict is `STOP`**, or the fix needs a decision only the user can
-   make (a design gap, a missing requirement) — at once, in any round.
+   make (a design gap, a missing requirement) — at once, in any round;
+5. **three rounds on an external model's answers** — its format, repeats,
+   guesses, tone: a prompt or a parser tuned against a model that answers
+   differently each time shows no stable progress for a test to measure.
+   After the third round, ask the user with what each round changed and
+   what still fails («ещё круг», «принять как есть», «остановиться») — the
+   owner had to cap those loops himself (ai-initiatives 2.2.0).
 
 Each round is one line in the stage's progress file or report («Круг 3:
 закрыто 2, осталось 1, новых 0»), so the user sees convergence without

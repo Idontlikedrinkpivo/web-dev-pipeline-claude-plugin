@@ -16,7 +16,7 @@ COMPLEXITY      <grade>  (<why>)
 THE DIFF
   <path to a file the orchestrator wrote: after `git add -N <unit «Файлы»>`
    (so untracked files in scope appear), `git diff HEAD --stat` then
-   `git diff HEAD -U10`, saved under $(git rev-parse --git-dir)/pipeline-work/.
+   `git diff HEAD -U10`, saved under $(git rev-parse --path-format=absolute --git-common-dir)/pipeline-work/.
    Read it once; do not re-run git or crawl the repo beyond it.>
 
 FILES THE UNIT WAS ALLOWED TO TOUCH
@@ -51,7 +51,7 @@ WORKER REPORT
    always "none" on the separate Risk-only pass — judge the artifact, not the claim>
 
 REVIEW DETAILS FILE
-  <absolute path: $(git rev-parse --git-dir)/pipeline-work/<version>/U<n>-review-<pass>.md —
+  <absolute path: $(git rev-parse --path-format=absolute --git-common-dir)/pipeline-work/<version>/U<n>-review-<pass>.md —
    your reasoning and dismissed findings go there>
 
 ALREADY RECORDED THIS RUN
@@ -107,6 +107,11 @@ CROSS-UNIT SUSPICION  (optional, does not affect the verdict)
   A doubt that only the whole plan could confirm — this diff might duplicate,
   contradict, or diverge from another unit's shape. Name it under OPEN so
   `code-review-full` inherits it instead of it being lost.
+
+LARGE FILES     A diff or a plan over ~25,000 tokens is read in parts: the diff's
+                `--stat` head first, then each file's hunks found by
+                `grep -n "^diff --git"`; a plan's sections by `grep -n "^#"` —
+                each with offset and limit, never the whole file at once.
 ```
 
 ### Low-batch variant

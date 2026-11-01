@@ -22,7 +22,7 @@ require. Security in depth stays `security-audit`'s.
 
 1. **Tool results.** Run the project's own `lint`, `typecheck` and `test`, and the quality tools that are
    installed (knip, jscpd, dependency-cruiser, import-linter, ruff, mypy); save each output under
-   `$(git rev-parse --git-dir)/pipeline-work/audit-<YYYY-MM-DD>/`. A tool that is not installed is named in the
+   `$(git rev-parse --path-format=absolute --git-common-dir)/pipeline-work/audit-<YYYY-MM-DD>/`. A tool that is not installed is named in the
    report, never installed by the audit.
 2. **Scopes.** One per module — the areas of architecture §2 and their folders in §5; without an architecture, the
    top-level source folders (each backend module, the frontend, the shared code). A module over ~40 source files

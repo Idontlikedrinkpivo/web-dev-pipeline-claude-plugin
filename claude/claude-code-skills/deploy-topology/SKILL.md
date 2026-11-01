@@ -333,7 +333,10 @@ from the project's own Dockerfiles and compose files as they are
    (`релиз заблокирован`) stops the stage before any release work: name the findings and ask —
    fix first (a fix plan), or build anyway, which goes into the report's
    «Принятый риск» with the date. No report means `security-audit` did not run:
-   say so in one line and go on — a skipped stage blocks nothing.
+   ask before any release work (`pipeline` → `references/question-format.md`) — «Аудит безопасности в этой
+   итерации не проводился. A. Провести сейчас (рекомендую) B. Собирать без него — пропуск запишется в итог» — and
+   on B write that into the summary's «Безопасность» row. A line and going on let a release go out without the
+   audit, which the owner's question then found a P1 in (ai-initiatives 2.2.0).
 2. **Write `documentation/deploy/deploy.md`** per `references/deploy-doc.md`:
    «Карточка сервиса» first, then every section of its template — probes
    with their timings, the measured resources, dependencies with the

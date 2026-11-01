@@ -76,7 +76,7 @@ The orchestrator keeps everything it reads for the rest of the session, and ever
 in a measured run its context grew by ~100,000 tokens per unit, a third of it agents' reports. So:
 
 - **Agents' reports are short; their details are files.** An executor's report and a reviewer's report come
-  back in about 2,000 characters; the long part sits in `$(git rev-parse --git-dir)/pipeline-work/<version>/`
+  back in about 2,000 characters; the long part sits in `$(git rev-parse --path-format=absolute --git-common-dir)/pipeline-work/<version>/`
   (`U<n>-details.md`, `U<n>-review-<pass>.md`) — the packet names each path. Paste the short report into the
   reviewer's packet with the path; the reviewer reads the file.
 - **When the orchestrator opens the details file itself:** a High or risk-floor unit; any status but `DONE`;

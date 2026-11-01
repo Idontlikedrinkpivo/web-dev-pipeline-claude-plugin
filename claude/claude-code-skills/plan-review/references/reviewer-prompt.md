@@ -102,11 +102,24 @@ SEVERITY
 
 Every calibration finding cites the cascade rule or the floor it rests on.
 Every citation finding names the document and the id that did not resolve.
+
+LARGE FILES     A diff or a plan over ~25,000 tokens is read in parts: the diff's
+                `--stat` head first, then each file's hunks found by
+                `grep -n "^diff --git"`; a plan's sections by `grep -n "^#"` —
+                each with offset and limit, never the whole file at once.
 ```
 
 ## Structural lenses — `plan-review-medium`
 
 ```
+  Live service — the product calls a service its tests stub (a language
+    model, a search or glossary API, payments): a unit «Проверка на
+    настоящем <сервис>» right after the first end-to-end unit, before the
+    units of that flow's behaviour. Missing is a finding (P1): the stub
+    hid the live model's failures until after acceptance once.
+  Upgrade over the last release — a new migration and an earlier release:
+    a unit «Обновление поверх v<prev>» last before the version bump
+    (plan_lint.py also refuses its absence).
   Dependency graph — «Зависит от» forms a DAG, every named dependency exists,
     every unit is reachable in the wave ordering.
   Parallel safety — for each Параллельно: yes pair: disjoint «Файлы» AND no

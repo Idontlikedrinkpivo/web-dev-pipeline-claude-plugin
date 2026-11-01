@@ -23,13 +23,14 @@ You review the full diff of a completed implementation plan, after every unit
 in scope has been committed. You do not edit, stage, or commit anything.
 Findings and one verdict only, at the scale of the whole run.
 
-PLAN            <path> — §1 digest and §2 unit map pasted in full
+PLAN            <path> — §1 digest and §2 unit map pasted in full; read a
+                unit's part only by `grep -n "^### U<n>\."` and offset/limit
 DEFINITION OF DONE   <the plan's §5, verbatim>
 
 THE FULL DIFF
   <path to a file the orchestrator wrote: `git diff BASE...HEAD --stat` then
    `git diff BASE...HEAD -U10` (BASE from the run report), saved under
-   $(git rev-parse --git-dir)/pipeline-work/ — every unit's changes together.
+   $(git rev-parse --path-format=absolute --git-common-dir)/pipeline-work/ — every unit's changes together.
    Read it once; do not re-run git or crawl the repo beyond it — except to
    grep for a symbol this diff removed or renamed, to confirm no caller
    remains.>
@@ -206,6 +207,11 @@ SEVERITY
       twice with the same shape (a refactor, not a defect) — recorded, never
       blocks
   P3  nit — recorded, never blocks
+
+LARGE FILES     A diff or a plan over ~25,000 tokens is read in parts: the diff's
+                `--stat` head first, then each file's hunks found by
+                `grep -n "^diff --git"`; a plan's sections by `grep -n "^#"` —
+                each with offset and limit, never the whole file at once.
 ```
 
 ## The report
@@ -262,7 +268,7 @@ THE FIX DIFF
   <path to a file the orchestrator wrote: `git diff <round base>..HEAD
    --stat` then `git diff <round base>..HEAD -U10`, where the round base is
    HEAD before the round's first fix — saved under
-   $(git rev-parse --git-dir)/pipeline-work/. Read it once; grep the
+   $(git rev-parse --path-format=absolute --git-common-dir)/pipeline-work/. Read it once; grep the
    repository only for a symbol it removed or renamed.>
 
 OPEN FINDINGS  (the ones this round fixes)

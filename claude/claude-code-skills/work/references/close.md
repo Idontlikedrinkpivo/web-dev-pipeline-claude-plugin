@@ -6,7 +6,7 @@ review's verdict is not `PASS`.
 ## The checks
 
 When every unit in scope is committed, run these yourself and save each output under
-`$(git rev-parse --git-dir)/pipeline-work/` — `code-review-full` reads them by path and does not re-run them.
+`$(git rev-parse --path-format=absolute --git-common-dir)/pipeline-work/` — `code-review-full` reads them by path and does not re-run them.
 
 1. **Критерии готовности** — every command in the plan's §5, with its exit code, on HEAD after the last commit.
 2. **A browser suite among them** runs in this order:
