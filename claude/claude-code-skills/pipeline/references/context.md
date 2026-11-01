@@ -5,7 +5,9 @@ Read at the start of every stage that dispatches agents or runs for long — `wo
 until it ends, and every later call pays for all of it again. Measured on a real project: one session of document
 stages kept 2.1 million characters of agents' reports (314 of them, 6,400 characters in the middle, up to 33,000)
 and 0.8 million of shell output; a `work` session grew by ~100,000 tokens a unit. Near the host's limit the session
-is compacted, and a compaction is where rules get lost.
+is compacted, and a compaction is where rules get lost. Right after one, the session-start hook prints the rules
+of the stage the session ran last (`references/keep-after-compaction.md`, by `scripts/keep_rules.py`); a changed
+key rule of a stage changes its section there too.
 
 ## What the session lets in
 

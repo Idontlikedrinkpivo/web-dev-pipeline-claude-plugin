@@ -93,6 +93,13 @@ echo "- A finished document: committed before asking about the next stage or sto
 echo "- Before work, a final document (its reviews and their fixes done) is pushed with python3 \"$push\" — never a draft."
 echo "- A turn ends only with the next step already running, unless it ends on a question to the user."
 echo "- Every Monitor or background wait you started: stopped when its work ends."
+# the rules of the stage the session ran last, from its transcript (pipeline → references/keep-after-compaction.md)
+if [ "$src" = compact ]; then
+  keep="$root/pipeline/scripts/keep_rules.py"
+  [ -f "$keep" ] || keep="$root/skills/pipeline/scripts/keep_rules.py"   # the Codex layout
+  tp=$(printf '%s' "$input" | python3 -c 'import json,sys; print(json.load(sys.stdin).get("transcript_path") or "")' 2>/dev/null)
+  [ -n "$tp" ] && [ -f "$keep" ] && python3 "$keep" "$tp" 2>/dev/null
+fi
 [ -f "$plans/$v/resume.md" ] && echo "A run left documentation/plans/$v/resume.md: read it first and check each claim against git, the tree and docker before continuing (pipeline → references/pause-and-resume.md)."
 [ -f "$dir/.claude/skills/verify/SKILL.md" ] && echo "This project has .claude/skills/verify: run its doctor before driving the app."
 exit 0
