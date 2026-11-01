@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 """The iteration's nested sessions — each named for its job before it opens — in documentation/plans/<version>/sessions.md.
 
-    python3 subsessions.py <project dir> <version> plan <stage>... [--no-parts] [--no-fixes]
+    python3 subsessions.py <project dir> <version> plan <stage>... [--no-parts]
     python3 subsessions.py <project dir> <version> set <row> <session id>
     python3 subsessions.py <project dir> <version> mark <row | session id> <state>
     python3 subsessions.py <project dir> <version> part <row>
@@ -11,8 +11,8 @@
     python3 subsessions.py <project dir> <version> whoami <session id>
 
 plan    the stages kept for this iteration (keys below, any order) become rows in chain order, each with its title:
-        a long stage gets its second part right after it («прогон · часть 2»), a check that can send work back gets
-        its fix plan, fix run and repeat («исправления UI · план», «… · прогон», «UI-тесты · повтор»). Rows already in
+        a long stage gets its second part right after it («прогон · часть 2»). The fixes a check sends back (UI
+        tests, the audit) run inside that check's own session, by agents — no session of their own. Rows already in
         the file keep their ids and states, so a later plan — a continued iteration, a stage added — only adds rows.
         A document stage whose documents all carry this version's stamp is closed and skipped, with a note: on a
         fresh clone (sessions.md is out of git, with documentation/plans/) the list holds only the stages left.
@@ -60,27 +60,17 @@ STAGES = {
     "ci": ("CI", "ci-pipeline", False),
     "close": ("закрытие", "pipeline — End of the pipeline", False),
 }
-# a check whose verdict can send work back: (fix name, its report)
-FIXES = {"ui": ("исправления UI", "test-run.md, строки дефектов"),
-         "audit": ("исправления аудита", "security-audit.md, строки FIX")}
 STATES = ("не открыта", "ждёт", "идёт", "закрыт", "передан", "убран")
 HEAD = "| # | Подсессия | Этап | Навык | Когда | Id | Состояние |"
 ROW = re.compile(r"^\|\s*(\d+)\s*\|(.*)\|(.*)\|(.*)\|(.*)\|(.*)\|(.*)\|\s*$")
 
 
-def rows_for(version: str, key: str, parts: bool, fixes: bool) -> list[dict]:
+def rows_for(version: str, key: str, parts: bool) -> list[dict]:
     word, skill, long_ = STAGES[key]
     out = [dict(title=f"{version} · {word}", stage=key, skill=skill, when="по очереди")]
     if parts and long_:
         out.append(dict(title=f"{version} · {word} · часть 2", stage=key, skill=skill,
                         when="если часть 1 передаст работу"))
-    if fixes and key in FIXES:
-        name, report = FIXES[key]
-        cond = f"если после «{word}» есть что исправлять"
-        out += [dict(title=f"{version} · {name} · план", stage=key + "-fix", skill=f"plan MODE fix — {report}",
-                     when=cond),
-                dict(title=f"{version} · {name} · прогон", stage=key + "-fix", skill="work", when=cond),
-                dict(title=f"{version} · {word} · повтор", stage=key, skill=skill, when=cond)]
     return out
 
 
@@ -162,10 +152,10 @@ def main() -> None:
         for key in sorted(done & set(rest), key=list(STAGES).index):
             print(f"sessions: «{STAGES[key][0]}» уже закрыт в {version} (документы со штампом) — подсессия не нужна")
         for key in sorted(set(rest) - done, key=list(STAGES).index):
-            for r in rows_for(version, key, "--no-parts" not in flags, "--no-fixes" not in flags):
+            for r in rows_for(version, key, "--no-parts" not in flags):
                 if r["title"] not in have:
                     rows.append(dict(r, id="", state="не открыта"))
-        rows.sort(key=lambda r: order_key(r["stage"]))   # stable: parts and fixes stay after their stage
+        rows.sort(key=lambda r: order_key(r["stage"]))   # stable: a part stays after its stage
         write(path, version, parent, rows)
         show(rows)
     elif cmd == "set" and len(rest) == 2 and rest[0].isdigit() and 0 < int(rest[0]) <= len(rows):

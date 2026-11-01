@@ -117,7 +117,9 @@ scaffolded. They meet before the plan.
   question goes on to `plan` and the skip is named in the report.
 - **A fix plan** (rows 13 and 14) goes through `plan-review` and `work`
   like any plan; after its `work`, offer the check that sent it — the UI
-  run or the audit — so it re-runs over the fixes.
+  run or the audit — so it re-runs over the fixes. Under a parent session all
+  of it runs in the check's own session, by agents
+  (`references/parent-session.md`).
 
 `work`, the design writers (`db-schema-design`, `openapi-spec-generator`,
 `clean-architecture-design`), `ui-design`'s Figma builders and
