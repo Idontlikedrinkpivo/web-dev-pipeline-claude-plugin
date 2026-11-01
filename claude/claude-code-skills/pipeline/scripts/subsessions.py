@@ -122,13 +122,16 @@ def show(rows: list[dict]) -> None:
               + ("" if r["when"] == "по очереди" else f" ({r['when']})"))
     busy = [r for r in rows if r.get("state") == "идёт"]
     nxt = next((r for r in rows if r.get("state") == "ждёт" and r["when"] == "по очереди"), None)
-    unopened = [r for r in rows if r.get("state") in ("не открыта", "", None)]
+    unopened = [r for r in rows if r.get("state") in ("не открыта", "", None) and r["when"] == "по очереди"]
+    later = [r for r in rows if r.get("state") in ("не открыта", "", None) and r["when"] != "по очереди"]
     print()
     print("в работе: " + (", ".join(f"«{r['title']}» ({r['id']})" for r in busy) or "ничего"))
     print("дальше: " + (f"«{nxt['title']}» ({nxt['id']}) — отправить «начинай»" if nxt else "очередных нет"))
     if unopened:
-        print("не открыты (открыть в ход пользователя, с этими названиями): " + "; ".join(
+        print("не открыты — открыть ВСЕ в этот ход пользователя, с этими названиями, без нового вопроса: " + "; ".join(
             f"{rows.index(r) + 1}. «{r['title']}»" for r in unopened))
+    if later:   # a part from a list made before 1.2.243: opened only when its stage hands over
+        print("откроются только при передаче работы: " + "; ".join(f"«{r['title']}»" for r in later))
 
 
 def main() -> None:

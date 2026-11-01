@@ -48,9 +48,12 @@ stages itself, as before, and hands over by asking the user (`references/context
 - **The iteration's sessions, all at once.** In the turn the user starts or continues the iteration («продолжим»,
   «продолжай», a new parent on a fresh clone):
   1. `python3 scripts/subsessions.py <project> <version> show`. A list with ids from this machine → the iteration
-     goes on: the row «идёт» is where the user works, the next «ждёт» is the next stage; rows «не открыта» are
-     opened in step 4. No list (a new iteration, a fresh clone, another person's machine — the ids of other
-     machines reach nobody) → step 2.
+     goes on: the row «идёт» is where the user works, the next «ждёт» is the next stage; **every** row «не открыта»
+     the script names is opened in step 4, in this same turn, with no new question — the user agreed to the list
+     when it was made, and the answer to «что дальше» (`continue` asks it) only picks which session gets
+     «начинай». Opening that one alone left the rest for a later turn and a card each (Дашборд руководителя 1.1.0).
+     A part the script lists apart («откроются только при передаче работы») stays unopened. No list (a new
+     iteration, a fresh clone, another person's machine — the ids of other machines reach nobody) → step 2.
   2. Build the stages **still to run**: from the chain (`SKILL.md` → the chain table, `references/branch-order.md`),
      what the project has (screens or not, a database, an HTTP API, containers, CI already there) and, for an
      iteration already under way, `scripts/where_am_i.py` — its open points name the first stage left; stages before

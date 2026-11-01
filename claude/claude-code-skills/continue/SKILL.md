@@ -20,3 +20,6 @@ back at the right stage.
    it owns which open point comes first.
 3. Answer in plain Russian: where the project is, what is done, what is stale or waiting, and the next step — asked as
    `pipeline` → «Asking before a transition» asks it (run, skip, or stop). Start nothing before the answer.
+4. In a parent session (`pipeline` → `references/parent-session.md`), the answer starts the iteration's sessions: in
+   that turn open **every** session the session list has not opened yet, then send «начинай» to the one the answer
+   chose — not that one alone.
