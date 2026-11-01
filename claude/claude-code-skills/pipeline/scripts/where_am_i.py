@@ -491,6 +491,19 @@ def main() -> None:
         opens.append(f"этап {stage} не закрыт: {', '.join(labels[:4])}{' …' if len(labels) > 4 else ''} — написаны и "
                      "закоммичены, проверка и закрытие этапа не сделаны")
     ui = sorted(doc.glob("ui/frames-register.md")) + sorted(doc.glob("ui/*/frames-register.md"))
+    specs = sorted(doc.glob("ui/screen-specs/S-*.md")) + sorted(doc.glob("ui/*/screen-specs/S-*.md"))
+    if specs and not ui:   # screens described, no mockups: decided («без макетов»), or never asked
+        try:
+            import json as _json
+            design = str(_json.loads(read(doc / ".dev-pipeline.json") or "{}").get("design", ""))
+        except ValueError:
+            design = ""
+        if design.lower().startswith("без макетов"):
+            print(f"  7. макеты: нет — по решению «{design}»")
+        else:
+            print(f"  7. макеты: нет — ТЗ на экраны ({len(specs)}) написаны без макетов, решения работать без них нет")
+            opens.append("макеты: у продукта есть экраны, а макетов нет и нет решения работать без них — до плана "
+                         "спросить, кто рисует макеты (pipeline → references/design-owner.md; D — без макетов)")
     for reg in ui:
         owner = re.search(r"Дизайн ведёт:?\**:?\s*([^\n|]+)", read(reg))
         print(f"  7. макеты: {reg.relative_to(root)}" + (f" · дизайн ведёт: {owner.group(1).strip(' *`')}" if owner else ""))

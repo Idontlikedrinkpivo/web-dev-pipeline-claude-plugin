@@ -43,6 +43,10 @@ One question per `references/question-format.md`:
   C. Дизайнер рисует сам, без плагина — пришлёт ссылку на файл Figma;
      здесь я составлю по его макетам реестр кадров, опишу экраны и напишу
      тест-кейсы.
+  D. Без макетов — вид экранов остаётся как в работающем приложении: ТЗ на
+     экраны пишутся по его фронтенду и архитектуре. Новый или «стильнее»
+     вид так не сделать: его рисуют до плана, иначе готовые экраны потом
+     перерисовывать.
 
 Ответьте сообщением: буква или свой текст.
 ```
@@ -53,12 +57,12 @@ iteration and can change at any message («дизайнер ушёл, рисуе
 
 ## What follows from each answer
 
-| | A. Сами | B. Дизайнер с плагином | C. Дизайнер без плагина |
-|---|---|---|---|
-| Fork after the SRS (`references/branch-order.md`) | the usual options and recommendation | recommend «только бэкенд»; the hand-over (`references/team.md`) follows at once | recommend «сначала бэкенд»: the design branch here starts when the designer's file arrives |
-| `ui-design` | in this session; its entry question offers only B and C (draw) | in the designer's session; it asks its own entry question | in this session, its entry option A only — the designer's frames: screen ids, the register, the completeness check; gaps go to the designer as questions |
-| Screen specs and test cases | in this session | one question per stage — the designer, an analyst, or this session (`references/team.md` → Handing over) | in this session |
-| Meeting point (`docs-consistency`) | both branches done here | waits for each person's «готово и запушено» | both branches done here, once the designer's frames are registered |
+| | A. Сами | B. Дизайнер с плагином | C. Дизайнер без плагина | D. Без макетов |
+|---|---|---|---|---|
+| Fork after the SRS (`references/branch-order.md`) | the usual options and recommendation | recommend «только бэкенд»; the hand-over (`references/team.md`) follows at once | recommend «сначала бэкенд»: the design branch here starts when the designer's file arrives | no design branch: the backend branch only |
+| `ui-design` | in this session; its entry question offers only B and C (draw) | in the designer's session; it asks its own entry question | in this session, its entry option A only — the designer's frames: screen ids, the register, the completeness check; gaps go to the designer as questions | skipped; the answer is recorded as below, so «где я» stops asking |
+| Screen specs and test cases | in this session | one question per stage — the designer, an analyst, or this session (`references/team.md` → Handing over) | in this session | in this session; specs from the frontend's routes and the architecture, «Кадров нет» in each |
+| Meeting point (`docs-consistency`) | both branches done here | waits for each person's «готово и запушено» | both branches done here, once the designer's frames are registered | the backend branch and the screen specs |
 
 ## Where the answer is kept
 
@@ -71,5 +75,8 @@ with the stage's next document commit — each stage runs in its own session
 with a fresh context, so an answer kept only in the chat was asked again
 (live run 2026-10-31). `open_iteration.py` reads both places; `ui-design`
 copies the answer into the register's header when it creates the register.
-A session that finds neither asks again. It is separate from
+A session that finds neither asks again. D is kept as `"design": "без макетов — <причина>"` in the same file:
+`where_am_i.py` reads it, and a product with screen specs and no frames register is an open point before the plan
+until it is there — screen specs written without mockups and never decided went unnoticed into an iteration once
+(Дашборд руководителя 1.1.0). It is separate from
 **Кадры рисует**, which says who draws the frames inside the design stage.
