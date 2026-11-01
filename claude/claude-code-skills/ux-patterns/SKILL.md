@@ -378,7 +378,9 @@ anti-patterns to flag — is in `web-design-guidelines`, marked with these ids.
 
 - **UX-74 Layout:** desktop first — the main size is the first in the
   register's **Размеры** (width × height; an older **Ширины**: widths only),
-  drawn and built first, and every other size must work: at a lower height
+  drawn and built first; a narrow width is drawn where the layout changes;
+  the other desktop sizes are not drawn, they are held by the responsive
+  rules (`web-design-guidelines` → Responsive layout); every size must work: at a lower height
   the title, the filters and the main table or chart are visible without
   scrolling; on an ultrawide screen (21:9) content does not stretch into thin
   lines — a maximum width or more columns; the narrow width must work; the

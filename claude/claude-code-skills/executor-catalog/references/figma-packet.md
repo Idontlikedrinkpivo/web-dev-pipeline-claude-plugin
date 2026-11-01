@@ -223,15 +223,14 @@ RULES
   other-size frame `S-1 · <Ш×В>` (`S-1 · 1680×1050`; widths only: `S-1 · 375`), and each app-wide state
   `Общее · Сессия истекла`. The session finds frames by these names.
 - Draw each screen, with its states, at the first size in VIEWPORTS, the
-  main one, as a frame of exactly that width and height. Then one frame per
-  screen at every other size, exactly that width and height, clipping what
-  falls below it — the screen as that monitor shows it: at a lower height the
-  title, the filters and the main table or chart stay visible without
-  scrolling; on an ultrawide one (21:9) the content does not stretch into
-  thin lines — a maximum width or more columns, as the direction allows; on
-  a narrow width the layout changes as it must (table → cards, a side panel
-  → its own screen) (UX-74). VIEWPORTS with widths only: a frame at each
-  narrower width where the layout changes; that decision is yours.
+  main one, as a frame of exactly that width and height — so the frame shows
+  what that monitor shows without scrolling. Draw another frame only at a
+  narrow width (a tablet or a phone, under ~1024 px) where the layout
+  changes (table → cards, a side panel → its own screen); that decision is
+  yours. A desktop size of another aspect ratio (16:10, 21:9) gets no frame:
+  the layout does not change there, only the space does, and the build
+  fills it by the responsive rules (`web-design-guidelines` → Responsive
+  layout, UX-74).
 - When the file or a linked library has components and variables, build
   from them (figma-generate-design, Step 2). Do not hardcode a colour or
   spacing a variable already holds. A component the library lacks (for

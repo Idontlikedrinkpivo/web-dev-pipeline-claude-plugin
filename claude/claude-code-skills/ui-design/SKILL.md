@@ -175,7 +175,7 @@ otherwise guess them per screen.
 | Line | From | When the SRS cannot tell |
 |---|---|---|
 | **Тип продукта** | the SRS actors: `B2B` (internal or business tool), `B2C` (public consumer web), or per area (`публичный сайт — B2C, админка — B2B`). It picks the variant of every `ux-patterns` rule that has one | row classed `Блокирует старт`, asked in the chat |
-| **Размеры** | the NFR on devices, screens and aspect ratios, as width × height (`1920×1080, 1680×1050, 2560×1080`); the main one first, drawn and built first (UX-74). An older register's «Ширины» (widths only) still holds | row classed `Блокирует старт`, asked in the chat with a proposal: B2B and dashboards `1920×1080 (16:9), 1680×1050 (16:10), 2560×1080 (21:9)`, a phone `375×812` only when asked; B2C `1440×900, 768×1024, 375×812` |
+| **Размеры** | the NFR on devices, screens and aspect ratios, as width × height (`1920×1080, 1680×1050, 2560×1080`); the main one first, drawn with every state and built first; a narrow width (a tablet, a phone) is drawn where the layout changes; the other desktop sizes are not drawn — the build adapts to them and checks each (UX-74). An older register's «Ширины» (widths only) still holds | row classed `Блокирует старт`, asked in the chat with a proposal: B2B and dashboards `1920×1080 (16:9), 1680×1050 (16:10), 2560×1080 (21:9)`, a phone `375×812` only when asked; B2C `1440×900, 768×1024, 375×812` |
 | **Доступность** | the accessibility NFR | default `WCAG 2.2 AA`; say so in one line, no question |
 
 Ask each missing line as its own question, per `grill-me` → "How a question

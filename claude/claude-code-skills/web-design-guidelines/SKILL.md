@@ -167,6 +167,23 @@ The motion tokens — one set for every product, defined once in the theme (CSS 
 - `autoFocus` only on desktop and only for the single main field → UX-76
 - Zoom is never disabled: no `user-scalable=no`, no `maximum-scale=1` → UX-55
 
+### Responsive layout
+
+Every size in the frames register's «Размеры» is supported; only the main one and the narrow widths have frames,
+so the rest is held by these rules, and the screen is checked in a window of each size before it is handed in.
+
+- Breakpoints come from the register's sizes, not invented per screen; one set for the whole app → UX-74
+- Content has a maximum width, or the grid adds columns, so nothing stretches into thin lines on an ultrawide
+  (21:9) screen; text lines stay readable (50–75 characters) → UX-74, UX-4
+- The first screen fits the lowest height in the list: the title, the filters and the main table or chart are
+  visible without scrolling; heights in `dvh` or from the content, never a fixed pixel height for the page → UX-74
+- Sizes of type and spacing are fluid between the smallest and the largest size (`clamp()`), not a jump per
+  breakpoint → UX-74
+- A dashboard widget (a chart, a card, a table) adapts to its own container (`@container`), not to the window, so
+  it works in any column it lands in → UX-74
+- A table that does not fit scrolls inside itself with its header and first column fixed; on a narrow width it
+  becomes cards when the frame shows so → UX-40, UX-74
+
 ### Layout
 
 - Full-bleed layouts respect `env(safe-area-inset-*)` → UX-74

@@ -63,10 +63,12 @@ Cell rules:
   frames, checked by Полнота макета, not listed here.
 - **Состояния** — every non-Default state frame: `Loading`, `Empty`,
   `Error`, `Forbidden`, and named ones for flows (`Отменена (UC-3 Alt-1)`).
-  A state the screen cannot have is absent, not `—`. Each other size of
-  **Размеры** is a frame here too, as `<Ш×В> → nodeId` (`1680×1050 → 12:48`;
-  in an older register `<width> → nodeId`, `375 → 12:48`): the table has no
-  size column, and the number tells it from a state.
+  A state the screen cannot have is absent, not `—`. A narrow size of
+  **Размеры** drawn for the screen is a frame here too, as `<Ш×В> → nodeId`
+  (`375×812 → 12:48`; in an older register `375 → 12:48`): the table has no
+  size column, and the number tells it from a state. A desktop size of
+  another aspect ratio has no frame — the build fills it by the responsive
+  rules and checks it.
 - **Вложенные шаги** — `M<n> <назначение> → nodeId`, numbered per screen,
   append-only.
 - **Статус** — `черновик` until the frames resolve and the screen's
