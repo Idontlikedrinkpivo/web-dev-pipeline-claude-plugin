@@ -41,10 +41,10 @@ stages itself, as before, and hands over by asking the user (`references/context
   user named the session themselves the app asks them to approve the new title; a declined rename stays declined.
 - **The list of sessions — `scripts/subsessions.py`.** Every session has its job and its title before it opens; there
   are no spares. The list lives in `documentation/plans/<version>/sessions.md` (out of git, like the folder) and only
-  the script writes it: `plan` (the rows), `set` (an id), `mark` (a state), `parent`, `show`, `whoami`. `plan` adds,
-  after each long stage (макеты, ТЗ на экраны, прогон, UI-тесты), its «· часть 2» — a row marked «если …», opened
-  with the rest and archived at the close when unused. No session for fixes: what a check sends back runs inside
-  that check's own session (next item).
+  the script writes it: `plan` (the rows), `set` (an id), `mark` (a state), `part`, `parent`, `show`, `whoami`.
+  One row per stage: no part is opened in advance — a stage that hands over gets its «· часть 2» then (below); the
+  user found pre-opened parts that mostly stayed unused too many (Дашборд руководителя 1.1.0). No session for fixes
+  either: what a check sends back runs inside that check's own session (below).
 - **The iteration's sessions, all at once.** In the turn the user starts or continues the iteration («продолжим»,
   «продолжай», a new parent on a fresh clone):
   1. `python3 scripts/subsessions.py <project> <version> show`. A list with ids from this machine → the iteration
@@ -57,8 +57,7 @@ stages itself, as before, and hands over by asking the user (`references/context
      it are done. `plan` itself skips a document stage whose documents all carry this version's stamp.
   3. Ask once, as a chat question (`references/question-format.md`): «Подсессии итерации <version>: <the titles
      `plan` would print, in order; the «если …» ones marked>. Открыть все? Ответьте «все» или перечислите, какие
-     убрать.» Nothing is opened before the answer. Then `plan` with the kept stages (`--no-parts` when the user
-     dropped the parts).
+     убрать.» Nothing is opened before the answer. Then `plan` with the kept stages.
   4. On the answer — a user turn — open each row «не открыта», in the list's order: locally, in this folder, a fresh
      context, no worktree, `wake_when_done: false`, titled as the row, with the waiting prompt below; record each id
      at once (`set <row> <id>`) and the parent's own (`parent <id>`). Not `true`: it wakes the opener at the end of
@@ -69,7 +68,7 @@ stages itself, as before, and hands over by asking the user (`references/context
      model to the session tool, and right after opening set the effort the same
      (`mcp__ccd_session_mgmt__set_session_effort` — the parent's own level asks the user nothing) when the new
      session reports another. The user picks them once, on the parent; left to the defaults, the live run's stages
-     ran on two models chosen by nobody (2026-10-31). The same for every session opened later — a «· часть 3», a job
+     ran on two models chosen by nobody (2026-10-31). The same for every session opened later — a «· часть 2», a job
      outside the chain.
   5. Send the stage to start «начинай» (`mark <row> идёт`) — on a continued iteration, with «продолжи с <item>» from
      `resume.md` — and tell the user in one line where to work: «Работаем в «<title>» — она в боковом списке».
@@ -82,18 +81,19 @@ stages itself, as before, and hands over by asking the user (`references/context
 - **What comes back**, one line each from a nested session (`SendMessage` to the parent):
   - «ЭТАП <stage> ЗАКРЫТ · дальше: <stage>» — `mark … закрыт`, start that stage's row; «· остановиться» — say where
     the iteration stands and start nothing;
-  - «<stage> ПЕРЕДАН · после <item> · контекст <N> тыс. · продолжать с <item>» → `mark … передан`, send the stage's
-    «· часть 2» row «начинай: продолжи с <item>; состояние — в documentation/plans/<version>/resume.md и git». When part 2
-    hands over too: `part <row>` adds «· часть 3»; open it in the next user turn, or offer a card
-    (`initiation: "own_initiative"`) and tell the user one click opens it;
+  - «<stage> ПЕРЕДАН · после <item> · контекст <N> тыс. · продолжать с <item>» → `mark … передан`, `part <row>`
+    adds the stage's «· часть 2» (then «· часть 3»…). The report came in a turn the user did not begin, so the host
+    only offers a card (`initiation: "own_initiative"`): offer it with the waiting prompt, tell the user one click
+    continues the stage, and on the session's id `set` it and send «начинай: продолжи с <item>; состояние — в
+    documentation/plans/<version>/resume.md и git». When the user writes first, open it in that turn instead;
   - «ОСТАНОВЛЕНА · <причина>» → tell the user, with the session's title;
   - «ВОПРОС · …» — only when a nested session runs without the user (a chain left for the night,
     `references/unattended.md`): the standing answers settle it, or the user is asked here and the answer sent back.
 - **A check that sends work back** (`DEFECTS`, `FIX`) keeps it in its own session: the fix plan (`plan` `MODE fix`,
   its writer agent and `plan-review`), its run (`work`'s executors and reviews) and the check's re-run go on there,
   by agents, and the session reports «ЭТАП … ЗАКРЫТ» only after the re-run passes; over the context limit it hands
-  over to its «· часть 2» as any stage. Six sessions for one check's fixes crowded the sidebar for nothing (Дашборд
-  руководителя 1.1.0). A part left unused, or a stage dropped on the way: `mark` it «убран» and archive its session
+  over as any stage. Six sessions for one check's fixes crowded the sidebar for nothing (Дашборд руководителя
+  1.1.0). A stage dropped on the way: `mark` it «убран» and archive its session
   (`mcp__ccd_session_mgmt__archive_session`).
 - **The iteration's close** (`SKILL.md` → End of the pipeline: the last stamp, the site, the summary, the tag,
   `reflect`, the closing lines, the cleanup question) is the last row, «<version> · закрытие». After it, archive the
@@ -112,7 +112,7 @@ UI-тесты · аудит безопасности · релиз · CI · эк
 
 ```text
 Ты — подсессия «<title>» итерации <version> плагина dev-pipeline: <job — «этап <stage>»; «часть 2 этапа <stage>,
-начнёт, когда часть 1 передаст работу»>. Родительская
+продолжает с пункта из сообщения «начинай»»>. Родительская
 сессия — «iteration <version>», id <parent's session id> — пиши ей через SendMessage на этот id. Своё место в списке
 находишь сама: python3 <plugin>/pipeline/scripts/subsessions.py <project> <version> whoami <твой id>.
 Вопросы пользователю — только сообщением в чате, без карточек выбора.
@@ -143,7 +143,7 @@ It runs its stage as the stage's skill says, with the user, in this session. Wha
   document (`references/decision-changes.md`) or in the stage's report — the next session starts from the files and
   git, not from this chat.
 - **Over the context limit** it hands over, after the same handover check: it tells the parent «<stage> ПЕРЕДАН · после <item> · контекст <N> тыс. ·
-  продолжать с <item>» and stops (`references/context.md` → When to hand over); the parent starts the stage's «·
-  часть 2».
+  продолжать с <item>» and stops (`references/context.md` → When to hand over); the parent opens the stage's «·
+  часть 2» (a card the user clicks, when the user is not writing).
 - In the sidebar every session of the iteration shows as one list under the parent, in the order they opened (seen
   in Claude Desktop, 2026-10-31) — opened at the start in chain order, the list reads as the iteration's plan.

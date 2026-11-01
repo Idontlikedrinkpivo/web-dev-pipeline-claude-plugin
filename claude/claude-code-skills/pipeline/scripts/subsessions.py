@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 """The iteration's nested sessions — each named for its job before it opens — in documentation/plans/<version>/sessions.md.
 
-    python3 subsessions.py <project dir> <version> plan <stage>... [--no-parts]
+    python3 subsessions.py <project dir> <version> plan <stage>...
     python3 subsessions.py <project dir> <version> set <row> <session id>
     python3 subsessions.py <project dir> <version> mark <row | session id> <state>
     python3 subsessions.py <project dir> <version> part <row>
@@ -11,15 +11,16 @@
     python3 subsessions.py <project dir> <version> whoami <session id>
 
 plan    the stages kept for this iteration (keys below, any order) become rows in chain order, each with its title:
-        a long stage gets its second part right after it («прогон · часть 2»). The fixes a check sends back (UI
-        tests, the audit) run inside that check's own session, by agents — no session of their own. Rows already in
+        one row per stage — no part opened in advance: a stage that hands over gets its next part then (`part`).
+        The fixes a check sends back (UI tests, the audit) run inside that check's own session, by agents. Rows already in
         the file keep their ids and states, so a later plan — a continued iteration, a stage added — only adds rows.
         A document stage whose documents all carry this version's stamp is closed and skipped, with a note: on a
         fresh clone (sessions.md is out of git, with documentation/plans/) the list holds only the stages left.
         Prints the rows still to open, in order: the parent opens them in this user turn with these titles.
 set     a row's session id, once opened (state → ждёт).
 mark    a row's state: ждёт · идёт · закрыт · передан · убран.
-part    one more part of the row's stage («· часть 3», …), right after its last part — when part 2 hands over too.
+part    the next part of the row's stage («· часть 2», «· часть 3», …), right after its last part — when the stage
+        hands over (pipeline → references/context.md → When to hand over).
 parent  the parent's own session id, so a parent after a compaction or a new one on «продолжим» finds the list.
 show    the table, then: the stage in work, the next one to start, the rows not opened yet — the input of «продолжим».
 whoami  the row of a nested session by its own id: its stage, its skill, its part — for a session after a compaction.
@@ -39,7 +40,7 @@ try:
 except Exception:  # a broken neighbour must not break the list
     w = None
 
-# key -> (title word, skill to run, a long stage that gets a part 2)
+# key -> (title word, skill to run, a long stage — one that may hand over to a next part)
 STAGES = {
     "brd": ("бизнес-требования", "brainstorm", False),
     "srs": ("SRS", "srs-writer", False),
@@ -65,13 +66,9 @@ HEAD = "| # | Подсессия | Этап | Навык | Когда | Id | С�
 ROW = re.compile(r"^\|\s*(\d+)\s*\|(.*)\|(.*)\|(.*)\|(.*)\|(.*)\|(.*)\|\s*$")
 
 
-def rows_for(version: str, key: str, parts: bool) -> list[dict]:
-    word, skill, long_ = STAGES[key]
-    out = [dict(title=f"{version} · {word}", stage=key, skill=skill, when="по очереди")]
-    if parts and long_:
-        out.append(dict(title=f"{version} · {word} · часть 2", stage=key, skill=skill,
-                        when="если часть 1 передаст работу"))
-    return out
+def rows_for(version: str, key: str) -> list[dict]:
+    word, skill, _ = STAGES[key]
+    return [dict(title=f"{version} · {word}", stage=key, skill=skill, when="по очереди")]
 
 
 def read(path: Path) -> tuple[str, list[dict]]:
@@ -152,7 +149,7 @@ def main() -> None:
         for key in sorted(done & set(rest), key=list(STAGES).index):
             print(f"sessions: «{STAGES[key][0]}» уже закрыт в {version} (документы со штампом) — подсессия не нужна")
         for key in sorted(set(rest) - done, key=list(STAGES).index):
-            for r in rows_for(version, key, "--no-parts" not in flags):
+            for r in rows_for(version, key):
                 if r["title"] not in have:
                     rows.append(dict(r, id="", state="не открыта"))
         rows.sort(key=lambda r: order_key(r["stage"]))   # stable: a part stays after its stage
