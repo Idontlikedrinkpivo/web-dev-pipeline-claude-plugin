@@ -74,9 +74,12 @@ def derived(text: str) -> tuple[int, str] | None:
     """(percent, count line) from the statuses of the main table — the first table with «Статус» under the file's
     first bar: ✅ and ⏭ whole, 🔍 two thirds, 🔄 and 🔁 a third, ⏳ and ⛔ nothing."""
     lines = text.splitlines()
-    start = next((i for i, l in enumerate(lines) if re.search(r"[█░]{5,}", l)), 0)
-    heads = [i for i, l in enumerate(lines) if re.match(r"^#{1,4}\s", l) and i > start]
-    end = heads[0] if heads else len(lines)
+    start = next((i for i, l in enumerate(lines) if re.search(r"[█░]{5,}", l)), None)
+    if start is None:   # no bar line at all (a file a session started by hand): the first «Статус» table anywhere
+        start, end = 0, len(lines)
+    else:
+        heads = [i for i, l in enumerate(lines) if re.match(r"^#{1,4}\s", l) and i > start]
+        end = heads[0] if heads else len(lines)
     for i in range(start, end - 1):
         if lines[i].lstrip().startswith("|") and re.match(r"^\s*\|[\s:|-]+\|\s*$", lines[i + 1]):
             head = [c.strip() for c in lines[i].strip().strip("|").split("|")]
@@ -182,7 +185,7 @@ def page(md: Path) -> None:
     title = next((re.sub(r"[*`]", "", l[2:]).strip() for l in text.splitlines() if l.startswith("# ")), md.stem)
     found = bars(text)
     chip = lambda cs: "".join(f"<span>{html.escape(label)}: {n}</span>" for label, n in cs)
-    chips = chip(found[0]["chips"]) if found else ""
+    chips = chip(found[0]["chips"]) if found else chip(status_counts(text.splitlines(), 0, len(text.splitlines())))
     runs = "".join(
         f'<div class="run"><div class="row"><div class="lbl">{html.escape(b["label"] or "—")}</div>'
         f'<div class="lbl">{b["pct"]}%</div></div><div class="cnt">{html.escape(b["count"])}</div>'
