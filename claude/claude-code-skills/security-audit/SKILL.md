@@ -140,7 +140,7 @@ operation, the browser only for a step that exists only on a screen — and
 write the answer under the finding. With no stand up, or none yet, the
 finding stands on the traced code and the verify pass, and the report says
 so: «запросом не проверено: стенда нет». The audit never builds or starts a
-stand. Then dispatch
+stand — except Step 4b, when the user chose to run it. Then dispatch
 `security-auditor` once in `MODE verify` with only those findings: it tries
 to **disprove** each — a middleware that already checks, a query already
 scoped to the owner, a path unreachable from outside — and keeps what it
@@ -155,6 +155,17 @@ marked `⚖ против решения <id>` and is never fixed, planned or sen
 report as a fix: it goes to the user as a question with that decision
 quoted (`pipeline` → `references/decision-changes.md` → A finding against a
 settled decision).
+
+### 4b. Live check — Shannon (optional)
+
+Before the verdict, one question: run Shannon — a separate program that attacks the running application on the
+local test stand and reports only what it proved — or skip it. It costs the user's own model budget and an hour or
+more, so it is never run unasked. `scripts/shannon_check.py` says whether it is set up; the question offers A skip,
+B a full run, C analysis only (cheaper, proves nothing), D help to set it up first. On B or C: the stand up, a
+config with a test account, the login validated, the run in the background, then `scripts/shannon_report.py` over
+its SARIF — each exploited finding checked by a request to the stand before it becomes an F-row or marks an
+existing one «подтверждено вживую». Only against the local stand, never a server, staging or prod. The whole step —
+the question's text, the setup help, the config, the merge: `references/live-pentest.md`.
 
 ### 5. Verdict and next step
 
@@ -197,6 +208,9 @@ decides.
   by an auditor — Steps 2–3.
 - Every P0 and P1 survived the verify pass or sits in «Отклонено» with a
   reason, and says whether a request to the stand confirmed it — Step 4.
+- The live check was asked, and its row says run (with its counts) or
+  `⏭ пропущено` with why; every Shannon finding entered was re-checked by a
+  request — Step 4b.
 - The finding numbers are one sequence across the auditors — Step 3.
 - `resume.md` is gone once the verdict line is written — Progress and report.
 - The report's first line is the verdict; every open P0/P1 has the user's
@@ -211,5 +225,7 @@ decides.
 - `references/auditor-prompt.md` — the `security-auditor` packet, its
   lenses, and the report it returns; `MODE verify`.
 - `references/report.md` — the shape of `security-audit.md`.
+- `references/live-pentest.md` — Step 4b: the question, setting Shannon up, the run, the merge;
+  `scripts/shannon_check.py` (ready or not), `scripts/shannon_report.py` (its SARIF as a table).
 - `executor-catalog` (skill) — `security-auditor`.
 - `pipeline` (skill) — stage 14; read it when the audit closes.

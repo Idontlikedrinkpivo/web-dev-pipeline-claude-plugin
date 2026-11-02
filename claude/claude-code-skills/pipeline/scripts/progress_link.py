@@ -15,6 +15,8 @@ The link is always the page beside the file (progress.md -> progress.html), neve
   repository root, which the user's own browser reloads by itself.
 --desktop is remembered beside the file (.progress-desktop): a later call without it — after a context compaction
 dropped the flag — still starts or reuses the server, so the link never falls back to a file path.
+The Codex build always uses HTTP: its local HTML file preview can be blocked.
+When HTTP was requested but cannot start, report the failure instead of a broken file link.
 
 A bar that disagrees with the count line (a file edited from the shell, so the page and the bar were not redrawn)
 is named on stderr; the line on stdout stays as it is.
@@ -139,13 +141,19 @@ def main() -> None:
     rebuild(md)
     page = md.with_suffix(".html")
     marker = md.parent / ".progress-desktop"
-    desktop = "--desktop" in args or marker.exists()
+    # Codex-only: native file previews can block HTML. This build must use HTTP
+    # even in a fresh stage chat that has not created .progress-desktop yet.
+    codex = (HERE.parents[2] / ".codex-plugin" / "plugin.json").is_file()
+    desktop = codex or "--desktop" in args or marker.exists()
     if "--desktop" in args and not marker.exists():
         try:
             marker.write_text("1\n")
         except OSError:
             pass
     base = start(md.parent) if desktop else running(md.parent)
+    if desktop and not base:
+        sys.exit("progress_link: could not start the local HTTP server; no file link emitted. "
+                 "Run progress_server.py for this folder to inspect the error.")
     warn = bar_mismatch(md, count)
     if warn:
         print(warn, file=sys.stderr)

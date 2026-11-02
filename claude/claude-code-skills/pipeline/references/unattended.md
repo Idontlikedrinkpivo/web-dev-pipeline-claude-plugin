@@ -17,7 +17,9 @@ default for each, so the user answers once:
 - **The gates** each iteration offers: which run without asking (`doc-review`,
   `plan-review`, `docs-consistency` are recommended), which are skipped.
 - **The security audit** and **the UI-test run** at each iteration's end: run / skip /
-  only at the last iteration.
+  only at the last iteration. The audit's live check (Shannon, `security-audit` →
+  `references/live-pentest.md`): skip / run when it is set up — skip when not asked, it spends
+  the user's own model budget.
 - **The e2e scope**: the whole suite / the areas the iteration touched.
 - **Merge, tag and push**: the plugin never pushes; merge to `main` and tag each
   iteration as it closes / leave the branches for the user.

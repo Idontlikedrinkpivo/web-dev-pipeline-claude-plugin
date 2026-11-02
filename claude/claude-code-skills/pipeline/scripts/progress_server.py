@@ -46,10 +46,20 @@ def code_id() -> str:
     return h.hexdigest()[:12]
 
 
+def local_open(request):
+    """Probe our loopback server directly, including on macOS with a system proxy.
+
+    Do not change global proxy settings: only these fixed 127.0.0.1 requests
+    bypass proxies. Otherwise a proxy may hide our identity headers and cause
+    the launcher to keep starting servers on successive ports.
+    """
+    return urllib.request.build_opener(urllib.request.ProxyHandler({})).open(request, timeout=1)
+
+
 def code_of(port: int) -> str:
     try:
         req = urllib.request.Request(f"http://127.0.0.1:{port}/", method="HEAD")
-        with urllib.request.urlopen(req, timeout=1) as r:
+        with local_open(req) as r:
             return r.headers.get(CODE_HEADER) or ""
     except Exception as e:
         return (getattr(e, "headers", None) and e.headers.get(CODE_HEADER)) or ""
@@ -95,7 +105,7 @@ def serves(port: int, folder: Path) -> bool:
     """True when the server on this port is ours and serves this folder."""
     try:
         req = urllib.request.Request(f"http://127.0.0.1:{port}/", method="HEAD")
-        with urllib.request.urlopen(req, timeout=1) as r:
+        with local_open(req) as r:
             tag = r.headers.get(HEADER)
     except Exception as e:
         tag = getattr(e, "headers", None) and e.headers.get(HEADER)

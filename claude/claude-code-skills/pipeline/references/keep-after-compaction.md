@@ -109,6 +109,8 @@ stage skill, its heading the skill's folder name; a stage with no section gets �
 - `security-audit.md` starts with its verdict line; rows change with Edit; the scanners first, then one auditor per
   area.
 - `FIX` offers a fix plan; an accepted risk is written with its date under «Принятый риск».
+- Before the verdict, the live check (Shannon) is asked — never run unasked, only against the local stand; each of
+  its exploited findings is re-checked by a request before it enters (`references/live-pentest.md`).
 
 ## deploy-topology
 
