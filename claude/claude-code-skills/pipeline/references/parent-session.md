@@ -13,7 +13,9 @@ session's word — and the plugin works inside it, never around it: **every stag
 iteration's start, in the user's own turn, and waits**; a stage then starts by a message («начинай»), which the host
 delivers in any turn. No session has to be opened later, so no card stands between two stages, by day or by night.
 
-**Which one am I.** A session whose first message names a parent («родительская сессия — …», «ты — подсессия») is a
+**Which one am I** — the first step of any session that starts pipeline work, a stage asked for directly included;
+the first stages' `SKILL.md` (brainstorm, srs-writer) send here before they read anything. A session whose first
+message names a parent («родительская сессия — …», «ты — подсессия», «Ты — чат этапа …») is a
 nested session: follow «The nested session» below. Any other session is the parent when the host can start sessions
 and either the project is a pipeline project — `documentation/.dev-pipeline.json` or `documentation/plans/` (the
 session-start hook's test) — or it is a **new project** (no `documentation/` yet) whose request starts the pipeline

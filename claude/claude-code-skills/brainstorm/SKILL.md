@@ -7,6 +7,13 @@ description: >-
 
 # Brainstorm a Feature or Improvement
 
+## First step: the parent session
+
+Before reading the user's materials, the project or any reference of this skill: read `pipeline` →
+`references/parent-session.md` → «Which one am I» and do what it says. A session that turns out to be the parent runs
+no stage here — it opens this stage in a session of its own, which then reads the materials. A brainstorm in Codex
+that read the attached requirements first went on to its questions, and no stage chats were offered.
+
 Brainstorming helps answer **WHAT** to build through collaborative dialogue. The durable output is a **business requirements document** — a lightweight PRD / feature brief: goal, scope, R-requirements, key flows, and acceptance examples, so the SRS and the design after it do not need to invent product behavior, scope boundaries, or success criteria. Numbered FR / NFR / use cases are `srs-writer`'s job, the next reader of this document: a draft shaped like an SRS here gets rewritten there.
 
 This skill explores, clarifies, and documents product decisions. Its document feeds the stage `pipeline` names after this one; numbered requirements, design, and code come later in that chain (Core Principles 3–4).
@@ -76,17 +83,6 @@ Do not proceed until you have a feature description from the user.
 ## Execution Flow
 
 ### Phase 0: Resume, Assess, and Route
-
-#### 0.0 The parent session first
-
-When this session's first message names a parent («ты — подсессия», «родительская сессия — …»), it is a nested
-session: run the stage here. Otherwise, before anything else, check whether the host can open sessions — Claude
-Desktop's `mcp__ccd_session__start_session` (often deferred: load it with ToolSearch before deciding it is absent),
-the Codex app's chat tools. It can → this session is the iteration's parent, a new project included — the pipeline always runs from a
-parent with every stage in its own session: read `pipeline` → `references/parent-session.md` and follow it — the
-list of the iteration's sessions confirmed once, this stage then run in its own session. No such tool (a terminal) → go on here. The session-start hook names the parent
-only in a project that already has `documentation/`, so in a new project this is where the parent is found: a
-brainstorm started directly once went straight into its questions and no stage sessions were offered.
 
 #### 0.1 Resume Existing Work When Appropriate
 
