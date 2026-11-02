@@ -21,6 +21,9 @@ stage skill, its heading the skill's folder name; a stage with no section gets �
 
 ## brainstorm
 
+- Deferring a question to open-questions.md does not pause the stage. Continue with the next independent question
+  or the remaining phases; end only on an explicit question, explained blocker, requested pause or stage handoff.
+
 - Commit the business requirements as soon as written; on a new project with `documentation/.dev-pipeline.json`
   and the site the hook built (`docs-site` → `rebuild.py . --wait`, stage `documentation/_web-docs`).
 - The grill gate is asked; its state goes into the commit: `docs: бизнес-требования · допрос: прошёл | пропущен |
