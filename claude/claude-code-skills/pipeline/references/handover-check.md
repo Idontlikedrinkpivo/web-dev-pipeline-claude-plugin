@@ -8,7 +8,7 @@ is the session's own; this check is a second reader that did not write the stage
 ## When
 
 - Before «ЭТАП <stage> ЗАКРЫТ» — after the stage's commits, before the message to the parent.
-- Before «<stage> ПЕРЕДАН» — the next part starts from the files too.
+- Before «<stage> ПЕРЕДАН» — the session is cleared and starts again from the files too.
 - Not in a session without a parent (a terminal run keeps its chat), and not for a stage that asked the user
   nothing: no answer, no decision to lose.
 

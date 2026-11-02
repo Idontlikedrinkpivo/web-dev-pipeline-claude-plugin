@@ -30,15 +30,14 @@ section of test cases, an audited area, a unit committed) — run
 1. Save where the stage stands: its progress file and `resume.md` (`references/pause-and-resume.md`), the next
    item named («продолжать с S-7»), anything decided in the chat that no document holds yet.
 2. **Run by a parent session:** send it «<этап> <version> ПЕРЕДАН · после <item> · контекст <N> тыс. · продолжать
-   с <item>» and stop (`references/parent-session.md`).
-3. **No parent, and the host can start a session** (Claude Desktop: `mcp__ccd_session__start_session`, often
-   deferred — load it with ToolSearch `select:mcp__ccd_session__start_session` first). In a turn the user began it
-   starts at once; in an automated turn the host only offers a card (`references/parent-session.md` → The host's
-   rule) — offer it, tell the user one click continues, and stop. Start it locally, in this
-   folder, with a fresh context and no worktree, on this session's model and effort (`references/parent-session.md`
-   → step 4), titled «<version> · <stage> · часть <n>», prompt «продолжи
-   <stage> <version>; родительская сессия — <this session>; по закрытии, остановке или передаче пиши ей». This
-   session becomes its parent (`references/parent-session.md`).
+   с <item>» and end the turn. The parent clears this same session and starts it again with «продолжи с <item>» — no new session, no card
+   (`references/parent-session.md` → What comes back); in the Codex app the stage chat goes on and the host
+   compacts it. On «продолжай здесь» instead (the clear was refused) go on in this session and do not hand over again
+   in this stage: the host compacts it, and the session-start hook prints the stage's rules back.
+3. **No parent, and the host can start a session** — a session the pipeline should have run from a parent
+   (`references/parent-session.md` → Which one am I): go on in this session, no new one — the host compacts it, and the
+   session-start hook prints the stage's rules back. A new session opened on the way needs the user's click on a
+   card and stops an autonomous run (the user, 2026-11-02).
 4. **Neither:** one line to the user — open a new session in this folder and write «продолжи» — and stop.
 
 The new session finds its place from git, the progress file and `resume.md` (`references/where-am-i.md`). Two

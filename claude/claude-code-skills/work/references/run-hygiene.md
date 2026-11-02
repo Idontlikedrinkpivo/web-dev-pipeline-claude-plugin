@@ -101,13 +101,14 @@ host compact the session, which loses rules:
 1. Refresh `resume.md` (`pipeline` → `references/pause-and-resume.md`), the run report and the progress line,
    as at any stop. The run report says where the next session starts («продолжать с U18»).
 2. **Run by a parent session** (its first message named one): send the parent «ПРОГОН <version> ПЕРЕДАН ·
-   после U<n> · контекст <N> тыс. · продолжать с U<m>» and stop. The parent opens the next nested session
-   (`pipeline` → `references/parent-session.md`).
-3. **No parent, and the host can start a session** (Claude Desktop: `mcp__ccd_session__start_session` — often a
-   deferred tool: load it with ToolSearch `select:mcp__ccd_session__start_session` before deciding it is absent):
-   start one locally, in this folder, with a fresh context, no worktree, the title «<version> · часть <n+1>» and the prompt «продолжи прогон <version>;
-   родительская сессия — <this session's name>; по закрытии, остановке или передаче пиши ей» — then this
-   session becomes its parent: it waits, relays questions to the user, and opens the next part when told.
+   после U<n> · контекст <N> тыс. · продолжать с U<m>» and end the turn. The parent clears this same session and starts it again with «продолжи с <item>» — no new session, no card
+   (`pipeline` → `references/parent-session.md` → What comes back); in the Codex app the stage chat goes on and the host
+   compacts it. On «продолжай здесь» instead (the clear was refused) go on in this session and do not hand over again
+   in this stage: the host compacts it, and the session-start hook prints the stage's rules back.
+3. **No parent, and the host can start a session** — a session the pipeline should have run from a parent
+   (`pipeline` → `references/parent-session.md` → Which one am I): go on in this session, no new one — the host compacts it, and the
+   session-start hook prints the stage's rules back. A new session opened on the way needs the user's click on a
+   card and stops an autonomous run (the user, 2026-11-02).
 4. **Neither:** tell the user in one line to open a new session in this folder and write «продолжи прогон
    <version>», and stop.
 

@@ -5,26 +5,23 @@
     python3 subsessions.py <project dir> <version> plan <stage>...
     python3 subsessions.py <project dir> <version> set <row> <session id>
     python3 subsessions.py <project dir> <version> mark <row | session id> <state>
-    python3 subsessions.py <project dir> <version> part <row>
     python3 subsessions.py <project dir> <version> parent <session id>
     python3 subsessions.py <project dir> <version> show
     python3 subsessions.py <project dir> <version> whoami <session id>
 
 plan    the stages kept for this iteration (keys below, any order) become rows in chain order, each with its title:
-        one row per stage — no part opened in advance: a stage that hands over gets its next part then (`part`). A stage
-        already in the list under an older title («прогон») is not added again.
+        one row per stage, and no parts: a stage over the context limit goes on in its own session, which the parent
+        clears and starts again. A stage already in the list under an older title («прогон») is not added again.
         The fixes a check sends back (UI tests, the audit) run inside that check's own session, by agents. Rows already in
         the file keep their ids and states, so a later plan — a continued iteration, a stage added — only adds rows.
         A document stage whose documents all carry this version's stamp is closed and skipped, with a note: on a
         fresh clone (sessions.md is out of git, with documentation/plans/) the list holds only the stages left.
         Prints the rows still to open, in order: the parent opens them in this user turn with these titles.
 set     a row's session id, once opened (state → ждёт).
-mark    a row's state: ждёт · идёт · закрыт · передан · убран.
-part    the next part of the row's stage («· часть 2», «· часть 3», …), right after its last part — when the stage
-        hands over (pipeline → references/context.md → When to hand over).
+mark    a row's state: ждёт · идёт · закрыт · передан (handed over, to be cleared and started again) · убран.
 parent  the parent's own session id, so a parent after a compaction or a new one on «продолжим» finds the list.
 show    the table, then: the stage in work, the next one to start, the rows not opened yet — the input of «продолжим».
-whoami  the row of a nested session by its own id: its stage, its skill, its part — for a session after a compaction.
+whoami  the row of a nested session by its own id: its stage and its skill — for a session after a compaction or a clear.
 
 Stage keys, in chain order (pipeline → SKILL.md, the chain table): brd srs db api arch scaffold design specs cases
 check plan work ui audit deploy ops ci close. Standard library only.
@@ -131,8 +128,9 @@ def show(rows: list[dict]) -> None:
     if unopened:
         print("не открыты — открыть ВСЕ в этот ход пользователя, с этими названиями, без нового вопроса: " + "; ".join(
             f"{rows.index(r) + 1}. «{r['title']}»" for r in unopened))
-    if later:   # a part from a list made before 1.2.243: opened only when its stage hands over
-        print("откроются только при передаче работы: " + "; ".join(f"«{r['title']}»" for r in later))
+    if later:   # a part from a list made before 1.2.256: a stage now goes on in its own session after a clear
+        print("старые строки частей — не открывать, этап продолжается в своей подсессии (mark … убран): " + "; ".join(
+            f"{rows.index(r) + 1}. «{r['title']}»" for r in later))
 
 
 def main() -> None:
@@ -172,15 +170,6 @@ def main() -> None:
         hit[0]["state"] = rest[1]
         write(path, version, parent, rows)
         print(f"sessions: «{hit[0]['title']}» — {rest[1]}")
-    elif cmd == "part" and len(rest) == 1 and rest[0].isdigit() and 0 < int(rest[0]) <= len(rows):
-        base = rows[int(rest[0]) - 1]
-        word = re.sub(r" · часть \d+$", "", base["title"])
-        same = [i for i, r in enumerate(rows) if re.sub(r" · часть \d+$", "", r["title"]) == word]
-        n = 1 + max(int(m.group(1)) if (m := re.search(r" · часть (\d+)$", rows[i]["title"])) else 1 for i in same)
-        rows.insert(same[-1] + 1, dict(base, title=f"{word} · часть {n}", when=f"если часть {n - 1} передаст работу",
-                                       id="", state="не открыта"))
-        write(path, version, parent, rows)
-        print(f"sessions: {same[-1] + 2}. «{word} · часть {n}» — открыть в ход пользователя (или карточкой)")
     elif cmd == "parent" and len(rest) == 1:
         write(path, version, rest[0], rows)
         print(f"sessions: родительская сессия — {rest[0]}")

@@ -43,9 +43,10 @@ stages itself, as before, and hands over by asking the user (`references/context
   user named the session themselves the app asks them to approve the new title; a declined rename stays declined.
 - **The list of sessions — `scripts/subsessions.py`.** Every session has its job and its title before it opens; there
   are no spares. The list lives in `documentation/plans/<version>/sessions.md` (out of git, like the folder) and only
-  the script writes it: `plan` (the rows), `set` (an id), `mark` (a state), `part`, `parent`, `show`, `whoami`.
-  One row per stage: no part is opened in advance — a stage that hands over gets its «· часть 2» then (below); the
-  user found pre-opened parts that mostly stayed unused too many (Дашборд руководителя 1.1.0). No session for fixes
+  the script writes it: `plan` (the rows), `set` (an id), `mark` (a state), `parent`, `show`, `whoami`.
+  One row per stage, and no parts: a stage over the context limit goes on in its own session once the parent clears
+  it (below). Pre-opened parts mostly stayed unused (Дашборд руководителя 1.1.0), and a part opened on the way
+  needed the user's click each time, which broke an autonomous run (the user, 2026-11-02). No session for fixes
   either: what a check sends back runs inside that check's own session (below).
 - **The iteration's sessions, all at once.** In the turn the user starts or continues the iteration («продолжим»,
   «продолжай», a new parent on a fresh clone):
@@ -86,8 +87,7 @@ stages itself, as before, and hands over by asking the user (`references/context
      model to the session tool, and right after opening set the effort the same
      (`mcp__ccd_session_mgmt__set_session_effort` — the parent's own level asks the user nothing) when the new
      session reports another. The user picks them once, on the parent; left to the defaults, the live run's stages
-     ran on two models chosen by nobody (2026-10-31). The same for every session opened later — a «· часть 2», a job
-     outside the chain.
+     ran on two models chosen by nobody (2026-10-31). The same for every session opened later — a job outside the chain.
   5. Send the stage to start «начинай» (`mark <row> идёт`) — on a continued iteration, with «продолжи с <item>» from
      `resume.md` — and tell the user in one line where to work: «Работаем в «<title>» — она в боковом списке».
   If the host refuses or limits the number of sessions, open what it allows in the list's order and the rest later,
@@ -99,11 +99,17 @@ stages itself, as before, and hands over by asking the user (`references/context
 - **What comes back**, one line each from a nested session (`SendMessage` to the parent):
   - «ЭТАП <stage> ЗАКРЫТ · дальше: <stage>» — `mark … закрыт`, start that stage's row; «· остановиться» — say where
     the iteration stands and start nothing;
-  - «<stage> ПЕРЕДАН · после <item> · контекст <N> тыс. · продолжать с <item>» → `mark … передан`, `part <row>`
-    adds the stage's «· часть 2» (then «· часть 3»…). The report came in a turn the user did not begin, so the host
-    only offers a card (`initiation: "own_initiative"`): offer it with the waiting prompt, tell the user one click
-    continues the stage, and on the session's id `set` it and send «начинай: продолжи с <item>; состояние — в
-    documentation/plans/<version>/resume.md и git». When the user writes first, open it in that turn instead;
+  - «<stage> ПЕРЕДАН · после <item> · контекст <N> тыс. · продолжать с <item>» → `mark … передан`, then **clear
+    that same session** (`mcp__ccd_session_mgmt__clear_session` with its id — often deferred, load it with
+    ToolSearch) — not a new one: opening a session in a turn the user did not begin needs their click on a card,
+    and a part per ~300,000 tokens made a long `work` run stop for a click every few units (the user, 2026-11-02).
+    The clear works on an idle session this parent opened; the app asks the user to approve it, or decides itself in
+    auto mode. Still busy (its turn not ended yet) → check it once more (`get_session`) and clear when idle. Cleared
+    → its conversation is empty, its role too: send it the waiting prompt below with its title, followed by
+    «начинай: продолжи с <item>; состояние — в documentation/plans/<version>/resume.md и git», and `mark … идёт`.
+    Refused — declined, on the user's screen, pinned, opened by another parent → send it «продолжай здесь с
+    <item>»: it goes on in place and the host compacts it when needed (`references/context.md` → When to hand
+    over), and `mark … идёт`. Never a new session for the stage;
   - «ОСТАНОВЛЕНА · <причина>» → tell the user, with the session's title;
   - «ВОПРОС · …» — only when a nested session runs without the user (a chain left for the night,
     `references/unattended.md`): the standing answers settle it, or the user is asked here and the answer sent back.
@@ -123,14 +129,13 @@ stages itself, as before, and hands over by asking the user (`references/context
 
 **Titles** come from `subsessions.py` — the same words every time, so the sidebar reads as the chain: бизнес-требования ·
 SRS · схема БД · API · архитектура · каркас · макеты · ТЗ на экраны · тест-кейсы · сверка документов · план · разработка
-(the plan's run, `work`) · UI-тесты · аудит безопасности · релиз · CI · эксплуатация · закрытие, with «· часть 2». The requirements document is «SRS» — never «ТЗ», which the user keeps for the screen specs
+(the plan's run, `work`) · UI-тесты · аудит безопасности · релиз · CI · эксплуатация · закрытие. The requirements document is «SRS» — never «ТЗ», which the user keeps for the screen specs
 («ТЗ на экраны»).
 
 **The waiting prompt of a session** (Russian, as the user reads it):
 
 ```text
-Ты — подсессия «<title>» итерации <version> плагина dev-pipeline: <job — «этап <stage>»; «часть 2 этапа <stage>,
-продолжает с пункта из сообщения «начинай»»>. Родительская
+Ты — подсессия «<title>» итерации <version> плагина dev-pipeline: <job — «этап <stage>»>. Родительская
 сессия — «iteration <version>», id <parent's session id> — пиши ей через SendMessage на этот id. Своё место в списке
 находишь сама: python3 <plugin>/pipeline/scripts/subsessions.py <project> <version> whoami <твой id>.
 Вопросы пользователю — только сообщением в чате, без карточек выбора.
@@ -161,7 +166,7 @@ It runs its stage as the stage's skill says, with the user, in this session. Wha
   document (`references/decision-changes.md`) or in the stage's report — the next session starts from the files and
   git, not from this chat.
 - **Over the context limit** it hands over, after the same handover check: it tells the parent «<stage> ПЕРЕДАН · после <item> · контекст <N> тыс. ·
-  продолжать с <item>» and stops (`references/context.md` → When to hand over); the parent opens the stage's «·
-  часть 2» (a card the user clicks, when the user is not writing).
+  продолжать с <item>» and ends the turn (`references/context.md` → When to hand over); the parent clears this same
+  session and starts it again from the files, or tells it «продолжай здесь».
 - In the sidebar every session of the iteration shows as one list under the parent, in the order they opened (seen
   in Claude Desktop, 2026-10-31) — opened at the start in chain order, the list reads as the iteration's plan.
