@@ -1,7 +1,7 @@
 # The parent session — an iteration run through nested sessions
 
-The default way to work in Claude Desktop. The session the user opens in a pipeline project is the **parent**; each
-stage runs in a **nested session** (a «подсессия») with a fresh context. A stage never inherits the context of the
+How the pipeline always runs in Claude Desktop — the user's choice, not a default to opt out of: the session the user
+opens in a pipeline project is the **parent**; each stage runs in a **nested session** (a «подсессия») with a fresh context. A stage never inherits the context of the
 stages before it, the parent's own context stays small, and a long stage hands over to a fresh nested session instead
 of being compacted (`references/context.md`).
 
@@ -58,9 +58,22 @@ stages itself, as before, and hands over by asking the user (`references/context
      what the project has (screens or not, a database, an HTTP API, containers, CI already there) and, for an
      iteration already under way, `scripts/where_am_i.py` — its open points name the first stage left; stages before
      it are done. `plan` itself skips a document stage whose documents all carry this version's stamp.
-  3. Ask once, as a chat question (`references/question-format.md`): «Подсессии итерации <version>: <the titles
-     `plan` would print, in order; the «если …» ones marked>. Открыть все? Ответьте «все» или перечислите, какие
-     убрать.» Nothing is opened before the answer. Then `plan` with the kept stages.
+  3. Ask once, as a chat question (`references/question-format.md`), from the current point — the same wherever the
+     work starts: a new project, a stage the user asked for directly («сделай схему БД»), a continued iteration, a
+     clone another person picked up. Only the stages left are listed, numbered, so no session opens for work already
+     done or not wanted:
+     ```
+     **Подсессии итерации <version>**
+     Сейчас: <the first open point, from where_am_i>. Уже сделано: <the done stages, one line; «ничего» on a start>.
+     Осталось:
+     1. <title>
+     2. <title> — если <condition>
+     …
+     Какие открыть? Ответьте «все» или номера нужных этапов.
+     ```
+     A stage the user asked for directly is in the list and marked «— вы просили». Nothing is opened before the
+     answer. Then `plan` with the chosen stages; a stage left out is not run in this iteration. When a left-out stage
+     is a gate a chosen one needs (the chain table), say so in one line and ask once more.
   4. On the answer — a user turn — open each row «не открыта», in the list's order: locally, in this folder, a fresh
      context, no worktree, `wake_when_done: false`, titled as the row, with the waiting prompt below; record each id
      at once (`set <row> <id>`) and the parent's own (`parent <id>`). Not `true`: it wakes the opener at the end of

@@ -77,6 +77,17 @@ Do not proceed until you have a feature description from the user.
 
 ### Phase 0: Resume, Assess, and Route
 
+#### 0.0 The parent session first
+
+When this session's first message names a parent («ты — подсессия», «родительская сессия — …»), it is a nested
+session: run the stage here. Otherwise, before anything else, check whether the host can open sessions — Claude
+Desktop's `mcp__ccd_session__start_session` (often deferred: load it with ToolSearch before deciding it is absent),
+the Codex app's chat tools. It can → this session is the iteration's parent, a new project included — the pipeline always runs from a
+parent with every stage in its own session: read `pipeline` → `references/parent-session.md` and follow it — the
+list of the iteration's sessions confirmed once, this stage then run in its own session. No such tool (a terminal) → go on here. The session-start hook names the parent
+only in a project that already has `documentation/`, so in a new project this is where the parent is found: a
+brainstorm started directly once went straight into its questions and no stage sessions were offered.
+
 #### 0.1 Resume Existing Work When Appropriate
 
 This resume scan needs `documentation/requirements/`, so it applies only to a repo-backed run. If there is no git repository, skip the scan and continue.
