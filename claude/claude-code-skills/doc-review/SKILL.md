@@ -82,7 +82,7 @@ Do not re-classify later.
 
 | Type | Signals |
 |---|---|
-| `business-requirements` | `## Goal Capsule` and `## Product Contract`, requirement rows `R<n>`; `business-requirements/business-requirements.md` |
+| `business-requirements` | Customer-language headings with `ce-section`/`ce-requirement` markers, or legacy `## Goal Capsule` and `## Product Contract`, requirement rows `R<n>`; `business-requirements/business-requirements.md` |
 | `srs` | Numbered sections 1–8, IDs `A-` `FR-` `NFR-` `BR-` `UC-`, Given/When/Then acceptance criteria; `requirements/srs/srs.md` with its `areas/` files, reviewed as one document. No open-questions section |
 | `screen` | One screen `# S-<n>. …` with `figma:` in the frontmatter, sections Загрузка и вызовы / Элементы (№ · Элемент · Поведение по условиям · Метод и поля · Кадр) / Состояния экрана / Ошибки ответов / Производные значения / Разрывы; `ui/screen-specs/S-<n>-*.md` |
 | `architecture` | Foundation: Состав системы, modules and functional areas, ports and adapters, file tree, lint rules; `architecture/architecture.md` |
@@ -92,6 +92,8 @@ Do not re-classify later.
 | `db` | DBML table blocks; `db/schema.md`. The files in `db/migrations/` are reviewed with it as one document: read them all (a migration path given alone resolves to `db/schema.md`). A committed migration file is never edited — a fix it needs is a finding for `db-schema-design` (the next file), not an applied fix |
 
 Tie-breaker: dominant shape wins. If still ambiguous, ask once.
+
+For business-requirements, every reviewer also applies `../brainstorm/references/business-audience.md` → Before finishing: reader and source checks. Read the canonical adjacent question register and validate includes with `../brainstorm/scripts/question_projection.py <document> --check` when present. Report concrete readability failures with the affected passage and consequence: unclear term, options with indistinguishable consequences, unexplained code references, or an example/recommendation treated as agreed. Do not demand technical SRS detail, fixed English headings or public IDs. Readability and readiness for SRS are separate verdicts; do not declare readiness while a product decision needed by the SRS is unresolved.
 
 **Upstream source** (extract once, pass as `{origin_path}`):
 - Frontmatter `sources:` (`info.x-sources` in OpenAPI) — first

@@ -16,7 +16,7 @@ Contrast pair: the user rejected option A after seeing the tradeoff -> settled (
 
 ## Provenance classes
 
-Exactly two classes; both render as visible English in the artifact:
+Exactly two classes. In customer-facing business requirements preserve the class, governed R-IDs, alternative and reason in a ce-decision comment beside the owning rule (`business-audience.md`); do not print the English protocol in customer prose. Other artifact formats keep their existing annotation placement:
 
 - `user-directed` — the user chose against or between surfaced options ("no, do X").
 - `user-approved` — the agent proposed with the tradeoff surfaced; the user assented.

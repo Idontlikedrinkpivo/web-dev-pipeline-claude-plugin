@@ -7,6 +7,10 @@ It is paired with the section contract `brainstorm-sections.md`, which
 describes *what* the business requirements document contains. This
 reference describes *how* markdown presents it.
 
+## Business requirements exception
+
+For brainstorm business requirements only, apply `business-audience.md` before the generic rules below: translated headings, readable numbers and non-rendered semantic comments are supported. This includes inline requirement markers in table cells. It does not relax the fixed headings or visible IDs of implementation plans and other contract templates.
+
 ## Hard invariants
 
 These hold regardless of which skill produced the artifact.

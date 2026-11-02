@@ -166,6 +166,8 @@ index file — `srs.md`, `openapi.yaml`, `test-cases/README.md`.
 
 ## Открытые вопросы
 
+Business-requirements exception: `brainstorm/references/business-audience.md` allows a customer-language title and numbered question blocks instead of the table below. Each block retains its stable OQ-ID, class and source in a ce-question comment; options and recommendations remain unresolved until the customer chooses. This exception does not change other document formats.
+
 Every open question for a document goes in `open-questions.md` in that
 document's folder. The H1 is `# Открытые вопросы`. The contract file has
 no open-questions section: not SRS `## 9`, not a screen spec section, not a plan

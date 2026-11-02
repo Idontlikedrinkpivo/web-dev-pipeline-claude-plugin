@@ -21,6 +21,8 @@ stage skill, its heading the skill's folder name; a stage with no section gets Â
 
 ## brainstorm
 
+- Customer-facing business requirements follow brainstorm/references/business-audience.md: ordinary headings, stable hidden IDs, topic-local questions generated from the canonical register; readability does not prove readiness for SRS.
+
 - Deferring a question to open-questions.md does not pause the stage. Continue with the next independent question
   or the remaining phases; end only on an explicit question, explained blocker, requested pause or stage handoff.
 

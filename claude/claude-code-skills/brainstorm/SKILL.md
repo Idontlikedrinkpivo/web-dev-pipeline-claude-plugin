@@ -20,6 +20,10 @@ This skill explores, clarifies, and documents product decisions. Its document fe
 
 **Implementation request.** If the user asks to write code, a service, controllers, or tests **now**, decline and name the stage `pipeline` names after this one: code written before the SRS and the design has to invent the behavior those stages settle, and is rewritten when they land. Do not start those skills.
 
+## One document for the customer and the next stage
+
+Before writing or restructuring the business requirements, read `references/business-audience.md`. It owns the customer-facing structure and the non-rendered IDs, provenance and traceability in the same Markdown file; it specializes the presentation rules below without changing product decisions.
+
 ## Core Principles
 
 1. **Assess scope first** - Match the amount of ceremony to the size and ambiguity of the work.
@@ -289,12 +293,13 @@ Write or update a business requirements document only when the conversation prod
 When a doc is warranted, compose it using:
 
 - `references/brainstorm-sections.md` — section contract (business requirements document contract, Product Contract hard floor, include-when-material catalog, agency rules, ID conventions).
+- `references/business-audience.md` — read it **now**: the default customer-facing structure, topic-local generated question blocks, examples and readability checks.
 - `references/markdown-rendering.md` — read it **now**, before composing: it defines how the sections are presented, and composing without it produces drift the section contract alone cannot prevent.
 
 Session-settled decisions land in the Product Contract's Key Decisions section carrying their `session-settled:` annotation (shape in `references/settled-decisions.md`), so the SRS and the design stages can inherit the label into their own decision entries.
 
 **Language.** Write the document in Russian. Do not translate cited tokens.
-Required section names and frontmatter keys stay as this skill specifies.
+Frontmatter keys stay as specified. Visible headings and labels follow `references/business-audience.md`; semantic section markers preserve downstream discovery.
 
 **Write tight.** A section being material is not license to pad it. Hold every kept section to the prose-economy discipline in `references/brainstorm-sections.md`: lead with the decision or outcome, one idea per sentence, a requirement is intent plus at most one qualifier, defer forks to `open-questions.md` beside the file rather than specifying both arms, resolve superseded text in place rather than stacking strata. The same holds for chat output: keep the facts, tradeoffs, and caveats the next decision needs; trim introductions, repetition, and optional background first.
 
@@ -306,7 +311,7 @@ system serves today — instead of discovering them in dialogue, then the grill 
 
 Write to `documentation/requirements/business-requirements/business-requirements.md` (folder, increment, and the no-`version` / no-changelog rule are in Artifact Root). A new project — `documentation/` did not exist when this stage started — also runs `python3 "${CLAUDE_SKILL_DIR}/../upgrade-docs/scripts/project_format.py" born .` and commits `documentation/.dev-pipeline.json` with the document (the script's `born` line says why). Title is `<Name> - Business Requirements` (matching the H1; no conventional-commit prefix). Keep the doc light and standalone-readable: a Goal Capsule (objective, product authority, open blockers) and the Product Contract. Do **not** emit a Goal Launch Block or Reader Index. See `references/brainstorm-sections.md` — which owns the artifact content rules, including repo-relative file paths inside the doc.
 
-**Ready for SRS Check.** After writing the actual file, run the four checks in `references/brainstorm-sections.md`: Complete, Consistent, Focused, and Usable by the SRS stage. Fix failures in place when the correction preserves settled intent, then rerun the failed checks. If a correction would choose or change product behavior or scope, ask one targeted question, update the artifact after the answer, and rerun the checks. Do not declare the artifact written or enter Phase 4 while any check fails. When confirming in chat after the pass, report the artifact with its absolute path so the reference is clickable.
+**Ready for SRS Check.** Refresh question includes with `scripts/question_projection.py` and validate with `--check` when present. Run the customer-readability check in `references/business-audience.md`; unresolved product decisions must stay visibly unresolved. After writing the actual file, run the four checks in `references/brainstorm-sections.md`: Complete, Consistent, Focused, and Usable by the SRS stage. Fix failures in place when the correction preserves settled intent, then rerun the failed checks. If a correction would choose or change product behavior or scope, ask one targeted question, update the artifact after the answer, and rerun the checks. Do not declare the artifact written or enter Phase 4 while any check fails. When confirming in chat after the pass, report the artifact with its absolute path so the reference is clickable.
 
 #### Grill gate — after the business requirements document, before the closing summary
 

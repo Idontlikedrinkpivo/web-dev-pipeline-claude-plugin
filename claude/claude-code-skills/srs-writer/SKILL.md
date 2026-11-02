@@ -65,6 +65,10 @@ write. Read the file back and fix what is off, then the report.
 - Deciding what to build, exploring approaches, or resolving open product scope when nothing has been written down — that's `brainstorm`
 - Tables, HTTP, layers — `db-schema-design` and `openapi-spec-generator` read this file next; `clean-architecture-design` reads all three later
 
+## Reading customer-facing business requirements
+
+The canonical brainstorm file may use customer-language headings and ordinary requirement numbers. Discover ce-section, ce-requirement, ce-actor, ce-flow, ce-example and ce-decision comments in the same Markdown; they preserve stable identities, links and settlement provenance (`../brainstorm/references/business-audience.md`). Accept legacy headings and prefixes too. Read open-question blocks as well as legacy tables. A numbered question with an unchosen recommendation remains unresolved. Generated ce-question-include blocks are views of the adjacent open-questions.md, not independent decisions. Read the canonical answers and classifications; a readable customer draft is not evidence that blockers are resolved.
+
 ## Input Resolution
 
 Resolve the source of truth before writing anything:
