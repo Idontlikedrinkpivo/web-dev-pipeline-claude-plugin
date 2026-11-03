@@ -138,6 +138,11 @@ Map from the SRS and the schema:
 | Schema column | Property name and type. Do not rename — except the keys, by the schema's rule (`db-schema-design` → How the API names keys): `public_id` is the resource's `id`, a reference `<thing>_id` keeps its name and carries the referenced row's `public_id` (uuid), a path parameter is `<resource>_id`; the internal `bigint` key never appears. A closed-set column's `enum` is the code list from the schema's `## Закрытые наборы значений`, verbatim |
 | SRS security NFR | `securitySchemes` and root `security` (Step 4) |
 
+**Paths and methods — REST.** Read `references/resource-design.md` before writing `paths`: plural nouns, one
+level of nesting, `/me` for the caller's own things, `PATCH` for a partial change, a state transition with rules as
+an action (`POST /bookings/{booking_id}/cancel`, never a writable `status`), `Idempotency-Key` required where a
+duplicate does harm.
+
 If a DBML schema (`documentation/db/schema.md`) exists, every stored property in a request or
 response body must exist on the corresponding table (or be a value the
 use case says is computed). Flag mismatches instead of inventing a
@@ -403,6 +408,7 @@ Before delivering the spec, verify:
 - [ ] Success bodies and field names match the use case and the schema's DBML — Step 1
 - [ ] `required` and an `example` on every request and response body — Step 3
 - [ ] Security per Step 4; every `callbacks:` entry has a signature header
+- [ ] Paths and methods per `references/resource-design.md`: no verb but an action's last segment, no nesting past one level, no `GET` that changes data, no writable `status` a use case moves
 - [ ] Tags defined at root level to match operation tags
 - [ ] `redocly lint` (recommended) reports no `error` (an unresolved `$ref` is one) and no `no-unused-components` warning (an orphaned schema), or the close says why it could not run
 
@@ -449,6 +455,7 @@ test cases, mock servers, or client SDKs unless the user asks.
 
 ## Reference Files
 
+- `references/resource-design.md` — REST paths, methods, actions, idempotency, bodies; before writing `paths`
 - `references/base-schemas.md` — the page, `Problem`, timestamps and shared responses; before writing `components`
 - `references/security-schemes.md` — OpenAPI 3.0 security schemes; when the SRS names auth
 - `references/common-patterns.md` — pagination, problem+json, webhooks, file upload, filtering; when the SRS

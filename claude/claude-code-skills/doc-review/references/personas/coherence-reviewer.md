@@ -35,7 +35,12 @@ a key scenario without its diagram.
 
 **`api`:** watch operationId vs use-case names, `$ref` targets that do not
 exist, field names that disagree with an attached schema, security scheme
-declared but not applied (or the reverse).
+declared but not applied (or the reverse), a path or method against
+`openapi-spec-generator/references/resource-design.md` — a verb in a path
+other than an action's last segment, nesting past one level, a `GET` that
+changes data, a `PUT` for a partial change, a writable `status` a use case
+moves, a harmful-duplicate `POST` without a required `Idempotency-Key`. On a
+path that already shipped, the finding says renaming it is `ломает`.
 
 **`db`:** watch DBML vs the migration SQL disagreement (`schema.md` against the files in `db/migrations/` applied in order), FK targets that do not exist,
 a `CHECK` / `UNIQUE` / `FK` the notes do not trace to an SRS rule, a
