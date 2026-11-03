@@ -100,7 +100,7 @@ written in each source file.
 2. **Read the iteration's version** from the open
    `documentation/plans/<version>/` (no `summary.md`), or from the
    iteration branch `where_am_i.py` names when the folder is not here (a
-   fresh clone: `open_iteration.py <version>` only creates it). None open —
+   clone on another branch: `open_iteration.py <version>` switches to it, the folder comes along). None open —
    fix the number per `pipeline` → Service version and open it:
    `python3 "${CLAUDE_SKILL_DIR}/../pipeline/scripts/open_iteration.py" <version>`.
    Then **re-check the level** against the iteration's typed changes: the

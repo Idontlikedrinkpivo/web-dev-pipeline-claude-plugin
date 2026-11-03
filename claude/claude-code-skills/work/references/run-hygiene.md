@@ -182,15 +182,15 @@ in the same folder, the older one is finished in a worktree of its own, never by
 switching the main tree back and forth:
 
 1. `git worktree add ../<repo>-<old version> iteration/<old version>`;
-2. link its plans folder: `ln -s <main tree>/documentation/plans/<old version>
-   ../<repo>-<old version>/documentation/plans/<old version>` (plans are out of
-   git, so the worktree has none);
+2. its plans folder comes with the branch (`plans/` is in git); the main tree's copy of it is not edited
+   meanwhile. A branch from before that rule has none: link the main tree's in — `ln -s <main
+   tree>/documentation/plans/<old version> ../<repo>-<old version>/documentation/plans/<old version>`;
 3. install dependencies there (`npm ci` / `uv sync`), copy the local test settings
    (`.env.test.local`) and regenerate the generated files the build needs
    (a bundled OpenAPI, the client);
-4. run `work` from that folder: `plan_state.py` takes the linked plans folder;
+4. run `work` from that folder: `plan_state.py` takes its plans folder;
 5. one stand per machine: stop the newer iteration's stand before raising the
    older one's, and say so.
 
-The `where` line of Step 1 stops only on a worktree with **no** plans folder; a
-worktree with the linked folder is this case.
+The `where` line of Step 1 stops only on a worktree with **no** plan; a worktree of
+the older iteration's branch, its folder committed or linked, is this case.

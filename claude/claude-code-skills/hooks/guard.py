@@ -209,7 +209,7 @@ def decide(tool: str, inp: dict, cwd: str, *, branch: str = "", open_iteration: 
             path = os.path.join(cwd, path)   # a relative patch path is the worktree's; an absolute one stays
             real, wt, main = (os.path.realpath(p) for p in (path, worktree_root, main_root))
             inside = lambda root: real == root or real.startswith(root + os.sep)
-            plans = os.path.join(main, "documentation", "plans")   # out of git: it lives only in the main tree
+            plans = os.path.join(main, "documentation", "plans")   # read and written in the main tree only: the worktree's copy is the branch's last commit
             if inside(main) and not inside(wt) and not inside(plans):
                 return deny(f"you work in the worktree {worktree_root}, but this edit targets {path} in the main "
                             "tree. Use the same path inside the worktree (executor-catalog → "

@@ -12,8 +12,10 @@ What it does, in order (pipeline → references/service-version.md):
    Otherwise: an earlier iteration/* branch whose content is not in main stops the run with exit 2 — the new
    iteration would start without it; ask the user, then rerun with --allow-unmerged or --base. Then create the
    branch from main (the working tree's uncommitted changes come along) and switch to it.
-3. Creates documentation/plans/<version>/; puts documentation/plans/ into .gitignore (untracking it when it was
-   tracked) and commits that alone on the iteration branch when nothing else is staged.
+3. Creates documentation/plans/<version>/; keeps in .gitignore the lines for this machine's files there (session
+   ids, progress pages, screenshots — the folder itself is in git: pipeline → references/service-version.md → The
+   iteration's files in git); a project that ignored the folder whole gets the old line replaced and the folder's
+   files committed. That commit is made alone on the iteration branch when nothing else is staged.
 4. Prints what the opening stage says next: who runs the design (products with screens, asked once —
    pipeline → references/design-owner.md) and the plugin's code changes still pending (upgrade-code).
 
@@ -29,7 +31,10 @@ import sys
 from pathlib import Path
 
 HERE = Path(__file__).resolve().parent
-PLANS_RX = re.compile(r"^/?documentation/plans/?(\*\*?)?\s*$")
+PLANS_RX = re.compile(r"^/?documentation/plans/?(\*\*?)?\s*$")   # the old line: the whole folder ignored
+LOCAL = ("# dev-pipeline: файлы итерации — в git, кроме файлов этой машины",
+         "documentation/plans/**/sessions.md", "documentation/plans/**/.progress-*", "documentation/plans/**/*.html",
+         "documentation/plans/**/*.png", "documentation/plans/**/*.jpg", "documentation/plans/**/*.webm")
 SCREEN_RX = re.compile(r"экран|интерфейс|страниц|макет|веб-приложен|мобильн|\bUI\b|frontend|фронт", re.I)
 
 
@@ -81,32 +86,37 @@ def merged(root: Path, ref: str, into: str) -> bool:
     return r.stdout.split()[0] == out(root, "rev-parse", f"{into}^{{tree}}")
 
 
-def gitignore(root: Path) -> bool:
-    """documentation/plans/ in .gitignore; True when the file changed."""
+def gitignore(root: Path) -> tuple[bool, bool]:
+    """.gitignore keeps this machine's files of documentation/plans/ out, not the folder: (changed, the old
+    whole-folder line was there)."""
     p = root / ".gitignore"
     text = p.read_text(encoding="utf-8") if p.exists() else ""
-    if any(PLANS_RX.match(l.strip()) for l in text.splitlines()):
-        return False
-    p.write_text(text + ("" if not text or text.endswith("\n") else "\n") + "documentation/plans/\n", encoding="utf-8")
-    return True
+    lines = text.splitlines()
+    old = any(PLANS_RX.match(l.strip()) for l in lines)
+    keep = [l for l in lines if not PLANS_RX.match(l.strip())]
+    add = [l for l in LOCAL if l not in keep]
+    if not old and not add:
+        return False, False
+    p.write_text("\n".join(keep + add) + "\n", encoding="utf-8")
+    return True, old
 
 
-def commit_gitignore(root: Path, changed: bool, notes: list) -> None:
-    tracked = bool(out(root, "ls-files", "documentation/plans"))
-    if not changed and not tracked:
+def commit_gitignore(root: Path, state: tuple[bool, bool], notes: list) -> None:
+    changed, old = state
+    if not changed:
         return
     if git(root, "rev-parse", "-q", "--verify", "HEAD").returncode == 0 and \
             git(root, "diff", "--cached", "--quiet").returncode != 0:
         notes.append("other changes are staged, so .gitignore was left uncommitted: commit it on its own "
-                     "(«chore: documentation/plans/ вне git») before the stage's commit")
-        if tracked:
-            notes.append("documentation/plans/ is still tracked: `git rm -r --cached documentation/plans` in that commit")
+                     "(«chore: файлы итерации в git»"
+                     + (", with `git add documentation/plans`" if old else "") + ") before the stage's commit")
         return
-    if tracked:
-        git(root, "rm", "-r", "--cached", "-q", "documentation/plans", check=True)
     git(root, "add", ".gitignore", check=True)
-    git(root, "commit", "-q", "-m", "chore: documentation/plans/ вне git", check=True)
-    notes.append("committed .gitignore: documentation/plans/ is out of git" + (" (untracked, files kept)" if tracked else ""))
+    if old:
+        git(root, "add", "--", "documentation/plans")
+    git(root, "commit", "-q", "-m", "chore: файлы итерации в git" if old else "chore: файлы этой машины вне git", check=True)
+    notes.append("committed .gitignore: documentation/plans/ is in git but for this machine's files"
+                 + (" (the folder's files committed)" if old else ""))
 
 
 def design_line(root: Path, picked_up: bool = False) -> str:
@@ -221,7 +231,7 @@ def main() -> None:
             git(root, "add", ".gitignore", check=True)
             git(root, "commit", "-q", "-m", "chore: начало репозитория", "--", ".gitignore", check=True)
             main_ref = out(root, "symbolic-ref", "-q", "--short", "HEAD")
-            notes.append(f"first commit on {main_ref}: .gitignore with documentation/plans/")
+            notes.append(f"first commit on {main_ref}: .gitignore with this machine's files of documentation/plans/")
         elif remote and main_ref and has_ref(root, f"refs/remotes/origin/{main_ref}"):
             if current == main_ref:
                 r = git(root, "merge", "-q", "--ff-only", f"origin/{main_ref}")

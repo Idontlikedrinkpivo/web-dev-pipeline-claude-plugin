@@ -15,7 +15,7 @@ plan    the stages kept for this iteration (keys below, any order) become rows i
         The fixes a check sends back (UI tests, the audit) run inside that check's own session, by agents. Rows already in
         the file keep their ids and states, so a later plan — a continued iteration, a stage added — only adds rows.
         A document stage whose documents all carry this version's stamp is closed and skipped, with a note: on a
-        fresh clone (sessions.md is out of git, with documentation/plans/) the list holds only the stages left.
+        fresh clone (sessions.md is out of git: its ids are this machine's) the list holds only the stages left.
         Prints the rows still to open, in order: the parent opens them in this user turn with these titles.
 set     a row's session id, once opened (state → ждёт).
 mark    a row's state: ждёт · идёт · закрыт · передан (handed over, to be cleared and started again) · убран.

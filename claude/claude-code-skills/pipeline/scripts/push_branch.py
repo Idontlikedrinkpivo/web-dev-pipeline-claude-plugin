@@ -5,8 +5,10 @@
 Pushes the current branch to `origin` only when all of these hold, and says in one line what it did:
 - the branch is an iteration branch, `iteration/<version>` — never `main`, never another branch;
 - the project has a remote named `origin`.
-What is not committed (a site rebuilt after the edit, files out of git) does not stop it: it is set aside while the
-others' commits are taken (`--autostash`) and put back.
+First it commits the iteration's files in documentation/plans/ — the plan, progress, resume.md, the stage reports —
+alone, «chore: отчёты итерации <version>» (pipeline → references/service-version.md → The iteration's files in
+git); not when something else is already staged, which it names. Other changes not committed (a site rebuilt after
+the edit) do not stop it: they are set aside while the others' commits are taken (`--autostash`) and put back.
 
 When `origin` already has the branch, it first takes the others' commits (`git pull --rebase`); a rebase that stops
 on a conflict is undone (`git rebase --abort`) and the script stops with exit 2 — the session asks the user. A push
@@ -46,12 +48,30 @@ def form_problems(root: str, upstream: str | None) -> str:
     return "" if r.returncode == 0 else r.stdout.strip()
 
 
+def commit_reports(root: str, branch: str) -> None:
+    """The iteration's files in plans/ in a commit of their own; this machine's files stay out by .gitignore."""
+    if not git(root, "status", "--porcelain", "--", "documentation/plans")[1]:
+        return
+    if git(root, "diff", "--cached", "--quiet")[0] != 0:
+        print("push: файлы итерации в plans/ не закоммичены — в индексе уже есть другие изменения; закоммитьте их и "
+              "запустите снова")
+        return
+    git(root, "add", "--", "documentation/plans")
+    if git(root, "diff", "--cached", "--quiet")[0] == 0:
+        return
+    version = branch.split("/", 1)[1]
+    code, out = git(root, "commit", "-q", "-m", f"chore: отчёты итерации {version}")
+    print(f"push: закоммичены файлы итерации {version} в plans/" if code == 0 else f"push: коммит файлов итерации не "
+          f"удался — {out.splitlines()[-1] if out else 'ошибка'}")
+
+
 def main() -> None:
     root = sys.argv[1] if len(sys.argv) > 1 else "."
     _, branch = git(root, "rev-parse", "--abbrev-ref", "HEAD")
     if not branch.startswith("iteration/"):
         print(f"push: не отправляю — ветка {branch or '?'}, а отправляется только iteration/<версия>")
         sys.exit(0)
+    commit_reports(root, branch)
     code, url = git(root, "remote", "get-url", "origin")
     if code:
         print("push: удалённого репозитория (origin) нет — отправлять некуда")

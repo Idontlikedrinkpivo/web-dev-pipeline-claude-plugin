@@ -6,7 +6,7 @@ Prints, in Russian: the branch; the open iteration(s) — two open ones end in a
 a resume note left by a stopped run (read it first); progress files with unfinished rows; each pipeline document
 with its version, gates and pins (stale when a «ломает» row came after the pin); the plan's review, the
 document-set check, the UI run and the audit with their verdicts; and, last, the open points in chain order. On a
-fresh clone (no documentation/plans/) the closed iterations come from the tags v<version> and the units landed
+clone still on main (no documentation/plans/) the closed iterations come from the tags v<version> and the units landed
 since the last tag from the Plan-Unit: trailers; an iteration branch with no tag and no folder here (the current
 one, or one on origin not merged into main) is the open iteration, with the open_iteration.py command to enter it.
 A document committed on the iteration's branch but not stamped with its version marks its stage as still open
@@ -387,7 +387,7 @@ def main() -> None:
                   "прежде чем что-то штамповать или коммитить (одним вопросом).")
     elif by_branch:
         for v, ref in by_branch:
-            print(f"Итерация {v} открыта по ветке {ref}: папки documentation/plans/{v}/ здесь нет (свежий клон "
+            print(f"Итерация {v} открыта по ветке {ref}: папки documentation/plans/{v}/ здесь нет (клон на другой ветке "
                   "или работа другого человека)")
         if len(by_branch) > 1:
             print(f"!! Открытых веток итераций: {len(by_branch)}. Спросите пользователя, какую продолжаем (одним "
@@ -395,7 +395,7 @@ def main() -> None:
         v = by_branch[0][0]
         print(f"  войти: python3 \"{HERE / 'open_iteration.py'}\" {v} — переключит на ветку и создаст папку; номер "
               "версии не спрашивать")
-        print("  этапы 10–14 по файлам здесь не видны: их отчёты лежат в plans/ на машине, где шли (в git не хранятся)")
+        print("  этапы 10–14 по файлам здесь не видны: их отчёты придут с веткой (plans/ в git с 1.2.260; у более ранних — на машине, где шли)")
         opens.append(f"войти в итерацию {v} (ветка {by_branch[0][1]}): open_iteration.py {v}")
     elif closed:
         print(f"Итерации: открытых нет; закрыты {', '.join(closed)} — следующая откроется первым этапом "
@@ -405,7 +405,7 @@ def main() -> None:
                       key=lambda t: vkey(t[1:]))
         since = f"{tags[-1]}..HEAD" if tags else "HEAD"
         units = plan_units(root, since)
-        print("Итерации: documentation/plans/ нет (свежий клон или проект до первой итерации)")
+        print("Итерации: documentation/plans/ нет (клон на main, проект до первой итерации или файлы итерации не отправлены)")
         print(f"  теги: {', '.join(tags) if tags else 'нет'} · задач с Plan-Unit после "
               f"{tags[-1] if tags else 'начала'}: {len(set(units))}" + (f" ({', '.join(sorted(set(units))[:8])}"
                                                                          f"{' …' if len(set(units)) > 8 else ''})" if units else ""))

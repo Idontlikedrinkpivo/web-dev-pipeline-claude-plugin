@@ -43,8 +43,8 @@ require. Security in depth stays `security-audit`'s.
    whether behaviour changes, and the cost in plan units with their grade (`plan` → the complexity cascade, as an
    estimate). For each module: its findings by severity, the auditor's verdict, and the share of its files they
    touch.
-5. **The report** `documentation/plans/code-audit-<YYYY-MM-DD>.md` (out of git, like every working file of
-   `plans/`), in Russian:
+5. **The report** `documentation/plans/code-audit-<YYYY-MM-DD>.md` (a working file of `plans/`, in git with the
+   folder), in Russian:
    - «Итог» — findings P0–P3, the modules with a suggested verdict, the total cost;
    - «Модули» — a table: модуль · P0 · P1 · P2 · P3 · вывод · цена · риск;
    - «Решения» — each `A<n>`: сейчас → как должно быть (правило), что затронет, поведение, цена, риск;

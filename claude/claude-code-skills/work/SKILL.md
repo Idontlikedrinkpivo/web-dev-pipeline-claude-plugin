@@ -110,9 +110,9 @@ line. A unit with a trailer is never dispatched again: re-dispatching finished
 units after losing your place is the single most expensive way a run fails.
 A follow-up that is not in the plan changes neither number.
 
-- **The `where` line.** A linked worktree with no `documentation/plans/` (out
-  of git): stop and tell the user to open the session in the main folder the
-  line names. One with the plans folder linked in is an older iteration being
+- **The `where` line.** A linked worktree whose branch has no plan committed
+  yet: stop and tell the user to open the session in the main folder the
+  line names. One on an older iteration's branch, with its plans folder, is that iteration being
   finished (`references/run-hygiene.md`). On another branch, switch to
   `iteration/<version>` (`pipeline` → Service version); never run on `main`.
 - **Hygiene and the run base.** Read `references/run-hygiene.md` now — the test

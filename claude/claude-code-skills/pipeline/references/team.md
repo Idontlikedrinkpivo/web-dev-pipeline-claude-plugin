@@ -12,10 +12,11 @@ both. So any person can take any of those stages — the requirements, the
 schema, the API, the architecture, the repository skeleton, the mockups,
 the screen specs, the test cases — run it with the same plugin on their own
 machine, and stop; the next person, or the same one tomorrow, pulls the
-branch, runs `/dev-pipeline:continue` and goes on. Stage 10 and everything
-after it run on one machine: the plan, its review and its run live in
-`plans/`, which is not in git (`references/service-version.md` → Plans stay
-out of git).
+branch, runs `/dev-pipeline:continue` and goes on. Stage 10 and after it too:
+the plan, its review, the progress files, `resume.md` and the reports are in
+`plans/`, committed and pushed at every stage's close and every stop
+(`references/service-version.md` → The iteration's files in git), so a run stopped on one machine
+goes on on another from `resume.md`.
 
 Everyone works in the **iteration's branch** (`iteration/<version>`). No
 personal branches: at any time a stage's documents belong to one person, so

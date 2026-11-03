@@ -17,11 +17,11 @@ project's root and answer from its output. It prints, in this order:
    committed before the answer. When the older one still has work and the
    newer one is under way in this folder, offer to finish the older one in a
    worktree of its own (`work` → `references/run-hygiene.md` → Finishing an
-   older iteration) — never by switching this folder's branch back and forth. **No `plans/`** (a fresh clone, or a
-   project before its first iteration): the tags `v<version>` name the
+   older iteration) — never by switching this folder's branch back and forth. **No `plans/`** (a clone still on `main`,
+   a project before its first iteration, or one whose files were never pushed): the tags `v<version>` name the
    closed iterations and the `Plan-Unit:` trailers since the last tag the
-   units already landed; what stages 10–14 left is unknown — say so rather
-   than guessing. **An iteration branch the script names** («Итерация …
+   units already landed; what stages 10–14 left is in the folder on the iteration branch — enter it first
+   (below); still none there → unknown, say so rather than guessing. **An iteration branch the script names** («Итерация …
    открыта по ветке») is the open iteration — a fresh clone, or work
    another person pushed: entering it with the printed `open_iteration.py`
    command comes first, and no version number is asked.

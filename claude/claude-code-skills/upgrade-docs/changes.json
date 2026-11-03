@@ -993,5 +993,21 @@
       ]
     },
     "fix": "deploy-topology → references/env-and-config-contract.md (Markers): в шаблоне .env.example добавить переменные, которых в нём нет, но которые есть в prod.env.example или в compose (с пометками), и в конце строки-комментария — значения по средам {test: …, dev: …, prod: …} там, где они различаются (взять из текущих .env.test.local, .env.dev.local, prod.env.example и compose; секреты не переносить). Переменные, записанные закомментированными («# KEY=» — их задаёт compose), — либо значение среды в карте, либо «—». Затем python3 <deploy-topology>/scripts/env_files.py . build и env_files.py . check; цели bootstrap в Makefile/package.json — на env_files.py . build вместо копирования. Сверить, что приложение стартует в test и dev."
+  },
+  {
+    "id": "plans-in-git",
+    "version": "1.2.260",
+    "title": "Файлы итерации — в git",
+    "what": "Папка documentation/plans/ (план, его ревью, прогресс, resume.md, отчёты сверки, UI-тестов и аудита, итог) теперь в git, кроме файлов этой машины: списка подсессий, страниц прогресса, скриншотов. Раньше она была вне git, и у другого человека плагин не знал, что сверка документов уже прошла и с какой задачи продолжать.",
+    "applies": {
+      "exists": "documentation/plans"
+    },
+    "behind": {
+      "grep": {
+        "path": ".gitignore",
+        "pattern": "^/?documentation/plans/?(\\*\\*?)?\\s*$"
+      }
+    },
+    "fix": "python3 <pipeline>/scripts/open_iteration.py <версия открытой итерации> — заменит строку в .gitignore на строки файлов этой машины и закоммитит файлы plans/; затем python3 <pipeline>/scripts/push_branch.py. Без открытой итерации — то же вручную: строку documentation/plans/ в .gitignore заменить строками из open_iteration.py (LOCAL) и закоммитить .gitignore с documentation/plans."
   }
 ]

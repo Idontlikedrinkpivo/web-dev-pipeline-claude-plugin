@@ -159,7 +159,7 @@ stage reuses it. Read `references/service-version.md` before opening one:
 it owns the steps — the number and its question,
 `python3 "${CLAUDE_SKILL_DIR}/scripts/open_iteration.py" <version>` and its
 exits, who runs the design — and the levels, the re-check in `plan`,
-`plans/` out of git and the API's own version.
+the iteration's files in git and the API's own version.
 
 **One branch per iteration.** Every stage of the iteration, by everyone who
 works on it (`references/team.md`), commits on `iteration/<version>`;
@@ -320,7 +320,9 @@ passes before the stamp commit (its lines are fixed first); only then run
 after the stamp, all its documents at once (the architecture's three too); a
 changed decision is final at its own commit;
 `docs-consistency` pushes at its close, after its fixes are committed — on
-every verdict, also with nothing to fix. Drafts stay committed on
+every verdict, also with nothing to fix. Every later stage — the plan, its run, the UI tests,
+the audit, the release — runs it at its close too, and so does every stop (`references/pause-and-resume.md`):
+before the push it commits the iteration's files in `plans/` (`references/service-version.md` → The iteration's files in git). Drafts stay committed on
 this machine until then, so people on the branch see each other's documents
 once they are final. Only the stages before `work` push this way; the code of
 `work`, the tag and the iteration's close are pushed by the user, who reviews

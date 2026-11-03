@@ -52,8 +52,11 @@ lenses.
 
 ## Progress and report
 
-The report is `documentation/plans/<version>/security-audit.md`, out of git
-like the stage's other files, and it is the progress file too (`pipeline` →
+The report is `documentation/plans/<version>/security-audit.md`, in git
+with the iteration's other files (`pipeline` → `references/service-version.md` → The iteration's files in git): before the
+close's push, when the repository is public (`gh repo view --json visibility`, or the user says so), ask once
+whether to keep the report out of git — it names live weaknesses — and on yes add its `.gitignore` line. It is
+the progress file too (`pipeline` →
 `references/progress-files.md`): create it before the first scanner with
 every row `⏳ ждёт` — one per scanner, one per area, the verification pass —
 then post its progress line, and again after each row: run

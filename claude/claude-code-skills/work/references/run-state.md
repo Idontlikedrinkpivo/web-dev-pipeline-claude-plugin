@@ -26,8 +26,8 @@ document — progress lives in commits, the task list, and the progress file.
 
 **The progress file and its line.** Create — on a resumed run, rebuild from
 git — `documentation/plans/<version>/progress.md` per
-`references/progress-file.md`; it is never committed (`pipeline` →
-`references/service-version.md` → Plans stay out of git). The chat gets it only as **the progress line**: with the file's
+`references/progress-file.md`; no unit's commit carries it — `push_branch.py` commits it at the run's stops and close (`pipeline` →
+`references/service-version.md` → The iteration's files in git). The chat gets it only as **the progress line**: with the file's
 count set from `plan_state.py`, run
 
 ```bash

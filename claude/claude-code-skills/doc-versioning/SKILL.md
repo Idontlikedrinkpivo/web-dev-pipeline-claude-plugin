@@ -119,8 +119,8 @@ rows nobody decided.
 | Iteration summary | `summary.md` in the version folder; its presence closes the version | none — **unversioned**; numbers from the stage reports, plus the user's escaped-defects and interventions tables | nobody; `pipeline` writes it at the end of an iteration |
 
 Everything under `documentation/plans/` — plan, plan review, progress, the
-stage reports and the summary — is out of git (`.gitignore`); see `pipeline` →
-`references/service-version.md` → Plans stay out of git. When an iteration closes, its folder keeps only
+stage reports and the summary — is in git, but for this machine's files (`.gitignore`); see `pipeline` →
+`references/service-version.md` → The iteration's files in git. When an iteration closes, its folder keeps only
 `summary.md`; the rest is removed on the user's yes (`pipeline` →
 `references/closing-cleanup.md`).
 

@@ -42,7 +42,7 @@ stages itself, as before, and hands over by asking the user (`references/context
   `self`), so the sidebar shows which session holds the iteration and the stages' titles read under it. When the
   user named the session themselves the app asks them to approve the new title; a declined rename stays declined.
 - **The list of sessions — `scripts/subsessions.py`.** Every session has its job and its title before it opens; there
-  are no spares. The list lives in `documentation/plans/<version>/sessions.md` (out of git, like the folder) and only
+  are no spares. The list lives in `documentation/plans/<version>/sessions.md` (out of git: its session ids are this machine's) and only
   the script writes it: `plan` (the rows), `set` (an id), `mark` (a state), `parent`, `show`, `whoami`.
   One row per stage, and no parts: a stage over the context limit goes on in its own session once the parent clears
   it (below). Pre-opened parts mostly stayed unused (Дашборд руководителя 1.1.0), and a part opened on the way

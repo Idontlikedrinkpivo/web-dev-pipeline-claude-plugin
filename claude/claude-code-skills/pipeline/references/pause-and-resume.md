@@ -15,8 +15,8 @@ resume note holds exactly that.
 
 ## The note
 
-`documentation/plans/<version>/resume.md` — out of git like the rest of
-`plans/`. Created when the run starts, written with the Edit tool, kept
+`documentation/plans/<version>/resume.md` — in git with the rest of
+`plans/`, pushed at a stop (Pausing, step 5), so another machine picks up from it. Created when the run starts, written with the Edit tool, kept
 short, refreshed after each item (a unit committed, a case run, an area
 audited) so an abrupt end — the app quit, a compaction, a lost connection —
 still leaves it current. **Removed when the run ends** — finished, or
@@ -62,6 +62,8 @@ saying they are leaving with the run unfinished:
 3. Stop the watchers; stands follow the stage's cleanup rule, or stay up
    and are named in the note when the user said they resume soon.
 4. Bring the note up to date and post its link with the progress line.
+5. Run `pipeline/scripts/push_branch.py`: it commits the note, the progress and the reports in `plans/` and pushes
+   the branch, so whoever continues — on this machine or another — starts from them.
 
 ## Picking up
 

@@ -97,15 +97,25 @@ already wrote it, and a fix appended to a plan that already ran (`plan`
 (`plan` → `references/modes.md`); `summary.md` and the tag close the
 iteration (`pipeline` → End of the pipeline).
 
-## Plans stay out of git
+## The iteration's files in git
 
-`documentation/plans/` is in `.gitignore`: the plan, its review, progress
-files, stage reports and `summary.md` are working files on this machine;
-git keeps the code, the contract documents, a `Plan-Unit:` trailer per unit
-commit and the tag `v<version>`. `open_iteration.py` keeps the ignore line;
-no stage stages a file under `plans/`. A fresh clone therefore has no
-`plans/`: the tags name the closed iterations and the trailers since the
-last tag the units already landed (`scripts/where_am_i.py` prints both).
+`documentation/plans/` is in git: the plan, its review, the progress files, `resume.md`, the stage reports
+(`docs-consistency.md`, `test-run.md`, `security-audit.md`) and `summary.md` reach whoever pulls the iteration's
+branch, so another person — or another machine — goes on with any stage, the plan and its run included, from the
+same files. Earlier the folder was out of git, and a colleague's session did not know the documents' check had
+already run (the user, 2026-11-03).
+
+- **Out of git — this machine's files only,** by the lines `scripts/open_iteration.py` keeps in `.gitignore`:
+  `sessions.md` (session ids of this machine), the progress pages' markers and HTML (rebuilt from the `.md`),
+  screenshots. Logs and agents' details files are in the git folder (`pipeline-work/`), never in the tree.
+- **Committed by `scripts/push_branch.py`** before each push — «chore: отчёты итерации <version>», nothing but
+  `documentation/plans/` in it — at every stage's close and every stop (`references/pause-and-resume.md`). No other
+  commit stages them: a unit's commit stays that unit's, and `plan_state.py` skips these commits when it maps a run.
+- **In a linked worktree** the folder is read and written in the main tree (`hooks/guard.py` lets that edit
+  through); the worktree's copy is the branch's last commit.
+- **A project from before this rule** (the folder ignored whole) moves on at its next stage: `open_iteration.py`
+  replaces the old line and commits the files already there.
+- **A public repository:** `security-audit.md` names live weaknesses — `security-audit` asks before its push.
 
 ## The API's own version
 

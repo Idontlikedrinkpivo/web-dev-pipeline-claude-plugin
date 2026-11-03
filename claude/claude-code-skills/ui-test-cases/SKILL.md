@@ -354,8 +354,8 @@ fixed and committed at once, with no version change (`pipeline` →
 new text before the verdict.
 
 The session commits the suite, `test(e2e): пользовательские тесты
-<version>`, so CI and the next run start from it. The report stays on disk
-in the version folder — `documentation/plans/` is out of git.
+<version>`, so CI and the next run start from it. The report is in the
+version folder, committed with it at the close (`pipeline/scripts/push_branch.py`).
 A failing test for a real defect stays in the suite: it is the check the
 fix plan must turn green.
 

@@ -167,9 +167,9 @@ optional, their defaults (`info`, `25`) named in the comment — because
 every service reads them (section 5); a §4 table without them gets the two
 rows as a changed decision (section 2).
 
-`.gitignore` carries `documentation/plans/` from the first commit: plans,
-reviews, progress files, reports and summaries are working files of this
-machine, not project history (`pipeline/references/service-version.md` → Plans stay out of git).
+`.gitignore` carries, from the first commit, the lines for this machine's files in `documentation/plans/` —
+the ones `pipeline/scripts/open_iteration.py` writes; the plans, reviews, progress files, reports and summaries
+themselves are in git (`pipeline/references/service-version.md` → The iteration's files in git).
 
 `docker-compose.yml` whenever the system stores data (a schema exists): a
 database service of the DBMS and major `schema.md` «Решения по базе» names

@@ -46,7 +46,8 @@ into the document it belongs to).
 
 ## The question
 
-`plans/` is out of git, so what is removed there cannot be restored. Ask
+What is removed in `plans/` stays in git's history — the folder is in git — but the folder is what the next
+person reads, and the removal is committed with the close. Ask
 once, per `references/question-format.md`: the list with each
 file's size and the total, what moved into owner documents, and the
 options «A. Удалить рабочие файлы (рекомендую)», «B. Оставить». The stray

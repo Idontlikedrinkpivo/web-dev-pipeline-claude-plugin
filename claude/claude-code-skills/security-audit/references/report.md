@@ -1,7 +1,7 @@
 # The report — `security-audit.md`
 
 Read before creating the report (Progress and report). It lives in
-`documentation/plans/<version>/`, out of git; it is the stage's progress
+`documentation/plans/<version>/`, in git with the folder; it is the stage's progress
 file and its result. The first line is the verdict, so `pipeline` and
 `deploy-topology` read it like the other check reports.
 

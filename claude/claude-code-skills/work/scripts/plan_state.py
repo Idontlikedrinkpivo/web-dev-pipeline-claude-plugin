@@ -117,6 +117,8 @@ def range_lines(cwd: Path, version: str, base: str, plan_ids: list) -> list:
                 units.add(int(k[1:]))
         if not good:
             files = git(cwd, "show", "--name-only", "--format=", sha).splitlines()
+            if files and all(f.startswith("documentation/plans/") for f in files):
+                continue   # the iteration's files, committed by push_branch.py — no unit of the run
             why = f" · trailer {', '.join(found)} is not a kind of this run" if found else ""
             unmapped.append(f"unmapped  {sha} {subject} — {len(files)} files{why}")
     out = [f"range     {base}..HEAD · {len(commits)} commits",
@@ -154,8 +156,8 @@ def main() -> int:
     if not plan.exists():
         print(f"plan      not found: {plan}")
         if linked:
-            print(f"where     this session runs in a linked worktree ({Path.cwd()}); documentation/plans/ is out of "
-                  f"git, so the plan lives only in the main working tree {main_tree} — open the session there")
+            print(f"where     this session runs in a linked worktree ({Path.cwd()}); the plan is not committed on this "
+                  f"branch yet, so it lives in the main working tree {main_tree} — open the session there")
         return 1
 
     text = plan.read_text(encoding="utf-8", errors="replace")
