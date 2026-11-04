@@ -9,7 +9,9 @@
     python3 subsessions.py <project dir> <version> show
     python3 subsessions.py <project dir> <version> whoami <session id>
 
-plan    the stages kept for this iteration (keys below, any order) become rows in chain order, each with its title:
+plan    the stages kept for this iteration (keys below, any order) become rows in chain order, each with its title —
+        «<version> · <its place in the chain, two digits> <word>», «1.0.0 · 02 SRS», so a sidebar sorted by name or
+        by creation reads as the chain:
         one row per stage, and no parts: a stage over the context limit goes on in its own session, which the parent
         clears and starts again. A stage already in the list under an older title («прогон») is not added again.
         The fixes a check sends back (UI tests, the audit) run inside that check's own session, by agents. Rows already in
@@ -66,7 +68,10 @@ ROW = re.compile(r"^\|\s*(\d+)\s*\|(.*)\|(.*)\|(.*)\|(.*)\|(.*)\|(.*)\|\s*$")
 
 def rows_for(version: str, key: str) -> list[dict]:
     word, skill, _ = STAGES[key]
-    return [dict(title=f"{version} · {word}", stage=key, skill=skill, when="по очереди")]
+    # the stage's place in the chain, two digits: a sidebar sorted by name keeps the chain order too («API» sorted
+    # before «SRS», «архитектура» before «схема БД» — the user, 2026-11-04)
+    n = list(STAGES).index(key) + 1
+    return [dict(title=f"{version} · {n:02d} {word}", stage=key, skill=skill, when="по очереди")]
 
 
 def read(path: Path) -> tuple[str, list[dict]]:

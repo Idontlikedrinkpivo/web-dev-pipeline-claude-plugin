@@ -18,7 +18,7 @@ usage:
                      iteration branch, else the newest plans/ folder without summary.md
   sessions.py mine   <project-dir> <marker> <out.md>
                      the digest of the newest session of this project whose opening messages hold the marker —
-                     a nested session's title, «0.1.0 · SRS»: the session finds its own conversation for the
+                     a nested session's title, «0.1.0 · 02 SRS»: the session finds its own conversation for the
                      check before its stage closes (pipeline → references/parent-session.md → At the stage's close)
   sessions.py errors <project-dir> <out.md> [--since YYYY-MM-DD[THH:MM]] [--also <old-project-dir> ...]
                      the failed tool calls of the main sessions AND of every agent they ran

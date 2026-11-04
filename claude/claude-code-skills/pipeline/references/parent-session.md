@@ -127,7 +127,12 @@ stages itself, as before, and hands over by asking the user (`references/context
 - **Before saying anything about a nested session's state**, check it (its status, the progress file, `resume.md`,
   git, `subsessions.py show`) — never from memory.
 
-**Titles** come from `subsessions.py` — the same words every time, so the sidebar reads as the chain: бизнес-требования ·
+**Titles** come from `subsessions.py` — «<version> · <place in the chain, two digits> <word>», «1.0.0 · 02 SRS»,
+«1.0.0 · 03 схема БД». The sidebar sorts as the user set it — by name, by creation or by last activity; by name the
+words alone put «API» before «SRS» and «архитектура» before «схема БД» (the user, 2026-11-04), so the number keeps the
+chain order by name and by creation; by activity the last active comes first, and the plugin does not change the
+user's sort. A title keeps the row's words; a topic may follow after a colon («1.0.0 · 02 SRS: письма через
+Postbox»), never before the number. The words, in order: бизнес-требования ·
 SRS · схема БД · API · архитектура · каркас · макеты · ТЗ на экраны · тест-кейсы · сверка документов · план · разработка
 (the plan's run, `work`) · UI-тесты · аудит безопасности · релиз · CI · эксплуатация · закрытие. The requirements document is «SRS» — never «ТЗ», which the user keeps for the screen specs
 («ТЗ на экраны»).
@@ -168,5 +173,5 @@ It runs its stage as the stage's skill says, with the user, in this session. Wha
 - **Over the context limit** it hands over, after the same handover check: it tells the parent «<stage> ПЕРЕДАН · после <item> · контекст <N> тыс. ·
   продолжать с <item>» and ends the turn (`references/context.md` → When to hand over); the parent clears this same
   session and starts it again from the files, or tells it «продолжай здесь».
-- In the sidebar every session of the iteration shows as one list under the parent, in the order they opened (seen
-  in Claude Desktop, 2026-10-31) — opened at the start in chain order, the list reads as the iteration's plan.
+- In the sidebar every session of the iteration shows as one list under the parent (seen in Claude Desktop,
+  2026-10-31), in the user's sort: by name or by creation the titles' numbers make it read as the iteration's plan.
