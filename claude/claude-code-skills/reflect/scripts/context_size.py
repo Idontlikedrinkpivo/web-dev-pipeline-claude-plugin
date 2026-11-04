@@ -1,6 +1,6 @@
 """How big this session's context is now — the last model call of the newest session of the project.
 
-    python3 context_size.py <project-dir> [--limit <tokens, default 300000>]
+    python3 context_size.py <project-dir> [--limit <tokens, default 300000>] [--next high|mid|low|<tokens>]
 
 Prints one line: the context of the newest main session's last call, in tokens, and whether it is over the
 limit («передать»). `work` runs it after each commit (work → references/run-hygiene.md → Context): over the limit,
@@ -8,6 +8,9 @@ the run hands over to a fresh session at that boundary. The newest session is th
 sessions working in the same project at once it may be the other one — the line names the session it read.
 Claude Code: input + cache read + cache write of the last assistant message; the Codex build (codex_logs.py
 beside this file): `last_token_usage.input_tokens` of the last token_count event. Exit 2 over the limit.
+--next adds what the next item usually takes (a High unit 120 thousand, a Mid 70, a Low 35, or a number): when the
+context and it pass the limit, exit 2 now — hand over at this boundary rather than cross the limit inside the item.
+Either way the run goes on without the user: exit 2 is a hand-over, exit 0 the next item, never a pause.
 Standard library only.
 """
 from __future__ import annotations
@@ -76,9 +79,15 @@ def main() -> None:
     if not sid:
         print("контекст: сессия не найдена — считать по числу задач (work → references/run-hygiene.md → Context)")
         return
+    nxt = args[args.index("--next") + 1].lower() if "--next" in args and args.index("--next") + 1 < len(args) else ""
+    ahead = {"high": 120_000, "mid": 70_000, "low": 35_000}.get(nxt) or (int(nxt) if nxt.isdigit() else 0)
     over = ctx > limit
+    early = not over and ahead and ctx + ahead > limit
     print(f"контекст: {ctx // 1000} тыс. токенов (сессия {sid[:8]}, {ts.replace('T', ' ')}) · порог {limit // 1000} тыс."
-          + (" · передать новой сессии" if over else ""))
+          + (" · передать сейчас" if over else "")
+          + (f" · передать сейчас: следующий пункт (~{ahead // 1000} тыс.) перейдёт порог" if early else "")
+          + (" — без паузы и без вопроса пользователю" if over or early else ""))
+    over = over or bool(early)
     sys.exit(2 if over else 0)
 
 

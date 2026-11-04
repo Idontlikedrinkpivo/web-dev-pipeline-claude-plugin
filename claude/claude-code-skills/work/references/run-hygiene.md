@@ -94,9 +94,12 @@ in a measured run its context grew by ~100,000 tokens per unit, a third of it ag
 The same rule holds for every stage (`pipeline` → `references/context.md`); what is particular to `work`:
 
 After each unit's commit (Step 5.6) run
-`python3 "${CLAUDE_SKILL_DIR}/../reflect/scripts/context_size.py" "$PWD"`. Over the limit (300,000 tokens by
-default; exit 2), hand over at this boundary — the unit is committed, nothing is in flight — rather than let the
-host compact the session, which loses rules:
+`python3 "${CLAUDE_SKILL_DIR}/../reflect/scripts/context_size.py" "$PWD" --next <the next unit's grade: high | mid | low>`.
+Exit 2 — over the limit (300,000 tokens by default), or the next unit would cross it — hand over at this boundary:
+the unit is committed, nothing is in flight. Exit 0 — the next unit. **Never a pause:** the context is not a reason
+to stop and tell the user, or to wait for them; a session that stopped at 236 thousand with «U33 перешёл бы порог
+посреди юнита» left an autonomous run waiting for nothing (the user, 2026-11-04). A question the next unit needs
+is asked as the unit's own question, not tied to the context. Handing over:
 
 1. Refresh `resume.md` (`pipeline` → `references/pause-and-resume.md`), the run report and the progress line,
    as at any stop. The run report says where the next session starts («продолжать с U18»).

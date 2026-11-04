@@ -101,6 +101,8 @@ stage skill, its heading the skill's folder name; a stage with no section gets �
 
 - `progress.md` changes with Edit or `progress_set.py` — never from the shell; the line `progress_link.py` prints
   goes to the chat as printed.
+- After each commit `context_size.py "$PWD" --next <next unit's grade>`: exit 2 — hand over now, exit 0 — the next
+  unit; never a pause or a question to the user over the context.
 - A unit: the executor, `run_check.py`, `code-review-unit`, then its own commit with `Plan-Unit:` and
   `Co-Authored-By:` in the last paragraph — never chained to a check.
 - A parallel unit works in its worktree with repo-relative paths.

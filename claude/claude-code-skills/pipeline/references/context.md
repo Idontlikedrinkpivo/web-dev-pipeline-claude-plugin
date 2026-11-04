@@ -25,7 +25,9 @@ key rule of a stage changes its section there too.
 At each safe boundary — a stage closed, one item of a long stage done (a screen drawn, a screen spec written, a
 section of test cases, an audited area, a unit committed) — run
 `python3 "${CLAUDE_SKILL_DIR}/../reflect/scripts/context_size.py" "$PWD"` (from another skill: the plugin's
-`reflect/scripts/context_size.py`). Over 300,000 tokens (exit 2), hand over at that boundary:
+`reflect/scripts/context_size.py`; before a long item, `--next high|mid|low` adds what it usually takes). Exit 2 —
+over 300,000 tokens, or the next item would cross them — hand over at that boundary, at once and without the user:
+the context is never a reason to pause, stop or ask (the user, 2026-11-04). Exit 0 — go on:
 
 1. Save where the stage stands: its progress file and `resume.md` (`references/pause-and-resume.md`), the next
    item named («продолжать с S-7»), anything decided in the chat that no document holds yet.

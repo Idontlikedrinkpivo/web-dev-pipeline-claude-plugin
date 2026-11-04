@@ -46,7 +46,11 @@ tests/
 - Name files `test_<module>.py`, classes `Test<Feature>` (no `__init__`), functions `test_<action>_<expected_outcome>`, fixtures as nouns (`db_session`, `authenticated_client`). A failure line should say what broke without opening the file.
 - Declare markers `unit`, `integration`, `slow` in `[tool.pytest.ini_options]` and run subsets with `-m`.
 - Use `asyncio_mode = "auto"` so async tests need no per-test marker. A session-scoped async engine also needs the session loop scopes that `references/conftest-template.py` lists (a test in its own loop breaks the engine); check them against the installed pytest-asyncio (`references/version-checks.md` → Event-loop scope).
-- The test database gets its schema from the project's migration command (`alembic upgrade head` over the SQL files), never `create_all`: the CHECK constraints, the project schema and every object the files create take part, and a model that disagrees with the files fails here. `references/conftest-template.py` does it once per session. The one exception is a brownfield repo with no migration files at all: the template's commented `create_all` fallback stands in until the first migration file exists, and the report says so.
+- The test database gets its schema from the project's migration command (`alembic upgrade head` over the SQL files), never `create_all`: the CHECK constraints, the project schema and every object the files create take part, and a model that disagrees with the files fails here. `references/conftest-template.py` does it once per session, and every test that touches the database uses that
+schema — a test that runs the app in a child process too, given the same URL and schema through its environment.
+Never a schema prepared by hand that someone has to bring to the latest migration after each new one: a test on
+`razvii_test` kept at 0003 failed after every migration and came back to the user as a chore (2026-11-04). A session
+that finds such a test fixes it this way (a follow-up unit), not as a note to the user. The one exception is a brownfield repo with no migration files at all: the template's commented `create_all` fallback stands in until the first migration file exists, and the report says so.
 - Group tests by behaviour, shared fixtures in `conftest.py` (shared rule 4).
 - Put an autouse fixture that requests `db_session` only in `tests/integration/conftest.py`: autouse applies to every test under that directory, and at the root it would make each unit test connect to the database.
 
@@ -114,7 +118,8 @@ Shared rules 3 and 5: a property test with `hypothesis`; a surviving mutant gets
 3. **A guard against a double action has a race test**: two calls through `asyncio.gather`, each with its own
    session, counting the effect.
 4. **The test schema comes from the migrations**, on PostgreSQL; no `create_all` (unless the repo has no migration
-   files at all), no SQLite stand-in unless the user required it.
+   files at all), no SQLite stand-in unless the user required it; no test on a hand-prepared schema that misses the
+   session's migrated one (a child-process test included).
 5. **No autouse fixture at the root `conftest.py` that touches the database**; mutable data is never
    session-scoped.
 6. **A paged operation is tested past the first page**, the last page and a tampered cursor included.
