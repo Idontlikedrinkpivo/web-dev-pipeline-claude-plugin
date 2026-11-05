@@ -367,7 +367,8 @@ from the project's own Dockerfiles and compose files as they are
 4. **Run it once** and report the folder, the tar size, the image tags and the platform;
    if Docker or buildx is not available here, say so instead of claiming the
    build. Add the «Сборка образов» section to the README.
-5. **Scan the images** with `trivy` over the tar (`security-audit` →
+5. **Scan the images** with `scripts/trivy_images.py <tar> <out dir>` (one
+   `trivy-<image>.json` per image; `security-audit` →
    `references/scanners.md` → Docker images, with its proxy, cache and
    fallback rules), HIGH and CRITICAL only. A CRITICAL with a fixed
    version in the base image stops the hand-over with one question —

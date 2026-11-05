@@ -533,6 +533,13 @@ def main() -> None:
         units = plan_units(root, f"{base}..HEAD")
         if units:
             print(f"  12. задач с Plan-Unit на ветке: {len(set(units))}")
+        # no plan, but the summary's row or a chat-change commit of this version: a small iteration (pipeline →
+        # SKILL.md → A small iteration) goes to its close — else «else stage 10» sent it back to the plan
+        if not (folder / "plan.md").is_file() and (re.search(r"^\| Малая итерация \|", read(folder / "summary.md"), re.M)
+                                                   or any(u.startswith(f"{cur}/chat-") for u in units)):
+            print("  12. малая итерация — плана нет, одна правка из чата")
+            opens.append("малая итерация: план не нужен — дальше закрытие (pipeline → End of the pipeline), "
+                         "в итоге строка «Малая итерация»")
         for name, label, n in (("test-run.md", "проверка через интерфейс", 13), ("security-audit.md", "аудит безопасности", 14)):
             v = re.search(r"^Verdict:\s*(\S+)", read(folder / name), re.M)
             if v:

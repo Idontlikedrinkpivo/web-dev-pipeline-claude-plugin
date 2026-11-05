@@ -20,6 +20,7 @@ reason (stage skipped, gate skipped), never a guess.
 | Ревью | находок P0/P1 по юнитам · вердикт финального ревью | 3 · PASS | run report, Full-plan review |
 | UI-тесты | кейсов · прошли с первого прогона · дефектов пережило ревью | 22 · 19 · 2 | test-run.md |
 | Безопасность | вердикт · P0/P1 найдено → исправлено · риск принят; или «пропущен — <причина>», когда пользователь отказался от аудита | FIX → PASS · 0/2 → 2 · 0 | security-audit.md |
+| Малая итерация | что пропущено и почему | план, ревью плана, финальное ревью, мутации — одна правка из чата: <что изменили>; UI-тесты: <кейсы затронутых экранов или «не затронуты»> | chat-change |
 | Гейты | пропущены | grill-me (S-13, маленькая правка) | отчёты этапов |
 | Цена | токены / деньги / время, если сессия их показывает | — | статистика сессии |
 
@@ -32,6 +33,11 @@ reason (stage skipped, gate skipped), never a guess.
 | Что поправили руками | Документ / план / код | Почему пайплайн не справился |
 |---|---|---|
 ```
+
+The «Малая итерация» row is written only for a small iteration (`SKILL.md` → A small iteration); the rows whose
+report it has no («План», the run report's) get `—` with «малая итерация» as the reason. With no `plan.md`,
+`scripts/close_iteration.py` refuses step 3 until the row names what was skipped, so a version with no plan
+never reads as a forgotten one.
 
 Below the table, one line naming the weakest stage of this iteration (the
 most returns, defects, or interventions), or «слабых мест не видно». The

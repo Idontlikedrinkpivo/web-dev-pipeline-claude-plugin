@@ -23,7 +23,10 @@ and the user's words are the spec for a change this size. A new screen still nee
 ## Steps
 
 1. **Branch.** The open iteration's `iteration/<version>`. With no open iteration (the last one is merged), a
-   branch `fix/<short-name>` from `main`; the user merges it, as an iteration.
+   branch `fix/<short-name>` from `main`; the user merges it, as an iteration. When the user wants it released
+   as a version of its own («сделай сейчас как 2.2.1», «выпусти как патч»), it is a small iteration instead:
+   `pipeline` → SKILL.md → A small iteration — the iteration opens, these steps run in it, and its close records
+   what was skipped.
 2. **Executor.** Write a unit spec from the user's words — a goal sentence, the files, the scenario that proves
    it («поле «Отчество» пустое → форма сохраняется, в карточке прочерк») — for a defect («работало, а теперь
    нет»), a scenario that reproduces it, so the test fails without the fix and passes with it; when a regression's

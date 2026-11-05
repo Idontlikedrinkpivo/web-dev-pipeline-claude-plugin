@@ -11,7 +11,9 @@ One line per step, ✅ done or ✗ what is missing, in order:
               without it; the owner's question found a P1)
   1 stamp     no contract document changed on the iteration branch since its last stamp (where_am_i.unstamped)
   2 site      documentation/ (the site included) has nothing uncommitted
-  3 summary   documentation/plans/<version>/summary.md exists
+  3 summary   documentation/plans/<version>/summary.md exists; with no plan.md beside it, it has a «| Малая итерация |»
+              row with a filled value — a small iteration says what it skipped, or the plan is missing (ai-initiatives
+              2.2.1 closed with no plan and nothing said whether that was allowed)
   4 tag       v<version> exists — and points at a commit that has steps 1–3 in it
   5 reflect   ~/.claude (or ~/.codex)/dev-pipeline-feedback/<project>.md has a section of <version> whose «Окно»
               ends at or after the iteration's last commit (the tag's, else HEAD's) — a part of it does not count
@@ -82,8 +84,14 @@ def main() -> None:
     steps.append(("2 сайт", not dirty, f"не закоммичено в documentation/: {len(dirty.splitlines())} файл(ов) — "
                   "пересоберите сайт и закоммитьте" if dirty else ""))
     summary = folder / "summary.md"
-    steps.append(("3 итог", summary.exists(), f"нет {summary.relative_to(root)} (pipeline → references/summary.md)"
-                  if not summary.exists() else ""))
+    small = re.search(r"^\| Малая итерация \|[^|]*\|([^|]*)\|", summary.read_text(encoding="utf-8")
+                      if summary.exists() else "", re.M)
+    unplanned = summary.exists() and not (folder / "plan.md").exists() and not (small and small.group(1).strip())
+    steps.append(("3 итог", summary.exists() and not unplanned,
+                  f"нет {summary.relative_to(root)} (pipeline → references/summary.md)" if not summary.exists() else
+                  "нет плана и нет строки «| Малая итерация | … |» в итоге — либо это малая итерация (запишите строку: "
+                  "что пропущено и почему, pipeline → references/summary.md), либо плана не хватает (plan)"
+                  if unplanned else ""))
     code, tag_sha = git(root, "rev-list", "-n", "1", f"v{version}")
     tagged = code == 0 and bool(tag_sha)
     late = ""

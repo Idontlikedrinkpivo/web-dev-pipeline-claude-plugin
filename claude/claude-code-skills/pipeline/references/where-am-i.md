@@ -70,7 +70,9 @@ project's root and answer from its output. It prints, in this order:
    «план изменён после проверки» when the plan changed since — `plan`
    runs the review again before `work`), the units with `Plan-Unit:` on
    the branch, the UI run's and the audit's verdicts (`DEFECTS` / `FIX` —
-   a fix plan, `plan` MODE fix).
+   a fix plan, `plan` MODE fix). No `plan.md` but a `Plan-Unit: <version>/chat-<n>` commit on the branch (or the
+   summary's «Малая итерация» row) is a small iteration (`SKILL.md` → A small iteration): its open point is the
+   close, not stage 10 or `plan` — the plan was skipped on purpose.
 7. **Open points in order** — the list the answer is built from.
 
 ## The answer

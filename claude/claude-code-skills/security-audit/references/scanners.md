@@ -104,12 +104,16 @@ whether outside input reaches it.
 ## Docker images — `trivy` (in `deploy-topology`, not here)
 
 The built images exist only in `deploy-topology` Step 8, so the image scan
-runs there, over the release tar:
+runs there, over the images named in the release tar:
 
 ```bash
-docker run --rm -v "$PWD/release/<version>:/r:ro" -v pipeline-trivy-cache:/root/.cache/trivy aquasec/trivy:latest \
-  image --input /r/<project>-<version>.tar --severity HIGH,CRITICAL --format json > "$OUT/trivy-images.json"
+python3 <plugin>/deploy-topology/scripts/trivy_images.py release/<version>/<project>-<version>.tar "$OUT" --severity HIGH,CRITICAL
 ```
+
+It writes one `$OUT/trivy-<image>.json` per image. The script keeps the
+`pipeline-trivy-cache` volume and scans by image name through the docker
+socket, because `trivy image --input` over a multi-image archive gives
+nothing and no error — a false «0 findings». An empty report is a failed scan.
 
 ## When a scanner cannot run
 

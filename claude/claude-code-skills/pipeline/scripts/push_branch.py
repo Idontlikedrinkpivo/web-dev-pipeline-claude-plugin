@@ -17,7 +17,10 @@ on a conflict is undone (`git rebase --abort`) and the script stops with exit 2 
 the remote refuses (no access, no network, a branch moved meanwhile) is exit 1 with the reason and the command to
 run by hand; the stage goes on, it is not a stop. Exit 3: a contract document the push carries fails
 doc-versioning/scripts/doc_check.py (its lines are printed) — nothing is pushed until it is fixed. Never `--force`,
-never a tag. Exit 0: pushed, or nothing to push.
+never a tag. Exit 0: pushed and confirmed, or nothing to push.
+A push counts as sent only when `git ls-remote origin refs/heads/<branch>` afterwards returns the sha of HEAD (exit 1
+with the command to check otherwise, also when git printed «Everything up-to-date» although commits were ahead):
+a push's own output proves nothing — the 2.2.1 run took «Everything up-to-date» for success and the commit was not there.
 Standard library only.
 """
 from __future__ import annotations
@@ -108,8 +111,16 @@ def main() -> None:
     if code:
         print(f"push: не отправлено — {out.splitlines()[-1] if out else 'ошибка'}. Вручную: {manual}")
         sys.exit(1)
+    _, head = git(root, "rev-parse", "HEAD")
     _, sha = git(root, "rev-parse", "--short", "HEAD")
-    print(f"push: отправлено — {sha} в origin/{branch}")
+    lc, ls = git(root, "ls-remote", "origin", f"refs/heads/{branch}")
+    remote = ls.split()[0] if lc == 0 and ls.split() else ""
+    if "Everything up-to-date" in out or remote != head:
+        got = remote or "нет ответа"
+        print(f"push: НЕ ПОДТВЕРЖДЕНО — origin/{branch} = {got}, HEAD = {head}; проверьте: "
+              f"git ls-remote origin refs/heads/{branch}")
+        sys.exit(1)
+    print(f"push: отправлено — {sha} в origin/{branch}, подтверждено ls-remote")
 
 
 if __name__ == "__main__":

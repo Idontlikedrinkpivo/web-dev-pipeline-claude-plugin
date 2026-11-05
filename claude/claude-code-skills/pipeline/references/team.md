@@ -23,6 +23,10 @@ personal branches: at any time a stage's documents belong to one person, so
 commits never collide, and `git pull --rebase` before every push (the plugin's
 `scripts/push_branch.py` does it) is all the coordination the branch needs. `main` gets the iteration once, at the end.
 
+A push goes only through `scripts/push_branch.py`; by hand only when the script says the command to run, and then the
+proof is git's ref-update line (`<old>..<new> <branch> -> <branch>`) — «Everything up-to-date» proves nothing, as the
+2.2.1 run showed: the session said the commit was on the server, and it was not.
+
 ## What a stage needs on the branch
 
 | Stage | Needs before it starts |

@@ -271,6 +271,23 @@ gets a **new** `plans/<version>/` folder with its own plan and U-ids,
 pinned (`path@<version>`) to the documents it was built from. A closed
 version's plan is never edited.
 
+### A small iteration
+
+**Малая итерация** — a chat-size change (`work` → `references/chat-change.md` → Size it first, «Small and settled»)
+the user wants released as a version of its own: «сделай сейчас как 2.2.1», «выпусти как патч». It opens as any
+iteration (`references/service-version.md` → Opening the iteration: `open_iteration.py`, the branch, the folder) and
+runs by `chat-change.md` instead of plan + `work`: the unit spec from the user's words, the executor,
+`code-review-unit`, the tests it can break, the commit with `Plan-Unit: <version>/chat-<n>`. It skips, each for its
+reason: the plan and `plan-review` — one unit needs no plan; `code-review-full` — the unit's review is the whole
+diff; mutation runs and the code-health table — nothing to compare; the full UI run — only the cases of the touched
+screens (`ui-test-cases` run with those cases named; no screen touched — skipped). It never skips: the document
+change when the change contradicts a document (`references/decision-changes.md`), the security-audit question (the
+user may decline it — the summary's «Безопасность» row), the stamp, the site, the summary, the tag, `reflect`. The
+summary's «Малая итерация» row says what was skipped and why (`references/summary.md`): a version with no plan is
+otherwise invisible to the next person, who cannot tell a small iteration from a forgotten plan
+(ai-initiatives 2.2.1, 2026-10-31: no plan, no plan-review, and nothing said whether that was allowed).
+`scripts/close_iteration.py` refuses step 3 for a folder with no `plan.md` and no such row.
+
 ## Asking before a transition
 
 This is the only way a stage outside `work` starts its gate or the next
@@ -320,7 +337,10 @@ not a draft.** A document is final when the gates of its stage that apply to
 it ran or the user skipped them and their fixes are committed, and
 `python3 "${CLAUDE_SKILL_DIR}/../doc-versioning/scripts/doc_check.py" . --only <each document of the stage>`
 passes before the stamp commit (its lines are fixed first); only then run
-`python3 "${CLAUDE_SKILL_DIR}/scripts/push_branch.py"`: at the stage's close,
+`python3 "${CLAUDE_SKILL_DIR}/scripts/push_branch.py"` — a push goes only through it, and is confirmed only by
+git's ref-update line (`<old>..<new> <branch> -> <branch>`) or the script's `ls-remote` check; «Everything
+up-to-date» is no confirmation (a session once reported as on origin a commit that was not: ai-initiatives
+2.2.1, 2026-10-31): at the stage's close,
 after the stamp, all its documents at once (the architecture's three too); a
 changed decision is final at its own commit;
 `docs-consistency` pushes at its close, after its fixes are committed — on
