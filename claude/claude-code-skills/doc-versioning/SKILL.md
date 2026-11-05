@@ -184,13 +184,35 @@ Appending a row does not stamp the document beside it.
 
 | Вопрос | Класс |
 |---|---|
-| … | Блокирует старт / Можно решить при архитектуре / Отложено |
+| … | Блокирует старт / Решить при: <этап> / Отложено / Решено: <где> |
 ```
+
+The class is the addressee, because a later stage reads its own inputs, not
+another document's questions — a question a grill deferred «to the
+architecture» was never seen there:
+
+- `Блокирует старт` — no stage goes on until it is answered;
+- `Решить при: <этап>` — one of: схема БД, API, архитектура, макеты, ТЗ на
+  экраны, тест-кейсы, план, разработка, релиз, эксплуатация; the stage that
+  can settle it, not the one that asked;
+- `Отложено` — no stage: the customer's call or a later release;
+- `Решено: <где>` — the row stays for history; `<где>` is the document and
+  section or the commit that settled it (`Решено: architecture.md §4`).
+
+The legacy `Можно решить при архитектуре` reads as `Решить при: архитектура`
+(older projects; `upgrade-docs` rewrites it). Any other class is a
+`doc_check.py` error: it routes to no stage. Every stage runs
+`python3 "${CLAUDE_SKILL_DIR}/scripts/open_questions.py" . --for <этап>`
+before it writes and settles or re-addresses what it prints; `--pending`
+counts the open rows per addressee (`where_am_i.py`, `docs-consistency`).
 
 Create the file when the first question appears, never empty, in the
 document's folder — not one shared `documentation/open-questions.md`:
 `requirements/srs/`, `db/`, `api/`, `architecture/` (foundation, domain
-model and scenarios), `ui/`, and `plans/<version>/`.
+model and scenarios), `ui/`, and `plans/<version>/`. One shared file would
+conflict when two people work on two documents at once, and a question file
+is committed and checked with its own document; the script, not the file,
+gathers them.
 
 ## What a version is
 

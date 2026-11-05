@@ -128,6 +128,13 @@ ANSWERS         <pasted — the only text here: each answer the user gave in
                 open, whether anyone outside the project calls the API.
                 clean-architecture-design: the stack pick. Or: none>
 
+QUESTIONS TO SETTLE <the rows `open_questions.py --for "<этап>"` printed
+                for this stage, `<file>\t<question>` each (pipeline →
+                references/decision-changes.md → Questions addressed to a
+                stage). Settle each in the document, or return it as an
+                assumption `(ДП-n)`, or BLOCKED when only the user can
+                decide; name each in your report. Or: none>
+
 POPULATED       <db-schema-design on an increment: one line per existing
                 table the slice changes — `rows: yes` (its creating
                 migration is in a released tag), `rows: no` (created in

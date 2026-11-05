@@ -104,6 +104,10 @@ A dependency that is neither — always real, in every environment, no local
 substitute possible — is rare and worth asking about explicitly rather than
 guessing.
 
+Questions addressed to this stage — `python3 "${CLAUDE_SKILL_DIR}/../doc-versioning/scripts/open_questions.py"
+"$PWD" --for "релиз"` — the session settles or asks as its own, before Step 2 (`pipeline` →
+`references/decision-changes.md` → Questions addressed to a stage).
+
 ### Step 2. Images
 
 One image per container, the same image in all three environments.
@@ -398,9 +402,10 @@ scripts and task-runner targets, the compose-contract tests, the README
 section, `documentation/deploy/` and the project map's `compose:` line —
 staged by name, never `git add .`. Nothing under `release/` or
 `documentation/plans/`, and no `.env.*.local`. The verify skill already has
-its own commit (Step 7a); an architecture fix has its own (Guardrails). Then
+its own commit (Step 7a); an architecture fix has its own (Guardrails). Each
+addressed question settled is marked `Решено: <где>` in its `open-questions.md`, staged in this commit. Then
 close: the report — the release folder, the tar size, the image tags, the
-scan — and the next stage, per `pipeline` → "Asking before a transition".
+scan, the questions settled — and the next stage, per `pipeline` → "Asking before a transition".
 
 ## Guardrails
 

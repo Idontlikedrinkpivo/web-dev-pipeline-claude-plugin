@@ -257,7 +257,10 @@ and writes the files itself; there is no `doc-typist` on this stage.
    the register to prove the Figma MCP answers; failure → stop with the
    `/mcp` instruction. The SRS path comes from the register's `sources:`; a
    pin behind the SRS's current `version` is said in the chat (`doc-versioning`
-   → Staleness) — the frames may lag the SRS.
+   → Staleness) — the frames may lag the SRS. Questions addressed here:
+   `open_questions.py "$PWD" --for "ТЗ на экраны"` (`doc-versioning/scripts/`): each goes into the packet of the
+   screen it names as a question to settle, or the session asks it (`pipeline` →
+   `references/decision-changes.md` → Questions addressed to a stage).
 3. **Pick the screens.**
    - No screen file exists yet → every ready screen.
    - Screen files exist (an increment) → a screen is in scope when its frame
@@ -421,7 +424,8 @@ Report in the chat:
   new operation) is that stage's increment (`pipeline` →
   `references/decision-changes.md`);
 - the executor rows dispatched (`screen-writer` × N) and any re-dispatch;
-- the test cases' trace: broken before the run, rewritten, still open.
+- the test cases' trace: broken before the run, rewritten, still open;
+- the addressed questions settled, each row marked `Решено: <где>`.
 
 Then read `pipeline` and ask per "Asking before a transition": first the
 gate `doc-review` on the files just written (one review over the set — its

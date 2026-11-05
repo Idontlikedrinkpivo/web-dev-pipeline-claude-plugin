@@ -21,7 +21,8 @@ OpenAPI, the three architecture documents, the screen specs — and the open-que
   openapi       an operationId used twice; a `$ref` to a file that does not exist or to a component no file
                 defines; an operation without a 500 (or 5XX / default) response.
   questions     an open-questions.md without `# Открытые вопросы` or the «Вопрос | Класс» table, or with a Класс
-                other than Блокирует старт / Можно решить при архитектуре / Отложено; an empty one.
+                other than Блокирует старт / Решить при: <этап из списка open_questions.py> / Отложено /
+                Решено: <где> (the legacy «Можно решить при архитектуре» still passes); an empty one.
 
 Exit 0 — clean; 1 — a line per problem. Run at a stage's close before the stamp commit (pipeline → Commit each
 document); push_branch.py and docs-consistency run it too. Standard library only.
@@ -39,9 +40,18 @@ sys.path.insert(0, str(HERE.parents[1] / "pipeline" / "scripts"))
 sys.path.insert(0, str(HERE.parents[1] / "ui-test-cases" / "scripts"))
 import where_am_i as w  # noqa: E402
 
+sys.path.insert(0, str(HERE))
+import open_questions as oq  # noqa: E402  the class is the addressee; its stages live there, once
+
 COLUMNS = ["Версия", "Дата", "Изменение", "Тип", "Кого затрагивает"]
 TYPES = {"ломает", "добавляет", "уточняет"}
-CLASSES = {"Блокирует старт", "Можно решить при архитектуре", "Отложено"}
+
+
+def class_ok(cell: str) -> bool:
+    """A Класс the pipeline can route: a stage outside the list reaches no stage (doc-versioning → Открытые вопросы)."""
+    if cell.startswith(oq.AT):
+        return oq.stage_name(cell[len(oq.AT):]) is not None
+    return cell.startswith((oq.BLOCKS, oq.LATER, oq.SOLVED, oq.LEGACY_ARCH))
 SRS_ID = re.compile(r"(?<![\w-])((?:FR|NFR|BR|UC|A)-\d+(?:\.\d+)?)(?![\w.-]*\d)")
 
 
@@ -252,9 +262,9 @@ def check_questions(root: Path, out: list) -> None:
                 break
             cells = [c.strip() for c in line.strip().strip("|").split("|")]
             if len(cells) > k:
-                if cells[k] and cells[k] not in CLASSES and not any(cells[k].startswith(c) for c in CLASSES):
-                    out.append(f"{rel}: Класс «{cells[k][:40]}» — Блокирует старт, Можно решить при архитектуре "
-                               "или Отложено")
+                if cells[k] and not class_ok(cells[k]):
+                    out.append(f"{rel}: Класс «{cells[k][:40]}» — Блокирует старт, Решить при: <этап> "
+                               f"({', '.join(oq.STAGE_NO)}), Отложено или Решено: <где>")
 
 
 def main() -> None:

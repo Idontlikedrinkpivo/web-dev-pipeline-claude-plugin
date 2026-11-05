@@ -96,7 +96,10 @@ written in each source file.
    foundation, domain model, or scenarios document for an area in scope.
    Brownfield with no docs is allowed. Pick MODE (Modes). Read the inputs
    far enough to run the grade below: level, risk, and the counts in the
-   cascade. Do not slice.
+   cascade. Do not slice. The questions addressed to this stage —
+   `python3 "${CLAUDE_SKILL_DIR}/../doc-versioning/scripts/open_questions.py" "$PWD" --for "план"` — go into
+   the packet's `QUESTIONS TO SETTLE`; a `Блокирует старт` row the plan cannot settle is asked before dispatch
+   (`pipeline` → `references/decision-changes.md` → Questions addressed to a stage).
 2. **Read the iteration's version** from the open
    `documentation/plans/<version>/` (no `summary.md`), or from the
    iteration branch `where_am_i.py` names when the folder is not here (a
@@ -160,7 +163,8 @@ written in each source file.
    - `STOP` — stop and take it to the user. The user's answer is a changed
      decision: it lands in its document (`pipeline` →
      `references/decision-changes.md`) before the revise round that follows.
-   - `PASS` — only then ask, per `pipeline` → "Asking before a
+   - `PASS` — mark each question the writer settled `Решено: <где>` in its `open-questions.md`, staged with
+     the plan, and name them in the report. Only then ask, per `pipeline` → "Asking before a
      transition", about the stage the table names after this one. Do not
      name a next step from memory. A row of `open-questions.md` classed
      `Блокирует старт` goes into that question, each with the units it

@@ -13,7 +13,8 @@ One line per step, ✅ done or ✗ what is missing, in order:
   2 site      documentation/ (the site included) has nothing uncommitted
   3 summary   documentation/plans/<version>/summary.md exists; with no plan.md beside it, it has a «| Малая итерация |»
               row with a filled value — a small iteration says what it skipped, or the plan is missing (ai-initiatives
-              2.2.1 closed with no plan and nothing said whether that was allowed)
+              2.2.1 closed with no plan and nothing said whether that was allowed); the open questions still left, by
+              addressee (doc-versioning/scripts/open_questions.py), as a note on a passed step — never a ✗
   4 tag       v<version> exists — and points at a commit that has steps 1–3 in it
   5 reflect   ~/.claude (or ~/.codex)/dev-pipeline-feedback/<project>.md has a section of <version> whose «Окно»
               ends at or after the iteration's last commit (the tag's, else HEAD's) — a part of it does not count
@@ -92,6 +93,13 @@ def main() -> None:
                   "нет плана и нет строки «| Малая итерация | … |» в итоге — либо это малая итерация (запишите строку: "
                   "что пропущено и почему, pipeline → references/summary.md), либо плана не хватает (plan)"
                   if unplanned else ""))
+    if steps[-1][1] and w.oq is not None:   # a note, not a ✗: open questions outlive the iteration, the summary names them
+        try:
+            left = w.oq.pending(w.oq.collect(root))
+        except Exception:
+            left = []
+        if left:
+            steps[-1] = ("3 итог", True, "открытые вопросы (назвать в итоге): " + "; ".join(left))
     code, tag_sha = git(root, "rev-list", "-n", "1", f"v{version}")
     tagged = code == 0 and bool(tag_sha)
     late = ""

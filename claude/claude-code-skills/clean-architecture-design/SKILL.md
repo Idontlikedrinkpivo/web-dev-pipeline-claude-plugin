@@ -81,6 +81,8 @@ The session dispatches the typist only for a check's lines (`executor-catalog`
    - Edited `.d2`: one the user asked to apply goes into the foundation packet with
      `references/architecture-diagram.md` (diagram → architecture); a `.d2` and its document that disagree
      with no word on which is newer: ask once.
+   - Questions addressed here: `open_questions.py "$PWD" --for "архитектура"` (`doc-versioning/scripts/`) →
+     `QUESTIONS TO SETTLE` (`pipeline` → `references/decision-changes.md` → Questions addressed to a stage).
 2. **Pick the modes.** Greenfield runs all three in this stage, in
    order: `foundation` → `domain` → `scenarios:<area>` for every area
    the SRS groups name. An increment picks only the documents what
@@ -139,8 +141,8 @@ The session dispatches the typist only for a check's lines (`executor-catalog`
    Writer) joins the documents of this sitting: it is reported as
    changed and goes to the same `doc-review` question.
 7. **Close.** Report which documents were written or changed, which
-   were untouched and why, and the level. Then ask, per `pipeline` →
-   "Asking before a transition": first about `doc-review` on each
+   were untouched and why, the level, and the questions settled (each row marked `Решено: <где>`). Then ask,
+   per `pipeline` → "Asking before a transition": first about `doc-review` on each
    document written or changed in this sitting (one gate question that
    names them; a run reviews each), then the one next stage the
    `pipeline` table names. The writers do not run those. `doc-review`

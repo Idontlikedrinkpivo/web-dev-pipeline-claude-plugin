@@ -60,7 +60,10 @@ it under the Dispatch contract with `references/writer-prompt.md`, without
 asking which model. The session writes no case; it only moves an old
 single file first (Artifact below). A `BLOCKED` with a question only the
 user can answer: ask it in the chat (`executor-catalog` → Escalation),
-paste the answer into the packet's `ANSWERS` and dispatch the writer again.
+paste the answer into the packet's `ANSWERS` and dispatch the writer again. The questions addressed to this stage
+(`open_questions.py "$PWD" --for "тест-кейсы"`, `doc-versioning/scripts/`) go into `QUESTIONS TO SETTLE`, and
+each one settled is marked `Решено: <где>` at the close (`pipeline` → `references/decision-changes.md` → Questions
+addressed to a stage).
 
 **Progress file.** Before the dispatch, create
 `documentation/plans/<version>/progress-test-cases.md` per

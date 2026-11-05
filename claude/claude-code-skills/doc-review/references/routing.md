@@ -132,7 +132,12 @@ not only when they pick A–D. There is no shared
    the finding's title, its section, and why it matters, with the source
    in brackets: `{title} — {section}: {why_it_matters} (ревью
    {reviewed-path}, YYYY-MM-DD, {severity})`. `Класс` is `Блокирует старт`
-   for a P0, `Отложено` otherwise.
+   for a P0; otherwise the addressee — `Решить при: <этап>` when the user
+   named the stage that settles it («уточним при API»), `Отложено` when
+   none was named. A deferred question nobody reads is a decision made by
+   nobody; the named stage reads it (`pipeline` →
+   `references/decision-changes.md` → Questions addressed to a stage; the
+   old «Можно решить при архитектуре» is still read, never written).
 
 Do not append `suggested_fix` or the evidence array. `{why_it_matters}`
 says what goes wrong if the question stays open. It does not say how to

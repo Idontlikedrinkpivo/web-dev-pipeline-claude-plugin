@@ -40,7 +40,9 @@ defect or a check's lines (step 4).
    existing table the slice changes: `rows: yes` when the migration that
    created it is in a released tag (`git ls-tree -r --name-only
    v<last version> documentation/db/migrations/`), `rows: no` when this
-   unreleased iteration created it; with no tag and a live database, ask.
+   unreleased iteration created it; with no tag and a live database, ask. The questions addressed to this stage —
+   `python3 "${CLAUDE_SKILL_DIR}/../doc-versioning/scripts/open_questions.py" "$PWD" --for "схема БД"` — go into
+   `QUESTIONS TO SETTLE` (`pipeline` → `references/decision-changes.md` → Questions addressed to a stage).
 3. Read `executor-catalog` and
    `executor-catalog/references/design-complexity.md`. Dispatch
    exactly one writer with
@@ -72,7 +74,8 @@ defect or a check's lines (step 4).
    same row; any other `BLOCKED` / `HARDER_THAN_EXPECTED` escalates one
    design row (`executor-catalog` → Escalation); every round goes on while
    it makes progress (`pipeline` → `references/convergence.md`).
-5. Close the stage by asking, per `pipeline` → "Asking before a
+5. Mark each question the writer settled `Решено: <где>` in its `open-questions.md` (same section; the report
+   names them). Close the stage by asking, per `pipeline` → "Asking before a
    transition". First ask about `doc-review`. Run: run it; it returns
    without asking the next stage. Skip: name it in the report. Stop:
    stop. After a run or a skip, ask the one next stage the table names. The writer does not run

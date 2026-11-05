@@ -5,7 +5,9 @@
 Prints, in Russian: the branch; the open iteration(s) — two open ones end in a request to ask which is current;
 a resume note left by a stopped run (read it first); progress files with unfinished rows; each pipeline document
 with its version, gates and pins (stale when a «ломает» row came after the pin); the plan's review, the
-document-set check, the UI run and the audit with their verdicts; and, last, the open points in chain order. On a
+document-set check, the UI run and the audit with their verdicts; the open questions of every document by addressee
+(doc-versioning/scripts/open_questions.py --pending), each addressee stage still ahead an open point next to that
+stage's own; and, last, the open points in chain order. On a
 clone still on main (no documentation/plans/) the closed iterations come from the tags v<version> and the units landed
 since the last tag from the Plan-Unit: trailers; an iteration branch with no tag and no folder here (the current
 one, or one on origin not merged into main) is the open iteration, with the open_iteration.py command to enter it.
@@ -26,6 +28,11 @@ try:
     import checked as dc_checked  # the document set and its hashes, shared with docs-consistency
 except Exception:  # a broken neighbour must not break the answer
     dc_checked = None
+sys.path.insert(0, str(HERE.parent.parent / "doc-versioning" / "scripts"))
+try:
+    import open_questions as oq  # the open questions of every document by addressee (doc-versioning → Открытые вопросы)
+except Exception:
+    oq = None
 
 PROGRESS = {  # file -> (stage, which statuses mean «not finished»)
     "progress-design.md": ("ui-design", "⏳🔄🔍🔁⛔"), "progress-screen-specs.md": ("screen-spec", "⏳🔄🔍🔁⛔"),
@@ -365,6 +372,59 @@ def consistency(root: Path, folder: Path) -> tuple:
     return line, None if verdict.startswith("PASS") else f"сверка: {verdict}"
 
 
+OPEN_STAGE = ((r"этап (\d+)", None), (r"бизнес-требован", 1), (r"\bSRS\b", 2), (r"«схема БД", 3), (r"«API", 4),
+              (r"«архитектура|«доменная|«сценарии", 5), (r"^repo-scaffold", 6), (r"^ui-design|^макеты", 7),
+              (r"«ТЗ на экран|^screen-spec", 8), (r"^ui-test-cases write", 9), (r"^сверка", 10),
+              (r"проверка через интерфейс|^ui-test-cases run", 13), (r"аудит|^security-audit", 14),  # before «план»:
+              (r"план|plan-review", 11), (r"^work ", 12), (r"^deploy-topology", 15))  # their points name a fix plan
+
+
+def open_stage(point: str) -> int | None:
+    """The chain stage an open point belongs to, read from its words; None for a resume note and the like."""
+    for rx, n in OPEN_STAGE:
+        m = re.search(rx, point)
+        if m:
+            return int(m.group(1)) if n is None else n
+    return None
+
+
+def position(root: Path, docs: list, version: str | None, folder: Path | None, after_close: bool) -> int:
+    """How far the chain has come: the furthest stage this iteration wrote or ran; with no open iteration, 0 after a
+    closed one (the next starts from the top), else the furthest stage whose document exists."""
+    doc = root / "documentation"
+    if version:
+        reached = [d.stage for d in docs if d.path.is_file() and d.meta.get("version") == version]
+        if folder:
+            reached += [n for name, n in (("docs-consistency.md", 10), ("plan.md", 11), ("progress.md", 12),
+                                          ("test-run.md", 13), ("security-audit.md", 14)) if (folder / name).is_file()]
+        return max(reached, default=0)
+    if after_close:
+        return 0
+    reached = [d.stage for d in docs if d.path.is_file()]
+    reached += [n for n, globs in ((7, ("ui/frames-register.md", "ui/*/frames-register.md")),
+                                   (9, ("ui/test-cases/README.md", "ui/*/test-cases/README.md")),
+                                   (6, ("project-map/project-map.md",)), (15, ("deploy/deploy.md",)),
+                                   (16, ("operations/operations.md",))) if any(any(doc.glob(g)) for g in globs)]
+    return max(reached, default=0)
+
+
+def question_opens(opens: list, rows: list, pos: int, open_stages: dict) -> None:
+    """One open point per addressee stage still ahead (or open now), right before that stage's own point — so the
+    answer names the stage's questions with the stage; blocks before every staged point."""
+    by: dict = {}
+    for r in rows:
+        if r.stage is not None and (r.stage == 0 or r.stage > pos or r.stage in open_stages):
+            by.setdefault((r.stage, r.addressee), []).append(r)
+    for (stage, name), rs in sorted(by.items()):
+        point = (f"вопросы «Блокирует старт»: {len(rs)} — ответить до следующего этапа" if stage == 0
+                 else f"вопросы для этапа «{name}»: {len(rs)} — решить на нём")
+        marks = [open_stage(o) for o in opens]
+        at = next((i for i, s in enumerate(marks) if s == stage and stage), None)
+        if at is None:
+            at = next((i for i, s in enumerate(marks) if s is not None and s > stage), len(opens))
+        opens.insert(at, point)
+
+
 def main() -> None:
     given = Path(sys.argv[1] if len(sys.argv) > 1 else ".").resolve()
     top = git(given, "rev-parse", "--show-toplevel")
@@ -546,6 +606,17 @@ def main() -> None:
                 print(f"  {n}. {label}: {v.group(1)}")
                 if v.group(1) in ("DEFECTS", "FIX"):
                     opens.append(f"{label}: {v.group(1)} — план исправлений (plan, MODE fix)")
+
+    try:
+        rows = oq.collect(root) if oq is not None else []
+    except Exception:  # a broken question file must not break the answer
+        rows = []
+    if rows:   # each question stays in its document's file; the addressee stage reads them here and with --for
+        print("Открытые вопросы по адресатам:")
+        for line in oq.pending(rows):
+            print(f"  {line}")
+        after_close = bool(closed or git(root, "tag", "--list", "v*"))
+        question_opens(opens, rows, position(root, docs, it_version, folder, after_close), open_stages)
 
     print("Открытые пункты (по порядку):" if opens else "Открытых пунктов по файлам нет — следующий этап по таблице pipeline.")
     for o in dict.fromkeys(opens):

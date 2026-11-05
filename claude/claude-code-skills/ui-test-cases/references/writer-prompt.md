@@ -30,6 +30,12 @@ ANSWERS
   <pasted: the user's answer to each question an earlier dispatch returned
    as BLOCKED, with the question — or: none>
 
+QUESTIONS TO SETTLE
+  <the rows `open_questions.py --for "тест-кейсы"` printed, `<file>\t<question>`
+   each (pipeline → references/decision-changes.md → Questions addressed to a
+   stage). Settle each in the cases, or return it BLOCKED when only the user
+   can decide; name each in your report — or: none>
+
 RULES
 - Progress comes first in every section: before the section's first edit,
   set its row in PROGRESS FILE to `🔄 в работе` with the Edit tool; right

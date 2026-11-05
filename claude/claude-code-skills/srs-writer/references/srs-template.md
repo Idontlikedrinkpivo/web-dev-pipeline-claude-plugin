@@ -286,7 +286,7 @@ Taken from whatever the source marks as out of scope. If the source has a Scope 
 
 Anything load-bearing that isn't itself a requirement: an external system's guaranteed behavior, a library assumed available, a decision deferred to another team.
 
-The SRS has no open-questions section. Gaps this SRS could not settle, and a finding the user deferred, are rows in `open-questions.md` in this file's folder. Class each row `Блокирует старт` or `Можно решить при архитектуре` or `Отложено`. Never leave a row unclassified.
+The SRS has no open-questions section. Gaps this SRS could not settle, and a finding the user deferred, are rows in `open-questions.md` in this file's folder. Class each row `Блокирует старт`, `Решить при: <этап>` (the stage that can settle it, as the one who deferred named it: схема БД, API, архитектура, макеты, ТЗ на экраны, тест-кейсы, план, разработка, релиз, эксплуатация) or `Отложено` (no stage named); `Решено: <где>` is written later by the stage that settled it. The class is the addressee because a deferred question nobody reads is a decision made by nobody — that stage reads it at its input (`pipeline` → `references/decision-changes.md` → Questions addressed to a stage). The old `Можно решить при архитектуре` is still read, never written. Never leave a row unclassified.
 
 ## Writing Discipline
 

@@ -12,6 +12,9 @@ stage skill, its heading the skill's folder name; a stage with no section gets �
 - Before every next stage, ask (`SKILL.md` → Asking before a transition); the questions go in the chat, never in a
   choice card (`references/question-format.md`).
 - A decision made in the chat goes into its document before the stage closes (`references/decision-changes.md`).
+- At a stage's input, the questions addressed to it (`doc-versioning/scripts/open_questions.py "$PWD" --for
+  "<этап>"`) go to its writer or are settled; at its close each settled row is marked «Решено: <где>»
+  (`references/decision-changes.md` → Questions addressed to a stage).
 - A document stage ends with its close commit — `docs: <документ> <version> · review: <состояние>`, empty when
   nothing was stamped (`doc-versioning` → `references/version-birth.md`).
 - The iteration closes in `scripts/close_iteration.py`'s order: audit, stamp, site, summary, tag, reflect to the

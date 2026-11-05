@@ -54,8 +54,16 @@ REVERSALS       <grill-reversal only: each decision the user reversed —
                 replaces. A grill sends its whole ledger here once, at
                 its close, never one dispatch per round. Otherwise: none>
 DEFERRED        <grill-reversal only: each question the grill deferred
-                («потом», «отложим»), one line each, from the ledger.
-                Otherwise: none>
+                («потом», «отложим»), one line each, from the ledger,
+                with its addressee: `Решить при: <этап>` when the user
+                named the stage («уточним при архитектуре»), else
+                `Отложено`. Otherwise: none>
+QUESTIONS TO SETTLE <rows another document's `open-questions.md` addressed
+                to this SRS, `<file>\t<question>` each (pipeline →
+                references/decision-changes.md → Questions addressed to a
+                stage). Settle each in the SRS, or return it BLOCKED when
+                only the user can decide — the SRS guesses no product
+                decision; name each in your report. Otherwise: none>
 
 LANGUAGE        Russian prose, including section headings and table
                 columns from the skill template. Do not translate ids
@@ -73,9 +81,10 @@ RULES
   the answer back to you.
 - On grill-reversal: the settlement lists each contradicted line and
   its replacement. Replace it in place. Each DEFERRED line
-  becomes one `open-questions.md` row beside the SRS, class `Отложено`,
-  source `(допрос, YYYY-MM-DD)` — a deferred question is kept, not lost
-  with the ledger. Do not bump version. Do not add a changelog row.
+  becomes one `open-questions.md` row beside the SRS, class = its
+  addressee from the line, source `(допрос, YYYY-MM-DD)` — a deferred
+  question is kept, not lost with the ledger, and the stage named in the
+  class reads it. Do not bump version. Do not add a changelog row.
 - Frontmatter is only `title`, `date`, `updated`, `version`. Do not
   write `status`, `grilled`, `reviewed`, or `sources`.
 - On increment: follow srs-writer/references/srs-template.md → Artifact
@@ -99,7 +108,7 @@ Last message, exactly these fields:
 STATUS            DONE | DONE_WITH_CONCERNS | BLOCKED | HARDER_THAN_EXPECTED
 FILE WRITTEN      the output path, or none
 COUNTS            FR range, UC range, N rows in open-questions.md
-                  (N of them `Отложено` from DEFERRED), N wishes in
+                  (N of them from DEFERRED), N wishes in
                   ui-wishes.md
 SOURCE            покрыто N из M пунктов источника
 CHANGES           every new or changed id with its change type —

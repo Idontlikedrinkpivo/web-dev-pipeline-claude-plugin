@@ -73,7 +73,14 @@ project's root and answer from its output. It prints, in this order:
    a fix plan, `plan` MODE fix). No `plan.md` but a `Plan-Unit: <version>/chat-<n>` commit on the branch (or the
    summary's «Малая итерация» row) is a small iteration (`SKILL.md` → A small iteration): its open point is the
    close, not stage 10 or `plan` — the plan was skipped on purpose.
-7. **Open points in order** — the list the answer is built from.
+7. **«Открытые вопросы по адресатам»** — every document's `open-questions.md` counted by its class, the addressee
+   (`doc-versioning` → Открытые вопросы; `open_questions.py --pending`), because no stage reads another
+   document's question file by itself. Each addressee stage still ahead of the chain's position, or open now, adds
+   the open point «вопросы для этапа «<этап>»: N — решить на нём» right before that stage's own point, and
+   «Блокирует старт» one before every staged point: the answer names the stage with the questions it settles, and
+   a blocking question is answered before the next stage starts. A question for a stage already closed is not an
+   open point here — `docs-consistency` returns it to that stage.
+8. **Open points in order** — the list the answer is built from.
 
 ## The answer
 

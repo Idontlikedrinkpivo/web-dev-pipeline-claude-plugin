@@ -120,6 +120,9 @@ A follow-up that is not in the plan changes neither number.
   tree. `BASE` is the HEAD the last whole review covered (this run's start on a
   first run); record it in the run report before the first dispatch. It bounds
   Step 7's diff and nothing else.
+- **Questions addressed to this stage** — `python3 "${CLAUDE_SKILL_DIR}/../doc-versioning/scripts/open_questions.py"
+  "$PWD" --for "разработка"`: before the first dispatch the session settles each from the documents or asks it, an
+  answer landing as a changed decision (`pipeline` → `references/decision-changes.md` → Questions addressed to a stage).
 
 **The run's state besides the commits** — the run report (`plans/<version>/run-report.md`) with its «В работе»
 line, the resume note, the task list, and the progress file with its line — is `references/run-state.md`: read
@@ -361,8 +364,8 @@ round's fix commits until `PASS`, while each round makes progress.
 
 **Close.** Write the verdict path into the `Финальное ревью:` line
 (`RETURN_TO_UNIT → исправлено → PASS`, or plain `PASS`), write the run
-report (`references/run-report.md` — read it now), stop every watcher the run
-started, and delete `resume.md`. The run's last message is the progress line,
+report (`references/run-report.md` — read it now) with the addressed questions settled (each row marked
+`Решено: <где>`), stop every watcher the run started, and delete `resume.md`. The run's last message is the progress line,
 then the question about the next stage: read `pipeline` → "Asking before a
 transition" now and ask it as that section says — the stage the chain table names after `work` (the UI run, else
 the security audit), never «merge, push and prod are the owner's steps»: that line ended a run with the audit not

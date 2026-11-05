@@ -126,6 +126,33 @@ does this, whatever the finding's severity:
    the decision did not consider — not from the finding's own advice.
 3. **Nothing is fixed, planned or committed for it before the answer.**
 
+## Questions addressed to a stage
+
+A question deferred in one document's `open-questions.md` names, in its
+«Класс», the stage that can settle it — a deferred question nobody reads is a
+decision made by nobody, and every stage reads only its own documents.
+
+- **Классы.** `Блокирует старт`; `Решить при: <этап>` (<этап>: схема БД, API,
+  архитектура, макеты, ТЗ на экраны, тест-кейсы, план, разработка, релиз,
+  эксплуатация); `Отложено`; `Решено: <где>` — the row stays, <где> the
+  document and section, or the commit, that settled it. Whoever defers picks
+  the addressee: the user's «уточним при архитектуре» names it; with no stage
+  named, `Отложено`. The legacy `Можно решить при архитектуре` is still read
+  as `Решить при: архитектура`, never written.
+- **At the stage's input**, the step that gathers its documents:
+  `python3 "${CLAUDE_SKILL_DIR}/../doc-versioning/scripts/open_questions.py" "$PWD" --for "<этап>"`
+  prints `<file>\t<question>` per row from every question file of the project,
+  blocks first, the count last (`--pending`: counts per addressee). Each row
+  goes to the writer's packet under `QUESTIONS TO SETTLE`; a stage with no
+  writer settles or asks them as its own questions. A `Блокирует старт` row the
+  stage cannot settle is a stop: ask the user, as the stage's other stops.
+- **At the stage's close**, the session edits each settled row's «Класс» to
+  `Решено: <где>` (Edit; the file stays in its source document's folder). It
+  belongs to the other document: stage it in the close commit as a changed-
+  decision edit — no version, changelog or pin change (step 5 above). A row
+  not settled is readdressed (`Решить при: <следующий этап>`) or stays, with a
+  line in the report; the report names the questions settled.
+
 ## Where it applies
 
 | Stage | The moment |

@@ -151,7 +151,7 @@ the Phase 4 closing summary:
 
 1. **Complete** — no placeholders, `TBD`s, or half-written sections remain;
    every open question is a row of `open-questions.md` beside the document,
-   classed «Блокирует старт» or «Отложено» (`doc-versioning` → Открытые
+   classed «Блокирует старт», «Решить при: <этап>» or «Отложено» (`doc-versioning` → Открытые
    вопросы); the document has no independently edited question register. Customer-facing documents may include generated topic-local question projections per `business-audience.md`. When the coherent-work gate split a broader request,
    the `work-relationships` section is present and carries the marker for the
    marker `<!-- ce-section: work-relationships -->`.
@@ -319,8 +319,8 @@ worse than omitting it.
 
 - **Unresolved items** do not get a section in this document. Write them in
   `open-questions.md` in the same folder. Class a row `Блокирует старт`
-  when planning cannot start, or `Отложено` when planning or the codebase
-  can answer it later.
+  when planning cannot start, `Решить при: <этап>` when a named later stage
+  settles it (SKILL.md rule 8), or `Отложено` when no stage is named.
 
 - **Sources / Research** — surface research that orients the SRS writer or
   justifies framing choices. The test: *"if I were the SRS writer reading this

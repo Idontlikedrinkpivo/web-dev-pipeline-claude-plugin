@@ -75,6 +75,9 @@ Commit each document) — and the stage closes as usual, its stamp included.
 Not inputs: `documentation/api/openapi.yaml` and the DB schema. A frame
 never cites an `operationId` or a column; errors are drawn per SRS exception
 flow (`UC-3 Exc-1`), and `screen-spec` maps them to status codes later.
+Questions addressed here: `open_questions.py "$PWD" --for "макеты"` (`doc-versioning/scripts/`) — the session
+settles or asks each before the builder's dispatch (`pipeline` → `references/decision-changes.md` → Questions
+addressed to a stage).
 
 ## Order of a run
 
@@ -422,8 +425,8 @@ The frames are not a document, so this stage has no `grill-me` or
 
 Report, in Russian: the register path, the mode, `S-1–S-n` with each
 screen's mark for this run (`новый экран`, `правка`, `редизайн`, `без
-изменений`), which executor drew (or that none did), and the open rows by
-class.
+изменений`), which executor drew (or that none did), the open rows by
+class, and the addressed questions settled (each row marked `Решено: <где>`).
 
 When frames were drawn, list the Figma sections whose name now ends in
 `готово к разработке` and ask the user to mark them **Ready for dev** in Dev

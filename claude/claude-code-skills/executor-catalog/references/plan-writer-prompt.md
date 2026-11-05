@@ -88,6 +88,12 @@ DEFERRED        <the plugin's code changes the user put into this plan,
 ANSWERS         <pasted: the user's answer to each question an earlier
                  dispatch of this plan returned as BLOCKED, one line with
                  its question. Otherwise: none>
+QUESTIONS TO SETTLE <the rows `open_questions.py --for "план"` printed,
+                 `<file>\t<question>` each (pipeline →
+                 references/decision-changes.md → Questions addressed to a
+                 stage). Settle each in the plan, or return it as an
+                 assumption `(ДП-n)`, or BLOCKED when only the user can
+                 decide; name each in your report. Otherwise: none>
 
 LANGUAGE        Russian prose. Do not translate U-ids, paths, or
                 executor names. Template headings stay as the skill

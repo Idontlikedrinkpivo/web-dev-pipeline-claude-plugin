@@ -92,6 +92,14 @@ reading each changelog by hand:
 a P1 finding of this stage, routed to the stage that owns that document (its fix is that document's own edit and
 stamp, as in Step 4) — never patched here in passing.
 
+**Then the open questions**: run
+`python3 "${CLAUDE_SKILL_DIR}/../doc-versioning/scripts/open_questions.py" . --pending`, then `--for <этап>` for each
+addressee it names. A row still addressed to a stage of 3–9 whose document is in the set (that stage ran, so it is
+closed by now) is a P1 finding owned by that stage, axis «Вопросы»: «вопрос адресован закрытому этапу: <вопрос> —
+<file>», routed like a stale pin: that stage settles it (`Решено: <где>`) or re-addresses it, since no later stage
+looks back. Rows for план, разработка, релиз, эксплуатация and `Отложено` are listed in the report, not findings;
+`Блокирует старт` still open is a P1 owned by the stage of its file.
+
 **Then the test cases' trace**, when the set has user test cases: run
 `python3 "${CLAUDE_SKILL_DIR}/../ui-test-cases/scripts/check_trace.py" --docs documentation --quiet`
 and fix what it finds before the dispatch, without asking: dispatch
@@ -183,7 +191,7 @@ Exactly one:
 | Verdict | When | Next move |
 |---|---|---|
 | `PASS` | no P0 / P1 | the offer of the next stage — `plan` — per `pipeline` → "Asking before a transition" |
-| `RETURN_TO_STAGE` | P0 / P1 whose fix is the owner stage's job, or a stale pin (Step 1) | name the **earliest** owner stage in chain order, with its findings — a later stage's fix may depend on it. Ask to run it per `pipeline` → "Asking before a transition"; after it, re-run this check |
+| `RETURN_TO_STAGE` | P0 / P1 whose fix is the owner stage's job, a stale pin, or a question addressed to a closed stage (Step 1) | name the **earliest** owner stage in chain order, with its findings — a later stage's fix may depend on it. Ask to run it per `pipeline` → "Asking before a transition"; after it, re-run this check |
 | `STOP` | a contradiction only a product decision closes: two readings of the SRS, both reasonable | one question to the user per `pipeline` → `references/question-format.md`; the answer is a changed decision — it goes to the SRS and every document that states the other reading, committed at once with no version change (`pipeline` → `references/decision-changes.md`), then the check re-runs. A fix that would reverse a decision a document made on purpose is asked the same way, with that decision quoted, never applied as a fix (`pipeline` → `references/decision-changes.md` → A finding against a settled decision) |
 
 A re-check reads the whole set again, not only the changed document: a fix
@@ -271,3 +279,4 @@ skipped: none
   it or the user opened it directly.
 - `scripts/checked.py` — the `checked:` block and `--verify`.
 - `scripts/pins.py` — Step 1's pins, classed stale / behind / refresh with the rows after each pin.
+- `doc-versioning/scripts/open_questions.py` — Step 1's open questions by addressee.

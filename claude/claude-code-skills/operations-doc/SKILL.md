@@ -34,6 +34,9 @@ Missing SRS or schema: stop and name the stage that writes it. No test
 stand — neither a verify skill nor `deploy-topology`'s test compose: stop
 and name `deploy-topology`, because step 4 proves every query on a stand.
 No storage: the journals section says so and the rest still applies.
+Questions addressed to this stage — `python3 "${CLAUDE_SKILL_DIR}/../doc-versioning/scripts/open_questions.py"
+"$PWD" --for "эксплуатация"` — the session settles in the document or asks as its own, before step 1 (`pipeline`
+→ `references/decision-changes.md` → Questions addressed to a stage).
 
 ## Steps
 
@@ -93,12 +96,12 @@ result goes into the chat in a line.
 7. **Commit** the document and the test on the iteration's branch
    (`docs: эксплуатация`); when the project has a documentation site, wait
    for its rebuild first (`docs-site` → `rebuild.py . --wait`) and stage
-   `documentation/_web-docs` too. Then close
+   `documentation/_web-docs` too, and each addressed question settled, its row marked `Решено: <где>`. Then close
    per `pipeline` → "Asking before a transition": the report first —
    the document as a link, a required record the system does not keep or
    keeps shorter than its basis first, how many records, jobs, events and alarms it
    covers, the queries proven, every gap from step 2 and every difference
-   from step 1 — then the next stage the `pipeline` table names. Report the
+   from step 1, the questions settled — then the next stage the `pipeline` table names. Report the
    differences in three groups, because each is fixed differently: **the code
    contradicts a document** (a defect — a fix in code; prove it on the stand
    when you can), **a document is behind the code** (the document's owner

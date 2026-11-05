@@ -28,7 +28,9 @@ dispatches the typist only for a print defect or a check's lines (step 4).
    on a new spec, when the SRS does not say — whether anyone outside the
    project calls the API (Step 2, Contract version).
    One question per message (`pipeline/references/question-format.md`);
-   each answer goes into the packet's ANSWERS.
+   each answer goes into the packet's ANSWERS. The questions addressed to this stage —
+   `python3 "${CLAUDE_SKILL_DIR}/../doc-versioning/scripts/open_questions.py" "$PWD" --for "API"` — go into
+   `QUESTIONS TO SETTLE` (`pipeline` → `references/decision-changes.md` → Questions addressed to a stage).
    A single-file spec is split here, before dispatch (writers and the
    typist do not commit): run
    `python3 "${CLAUDE_SKILL_DIR}/scripts/split_spec.py" .` — it splits with
@@ -68,7 +70,8 @@ dispatches the typist only for a print defect or a check's lines (step 4).
    `HARDER_THAN_EXPECTED` escalates one design row (`executor-catalog` →
    Escalation); every round goes on while it makes progress (`pipeline` →
    `references/convergence.md`).
-5. Close the stage by asking, per `pipeline` → "Asking before a
+5. Mark each question the writer settled `Решено: <где>` in its `open-questions.md` (same section; the report
+   names them). Close the stage by asking, per `pipeline` → "Asking before a
    transition". First ask about `doc-review`. Run: run it; it returns
    without asking the next stage. Skip: name it in the report. Stop:
    stop. After a run or a skip, ask the one next stage the table names. The writer does not run
