@@ -415,6 +415,7 @@ migration runner config or script, `documentation/project-map/project-map.md`)
 and the commit. A map-only run names the map path and the commit and
 stops — it does not ask the next stage again if a plan already exists.
 
-Read `pipeline` and ask about the stage its table names after this one,
+Read `pipeline` and ask about the next stage per "What to offer at a close"
+(the meeting point when the design branch is done, else what can start),
 per "Asking before a transition". Do not list the rest of the pipeline,
 and do not start the next stage on a no.

@@ -95,14 +95,17 @@ itself, as before, and over the context limit goes on in place (`references/cont
 - **Starting the next stage** — on a report from a nested session (below): `mark` the sender, send the next row
   «начинай» (`SendMessage`, which works in any turn; `mark … идёт`), and the user a line: «Дальше — «<title>» в
   боковом списке». Two branches after the SRS (`references/branch-order.md`): start both, unless the user asked for
-  one order.
+  one order. A row whose «Когда» says «после API» (the screen specs — `plan` sets it; `subsessions.py … after` for
+  any other) is opened with the rest but gets «начинай» only when that stage closes: `mark … закрыт` prints the rows
+  it frees. A report that names several stages (the architecture and the screen specs after the API) starts each.
 
 ### What comes back
 
 One line each from a nested session (`SendMessage` to the parent):
 
-- «ЭТАП <stage> ЗАКРЫТ · дальше: <stage>» — `mark … закрыт`, start that stage's row; «· остановиться» — say where
-  the iteration stands and start nothing;
+- «ЭТАП <stage> ЗАКРЫТ · дальше: <stage>[, <stage>]» — `mark … закрыт`, start each named stage's row; «· ждёт:
+  <stage> после <stage>» — mark closed, start nothing for that branch: the row waits for the stage it names
+  (`references/next-stage.md`); «· остановиться» — say where the iteration stands and start nothing;
 - «<stage> ПЕРЕДАН · после <item> · контекст <N> тыс. · продолжать с <item>» → `mark … передан`, then **clear
   that same session** (`mcp__ccd_session_mgmt__clear_session` with its id — often deferred, load it with
   ToolSearch) — not a new one: opening a session in a turn the user did not begin needs their click on a card,
@@ -186,7 +189,7 @@ It runs its stage as the stage's skill says, with the user, in this session. Wha
   <project> <version> whoami <id>` and goes on with that row's stage from `resume.md` and the progress file.
 - **At the stage's close** it asks the transition question as usual (`SKILL.md` → Asking before a transition), runs
   the handover check — a read-only agent compares this chat with the files and names a decision no file holds
-  (`references/handover-check.md`); each one is written down and committed — then sends the parent «ЭТАП <stage> ЗАКРЫТ · дальше: <the answer's stage>» (two, for the branches after the SRS; «·
+  (`references/handover-check.md`); each one is written down and committed — then sends the parent «ЭТАП <stage> ЗАКРЫТ · дальше: <the answer's stages — those ready now, `references/next-stage.md`>» (two, for the branches after the SRS; «· ждёт: <stage> после <stage>» when none can start; «·
   остановиться» when the user stops) and ends with one line to the user: «Дальше — «<version> · <stage>» в
   боковом списке». It opens no session, offers no card for one (a card clicked later opened a second session of one
   stage — live run 2026-10-31), and does not run the next stage here.

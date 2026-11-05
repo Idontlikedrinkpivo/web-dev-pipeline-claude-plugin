@@ -442,9 +442,11 @@ Then, when the frames are done, this one line, as is: «Макеты готов�
 правки»; with specs and no cases, «реестр и ТЗ на экраны». Why: the user reviews the frames anyway, and
 without the line an edit made in Figma never reaches the documents (Frames changed by hand).
 
-Then read `pipeline` and ask about the stage its table names after this one
-(normally `screen-spec`, which needs these frames and the OpenAPI contract;
-`pipeline` says what runs first when the contract is missing; after a
+Then read `pipeline` and ask about the next stage per "What to offer at a
+close" (normally `screen-spec`, which needs these frames and the OpenAPI
+contract; the contract not closed yet — the backend's first stage not
+closed, or, while the other session runs it, nothing: say what the specs
+wait for and where it is being done, and end the sitting; after a
 restyle or a redraw, the stage `references/restyle-redraw.md` names), per "Asking before a transition". A no stops the sitting. While frames are still
 missing (a failed dispatch, a blocking header row), the last message is the
 blocker, not the next stage.

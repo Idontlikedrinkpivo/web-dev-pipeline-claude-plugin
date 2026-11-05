@@ -78,7 +78,8 @@ defect or a check's lines (step 4).
    names them). Close the stage by asking, per `pipeline` → "Asking before a
    transition". First ask about `doc-review`. Run: run it; it returns
    without asking the next stage. Skip: name it in the report. Stop:
-   stop. After a run or a skip, ask the one next stage the table names. The writer does not run
+   stop. After a run or a skip, ask the next stage per `pipeline` → "What to offer at a close" (several
+   when several are ready). The writer does not run
    those. `doc-review` edits the body and does not bump. See
    `doc-versioning`.
 

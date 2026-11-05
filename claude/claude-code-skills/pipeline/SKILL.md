@@ -81,7 +81,7 @@ scaffolded. They meet before the plan.
 | 4 | API contract | `openapi-spec-generator` | `doc-review` | `clean-architecture-design` |
 | 5 | Architecture — foundation, domain model, scenarios by area | `clean-architecture-design` | `doc-review` on each document written | `repo-scaffold` |
 | 6 | Repository skeleton | `repo-scaffold` | none — also writes `documentation/project-map/project-map.md` | the meeting point — see "Two branches" |
-| 7 | Mockups | `ui-design` | none — frames are not a document | `screen-spec` once the API exists, else the backend branch's next stage; after a restyle of screens already built, `plan`; after a redraw on a new page, `screen-spec` for every screen; after «макеты поменялись», the changed screens' specs and cases, then back to where the iteration stood |
+| 7 | Mockups | `ui-design` | none — frames are not a document | `screen-spec` once the API is closed, else by readiness ("What to offer at a close": the backend's first stage not closed, nothing while the other session runs it); after a restyle of screens already built, `plan`; after a redraw on a new page, `screen-spec` for every screen; after «макеты поменялись», the changed screens' specs and cases, then back to where the iteration stood |
 | 8 | Screen specs (ТЗ на экран) | `screen-spec` | `doc-review` | `ui-test-cases` (write) |
 | 9 | UI test cases | `ui-test-cases` — mode write | no reviewer — two scripts at its close: `check_trace.py`, `check_coverage.py` | the meeting point — see "Two branches" |
 | 10 | Document set check | `docs-consistency` | none — it is the check | `plan` |
@@ -105,9 +105,12 @@ scaffolded. They meet before the plan.
   at `ui-design` when a human faces a screen. Another person can take
   any stage from the branch (`references/team.md`): the stage's close
   commits and pushes everything, the next person pulls and runs `continue`.
-- **`screen-spec` needs the API.** When stage 7 ends and stage 4 has not
-  run, offer the backend branch's next stage and say that the screen specs
-  wait for the contract.
+- **`screen-spec` needs the API.** When stage 7 ends and stage 4 is not
+  closed, say that the screen specs wait for the contract and offer by
+  readiness ("What to offer at a close"): the backend's first stage not
+  closed when nothing runs it; nothing when the other session runs it —
+  then this session's work is done. The design branch once offered the API
+  while the schema was still being written (live run 2026-11-05).
 - **The meeting point.** Stages 6 and 9 offer stage 10 when the other
   branch is done (its documents on the branch — `git pull --rebase` first
   when other people work on it), else the other branch's next unfinished
@@ -317,6 +320,16 @@ stage is the writer named in this table's offer cell, including a skip (no
 UI, no storage, no HTTP) — name the skill the skip selects and why the
 skipped ones do not apply.
 
+### What to offer at a close
+
+The table's "Then offer" cell is the default order; the offer comes from
+readiness — `references/next-stage.md`: `scripts/where_am_i.py` prints
+«Готовность этапов», and the close offers every stage that can start now
+(its inputs on the branch and closed), together when several are — after
+the API the architecture and the screen specs; names, never offers, a stage
+a nested session holds; names what a waiting stage waits for; and, when
+nothing can start here, says so and ends the sitting.
+
 ### Commit each document
 
 Commit each document as soon as it is written: the moment a writer
@@ -476,3 +489,5 @@ read when their case comes up:
 - `references/pause-and-resume.md` — the resume note a long run (`work`,
   `ui-test-cases` mode run, `security-audit`) keeps current, and what a
   session that picks up a stopped run reads first.
+- `references/next-stage.md` — the offer at a stage's close by readiness:
+  what can start now, what waits, what another session holds.

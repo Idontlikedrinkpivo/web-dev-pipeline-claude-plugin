@@ -80,14 +80,20 @@ project's root and answer from its output. It prints, in this order:
    «Блокирует старт» one before every staged point: the answer names the stage with the questions it settles, and
    a blocking question is answered before the next stage starts. A question for a stage already closed is not an
    open point here — `docs-consistency` returns it to that stage.
-8. **Open points in order** — the list the answer is built from.
+8. **«Готовность этапов»** — stages 3–10 by readiness (`references/next-stage.md`): which can start now (inputs
+   on the branch and closed — `references/team.md` → What a stage needs), which wait for what, which a nested
+   session holds (`sessions.md`), which are written but not closed. The offer at a close is built from it; a stage
+   the product does not have (no storage, no HTTP, no screens) is dropped by the reader, the script cannot tell.
+9. **Open points in order** — the list the answer is built from.
 
 ## The answer
 
 The earliest unfinished point wins: a stopped run (resume note, then an
 unfinished progress file), else a stage left open after its writer
-(«этап не закрыт»), else a stale document's stage, else the next
-stage of a branch that is not done (for the design branch the frames
+(«этап не закрыт»), else a stale document's stage, else what «Готовность
+этапов» says can start now — several at once are each an option, together
+allowed; a stage a nested session holds is named, not offered
+(`references/next-stage.md`; the design branch's state is the frames
 register, `ui/screen-specs/` and `ui/test-cases/`, read from `origin` when
 other people work on the branch — `references/team.md`; both branches as
 options when both are open — equal ones, with no «(рекомендую)» between

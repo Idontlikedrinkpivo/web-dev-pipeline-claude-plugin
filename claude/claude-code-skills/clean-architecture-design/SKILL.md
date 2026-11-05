@@ -144,8 +144,9 @@ The session dispatches the typist only for a check's lines (`executor-catalog`
    were untouched and why, the level, and the questions settled (each row marked `Решено: <где>`). Then ask,
    per `pipeline` → "Asking before a transition": first about `doc-review` on each
    document written or changed in this sitting (one gate question that
-   names them; a run reviews each), then the one next stage the
-   `pipeline` table names. The writers do not run those. `doc-review`
+   names them; a run reviews each), then the next stage per `pipeline` →
+   "What to offer at a close" (the screen specs may be ready alongside
+   `repo-scaffold`). The writers do not run those. `doc-review`
    edits the body and does not bump. See `doc-versioning`.
 
 ## Writer (dispatched)

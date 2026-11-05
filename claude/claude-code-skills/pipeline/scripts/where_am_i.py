@@ -7,7 +7,9 @@ a resume note left by a stopped run (read it first); progress files with unfinis
 with its version, gates and pins (stale when a «ломает» row came after the pin); the plan's review, the
 document-set check, the UI run and the audit with their verdicts; the open questions of every document by addressee
 (doc-versioning/scripts/open_questions.py --pending), each addressee stage still ahead an open point next to that
-stage's own; and, last, the open points in chain order. On a
+stage's own; the readiness of stages 3–10 — which can start now (their inputs on the branch and closed), which wait
+for what, which a nested session holds (plans/<version>/sessions.md), which are written but not closed — the input of
+pipeline → What to offer at a close; and, last, the open points in chain order. On a
 clone still on main (no documentation/plans/) the closed iterations come from the tags v<version> and the units landed
 since the last tag from the Plan-Unit: trailers; an iteration branch with no tag and no folder here (the current
 one, or one on origin not merged into main) is the open iteration, with the open_iteration.py command to enter it.
@@ -408,6 +410,87 @@ def position(root: Path, docs: list, version: str | None, folder: Path | None, a
     return max(reached, default=0)
 
 
+STAGE_NAMES = {1: ("бизнес-требования", "brainstorm"), 2: ("SRS", "srs-writer"), 3: ("схема БД", "db-schema-design"),
+               4: ("API", "openapi-spec-generator"), 5: ("архитектура", "clean-architecture-design"),
+               6: ("каркас", "repo-scaffold"), 7: ("макеты", "ui-design"), 8: ("ТЗ на экраны", "screen-spec"),
+               9: ("тест-кейсы", "ui-test-cases write"), 10: ("сверка документов", "docs-consistency")}
+# what each stage needs on the branch before it starts (pipeline → references/team.md → What a stage needs)
+NEEDS = {3: (2,), 4: (2, 3), 5: (2, 3, 4), 6: (5,), 7: (2,), 8: (7, 4), 9: (8,), 10: (6, 9)}
+SESSION_STAGE = {"brd": 1, "srs": 2, "db": 3, "api": 4, "arch": 5, "scaffold": 6, "design": 7, "specs": 8, "cases": 9,
+                 "check": 10}
+
+
+def session_rows(folder: Path | None) -> dict:
+    """Stages a nested session holds now — rows «идёт» or «передан» of plans/<version>/sessions.md
+    (pipeline → references/parent-session.md): {stage: (title, state)}."""
+    out: dict = {}
+    if not folder:
+        return out
+    for line in read(folder / "sessions.md").splitlines():
+        m = re.match(r"^\|\s*\d+\s*\|(.*)\|(.*)\|(.*)\|(.*)\|(.*)\|(.*)\|\s*$", line)
+        if not m:
+            continue
+        title, key, _, _, _, state = (c.strip() for c in m.groups())
+        n = SESSION_STAGE.get(key.removesuffix("-fix"))
+        if n and state in ("идёт", "передан"):
+            out[n] = (title, state)
+    return out
+
+
+def readiness(root: Path, docs: list, folder: Path | None, open_stages: dict) -> list:
+    """Stages 3–10 by readiness — the input of pipeline → What to offer at a close: a stage is done when its document
+    is on the branch and its stage is closed («этап не закрыт» is not done); it can start when every input it needs
+    is done; it waits otherwise; a stage a nested session holds is named with that session, not offered. The chain's
+    order between the branches is not assumed: after the API the architecture and the screen specs are both ready."""
+    doc = root / "documentation"
+    have = {d.stage for d in docs if d.path.is_file()}
+    try:
+        import json as _json
+        design = str(_json.loads(read(doc / ".dev-pipeline.json") or "{}").get("design", ""))
+    except ValueError:
+        design = ""
+    if any(doc.glob("ui/frames-register.md")) or any(doc.glob("ui/*/frames-register.md")) \
+            or design.lower().startswith("без макетов"):
+        have.add(7)
+    if (doc / "project-map/project-map.md").is_file():
+        have.add(6)
+    if any(doc.glob("ui/test-cases/README.md")) or any(doc.glob("ui/*/test-cases/README.md")):
+        have.add(9)
+    if folder and (folder / "docs-consistency.md").is_file():
+        have.add(10)
+    done = {n for n in have if n not in open_stages}
+    if 2 not in done or 10 in done:   # before the SRS everything waits for it; after the meeting point the chain is one
+        return []
+    busy = session_rows(folder)
+
+    def name(m: int) -> str:
+        word = STAGE_NAMES[m][0]
+        if m in busy:
+            return f"{word} (идёт в подсессии)"
+        if m in open_stages:
+            return f"{word} (написан, этап не закрыт)"
+        return word
+
+    can, wait = [], []
+    for n in range(3, 11):
+        if n in done or n in busy or n in open_stages:
+            continue
+        word, skill = STAGE_NAMES[n]
+        missing = [m for m in NEEDS[n] if m not in done]
+        if missing:
+            wait.append(f"{word} ({skill}) — нет: " + ", ".join(name(m) for m in missing))
+        else:
+            can.append(f"{word} ({skill}) — входы на ветке: " + ", ".join(STAGE_NAMES[m][0] for m in NEEDS[n]))
+    lines = ["Готовность этапов (сделан = документ на ветке и этап закрыт; этап, которого у продукта нет — без "
+             "хранилища, без HTTP, без экранов, — пропускается):"]
+    lines += [f"  можно начать сейчас: {c}" for c in can] or ["  можно начать сейчас: ничего"]
+    lines += [f"  ждёт входов: {w}" for w in wait]
+    lines += [f"  идёт в подсессии: {STAGE_NAMES[n][0]} — «{t}» ({st})" for n, (t, st) in sorted(busy.items())]
+    lines += [f"  не закрыт здесь: {STAGE_NAMES[n][0]} — дописать и закрыть этап" for n in sorted(open_stages)
+              if n in STAGE_NAMES and n not in busy]
+    return lines
+
+
 def question_opens(opens: list, rows: list, pos: int, open_stages: dict) -> None:
     """One open point per addressee stage still ahead (or open now), right before that stage's own point — so the
     answer names the stage's questions with the stage; blocks before every staged point."""
@@ -618,7 +701,12 @@ def main() -> None:
         after_close = bool(closed or git(root, "tag", "--list", "v*"))
         question_opens(opens, rows, position(root, docs, it_version, folder, after_close), open_stages)
 
-    print("Открытые пункты (по порядку):" if opens else "Открытых пунктов по файлам нет — следующий этап по таблице pipeline.")
+    if it_version:
+        for line in readiness(root, docs, folder, open_stages):
+            print(line)
+
+    print("Открытые пункты (по порядку):" if opens else "Открытых пунктов по файлам нет — следующий этап по готовности "
+          "(блок выше) и таблице pipeline.")
     for o in dict.fromkeys(opens):
         print(f"  - {o}")
 

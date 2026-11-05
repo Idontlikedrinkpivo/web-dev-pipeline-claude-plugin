@@ -14,8 +14,10 @@ apply — a product without screens has no design branch and no question):
 - **Обе ветки параллельно** — both run in this session; see below.
 - **Последовательно: сначала бэкенд, потом дизайн.**
 - **Последовательно: сначала дизайн, потом бэкенд.** `ui-design` first;
-  `screen-spec` waits for the API, so after the mockups the backend runs,
-  then the screen specs and the test cases.
+  `screen-spec` waits for the API, so after the mockups the backend runs
+  from its first stage not closed (`SKILL.md` → What to offer at a close —
+  the schema before the API, never the API over an open schema), then the
+  screen specs and the test cases.
 - **Только бэкенд** — the design branch is someone else's
   (`references/team.md`) or later.
 - **Только дизайн** — the backend later.
@@ -50,8 +52,10 @@ order; the user may change the order at any of those questions.
   (`references/progress-files.md`); the report after each step names the
   branch.
 - **`screen-spec` waits for the API**, as in any order: when the mockups
-  close first, the design branch pauses with that said, and resumes when
-  `openapi-spec-generator` closes.
+  close first, the design branch pauses with that said — the backend's
+  running stage is named, not offered (`SKILL.md` → What to offer at a
+  close) — and resumes when `openapi-spec-generator` closes; then the
+  architecture and the screen specs are both ready and run in parallel.
 - **The meeting point** is unchanged: stage 10 starts when both branches
   are done.
 

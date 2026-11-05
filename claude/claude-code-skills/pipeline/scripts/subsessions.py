@@ -5,6 +5,7 @@
     python3 subsessions.py <project dir> <version> plan <stage>...
     python3 subsessions.py <project dir> <version> set <row> <session id>
     python3 subsessions.py <project dir> <version> mark <row | session id> <state>
+    python3 subsessions.py <project dir> <version> after <row | session id> <stage key>
     python3 subsessions.py <project dir> <version> parent <session id>
     python3 subsessions.py <project dir> <version> show
     python3 subsessions.py <project dir> <version> whoami <session id>
@@ -18,9 +19,14 @@ plan    the stages kept for this iteration (keys below, any order) become rows i
         the file keep their ids and states, so a later plan — a continued iteration, a stage added — only adds rows.
         A document stage whose documents all carry this version's stamp is closed and skipped, with a note: on a
         fresh clone (sessions.md is out of git: its ids are this machine's) the list holds only the stages left.
-        Prints the rows still to open, in order: the parent opens them in this user turn with these titles.
+        Prints the rows still to open, in order: the parent opens them in this user turn with these titles. The
+        screen specs get «после API» in their «Когда» column when the API stage is in the list and not closed: the
+        row is opened with the rest, but «начинай» waits for «ЭТАП API ЗАКРЫТ» (pipeline → What to offer at a close).
 set     a row's session id, once opened (state → ждёт).
-mark    a row's state: ждёт · идёт · закрыт · передан (handed over, to be cleared and started again) · убран.
+mark    a row's state: ждёт · идёт · закрыт · передан (handed over, to be cleared and started again) · убран. «закрыт»
+        also prints the rows that waited for this stage («после <этап>»): send them «начинай» now.
+after   a row waits for a stage: its «Когда» becomes «после <этап>» — the parent sets it when a stage's report says
+        «ждёт: <stage> после <stage>»; «after <row> none» puts it back in the queue («по очереди»).
 parent  the parent's own session id, so a parent after a compaction or a new one on «продолжим» finds the list.
 show    the table, then: the stage in work, the next one to start, the rows not opened yet — the input of «продолжим».
 whoami  the row of a nested session by its own id: its stage and its skill — for a session after a compaction or a clear.
@@ -125,11 +131,15 @@ def show(rows: list[dict]) -> None:
               + ("" if r["when"] == "по очереди" else f" ({r['when']})"))
     busy = [r for r in rows if r.get("state") == "идёт"]
     nxt = next((r for r in rows if r.get("state") == "ждёт" and r["when"] == "по очереди"), None)
-    unopened = [r for r in rows if r.get("state") in ("не открыта", "", None) and r["when"] == "по очереди"]
-    later = [r for r in rows if r.get("state") in ("не открыта", "", None) and r["when"] != "по очереди"]
+    queued = lambda r: r["when"] == "по очереди" or r["when"].startswith("после ")
+    unopened = [r for r in rows if r.get("state") in ("не открыта", "", None) and queued(r)]
+    later = [r for r in rows if r.get("state") in ("не открыта", "", None) and not queued(r)]
+    waiting = [r for r in rows if r.get("state") == "ждёт" and r["when"].startswith("после ")]
     print()
     print("в работе: " + (", ".join(f"«{r['title']}» ({r['id']})" for r in busy) or "ничего"))
     print("дальше: " + (f"«{nxt['title']}» ({nxt['id']}) — отправить «начинай»" if nxt else "очередных нет"))
+    for r in waiting:
+        print(f"ждёт входа: «{r['title']}» ({r['id']}) — «начинай» {r['when']} (по «ЭТАП … ЗАКРЫТ» того этапа)")
     if unopened:
         print("не открыты — открыть ВСЕ в этот ход пользователя, с этими названиями, без нового вопроса: " + "; ".join(
             f"{rows.index(r) + 1}. «{r['title']}»" for r in unopened))
@@ -159,6 +169,8 @@ def main() -> None:
             staged = {r["stage"] for r in rows if " · часть " not in r["title"]}   # an older title of the stage counts
             for r in rows_for(version, key):
                 if r["title"] not in have and key not in staged:
+                    if key == "specs" and "api" in (set(rest) | staged) and "api" not in done:
+                        r["when"] = f"после {STAGES['api'][0]}"   # the screen specs need the contract
                     rows.append(dict(r, id="", state="не открыта"))
         rows.sort(key=lambda r: order_key(r["stage"]))   # stable: a part stays after its stage
         write(path, version, parent, rows)
@@ -175,6 +187,17 @@ def main() -> None:
         hit[0]["state"] = rest[1]
         write(path, version, parent, rows)
         print(f"sessions: «{hit[0]['title']}» — {rest[1]}")
+        if rest[1] == "закрыт" and hit[0]["stage"] in STAGES:
+            freed = [r for r in rows if r["when"] == f"после {STAGES[hit[0]['stage']][0]}" and r.get("state") == "ждёт"]
+            for r in freed:
+                print(f"sessions: теперь можно: «{r['title']}» ({r['id']}) — отправить «начинай»")
+    elif cmd == "after" and len(rest) == 2 and (rest[1] in STAGES or rest[1] == "none"):
+        hit = [r for i, r in enumerate(rows, 1) if rest[0] in (str(i), r.get("id"))]
+        if not hit:
+            sys.exit(f"sessions: строки «{rest[0]}» нет — subsessions.py … show")
+        hit[0]["when"] = "по очереди" if rest[1] == "none" else f"после {STAGES[rest[1]][0]}"
+        write(path, version, parent, rows)
+        print(f"sessions: «{hit[0]['title']}» — {hit[0]['when']}")
     elif cmd == "parent" and len(rest) == 1:
         write(path, version, rest[0], rows)
         print(f"sessions: родительская сессия — {rest[0]}")
