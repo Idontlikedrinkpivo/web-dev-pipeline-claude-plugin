@@ -23,7 +23,9 @@ stage skill, its heading the skill's folder name; a stage with no section gets �
   window since its last section — a part (`references/pause-and-resume.md` → Pausing, step 6); with a parent, the
   parent runs it.
 - In a nested session: report to the parent «ЭТАП … ЗАКРЫТ · дальше: …» after the handover check
-  (`references/handover-check.md`); unsure of the stage — `scripts/subsessions.py … whoami <own id>`.
+  (`references/handover-check.md`); a decision that changes another stage's document goes to the parent as
+  «РЕШЕНИЕ · … · владелец: <stage> · жду», never edited here (`references/decision-changes.md` → Under a parent
+  session); unsure of the stage — `scripts/subsessions.py … whoami <own id>`.
 
 ## brainstorm
 

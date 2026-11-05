@@ -153,6 +153,43 @@ decision made by nobody, and every stage reads only its own documents.
   not settled is readdressed (`Решить при: <следующий этап>`) or stays, with a
   line in the report; the report names the questions settled.
 
+## Under a parent session
+
+When the iteration runs in nested sessions (`references/parent-session.md`),
+a document is edited only in the session of its stage — the owner table
+above says whose it is. The session where the decision changed edits its
+own document; for any other document it does not dispatch that document's
+writer. The API session once ran `srs-author` on the SRS itself (live run
+2026-11-05): the SRS session holds that document's context (the grill, the
+decisions, the wording), two sessions editing one document collide, and
+only the parent sees the other branch the change may touch.
+
+1. **The session where it changed** writes the line under «Изменённые
+   решения» (step 1), edits its own document when the decision touches it,
+   and sends the parent «РЕШЕНИЕ · <было> → <стало> · решил <кто> ·
+   владелец: <stage> · жду» — then ends the turn with one line to the
+   user: «Решение ушло в «<the owner's session title>»; продолжу, когда
+   документ обновят».
+2. **The parent** finds the owner stage's row (`scripts/subsessions.py …
+   show`). The row has a session → `mark` it «идёт» and send it «РЕШЕНИЕ
+   ИЗМЕНЕНО · <было> → <стало> · решил <кто> · от <stage>». No session for
+   that stage (a fresh clone, another person's stage) → the parent runs
+   steps 2–5 itself for that document, through its writer — never another
+   stage's session.
+3. **The owner's session** runs steps 2–5 for its own document (its
+   writer, the check, the commit, the push) and reports «РЕШЕНИЕ ЗАПИСАНО ·
+   <document> · коммит <sha> · задеты: <documents of other closed stages
+   that repeat the old decision, or «нет»>». The parent marks it «закрыт»
+   again and routes each document named to its stage's session the same
+   way; a stage still ahead reads the new text when it starts.
+4. **Then the parent** sends the waiting session «продолжай: <document>
+   обновлён, коммит <sha>» — the sessions share one checkout, no pull — and
+   it goes on (step 6). What the change makes wrong in the waiting
+   session's own document is that session's edit, after the owner's commit.
+
+Without a parent (one session runs the iteration) the steps above apply
+as written: the session dispatches the owner's writer itself.
+
 ## Where it applies
 
 | Stage | The moment |

@@ -133,7 +133,13 @@ One line each from a nested session (`SendMessage` to the parent):
   <n>, до <что остановило>»: it alone sees every nested session's end, and a stopped live test otherwise leaves its
   evidence only in transcripts nobody reads later;
 - «ВОПРОС · …» — only when a nested session runs without the user (a chain left for the night,
-  `references/unattended.md`): the standing answers settle it, or the user is asked here and the answer sent back.
+  `references/unattended.md`): the standing answers settle it, or the user is asked here and the answer sent back;
+- «РЕШЕНИЕ · <было> → <стало> · решил <кто> · владелец: <stage> · жду» — a decision that changes another
+  stage's document (`references/decision-changes.md` → Under a parent session): `mark` the owner stage's row
+  «идёт» and send it «РЕШЕНИЕ ИЗМЕНЕНО · <было> → <стало> · решил <кто> · от <stage>»; no session for that stage
+  → apply it here through the owner's writer, then answer the sender as below. On «РЕШЕНИЕ ЗАПИСАНО · <document> ·
+  коммит <sha> · задеты: …» → `mark` the owner «закрыт», route each document named the same way, and send the
+  waiting session «продолжай: <document> обновлён, коммит <sha>».
 
 ### Checks, the close, the state
 
@@ -175,8 +181,12 @@ SRS · схема БД · API · архитектура · каркас · ма�
 сообщении «начинай» есть «продолжи с <пункт>» — продолжай с него; состояние — в
 documentation/plans/<version>/resume.md и git.
 Когда этап закрыт и пользователь ответил на вопрос о следующем этапе, сама его здесь не начинай: напиши
-родительской сессии «ЭТАП <stage> ЗАКРЫТ · дальше: <этап>» (или «· остановиться») и закончи. При большом
-контексте — передача по pipeline → references/context.md. Остановка — «ОСТАНОВЛЕНА · <причина>».
+родительской сессии «ЭТАП <stage> ЗАКРЫТ · дальше: <этап>» (или «· остановиться») и закончи. Решение, которое
+меняет документ другого этапа (SRS, схему, API, архитектуру, ТЗ на экран), здесь не правь и его писателя не
+запускай: напиши родительской «РЕШЕНИЕ · <было> → <стало> · решил <кто> · владелец: <этап> · жду» и жди
+«продолжай»; а на «РЕШЕНИЕ ИЗМЕНЕНО · …» от родительской внеси решение в свой документ своим писателем,
+закоммить, отправь и ответь «РЕШЕНИЕ ЗАПИСАНО · <документ> · коммит <sha> · задеты: <документы или «нет»>». При
+большом контексте — передача по pipeline → references/context.md. Остановка — «ОСТАНОВЛЕНА · <причина>».
 ```
 
 ## The nested session
@@ -196,6 +206,11 @@ It runs its stage as the stage's skill says, with the user, in this session. Wha
 - **What the next session must know is on disk before the close**: every decision made in this chat is in its
   document (`references/decision-changes.md`) or in the stage's report — the next session starts from the files and
   git, not from this chat.
+- **A decision that belongs to another stage's document** (`references/decision-changes.md` → The owner) is not
+  edited here and its writer is not dispatched here: it goes to the parent as «РЕШЕНИЕ · … · владелец: <stage> ·
+  жду», and this session waits for «продолжай» (`references/decision-changes.md` → Under a parent session). A
+  closed session that gets «РЕШЕНИЕ ИЗМЕНЕНО · …» from the parent edits its document through its writer, commits,
+  pushes and reports «РЕШЕНИЕ ЗАПИСАНО · <document> · коммит <sha> · задеты: …».
 - **Over the hand-over point** (`references/context.md` → When to hand over: its own `get_usage`, the lower of
   `context_limit` and four fifths of the auto-compact point) it hands over, after the handover check where
   `references/handover-check.md` asks for one (a stage that asked the user nothing skips it): it tells the parent «<stage> ПЕРЕДАН · после <item> · контекст

@@ -27,7 +27,7 @@ The invoking stage then records `grilled: YYYY-MM-DD` on a business-requirements
 
 No stage is waiting to finish the job, so this file does it after the user confirms the close (the `Гриль закрыт?` question, "The close"). The session does not type a contract document: each one keeps its writer, who keeps the template's shape and the ids other documents cite.
 
-1. **Subject is a file** — apply the reversals from the ledger to it, in place, with the same rules as above (replace the contradicted line, name an upstream contradiction instead of editing upstream, do not touch `version`, add no changelog row), through its writer:
+1. **Subject is a file** — apply the reversals from the ledger to it, in place, with the same rules as above (replace the contradicted line, name an upstream contradiction instead of editing upstream — under a parent session it goes to the parent as «РЕШЕНИЕ · …», `pipeline` → `references/decision-changes.md` → Under a parent session — do not touch `version`, add no changelog row), through its writer:
    - an SRS — `srs-author`, `MODE grill-reversal`, the reversals in `REVERSALS` and the deferred questions in `DEFERRED` (`srs-writer` → Grill reversals);
    - another contract document or a plan — `doc-typist`, `MODE revise`, one `SETTLEMENT` line per reversal (`executor-catalog` → Nesting, `references/doc-typist-prompt.md`);
    - a business-requirements document — the session edits it, as `brainstorm` writes it.
