@@ -2,8 +2,8 @@
 
 Read this when any of the three documents (foundation, domain model,
 scenarios of an area) already exists — a feature added to a designed
-system. The orchestrator reads "Which modes run"; each writer reads the
-rest. Each output is the same document, edited in place, not a second
+system. The orchestrator reads "Which modes run" and "What the writer
+reads"; each writer reads the rest. Each output is the same document, edited in place, not a second
 file and not a new version number. Read the `doc-versioning` skill and
 follow it. A write touches neither `version` nor the changelog: the
 stamping commit writes the version and one typed row per changed name.
@@ -33,6 +33,21 @@ a name another document lacks (a port method, a named error and its
 HTTP row, an entity method), the writer adds it there and lists that
 document under `ALSO CHANGED` (SKILL.md → Writer); it becomes a changed
 document of this increment like the picked ones.
+
+## What the writer reads
+
+- **The foundation and the domain model — whole.** They hold the shared names (ports, errors, types, rule ids)
+  every document cites, so a name is checked against its one home.
+- **Scenarios — whole only for the areas the change reaches:**
+  1. the areas whose SRS groups the SRS changelog names since the version the documents' `sources:` pin;
+  2. the areas foundation §2 says take a type, a port or a use case from one of those.
+- **Every other area's scenarios — the index only**: the index table, or with four use cases or fewer the headings
+  `### <UseCaseName> — <path>` (`grep '^### '`); enough to keep a new name unique, not whole.
+- **Diagrams** — the `.d2` / `.puml` of the documents being edited.
+
+Why: a ten-area system made every one-use-case increment re-read thousands of lines of scenarios no row picks, and
+the writer's judgement belongs on the touched area. A name that collides, or a cited type whose shape the change
+alters, pulls its area in: read it whole and name it in the report.
 
 ## What changes in each document
 

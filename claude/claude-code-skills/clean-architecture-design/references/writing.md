@@ -50,3 +50,13 @@ When an existing document is rewritten for readability, prove that nothing was l
 `python3 <…>/facts_check.py verify <file> <snapshot.json>` after. It compares the requirement ids, the backticked
 names and the numbers of the body (the changelog left out) as multisets and lists every difference; a lost fact
 goes back, a duplicate that rule 4 removed is named in the report.
+
+## Why this shape
+
+AI generates code that works today but cannot evolve: rules scatter across services, controllers, and helpers, and
+the next change has to reassemble the domain from ten files. A rich entity puts the rule where the model expects
+it — one file, full picture. A use case is a stable unit of work ("build the Refund use case") that keeps the model
+inside orchestration instead of inventing rules. An agent copies whatever pattern it finds, so a boundary that
+exists only in prose is not a boundary — a linter or a structural test enforces it. Design for the smallest context
+window: meaningful paths, small files, named types, small documents — one scenarios document and the domain model
+per use case, not the whole architecture.

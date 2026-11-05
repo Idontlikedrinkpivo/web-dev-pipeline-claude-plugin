@@ -31,6 +31,29 @@ new area gets a new folder `scenarios/<area>/`, a new group a new file.
 Every document is written to be scanned: a table cell is one fact, a mechanism is a subsection with a list, each
 fact lives once, no decision dates in the body — `references/writing.md`.
 
+## Essentials
+
+Read first, in full — the writer and the session alike; the sections and references below hold the detail, each
+named at the step that needs it.
+
+- One home per fact: a later document cites a rule id, port method, error or section, never restates it — not even
+  a value → One home per fact.
+- The invariant table (domain model §4) is the only home of a business rule: one row, one owner per rule
+  → Mode `domain`.
+- Entities refuse what the rules forbid, methods named after the requirement's verbs; never a status setter
+  → Mode `domain`.
+- Use cases orchestrate and own no rule: a step cites the rule id, errors by domain-model name, no HTTP status
+  outside foundation §4 → Mode `scenarios:<area>`.
+- The level is recorded once («Уровень», foundation §1); every mode stays inside its limits, no ceremony from the
+  level above → Step 2, Guardrails.
+- §5 tree is concrete names: no `…`, no `<placeholder>`, no `utils/` / `helpers/` / `common/` → Mode `foundation`.
+- §6 names the enforcer and its rules as a table; the test plan cites rule ids, never values → Mode `foundation`.
+- A name a document lacks is added in its home (`ALSO CHANGED`); a fundamental change is `HARDER_THAN_EXPECTED`
+  → Writer.
+- On an increment, edit in place, every version whole; scenarios are read only for the touched areas → Step 1b,
+  `references/increment.md` → What the writer reads.
+- A `.svg` that cannot be rendered here is reported, never faked → `references/architecture-diagram.md` → Render.
+
 ## Orchestrator (session)
 
 The session writes no architecture document. Same reason `work` writes no
@@ -50,7 +73,9 @@ The session dispatches the typist only for a check's lines (`executor-catalog`
    - As-is: from `upgrade-docs` (`MODE as-is`, `upgrade-docs/references/as-is.md`) the code stands in for a
      missing document.
    - Increment or resumed greenfield: when any of the three documents already exists, read `doc-versioning`,
-     every existing one and its diagrams (`.d2`, `.puml`), and treat this as an increment — unless it is this
+     the foundation and the domain model whole, the scenarios only of the areas the change reaches
+     (`references/increment.md` → What the writer reads) and the diagrams (`.d2`, `.puml`) of the documents it
+     edits, and treat this as an increment — unless it is this
      iteration's greenfield left open after its writer (no `version` yet, «этап не закрыт»): it resumes as
      greenfield with only the documents not written yet, the written ones as inputs.
    - Edited `.d2`: one the user asked to apply goes into the foundation packet with
@@ -60,7 +85,7 @@ The session dispatches the typist only for a check's lines (`executor-catalog`
    order: `foundation` → `domain` → `scenarios:<area>` for every area
    the SRS groups name. An increment picks only the documents what
    changed reaches (the table's «Changes when» column; detail in
-   `references/increment.md` → "Which modes run"). Write down which
+   `references/increment.md` → "Which modes run", "What the writer reads"). Write down which
    documents are untouched and why; that line goes into the report.
 3. **Stack.** If the stack is not already a fact, run Step 2b **in this
    chat** before the foundation dispatch: propose cards per
@@ -103,7 +128,8 @@ The session dispatches the typist only for a check's lines (`executor-catalog`
    for `scenarios`, a `.puml` in the area's `diagrams/` for every
    scenario its «Последовательность» row links. A missing file is an
    incomplete write. When a `.svg` is missing, run the render command in
-   `references/architecture-diagram.md` once. Do not edit a `.d2` or a
+   `references/architecture-diagram.md` once; with no renderer here the source, the embed and the report's
+   «SVG не собран» row stand and the next session with the tool renders (→ Render). Do not edit a `.d2` or a
    `.puml`. A `BLOCKED` with a question for the user is asked and sent
    back to the same row (`executor-catalog` → Escalation); any other
    `BLOCKED` / `HARDER_THAN_EXPECTED` escalates one
@@ -148,7 +174,7 @@ architecture an AI coding agent (or a human) can implement without
 losing control of the system. The design follows Clean Architecture with
 **rich domain models**: business rules live inside entities, use cases
 only orchestrate, frameworks stay at the edge, and every boundary is
-written down in a form a machine can check.
+written down in a form a machine can check. Why this shape: `references/writing.md` → Why this shape.
 
 The deliverable is Markdown (plus D2 and PlantUML diagrams), not code.
 Short sketches (signatures, interfaces, a lint rule, a DDL constraint)
@@ -191,20 +217,6 @@ of BR-3. A type two areas use (a result, an id, a read model) is defined
 once, in the area or document that owns it, and cited with the same
 name and shape everywhere else. A fact the earlier document lacks is
 added there, in its home (Writer → `ALSO CHANGED`), never written here.
-
-## Why this shape
-
-AI generates code that works today but cannot evolve: rules scatter
-across services, controllers, and helpers, and the next change has to
-reassemble the domain from ten files. A rich entity puts the rule where
-the model expects it — one file, full picture. A use case is a stable
-unit of work ("build the Refund use case") that keeps the model inside
-orchestration instead of inventing rules. An agent copies whatever
-pattern it finds, so a boundary that exists only in prose is not a
-boundary — a linter or a structural test enforces it. Design for the
-smallest context window: meaningful paths, small files, named types,
-small documents — one scenarios document and the domain model per use
-case, not the whole architecture.
 
 ## Shared steps (every mode)
 
@@ -467,9 +479,9 @@ Read each file at the step named; skip the rest.
 - `references/output-template-domain.md` — domain model template, invariant-table column rules, where each BR lands. Mode `domain`, before writing or editing.
 - `references/output-template-scenarios.md` — scenarios template, per-section rules, what makes a scenario key. Mode `scenarios`, before writing or editing.
 - `references/final-check.md` — the final checklist, by mode. Before you finish.
-- `references/increment.md` — which modes run and what changes when the documents exist (orchestrator step 2, Step 1b).
+- `references/increment.md` — which modes run, what the writer reads, what changes when the documents exist (orchestrator steps 1–2, Step 1b).
 - `references/nfr-decisions.md` — the security sub-items; «Решения по NFR» (foundation §1).
-- `references/writing.md` — how every document reads: short cells, lists, one home per fact; `doc-versioning/scripts/facts_check.py` proves a rewrite kept its facts.
+- `references/writing.md` — how every document reads: short cells, lists, one home per fact; `doc-versioning/scripts/facts_check.py` proves a rewrite kept its facts; why this shape.
 - `references/stack-proposal.md` — constraints, cards, chat prompt, after the pick (Step 2b).
 - `references/rich-entities.md` — entity vs ORM model, invariants, value objects, when anemic is fine (mode `domain`).
 - `references/use-cases-and-boundaries.md` — why use cases orchestrate, queries, side effects, typed boundaries, layer roster (mode `scenarios`; foundation §3).

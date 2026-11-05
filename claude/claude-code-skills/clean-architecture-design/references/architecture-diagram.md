@@ -79,11 +79,23 @@ if [ ! -x "$D2" ]; then D2="$(command -v d2 || true)"; fi
 "$D2" "context.d2" "context.svg"
 ```
 
-Repeat for each view. If `d2` is not installed, still write every
-`.d2` and every embed. Say in the stage close that the SVG was not
-rendered and name `~/.local/bin/d2`. Do not invent an SVG. The
-orchestrator runs this same command once for any `.d2` whose `.svg` is
-missing. It does not edit the `.d2`.
+Repeat for each view. The orchestrator runs this same command once for
+any `.d2` whose `.svg` is missing. It does not edit the `.d2`.
+
+### No renderer on this machine
+
+Check once per sitting: `d2 --version` (or `~/.local/bin/d2 --version`) for the D2 views, `plantuml -version` or
+the `docker` form below for the sequence views. When the tool is neither installed nor reachable:
+
+- **The source and the embed are still written** — every `.d2` / `.puml`, and the embed or «Последовательность»
+  link pointing at the `.svg` path all the same, so the document is final and only the picture is pending.
+- **The `.svg` is not produced.** Never an `.svg` typed by hand, never an ASCII drawing in its place: a hand-made
+  picture is a second copy of the topology that no tool checks against the source.
+- **It is reported, once:** in the report (`svg: missing`) and as one row of
+  `documentation/architecture/open-questions.md`: «SVG не собран: нет d2/plantuml — собрать командой `<the command above>` на машине, где он есть».
+- **The next session with the tool renders** the missing `.svg` files, removes that row and commits them with
+  «docs: диаграммы архитектуры». Why: the source is the contract and the `.svg` is derived, so a missing tool
+  delays only the picture, not the stage.
 
 ## What the diagram is allowed to show
 
@@ -291,8 +303,8 @@ else
 fi
 ```
 
-Neither available: keep the `.puml`, report `svg: missing`, never invent
-an SVG. The scenario's Шаги table is the contract; when the two disagree,
+Neither available: keep the `.puml` and its link, no `.svg` — as in
+[No renderer on this machine](#no-renderer-on-this-machine). The scenario's Шаги table is the contract; when the two disagree,
 the table wins unless the user says the `.puml` is newer — then the
 scenarios writer applies the diagram to the table, as below.
 

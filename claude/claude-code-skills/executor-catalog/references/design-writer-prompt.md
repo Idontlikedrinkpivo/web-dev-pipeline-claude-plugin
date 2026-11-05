@@ -40,7 +40,10 @@ SKILLS ROOT     <absolute folder holding the plugin's skills — the parent
                 of the stage skill's base directory (executor-catalog →
                 Dispatch contract)>
 SKILL           <SKILLS ROOT>/<stage>/SKILL.md
-                Follow the Writer half and its references; every
+                Read its `## Essentials` in full first (where it has
+                one), then the mode's template and the references the
+                skill names at the step — the rule the code executors
+                follow for a stack skill. Follow the Writer half; every
                 `<skill>/…` path in them resolves under SKILLS ROOT. Skip
                 the Orchestrator half. Do not run doc-review. Do not
                 offer the next pipeline stage. Do not commit.
@@ -108,9 +111,12 @@ READ FROM DISK  <repo-relative paths, every part of each document — read them
                   a fact; on a split greenfield's second dispatch, the
                   foundation and the domain model the first one wrote.
                 increment: the current files of the documents in MODE —
-                  for architecture every architecture document (a name may
-                  have to be added to one outside MODE) and the `.d2` /
-                  `.puml` files of the documents being edited; say which
+                  for architecture the foundation and the domain model
+                  whole, the scenarios of the areas the change reaches
+                  whole, every other area's by its index only
+                  (clean-architecture-design/references/increment.md →
+                  What the writer reads), and the `.d2` / `.puml` files
+                  of the documents being edited; say which
                   file wins if a diagram and its document disagree.>
 
 ANSWERS         <pasted — the only text here: each answer the user gave in
