@@ -5,6 +5,13 @@ Orchestrator. The inputs and modes are `plan/SKILL.md` → Modes and Inputs. Cit
 `plan/references/writer.md` → Step <n>, never as «plan step <n>»: the orchestrator's numbered steps are a
 different sequence.
 
+## Contents
+
+- [Start](#start)
+- [Output document template](#output-document-template)
+- [Quality gate](#quality-gate)
+- [Report](#report)
+
 ## Start
 
 You settle the plan, then print it by the packet's PRINT

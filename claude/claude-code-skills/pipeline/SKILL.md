@@ -161,7 +161,9 @@ it owns the steps — the number and its question,
 exits, who runs the design — and the levels, the re-check in `plan`,
 the iteration's files in git and the API's own version.
 
-**One branch per iteration.** Every stage of the iteration, by everyone who
+### One branch per iteration
+
+Every stage of the iteration, by everyone who
 works on it (`references/team.md`), commits on `iteration/<version>`;
 nothing is committed to `main` during the iteration. What is pushed, when and
 by whom: "Commit each document as soon as it is written".
@@ -292,7 +294,9 @@ stage is the writer named in this table's offer cell, including a skip (no
 UI, no storage, no HTTP) — name the skill the skip selects and why the
 skipped ones do not apply.
 
-**Commit each document as soon as it is written.** The moment a writer
+### Commit each document
+
+Commit each document as soon as it is written: the moment a writer
 returns a document, the session commits it, before its gates and without
 asking: `docs: <документ> — написан, этап не закрыт` (an as-is document
 from `upgrade-docs` is born complete: `docs: <документ> <version> — как

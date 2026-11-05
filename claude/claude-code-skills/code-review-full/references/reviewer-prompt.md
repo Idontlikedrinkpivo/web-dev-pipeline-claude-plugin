@@ -6,6 +6,12 @@ report. The packet is still bounded — no repo exploration beyond what is
 pasted in, no re-reading the design from scratch — but the scope inside it is
 deliberately the opposite of narrow.
 
+## Contents
+
+- [The packet](#the-packet)
+- [The report](#the-report)
+- [Re-review](#re-review)
+
 ## The packet
 
 Its parts, in order, so a slot is found without reading the whole block:

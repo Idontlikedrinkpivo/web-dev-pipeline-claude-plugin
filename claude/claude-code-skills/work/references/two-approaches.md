@@ -53,9 +53,12 @@ decision is a stop for the user, never two approaches. A UI unit
    the one with fewer P0 and P1 wins, and on a tie the smaller diff.
    Neither passes — that is the stop in `convergence.md` (a finding
    survived the top tier), with both reports and both approaches named.
-5. **Bring the winner home** — merge or cherry-pick its worktree branch
-   into the main tree, then the unit's usual review and its one commit
-   (`Plan-Unit:`). Nothing is taken from the loser. Remove both worktrees
-   and their branches.
+5. **Bring the winner home** — an executor never commits, so its worktree
+   branch carries nothing: save the winner's changes as a patch in its
+   worktree and `git apply` it in the main tree, by the recipe of
+   `references/parallel-waves.md` → Bring the wave home; then the unit's
+   usual review and its one commit (`Plan-Unit:`). Nothing is taken from
+   the loser: remove its worktree and branch now, the winner's once the
+   unit is committed.
 6. **Record** one line in the run report and the progress row's Ревью
    cell: «U14: два подхода — A «…» прошёл, B «…» упал на <check>».

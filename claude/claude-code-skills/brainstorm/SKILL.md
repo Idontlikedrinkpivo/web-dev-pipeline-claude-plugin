@@ -11,8 +11,8 @@ description: >-
 
 Before reading the user's materials, the project or any reference of this skill: read `pipeline` →
 `references/parent-session.md` → «Which one am I» and do what it says. A session that turns out to be the parent runs
-no stage here — it opens this stage in a session of its own, which then reads the materials. A brainstorm in Codex
-that read the attached requirements first went on to its questions, and no stage chats were offered.
+no stage here — it opens this stage in a session of its own, which then reads the materials. A brainstorm
+that read the attached requirements first went on to its questions, and no stage sessions were opened (live run, 2026-11-04).
 
 Brainstorming helps answer **WHAT** to build through collaborative dialogue. The durable output is a **business requirements document** — a lightweight PRD / feature brief: goal, scope, R-requirements, key flows, and acceptance examples, so the SRS and the design after it do not need to invent product behavior, scope boundaries, or success criteria. Numbered FR / NFR / use cases are `srs-writer`'s job, the next reader of this document: a draft shaped like an SRS here gets rewritten there.
 

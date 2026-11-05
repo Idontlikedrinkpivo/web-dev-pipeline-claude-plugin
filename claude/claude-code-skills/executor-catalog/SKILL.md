@@ -129,13 +129,6 @@ tool like this. Consumers point here instead of restating it.
   `srs.md` and every `areas/*.md`, the API `openapi.yaml` and every file
   under `paths/` and `components/`, the schema `schema.md` and
   `migrations/`.
-- **Short reports.** An agent's last message — its report — comes back into
-  the dispatching session and stays there, paid on every later call. It is
-  about 2,000 characters: the packet's fields, one line each where they
-  allow; what is long (lists, evidence, reasoning, a file-by-file account)
-  goes to a details file under `$(git rev-parse --path-format=absolute --git-common-dir)/pipeline-work/`
-  whose path the report gives. What needs the session's decision is never
-  only in that file (`pipeline` → `references/context.md`).
 - **`SKILLS ROOT` is absolute.** The agent works in the project; the plugin
   sits elsewhere (its cache). Every packet that names a plugin file carries
   `SKILLS ROOT`: the absolute folder that holds this plugin's skills — the
@@ -144,9 +137,10 @@ tool like this. Consumers point here instead of restating it.
   `<skill>/references/…` path in a packet or in a skill the agent reads
   resolve under it; a repo-relative path to a plugin file is not found.
 - **Parallel dispatches** (a `work` wave) each pass `isolation: "worktree"` so
-  workers never share a working directory. Before integrating (`work` Step
-  5.1), merge or cherry-pick each worker's worktree branch into the main tree;
-  if that is not possible, run the wave serially.
+  workers never share a working directory. A worker never commits, so its
+  worktree branch carries nothing: each worktree's changes come home as a
+  patch, applied and committed one unit at a time (`work` →
+  `references/parallel-waves.md` → Bring the wave home).
 
 ```
 Mid | impl-medium | dev-pipeline:impl-medium
@@ -174,6 +168,16 @@ between runs is not such work: it goes through `work` → A change asked in
 chat outside a run (an executor, a review, the affected tests), never
 straight from the session into a commit. Ad-hoc work heavy enough to want
 routing is heavy enough to be a plan.
+
+### Short reports
+
+An agent's last message — its report — comes back into the dispatching
+session and stays there, paid on every later call. It is about 2,000
+characters: the packet's fields, one line each where they allow; what is long
+(lists, evidence, reasoning, a file-by-file account) goes to a details file
+under `$(git rev-parse --path-format=absolute --git-common-dir)/pipeline-work/`
+whose path the report gives. What needs the session's decision is never only
+in that file (`pipeline` → `references/context.md`).
 
 ## Nesting
 

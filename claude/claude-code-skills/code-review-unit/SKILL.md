@@ -133,8 +133,10 @@ returned `DONE_WITH_CONCERNS`, or when Step 1 found a scope breach. Cheap grades
 the batch; an anomaly forfeits it.
 
 **Low batch.** By the wave boundary each Low unit is already committed, so
-`git diff HEAD` is empty. Build the batch diff from the commits instead: for
-each Low unit, the commit whose `Plan-Unit: <version>/U<n>` trailer
+`git diff HEAD` is empty. The units are every committed Low unit not yet in
+the run report's «Low-партии» line (`work` → `references/run-report.md`),
+which the caller writes once the verdicts land. Build the batch diff from the
+commits instead: for each, the commit whose `Plan-Unit: <version>/U<n>` trailer
 matches, `git show <sha>` per unit into one file under `pipeline-work/`, each
 section headed by its U-id. The packet is the Low-batch variant in
 `references/reviewer-prompt.md`: one UNIT/FILES/SCENARIOS block per unit,

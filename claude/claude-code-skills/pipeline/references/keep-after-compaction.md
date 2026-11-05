@@ -101,12 +101,16 @@ stage skill, its heading the skill's folder name; a stage with no section gets �
 
 - `progress.md` changes with Edit or `progress_set.py` — never from the shell; the line `progress_link.py` prints
   goes to the chat as printed.
-- After each commit `context_size.py "$PWD" --next <next unit's grade>`: exit 2 — hand over now, exit 0 — the next
-  unit; never a pause or a question to the user over the context.
+- After each commit measure the context (`pipeline` → `references/context.md` → When to hand over): the app's
+  `get_usage` on `self`, or `context_size.py "$PWD" --next <next unit's grade>` in a terminal; hand over when it
+  plus the next unit crosses the lower of `context_limit` and four fifths of auto-compact — the parent clears this
+  session and starts it again. Never a pause or a question over the context; after «продолжай здесь», no more
+  hand-overs in this stage.
+- «Low-партии» in the run report says which Low units were batch-reviewed — the next batch takes the committed
+  rest; before Step 7 the measure counts High.
 - A unit: the executor, `run_check.py`, `code-review-unit`, then its own commit with `Plan-Unit:` and
   `Co-Authored-By:` in the last paragraph — never chained to a check.
 - A parallel unit works in its worktree with repo-relative paths.
-- After each unit, the context check (`pipeline` → `references/context.md`): over 300,000 tokens, hand over — the parent clears this session and starts it again; after «продолжай здесь», no more hand-overs in this stage.
 - No `sleep` — `run_in_background` or Monitor; every watcher stopped when its work ends.
 - The close: `code-review-full`, the run report, `resume.md` deleted, then the question about the next stage the
   chain names — the UI run, else the security audit.

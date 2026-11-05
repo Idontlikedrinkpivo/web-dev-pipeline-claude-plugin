@@ -13,6 +13,9 @@ done is never read from it — the trailers on the whole iteration branch decide
 **В работе** — each dispatch still out, `U7 → impl-medium (задача <id>)`, written before the `Agent` call and
 cleared when it returns; «нет» between dispatches. After a compaction a unit listed here is waited for, never
 dispatched again.
+**Low-партии** — each Low batch reviewed: its units and the review's file, `U3, U4 → <review file path>`,
+written right after the batch's verdicts land; «нет» until the first batch. The next batch takes every committed
+Low unit not listed here (Step 3).
 
 | U | Статус | Исполнитель | Эскалация | Коммит |
 |---|---|---|---|---|
@@ -47,6 +50,7 @@ A filled excerpt, for calibration — match its density, not its domain:
 **Base** — `a41c9e2`
 **Прогресс** — `3 из 12`
 **В работе** — U7 → impl-medium (задача a3f9)
+**Low-партии** — U4 → `pipeline-work/2.1.4/low-batch-1-review.md`
 
 | U | Статус | Исполнитель | Эскалация | Коммит |
 |---|---|---|---|---|

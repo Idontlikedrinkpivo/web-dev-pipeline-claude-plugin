@@ -91,32 +91,25 @@ in a measured run its context grew by ~100,000 tokens per unit, a third of it ag
 
 ## Context — handing over to a fresh session
 
-The same rule holds for every stage (`pipeline` → `references/context.md`); what is particular to `work`:
+The rule, the hand-over point and its cases are `pipeline` → `references/context.md` → When to hand over; what is
+particular to `work`:
 
-After each unit's commit (Step 5.6) run
-`python3 "${CLAUDE_SKILL_DIR}/../reflect/scripts/context_size.py" "$PWD" --next <the next unit's grade: high | mid | low>`.
-Exit 2 — over the limit (300,000 tokens by default), or the next unit would cross it — hand over at this boundary:
-the unit is committed, nothing is in flight. Exit 0 — the next unit. **Never a pause:** the context is not a reason
-to stop and tell the user, or to wait for them; a session that stopped at 236 thousand with «U33 перешёл бы порог
-посреди юнита» left an autonomous run waiting for nothing (the user, 2026-11-04). A question the next unit needs
-is asked as the unit's own question, not tied to the context. Handing over:
+- **When.** After each unit's commit (Step 5.6) — the unit is committed, nothing is in flight — measure the context
+  as that section says: the app's `get_usage` tool on `self`, or in a terminal
+  `python3 "${CLAUDE_SKILL_DIR}/../reflect/scripts/context_size.py" "$PWD" --next <the next unit's grade: high | mid | low>`.
+- **The next item** is the next unit's grade. After the last unit in scope it counts as High: the close checks, the
+  whole-run review and its fix rounds cost at least that (Step 7). In a parallel wave the measure runs once, after
+  the wave's last unit is committed (`references/parallel-waves.md`).
+- **Refreshed first**, as at any stop: `resume.md` (`pipeline` → `references/pause-and-resume.md`), the run report
+  with where the next session starts («продолжать с U<m>») and its «Low-партии» line, and the progress line.
+- **The message** to a parent: «РАЗРАБОТКА <version> ПЕРЕДАН · после U<n> · контекст <N> тыс. · продолжать с
+  U<m>» — the stage is «разработка», as the sessions list names it, never «ПРОГОН».
 
-1. Refresh `resume.md` (`pipeline` → `references/pause-and-resume.md`), the run report and the progress line,
-   as at any stop. The run report says where the next session starts («продолжать с U18»).
-2. **Run by a parent session** (its first message named one): send the parent «ПРОГОН <version> ПЕРЕДАН ·
-   после U<n> · контекст <N> тыс. · продолжать с U<m>» and end the turn. The parent clears this same session and starts it again with «продолжи с <item>» — no new session, no card
-   (`pipeline` → `references/parent-session.md` → What comes back); in the Codex app the stage chat goes on and the host
-   compacts it. On «продолжай здесь» instead (the clear was refused) go on in this session and do not hand over again
-   in this stage: the host compacts it, and the session-start hook prints the stage's rules back.
-3. **No parent, and the host can start a session** — a session the pipeline should have run from a parent
-   (`pipeline` → `references/parent-session.md` → Which one am I): go on in this session, no new one — the host compacts it, and the
-   session-start hook prints the stage's rules back. A new session opened on the way needs the user's click on a
-   card and stops an autonomous run (the user, 2026-11-02).
-4. **Neither:** tell the user in one line to open a new session in this folder and write «продолжи прогон
-   <version>», and stop.
-
-The new session starts from git, the run report and `resume.md` (Step 1) — it repeats nothing. The script
-cannot tell two sessions working in one project apart: it reads the newest, and its line names that session.
+With a parent, without one or in a terminal, what follows is that section's steps 2–4, not restated here; the next
+session starts from git, the run report and `resume.md` (Step 1) and repeats nothing. **Never a pause:** the
+context is not a reason to stop and tell the user, or to wait for them; a session that stopped at 236 thousand with
+«U33 перешёл бы порог посреди юнита» left an autonomous run waiting for nothing (the user, 2026-11-04). A question
+the next unit needs is asked as the unit's own question, not tied to the context.
 
 ## The orchestrator's own commits
 
@@ -157,7 +150,9 @@ skill in the same run, its own commit with `Plan-Unit: <version>/verify-skill`.
 A parallel unit's executor works in its own worktree (`WORKTREE yes` in its
 packet): every path the packet or a file it reads gives is relative to the
 repository root, never the main tree's absolute path — an absolute one sends
-its edits into the main tree, and the harness refuses them.
+its edits into the main tree, and the harness refuses them. The executor never commits, so its worktree branch
+holds nothing to merge: the wave comes home as one patch per worktree, applied and committed one unit at a time
+(`references/parallel-waves.md` → Bring the wave home).
 
 The packet says it (`executor-catalog/references/worker-prompt.md` → RULES); the
 orchestrator checks it when the unit returns:

@@ -8,7 +8,9 @@ Pushes the current branch to `origin` only when all of these hold, and says in o
 First it commits the iteration's files in documentation/plans/ — the plan, progress, resume.md, the stage reports —
 alone, «chore: отчёты итерации <version>» (pipeline → references/service-version.md → The iteration's files in
 git); not when something else is already staged, which it names. Other changes not committed (a site rebuilt after
-the edit) do not stop it: they are set aside while the others' commits are taken (`--autostash`) and put back.
+the edit, another session's half-written documents in the same checkout) are never stashed: when the tree has any
+outside documentation/plans/, the rebase is skipped (it would need `--autostash`, which would move another session's
+files) and the push is tried as it is; a clean tree is rebased without `--autostash`.
 
 When `origin` already has the branch, it first takes the others' commits (`git pull --rebase`); a rebase that stops
 on a conflict is undone (`git rebase --abort`) and the script stops with exit 2 — the session asks the user. A push
@@ -78,8 +80,13 @@ def main() -> None:
         sys.exit(0)
     manual = f"git pull --rebase origin {branch} && git push -u origin {branch}"
     fetched, out = git(root, "fetch", "origin", branch)
-    if fetched == 0:
-        code, out = git(root, "rebase", "--autostash", f"origin/{branch}")
+    # Changes outside plans/ may be another session's work in this checkout: never stash them, skip the rebase.
+    dirty = [l for l in git(root, "status", "--porcelain")[1].splitlines()
+             if l.strip() and "documentation/plans/" not in l[3:]]
+    if fetched == 0 and dirty:
+        print("push: в дереве незакоммиченные правки вне plans/ — ребейз пропущен, пробую отправить как есть")
+    if fetched == 0 and not dirty:
+        code, out = git(root, "rebase", f"origin/{branch}")
         if code:
             git(root, "rebase", "--abort")
             clash = "\n".join(l for l in out.splitlines() if l.startswith("CONFLICT"))
@@ -87,6 +94,8 @@ def main() -> None:
                   f"ребейз отменён. Нужно решение пользователя.\n{clash}")
             sys.exit(2)
     ahead = git(root, "rev-list", "--count", f"origin/{branch}..HEAD")[1] if fetched == 0 else "?"
+    if ahead == "0" and dirty and git(root, "rev-parse", "HEAD")[1] != git(root, "rev-parse", f"origin/{branch}")[1]:
+        ahead = "?"  # not rebased and behind origin: let the push be refused, with the manual command
     if ahead == "0":
         print(f"push: origin/{branch} уже содержит всё — отправлять нечего")
         sys.exit(0)

@@ -11,8 +11,8 @@ description: >-
 
 When the SRS is the iteration's first stage (no business requirements before it). Before reading the user's materials, the project or any reference of this skill: read `pipeline` →
 `references/parent-session.md` → «Which one am I» and do what it says. A session that turns out to be the parent runs
-no stage here — it opens this stage in a session of its own, which then reads the materials. A brainstorm in Codex
-that read the attached requirements first went on to its questions, and no stage chats were offered.
+no stage here — it opens this stage in a session of its own, which then reads the materials. A brainstorm
+that read the attached requirements first went on to its questions, and no stage sessions were opened (live run, 2026-11-04).
 
 Turns already-settled product decisions into a **Software Requirements Specification** — the formal document that sits between "what we decided to build" (`brainstorm`) and the schema and API that are written from it. Architecture reads those later, when it lays out the code.
 

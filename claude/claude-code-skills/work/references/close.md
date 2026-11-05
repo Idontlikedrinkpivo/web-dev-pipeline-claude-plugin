@@ -30,7 +30,8 @@ Anything but `PASS`: before the first fix, add «Исправления по ф�
 `⏳ ждёт` (`references/progress-file.md` → Fixes after the final review) —
 and post the progress line, saying the fixes are the section at the bottom of
 the page. Each fix then lands like a unit — your Step 5.3 checks, its own
-commit with its trailer, its rows — and its review is the re-review: after each
+commit with its trailer, its rows, then the Step 5.6 context measure as after
+any unit — and its review is the re-review: after each
 round of fixes, run `code-review-full` again over that round's fix commits only,
 with its re-review packet — never a second time over the whole diff — until `PASS`,
 while each round makes progress (`pipeline` → `references/convergence.md`);
