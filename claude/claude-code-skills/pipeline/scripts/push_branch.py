@@ -13,7 +13,10 @@ outside documentation/plans/, the rebase is skipped (it would need `--autostash`
 files) and the push is tried as it is; a clean tree is rebased without `--autostash`.
 
 When `origin` already has the branch, it first takes the others' commits (`git pull --rebase`); a rebase that stops
-on a conflict is undone (`git rebase --abort`) and the script stops with exit 2 — the session asks the user. A push
+on a conflict is undone (`git rebase --abort`) and the script stops with exit 2 — the session asks the user. A conflict
+only in the generated site documentation/_web-docs/ is not the user's: the upstream version of those files is taken, the
+rebase goes on, the site is rebuilt once (docs-site/scripts/rebuild.py) and committed alone; other conflicts are the
+user's. A push
 the remote refuses (no access, no network, a branch moved meanwhile) is exit 1 with the reason and the command to
 run by hand; the stage goes on, it is not a stop. Exit 3: a contract document the push carries fails
 doc-versioning/scripts/doc_check.py (its lines are printed) — nothing is pushed until it is fixed. Never `--force`,
@@ -25,14 +28,61 @@ Standard library only.
 """
 from __future__ import annotations
 
+import os
 import subprocess
 import sys
 from pathlib import Path
 
 
+SITE = "documentation/_web-docs"
+
+
 def git(root: str, *args: str) -> tuple[int, str]:
-    p = subprocess.run(["git", "-C", root, *args], capture_output=True, text=True)
+    p = subprocess.run(["git", "-C", root, *args], capture_output=True, text=True,
+                       env={**os.environ, "GIT_EDITOR": "true"})
     return p.returncode, (p.stdout + p.stderr).strip()
+
+
+def rebase_onto(root: str, upstream: str) -> tuple[int, str, bool]:
+    """Rebase; a stop with conflicts only under the generated site takes the upstream side and goes on.
+
+    Returns (code, output, site_resolved). During a rebase «ours» is the upstream being replayed onto."""
+    code, out = git(root, "rebase", upstream)
+    resolved = False
+    while code:
+        paths = git(root, "diff", "--name-only", "--diff-filter=U")[1].splitlines()
+        if not paths or not all(x.startswith(SITE + "/") for x in paths):
+            return code, out, resolved
+        for x in paths:
+            if git(root, "checkout", "--ours", "--", x)[0]:
+                git(root, "rm", "-q", "--", x)  # the upstream deleted the page
+        git(root, "add", "-A", "--", SITE)
+        resolved = True
+        code, out = git(root, "rebase", "--continue")
+        if code and not git(root, "diff", "--name-only", "--diff-filter=U")[1]:
+            code, out = git(root, "rebase", "--skip")  # the commit held only the site and is now empty
+    return 0, out, resolved
+
+
+def rebuild_site(root: str) -> None:
+    """After a site conflict: one rebuild of the site and a commit of it alone; a failure is said, the push goes on."""
+    script = Path(__file__).resolve().parents[2] / "docs-site" / "scripts" / "rebuild.py"
+    note = "push: конфликт только в сайте документации — взят вариант с сервера, сайт пересобран"
+    if not script.exists():
+        print(note.replace("сайт пересобран", "сайт НЕ пересобран: rebuild.py не найден; пересоберётся при следующем документе"))
+        return
+    ok = True
+    for extra in ([], ["--wait"]):
+        r = subprocess.run([sys.executable, str(script), root, *extra], capture_output=True, text=True)
+        ok = ok and r.returncode == 0
+    if not ok:
+        print(note.replace("сайт пересобран", "сайт НЕ пересобран: rebuild.py завершился с ошибкой; пересоберётся при "
+                           "следующем документе"))
+    else:
+        print(note)
+    if git(root, "status", "--porcelain", "--", SITE)[1]:
+        git(root, "add", "-A", "--", SITE)
+        git(root, "commit", "-q", "-m", "docs: сайт документации (после слияния)", "--", SITE)
 
 
 def form_problems(root: str, upstream: str | None) -> str:
@@ -89,13 +139,15 @@ def main() -> None:
     if fetched == 0 and dirty:
         print("push: в дереве незакоммиченные правки вне plans/ — ребейз пропущен, пробую отправить как есть")
     if fetched == 0 and not dirty:
-        code, out = git(root, "rebase", f"origin/{branch}")
+        code, out, site_fixed = rebase_onto(root, f"origin/{branch}")
         if code:
             git(root, "rebase", "--abort")
             clash = "\n".join(l for l in out.splitlines() if l.startswith("CONFLICT"))
             print(f"push: в origin/{branch} есть чужие коммиты, и они конфликтуют с этими — ничего не отправлено, "
                   f"ребейз отменён. Нужно решение пользователя.\n{clash}")
             sys.exit(2)
+        if site_fixed:
+            rebuild_site(root)
     ahead = git(root, "rev-list", "--count", f"origin/{branch}..HEAD")[1] if fetched == 0 else "?"
     if ahead == "0" and dirty and git(root, "rev-parse", "HEAD")[1] != git(root, "rev-parse", f"origin/{branch}")[1]:
         ahead = "?"  # not rebased and behind origin: let the push be refused, with the manual command

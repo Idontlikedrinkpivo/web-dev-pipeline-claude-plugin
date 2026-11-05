@@ -82,7 +82,7 @@ unfinished progress file), else a stage left open after its writer
 («этап не закрыт»), else a stale document's stage, else the next
 stage of a branch that is not done (for the design branch the frames
 register, `ui/screen-specs/` and `ui/test-cases/`, read from `origin` when
-stages were handed to others — `references/team.md`; both branches as
+other people work on the branch — `references/team.md`; both branches as
 options when both are open — equal ones, with no «(рекомендую)» between
 them unless the user said whose session this is: which branch is theirs is
 not in the files, and a guess from a git name or a habit sends the

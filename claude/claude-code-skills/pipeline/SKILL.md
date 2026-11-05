@@ -81,13 +81,13 @@ scaffolded. They meet before the plan.
 | 4 | API contract | `openapi-spec-generator` | `doc-review` | `clean-architecture-design` |
 | 5 | Architecture — foundation, domain model, scenarios by area | `clean-architecture-design` | `doc-review` on each document written | `repo-scaffold` |
 | 6 | Repository skeleton | `repo-scaffold` | none — also writes `documentation/project-map/project-map.md` | the meeting point — see "Two branches" |
-| 7 | Mockups | `ui-design` | none — frames are not a document | `screen-spec` once the API exists, else the backend branch's next stage; after a restyle of screens already built, `plan`; after a redraw on a new page, `screen-spec` for every screen |
+| 7 | Mockups | `ui-design` | none — frames are not a document | `screen-spec` once the API exists, else the backend branch's next stage; after a restyle of screens already built, `plan`; after a redraw on a new page, `screen-spec` for every screen; after «макеты поменялись», the changed screens' specs and cases, then back to where the iteration stood |
 | 8 | Screen specs (ТЗ на экран) | `screen-spec` | `doc-review` | `ui-test-cases` (write) |
 | 9 | UI test cases | `ui-test-cases` — mode write | no reviewer — two scripts at its close: `check_trace.py`, `check_coverage.py` | the meeting point — see "Two branches" |
 | 10 | Document set check | `docs-consistency` | none — it is the check | `plan` |
 | 11 | Implementation plan | `plan` | `plan-review` — **automatic, do not ask**; its findings are fixed round by round until it passes | `work` |
 | 12 | Execution | `work` | `code-review-unit` per unit → `code-review-full` once — **automatic, do not ask** | `ui-test-cases` (run) when the product has screens, else `security-audit` |
-| 13 | UI acceptance run | `ui-test-cases` — mode run | none | a fix plan — `plan` `MODE fix` over the report's defect rows — when the verdict is `DEFECTS`, else `security-audit` |
+| 13 | UI acceptance run — the cases the iteration touched (`affected_cases.py`); the whole set once at the close | `ui-test-cases` — mode run | none | a fix plan — `plan` `MODE fix` over the report's defect rows — when the verdict is `DEFECTS`, else `security-audit` |
 | 14 | Security audit — the whole application, once per iteration | `security-audit` | none — it is the check | a fix plan — `plan` `MODE fix` over the report's `FIX` rows — when the verdict is `FIX`, else `deploy-topology` |
 | 15 | Compose topology | `deploy-topology` | none | `operations-doc` |
 | 16 | Operations document — journals, jobs, alarms, how to see each | `operations-doc` | none — its queries are proven on the test stand | `ci-pipeline` |
@@ -102,9 +102,9 @@ scaffolded. They meet before the plan.
   backend branch starts at its first applicable stage (`db-schema-design`
   when something must survive a restart, else `openapi-spec-generator`
   when there is HTTP, else `clean-architecture-design`); the design branch
-  at `ui-design` when a human faces a screen. A stage or a branch someone
-  else takes is handed over by `references/team.md`: any stage of 1–9 can
-  be, since its documents travel on the branch.
+  at `ui-design` when a human faces a screen. Another person can take
+  any stage from the branch (`references/team.md`): the stage's close
+  commits and pushes everything, the next person pulls and runs `continue`.
 - **`screen-spec` needs the API.** When stage 7 ends and stage 4 has not
   run, offer the backend branch's next stage and say that the screen specs
   wait for the contract.
@@ -184,7 +184,12 @@ stage that ran last hands over to this section; it does not end the sitting itse
      the iteration's close) — nothing differs, nothing is committed.
 2. **The site.** Rebuild the documentation site (`docs-site`) and commit it when it changed.
 3. **The summary** — `references/summary.md`; on disk only, like the rest of `plans/`.
-4. **The tag** `v<version>` on the current commit — only when
+4. **The tag** `v<version>` on the current commit. First, when the product has screens and the iteration's runs
+   took a scope: **the full set once** on the final code — the cases outside the last run (`ui-test-cases` →
+   Mode run → Scope, `--rest`), the same runner, its own section «Полный набор перед меткой» in `test-run.md`.
+   The scoped runs left the untouched screens unchecked; this is where a regression there shows. A failure is a
+   defect like any other — a fix plan, its run, then this step again — never a reason to skip the tag silently.
+   Then the tag, only when
    `python3 "${CLAUDE_SKILL_DIR}/scripts/close_iteration.py" .` shows steps 1–3 ✅; run it again after step 7: exit 0
    is the iteration closed, a ✗ names the step left. The tag is the baseline the next iteration's pins and
    diffs read against. Steps 1–4 also run when the user asks «итог», «как отработал пайплайн» or
@@ -279,8 +284,9 @@ iteration (`references/service-version.md` → Opening the iteration: `open_iter
 runs by `chat-change.md` instead of plan + `work`: the unit spec from the user's words, the executor,
 `code-review-unit`, the tests it can break, the commit with `Plan-Unit: <version>/chat-<n>`. It skips, each for its
 reason: the plan and `plan-review` — one unit needs no plan; `code-review-full` — the unit's review is the whole
-diff; mutation runs and the code-health table — nothing to compare; the full UI run — only the cases of the touched
-screens (`ui-test-cases` run with those cases named; no screen touched — skipped). It never skips: the document
+diff; mutation runs and the code-health table — nothing to compare; the full UI run — the same scope rule as any run, with the
+unit as the touched surface (`ui-test-cases` → Mode run → Scope, `affected_cases.py --touch <S-n,operationId>`), and
+no full set at the close: CI's `test:e2e` runs the whole suite (no screen touched — no UI run). It never skips: the document
 change when the change contradicts a document (`references/decision-changes.md`), the security-audit question (the
 user may decline it — the summary's «Безопасность» row), the stamp, the site, the summary, the tag, `reflect`. The
 summary's «Малая итерация» row says what was skipped and why (`references/summary.md`): a version with no plan is

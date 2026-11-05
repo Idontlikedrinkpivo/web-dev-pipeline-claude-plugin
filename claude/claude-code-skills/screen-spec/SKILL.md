@@ -38,14 +38,12 @@ stay as `references/template.md` writes them.
 No human-facing surface means no frames register and no screens: the whole
 design branch is skipped per `pipeline` → Skips. Do not invent a console.
 
-**Handed to another person?** In the session of a person who took
-this stage (`pipeline` → `references/team.md`): the version comes from the
+**Handed to another person?** In the session of a person who picks this
+stage up from the branch (`pipeline` → `references/team.md`): the version comes from the
 branch `iteration/<version>`, inputs arrive by `git pull --rebase`, only this
 stage's documents are written — each committed the moment it is finished
 and pushed by the plugin once final, at the stage's close (`pipeline` →
 Commit each document) — and the stage closes as usual, its stamp included.
-After the last stage this person took, the «готовы и запушены»
-line replaces the offer of a stage someone else has.
 
 ## Inputs
 
@@ -270,7 +268,10 @@ and writes the files itself; there is no `doc-typist` on this stage.
      column; compare the operations in «Метод и поля» with
      `documentation/api/openapi.yaml`;
      read the SRS journal for the cited rule ids. A screen with no evidence
-     of change is not dispatched and its file is not touched.
+     of change is not dispatched and its file is not touched. A list of
+     changed screens handed over by `ui-design` → Frames changed by hand is
+     the scope as is — that mode has just compared every frame, so it is
+     not detected again.
    - The user named screens → those, plus nothing else.
    Write the list in the chat with the reason per screen («S-3 — кадр 22:10:
    новый элемент 7»), then dispatch; this is not a question.

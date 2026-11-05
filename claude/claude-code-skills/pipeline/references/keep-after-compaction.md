@@ -71,6 +71,8 @@ stage skill, its heading the skill's folder name; a stage with no section gets �
 - The Figma builder draws; the session checks each screen against the frames register and the UX checklists
   (`ux-patterns`) and writes its row in `progress-design.md` with Edit.
 - The register header holds «Кадры рисует» and «Дизайн ведёт».
+- The close says «Макеты готовы… Если поправите их сами, напишите «макеты поменялись»…» before the transition
+  question; those words start Frames changed by hand (`references/frames-changed.md`).
 
 ## screen-spec
 

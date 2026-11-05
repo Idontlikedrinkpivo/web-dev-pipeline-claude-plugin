@@ -35,14 +35,12 @@ cases file beside the screen specs → write; cases exist and the app's code
 exists → run; asked for both («составь и прогони») → write, then run in
 the same sitting. Unclear → one question.
 
-**Handed to another person?** In the session of a person who took
-mode write (`pipeline` → `references/team.md`): the version comes from the
+**Handed to another person?** In the session of a person who picks mode
+write up from the branch (`pipeline` → `references/team.md`): the version comes from the
 branch `iteration/<version>`, inputs arrive by `git pull --rebase`, only this
 stage's documents are written — each committed the moment it is finished
 and pushed by the plugin once final, at the stage's close (`pipeline` →
 Commit each document) — and the stage closes as usual, its stamp included.
-After the last stage this person took, the «готовы и запушены»
-line replaces the offer of a stage someone else has.
 
 ## Mode write
 
@@ -183,7 +181,11 @@ documentation/ui/test-cases/
   split.
 - **`TC-` ids run across the whole set**, never renumbered or reused; a
   new case takes the next free number, in the section where it belongs.
-- Unversioned: an increment edits the files in place.
+- Unversioned: an increment edits the files in place. The cases of the
+  screens `ui-design` → Frames changed by hand names are re-checked by
+  `MODE increment` after their specs land (traces, texts, frame ids):
+  a hand-edited frame otherwise shows up only in the run, as «🖼
+  расхождение с макетом».
 - **An existing single `test-cases.md`** (written before this layout) is
   moved into the folder by the session before the writer is dispatched (the
   writer does not commit): its `## N.` sections become section files, the
@@ -269,11 +271,45 @@ preconditions become the mocked data, each error case the mocked status. The
 report says the screens were checked against the contract, not a live
 backend.
 
+**Scope: the affected cases, without asking.** A run takes the cases the
+iteration touched, not every case of every earlier iteration: the whole set,
+one case at a time per stand, takes hours when two screens changed, and a
+regression outside the touched surface is caught once at the close (below)
+and by CI's `test:e2e`. A case is affected when its «Экран» line or
+«Трассировка» names a screen (`S-n`, a frame `nodeId` or a modal of that
+screen), an element or an `operationId` the iteration touched, when the
+case itself is new or changed, or when it failed (`❌`, `⛔`) in the last run
+of the previous iteration. «Touched» is read from git and the files, never
+from memory — the plan's units («Документы», «Файлы», «Цель»), the diff of
+`documentation/` since the previous iteration's tag `v<prev>` (screen specs,
+frames-register rows, OpenAPI operations, SRS rows), the test-case files
+changed since it. Before the dispatch run, from the repository root:
+
+`python3 "${CLAUDE_SKILL_DIR}/scripts/affected_cases.py" . [--plan
+documentation/plans/<version>/plan.md] [--failed documentation/plans/<prev>/test-run.md]`
+
+— `--plan` when the open folder has a plan, `--failed` when the previous
+iteration's report exists. It prints `TC-n<tab>reason` per case in scope,
+`затронуто: …` and `всего: N из M`; no previous tag (the project's first
+iteration) — every case, «первая итерация». The ids go to the runner as
+`CASES`; the chat line names the count and why, from its last two lines
+(«в прогон 14 кейсов из 55: 2 экрана и 3 операции изменены, 1 упал в
+прошлый раз»), and the run's section records it as its «Объём» line. A
+`DEFECTS` re-run after a fix plan takes the failed cases plus the cases of
+the screens the fix plan touched (`--since` the last run's commit, `--failed`
+with this iteration's report, `--plan` with the fix plan); a small iteration
+has no plan and names its unit's screens and operations with `--touch
+S-n,<operationId>`. **The close's full set** (`pipeline` → End of the
+pipeline, before the tag): the same runner on the final code over
+`--rest documentation/plans/<version>/test-run.md` — the cases outside the
+last run — in its own section «Полный набор перед меткой»; a failure there is
+a defect like any other (a fix plan), never a reason to skip the tag silently.
+
 **Two passes.** The run is two passes with a bar each, so the user always
 sees how far the full picture is:
 
-1. **Pass 1 — the whole set, once.** Every case is written and run once and
-   gets a pass-1 result: `✅ прошёл`, `❌ не прошёл` (with what was seen
+1. **Pass 1 — the set in scope, once.** Every case in `CASES` is run once
+   (a case with no test yet is written first) and gets a pass-1 result: `✅ прошёл`, `❌ не прошёл` (with what was seen
    against what was expected), `⛔ заблокирован: <причина>` (a missing
    piece that can be added — a test stub for sign-in or SMS), or
    `⏭ не автоматизирован: <причина>` (the case cannot be checked honestly
@@ -281,7 +317,7 @@ sees how far the full picture is:
    that would break the stand for everyone, an app restart with other
    settings, or a state the stand never has; the comment says how to check
    it by hand). No test is
-   fixed and nothing is triaged in this pass — the point is the whole set at
+   fixed and nothing is triaged in this pass — the point is the set in scope at
    100% first, so repeated causes show up as repeats instead of being fixed
    one case at a time. When the cases run in several modes (two sign-in
    modes, two roles of one case), each case × mode is its own row and its
@@ -313,7 +349,7 @@ bars, statuses, the verdict and the lists under it. No open version folder
 → say so and ask per `pipeline` → "Asking before a transition" which
 version this run belongs to; do not invent one. Before the first run's
 dispatch create it as run-report.md → Where and what describes, every case
-`⏳ ждёт` and `Verdict: идёт прогон`; before a later run, append its section
+in scope `⏳ ждёт` and `Verdict: идёт прогон`; before a later run, append its section
 and turn the verdict to `идёт перепрогон`. Then run `python3
 "${CLAUDE_SKILL_DIR}/../pipeline/scripts/progress_link.py"
 documentation/plans/<version>/test-run.md` (add `--desktop` when the
@@ -328,7 +364,8 @@ report per run-report.md → How it is kept.
 
 **Dispatch:** resolve `ui-test-runner` through `executor-catalog` with
 `references/runner-prompt.md` — the one place for the runner's rules: a
-spec file per section file, the parts of `playwright-cli` it takes, the
+spec file per section file (every case has its test, so CI runs the whole
+suite; pass 1 runs only `CASES`), the parts of `playwright-cli` it takes, the
 `test:e2e` script `ci-pipeline` runs, the cases one at a time on each stand
 (`references/parallel-stands.md`), each frame
 compared once per `nodeId`, the `ux-patterns` screen-check items, the
@@ -370,7 +407,8 @@ fix plan must turn green.
 - run: the suite is ready to commit under the E2E folder with `test:e2e`;
   pass 1 reached 100% and every failed case went through pass 2; no
   application file changed; the `Verdict:` line under the last table is the
-  verdict.
+  verdict; the run's «Объём» line names the scope `affected_cases.py`
+  printed, and at the close the full set's section covers the rest.
 
 ## References
 
@@ -378,6 +416,8 @@ fix plan must turn green.
 - `references/runner-prompt.md` — packet for `ui-test-runner`.
 - `references/run-report.md` — the run report `test-run.md`: bars,
   sections per run and repeat, example, statuses, verdict. Read before creating it.
+- `scripts/affected_cases.py` — the cases in a run's scope, with reasons;
+  `--rest` gives the close's full set.
 - `references/parallel-stands.md` — several identical stands for a long
   run: what makes a stand copyable, how many the machine holds, the split.
 - `playwright-cli` — `references/test-config.md` (the stand-ready

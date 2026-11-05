@@ -121,11 +121,12 @@ A follow-up that is not in the plan changes neither number.
   first run); record it in the run report before the first dispatch. It bounds
   Step 7's diff and nothing else.
 
-**The run's state outside git** — the run report with its «В работе» line, the resume note, the task list,
-and the progress file with its progress line — is `references/run-state.md`: read it now and after every
-compaction. In short: write each dispatch into «В работе» before its `Agent` call and append to the run report
-after every commit; refresh `resume.md` after every commit and stop; one task per unit; the progress line comes
-from `progress_link.py` — before the first dispatch, after every commit and stop, and last — never by hand.
+**The run's state besides the commits** — the run report (`plans/<version>/run-report.md`) with its «В работе»
+line, the resume note, the task list, and the progress file with its line — is `references/run-state.md`: read
+it now and after every compaction. In short: write each dispatch into «В работе» before its `Agent` call and
+append to the run report after every commit; refresh `resume.md` after every commit and stop; one task per
+unit; the progress line comes from `progress_link.py` — before the first dispatch, after every commit and stop,
+and last — never by hand.
 
 ### Step 2. Resolve the routing table
 
@@ -247,8 +248,8 @@ Per unit, in this order, and never skip to the next unit on a broken tree:
 2. **Check the diff against the unit spec.** Does it implement the cited
    design, or something adjacent? Does it re-decide something the design
    already fixed?
-3. **Run the checks** — `lint`, `typecheck` (tests too) and the unit's tests plus what the plan names for
-   this ring (`repo-scaffold/references/quality-gates.md`), each through
+3. **Run the checks** — `lint`, `typecheck` (tests too) and the unit's tests plus the checks the plan's unit
+   names in «Проверка» (the gates of `repo-scaffold/references/quality-gates.md`), each through
    `python3 "${CLAUDE_SKILL_DIR}/scripts/run_check.py" <name> -- <command>`. This run is authoritative; the worker's
    self-check is not. Then check the proof, not just the green: every scenario
    the plan listed exists as a test in the diff and asserts what the scenario

@@ -16,13 +16,15 @@ as below).
 with its own table and its own bar** — nothing is rewritten in place. A
 reader sees at the top where the whole set stands and, below, what each
 run and each repeat did; the page (`test-run.html`) draws every bar at its
-top, labelled by its section's heading: «Общий итог», then «Прогон 1 — все
-кейсы», «Прогон 1 · повтор 1 — …», «Прогон 2 — после исправлений …».
+top, labelled by its section's heading: «Общий итог», then «Прогон 1 —
+затронутые кейсы», «Прогон 1 · повтор 1 — …», «Прогон 2 — после исправлений
+…», «Полный набор перед меткой».
 
 1. **The top — «Общий итог».** Under the title, the main bar and its count
    line, no table: the share of automated cases that pass **by their
-   latest result** in any section below — ⌊passing × 100 / (all cases − не
-   автоматизированы)⌋. It grows as a run's cases pass and again with every
+   latest result** in any section below — ⌊passing × 100 / (the cases the
+   report holds − не автоматизированы)⌋; a case outside every scope this
+   iteration is not counted until the close's full set runs it. It grows as a run's cases pass and again with every
    repeat that turns a case green, so the user watches the one number that
    matters climb. Cases that cannot be automated are left out of the
    percent, so a run with no failures shows 100%; blocked cases stay in it —
@@ -30,7 +32,11 @@ top, labelled by its section's heading: «Общий итог», then «Прог
    автоматизированных · не проходят … · заблокировано … · не
    автоматизированы …». While anything runs, a line under it says what:
    «Сейчас: прогон 2 — 40 из 52».
-2. **«## Прогон 1 — все кейсы · коммит <sha> · идёт | завершён».** Its bar
+2. **«## Прогон 1 — затронутые кейсы · коммит <sha> · идёт | завершён»**
+   («все кейсы» in the project's first iteration). Under the heading the
+   scope line, from `affected_cases.py`: «Объём: 14 из 55 — экраны S-1, S-4
+   (ТЗ изменено), операции cancelBooking, bookRoom, blockRoom, упал в прошлый
+   раз 1» — so a reader sees why the other cases are not here. Its bar
    is the share of the run's cases checked; its count «Проверено: N из M ·
    успешно … · не прошли … · заблокировано … · не автоматизированы …»; its
    table holds every case once (each case × mode its own row) with the
@@ -57,9 +63,17 @@ top, labelled by its section's heading: «Общий итог», then «Прог
    in the same iteration (after a fix plan, after changed decisions) is
    appended under everything before it, never written over it: the fix
    plan cites this file's rows. «Что исправлено:», «Что прогоняется:» (the
-   cases and why), then its bar, count and table as in run 1, its own
+   cases and why: the failed ones plus the cases of the screens the fix
+   plan touched), then its bar, count and table as in run 1, its own
    разбор and повторы under it as «Прогон 2 · …».
-6. **The `Verdict:` line, last**, always tells what is true now: `идёт
+6. **«## Полный набор перед меткой · коммит <sha>»** — the iteration's
+   close, before the tag (`pipeline` → End of the pipeline): the cases
+   outside the last run (`affected_cases.py --rest`), on the final code.
+   «Объём: 41 из 55 — не входили в последний прогон», then bar, count and
+   table as in run 1, its разбор and повторы as «Полный набор · …». Its
+   `❌ дефект приложения` rows go to a fix plan like any run's; the tag waits
+   for them.
+7. **The `Verdict:` line, last**, always tells what is true now: `идёт
    прогон` while the first run is on; `PASS | DEFECTS | BLOCKED` after its
    разбор; the moment anything runs again, `идёт перепрогон · прошлый:
    DEFECTS, коммит 6e96d58`, until that run's разбор gives the new one.
@@ -85,7 +99,9 @@ other sections may repeat a case freely.
 
 Сейчас: прогон 2 — 40 из 52.
 
-## Прогон 1 — все кейсы · коммит 6e96d58 · завершён
+## Прогон 1 — затронутые кейсы · коммит 6e96d58 · завершён
+
+Объём: 179 из 230 — экраны S-1, S-3, S-7 (ТЗ изменено), операции bookRoom, cancelBooking, новых кейсов 12, упали в прошлый раз 4
 
 ```text
 ████████████████████████████████████████████████████████████████████████████████████████████████████ 100%

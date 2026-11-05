@@ -57,7 +57,7 @@ order; the user may change the order at any of those questions.
 
 ## Only one branch
 
-The other branch is not run in this session. When it is someone else's,
-the hand-over follows `references/team.md`, and the meeting point waits for
-their «готово и запушено». When it is later, the meeting point offers it
-as the next stage.
+The other branch is not run in this session. When it is someone else's, it
+runs on another machine from the same git branch, and the meeting point
+waits until its documents are on the branch (`references/team.md`). When it
+is later, the meeting point offers it as the next stage.

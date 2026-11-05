@@ -191,6 +191,11 @@ does, and runs `npm run test:e2e` — the same command a developer runs. A
 suite of several test files is split into shards by file — a matrix of
 `--shard=<i>/<N>` jobs, each with its own stand, and a last job that merges
 the reports (`ui-test-cases` → `references/parallel-stands.md` → In CI).
+The e2e job runs on `pull_request` and on `push` to the default branch (`main`/`master`), not on every push to a
+feature or iteration branch: a push to `iteration/<version>` runs lint, typecheck and the unit suite only. The
+reason: the suite is the longest part of CI, and the iteration branch gets a push at every stage's close and
+stop; the run on the PR and on `main` still catches a regression before it ships. The `if:` form is in
+`references/ci-skeleton.md` → Optional: the `e2e` job.
 When the repo has no such target, the workflow has no e2e step, and the
 close (Step 9) says that browser tests are not in CI.
 

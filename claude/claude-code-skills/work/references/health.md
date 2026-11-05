@@ -34,11 +34,12 @@ against each change, the **mutant**. A mutant the tests catch is **killed**; one
 assertion is missing. An **equivalent** mutant changes nothing anyone can observe (`i < n` and `i != n` in a loop
 that only counts up): no test can kill it. It is slow — the whole focused suite per mutant — so it stays narrow.
 
-**Tell the user once, before the first mutation run of the iteration**, in plain words: what the three words
-mean, what the run will take (the mutant count, the streams and the time estimate below), and one question
-about equivalent mutants — `A. Оставить с причиной в отчёте` (рекомендую), `B. Упростить код в следующей итерации, чтобы мутанта
-не было`, `C. Пометить в коде (`// Stryker disable next-line <mutator>: <причина>`)`. The answer holds for the
-iteration; the run report records it.
+**Tell the user once, before the first mutation run of the iteration**, in one chat line: what runs and how long
+it will take (the mutant count, the streams and the time estimate below), with the three words explained in a
+short parenthesis the first time. No question: the user's answer was «не нужно спрашивать, пусть делает то, что
+надо», and a question about a mutant only the session can judge is a question the user cannot answer. Equivalent
+mutants are always kept with the reason in the run report — the code is not simplified for them and not marked
+with a disable comment, because either would be a change no unit planned.
 
 **Scope: lines, not files.** The scope is the lines of the rules and guards the units enforce — an entity's
 method, a guard, a mapping — named as ranges: Stryker `--mutate "src/a.ts:40-72,src/b.ts:10-31"` (one argument,
@@ -105,17 +106,17 @@ shares on their own databases run side by side and nothing else can join them.
    numbers against the tool's own final summary once: a mismatch means the log format changed — say so and fix
    that row by hand.
 5. The section «Выжившие и эквивалентные» below the table is the session's, kept with Edit: one row per survivor
-   as it is read — the mutant (file:line, mutator), the part, the decision (тест дописать, or the user's answer on
-   equivalents: оставить с причиной, упростить, пометить в коде), where it went (the final review's finding, «Задачи
-   на потом»), its status.
+   as it is read — the mutant (file:line, mutator), the part, the decision (тест дописать, or an equivalent one:
+   оставлен с причиной), where it went (the final review's finding, «Задачи на потом»), its status.
 
 The run's `progress.md` carries one line while it runs: «Мутации: см. progress-mutation» with the link.
 
-**Estimate first, ask past the budget.** The run prints the mutant count before it starts («Found N mutants»; a
-dry run only, when the version has one). Time ≈ initial test run × mutants ÷ the part's workers (its shares
-together). Plan the streams first, then estimate; over 30 minutes for a part even in parallel: ask before
-running — narrow the ranges, or run it as it is, or skip with «не измерено: долго». The progress line says the
-estimate.
+**Estimate first, plan to fit, never ask.** The run prints the mutant count before it starts («Found N mutants»;
+a dry run only, when the version has one). Time ≈ initial test run × mutants ÷ the part's workers (its shares
+together). Plan the streams first, then estimate, and run as planned; the progress line and the run report carry
+the estimate and the actual time. A part that cannot fit the machine at all (the estimate above several hours
+with every core) is narrowed to the High units' lines and the rest is noted «не измерено: долго» — the session
+decides it, because the user has no better ground for the choice than the numbers the session already has.
 
 **Never in place, never interrupted.** Stryker's default sandbox copies the project; keep it — `inPlace: true`
 rewrites the working tree, and an interrupted run leaves instrumented files in `src`. A project config with
@@ -125,7 +126,7 @@ over files someone else changed — and say so in the run report.
 
 **Read the result.** The report lists every file of the scope as mutated (a file missing means the scope did not
 reach it), the counts killed / survived / timed out / no coverage, and each survivor with its line and mutator.
-Survivors go to `code-review-full` as findings on the tests, equivalent ones by the user's answer.
+Survivors go to `code-review-full` as findings on the tests; equivalent ones are kept with the reason.
 
 ## Simplify
 

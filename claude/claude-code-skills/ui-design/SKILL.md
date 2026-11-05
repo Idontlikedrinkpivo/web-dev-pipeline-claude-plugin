@@ -1,8 +1,9 @@
 ---
 name: ui-design
 description: >-
-  Figma design stage: visual direction, mockups from the SRS, restyles. Use for «нарисуй макеты», «подбери стиль»,
-  «перерисуй стильнее». A screen not in the SRS: brainstorm first. Not screen-spec or frontend.
+  Figma design stage: visual direction, mockups from the SRS, restyles, frames edited by hand. Use for «нарисуй
+  макеты», «подбери стиль», «перерисуй стильнее», «макеты поменялись». A screen not in the SRS: brainstorm first.
+  Not screen-spec or frontend.
 ---
 
 # UI Design
@@ -52,14 +53,12 @@ If there is no human-facing surface (an API, a worker, a CLI), say so in
 one line and stop. Do not invent a console. The whole design branch is
 skipped; `pipeline` names what follows.
 
-**Handed to another person?** In the session of a person who took
-this stage (`pipeline` → `references/team.md`): the version comes from the
+**Handed to another person?** In the session of a person who picks this
+stage up from the branch (`pipeline` → `references/team.md`): the version comes from the
 branch `iteration/<version>`, inputs arrive by `git pull --rebase`, only this
 stage's documents are written — each committed the moment it is finished
 and pushed by the plugin once final, at the stage's close (`pipeline` →
 Commit each document) — and the stage closes as usual, its stamp included.
-After the last stage this person took, the «готовы и запушены»
-line replaces the offer of a stage someone else has.
 
 ## Inputs
 
@@ -88,7 +87,8 @@ flow (`UC-3 Exc-1`), and `screen-spec` maps them to status codes later.
    Mode **index**: indexing → completeness questions to the designer.
    **Restyle**: the existing frames take the chosen direction →
    verification. **Redraw**: every screen drawn anew on a new page, the old
-   frames untouched → verification.
+   frames untouched → verification. **Frames changed by hand**: the
+   register, then the specs and cases, follow the edited frames.
 5. Quality gate, then Closing and the next stage.
 
 A later run (an SRS increment, a redesign request, «дорисуй состояние»,
@@ -337,6 +337,16 @@ Read `references/restyle-redraw.md` and follow it.
 
 The library-bound stop and the next stage after each are in that reference.
 
+## Frames changed by hand
+
+The user or a designer edited the frames after this stage («макеты поменялись», «я поправил кадры»,
+«дизайнер изменил макеты», «обнови реестр под макеты») and the project has a register. Read
+`references/frames-changed.md` and follow it: every register frame read and compared (a table of
+changes in the chat), the register updated in place with ids kept, then the specs and cases of exactly the
+changed screens. Why: a hand-edited frame drifts from the specs silently, and the mismatch surfaces only in
+the acceptance run, weeks later. Not a restyle (a new look) and not a redesign of a screen's structure —
+those go through Restyle or the SRS.
+
 ## Indexing (mode index)
 
 A designer drew the frames; this skill describes them and finds what is
@@ -422,6 +432,12 @@ question; the stage does not wait for it.
 
 After a restyle, name the direction and the screens restyled; after a
 redraw, the new page and the screens drawn on it.
+
+Then, when the frames are done, this one line, as is: «Макеты готовы, реестр кадров записан. Проверьте кадры
+в Figma. Если поправите их сами, напишите «макеты поменялись» — я обновлю реестр, ТЗ на экраны и тест-кейсы
+под ваши правки.» Name only the documents that exist: before any screen spec, «я обновлю реестр под ваши
+правки»; with specs and no cases, «реестр и ТЗ на экраны». Why: the user reviews the frames anyway, and
+without the line an edit made in Figma never reaches the documents (Frames changed by hand).
 
 Then read `pipeline` and ask about the stage its table names after this one
 (normally `screen-spec`, which needs these frames and the OpenAPI contract;

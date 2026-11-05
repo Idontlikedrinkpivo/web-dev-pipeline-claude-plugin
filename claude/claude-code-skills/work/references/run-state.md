@@ -1,14 +1,22 @@
-# Run state outside git — the run report, the resume note, the task list, the progress line
+# Run state besides the commits — the run report, the resume note, the task list, the progress line
 
-Read by `work` at Step 1, and again after every compaction: what the run keeps besides its commits, where each
-lives, and when each is written. Where the run stands is still read from git (`plan_state.py`); these hold what
-git cannot — who is dispatched now, what was decided, and what the user sees.
+Read by `work` at Step 1, and again after every compaction: what the run keeps besides its unit commits, where
+each lives, and when each is written. Where the run stands is still read from git (`plan_state.py`); these hold
+what the unit commits cannot — who is dispatched now, what was decided, and what the user sees.
 
-**The run report** (`references/run-report.md`) is a file at
-`$(git rev-parse --path-format=absolute --git-common-dir)/pipeline-work/<version>-run.md` — outside the
-tree, so the plan stays byte-identical and no unit's `Файлы` grows; a second
-run in the iteration adds its own section under its own BASE. Append to it
-after every commit and read it back after a compaction. Its «В работе» line
+**The run report** (`references/run-report.md`) is `documentation/plans/<version>/run-report.md`, in git with
+the rest of `plans/`: a run handed to another machine lost it while it sat outside the tree, and with it the
+executors' `DECISIONS` (the `FROM DEPENDENCIES` of later units), «В работе», «Low-партии», BASE and the
+cross-unit watch. It is written with Edit — it is not a progress file, so the guard's progress-file rule does not
+touch it — and committed only by `scripts/push_branch.py` («chore: отчёты итерации <version>») with the rest of
+`plans/` at every stop and at the close (`pipeline` → `references/service-version.md` → The iteration's files in
+git), never by a unit's commit: a unit stages only its own files, so the plan stays byte-identical and no
+unit's `Файлы` grows. The agents' details files (`U<n>-details.md`, reviews, logs, diffs) stay in
+`$(git rev-parse --path-format=absolute --git-common-dir)/pipeline-work/<version>/`, outside git. A second run
+in the iteration adds its own section under its own BASE. Append to it after every commit and read it back
+after a compaction. A run started before this rule has its report in `pipeline-work/<version>-run.md`: at the
+first stop after the update the session moves it into `plans/` — copy it, then delete the old file (`git mv`
+cannot reach outside the tree). Its «В работе» line
 lists each dispatch still out — `U7 → impl-medium (задача <id>)` — written
 before the `Agent` call and cleared when it returns. After a compaction a
 unit listed there is still running: wait for its result, or confirm its task

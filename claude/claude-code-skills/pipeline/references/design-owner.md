@@ -59,10 +59,10 @@ iteration and can change at any message («дизайнер ушёл, рисуе
 
 | | A. Сами | B. Дизайнер с плагином | C. Дизайнер без плагина | D. Без макетов |
 |---|---|---|---|---|
-| Fork after the SRS (`references/branch-order.md`) | the usual options and recommendation | recommend «только бэкенд»; the hand-over (`references/team.md`) follows at once | recommend «сначала бэкенд»: the design branch here starts when the designer's file arrives | no design branch: the backend branch only |
+| Fork after the SRS (`references/branch-order.md`) | the usual options and recommendation | recommend «только бэкенд»: the design branch is theirs; the backend goes on here | recommend «сначала бэкенд»: the design branch here starts when the designer's file arrives | no design branch: the backend branch only |
 | `ui-design` | in this session; its entry question offers only B and C (draw) | in the designer's session; it asks its own entry question | in this session, its entry option A only — the designer's frames: screen ids, the register, the completeness check; gaps go to the designer as questions | skipped; the answer is recorded as below, so «где я» stops asking |
-| Screen specs and test cases | in this session | one question per stage — the designer, an analyst, or this session (`references/team.md` → Handing over) | in this session | in this session; specs from the frontend's routes and the architecture, «Кадров нет» in each |
-| Meeting point (`docs-consistency`) | both branches done here | waits for each person's «готово и запушено» | both branches done here, once the designer's frames are registered | the backend branch and the screen specs |
+| Screen specs and test cases | in this session | whoever pulls the branch next: the stage is offered to whoever runs `continue` (`references/team.md`) | in this session | in this session; specs from the frontend's routes and the architecture, «Кадров нет» in each |
+| Meeting point (`docs-consistency`) | both branches done here | waits until the frames (and the specs, the cases) are on the branch | both branches done here, once the designer's frames are registered | the backend branch and the screen specs |
 
 ## Where the answer is kept
 

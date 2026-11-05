@@ -77,8 +77,10 @@ in a measured run its context grew by ~100,000 tokens per unit, a third of it ag
 
 - **Agents' reports are short; their details are files.** An executor's report and a reviewer's report come
   back in about 2,000 characters; the long part sits in `$(git rev-parse --path-format=absolute --git-common-dir)/pipeline-work/<version>/`
-  (`U<n>-details.md`, `U<n>-review-<pass>.md`) — the packet names each path. Paste the short report into the
-  reviewer's packet with the path; the reviewer reads the file.
+  (`U<n>-details.md`, `U<n>-review-<pass>.md`), outside git — the packet names each path; the run report is
+  not there but in `plans/<version>/run-report.md`, in git (`references/run-state.md`), so what the next unit
+  needs from a report (its `DECISIONS`) goes into the run report. Paste the short report into the reviewer's
+  packet with the path; the reviewer reads the file.
 - **When the orchestrator opens the details file itself:** a High or risk-floor unit; any status but `DONE`;
   NEEDS FROM ORCHESTRATOR other than «нет»; files changed outside the unit's `Файлы`; and when
   `python3 "${CLAUDE_SKILL_DIR}/scripts/report_alarm.py" <details file> --concerns "<CONCERNS and NEEDS>"`

@@ -15,9 +15,13 @@ SKILL           <SKILLS ROOT>/ui-test-cases/SKILL.md — follow Mode run;
                 its references/test-config.md for playwright.config.ts, and
                 of its references/test-generation.md only §0 and §3.1–3.3
                 under the «Inside dev-pipeline» block
-CASES           documentation/ui/test-cases/ — README.md (roles, data,
+CASE FILES      documentation/ui/test-cases/ — README.md (roles, data,
                 shared texts) and one file per section
                 (documentation/ui/<product>/test-cases/ with several UI products)
+CASES           <the TC- ids pass 1 runs, from affected_cases.py, with its
+                 «Объём» line — or: все>
+RUN             <ordinary | DEFECTS re-run after <fix plan> | full set before
+                 the tag — the section heading the session created>
 UI SPEC         documentation/ui/screen-specs/   FIGMA FILE  <fileKey> | none
 VERIFY          .claude/skills/verify/SKILL.md — launch, ready, doctor,
                  roles, evidence, cleanup and the stand's traps; follow it
@@ -27,7 +31,7 @@ STANDS          <N stands, each: its addresses, its checkout or worktree, and
 E2E FOLDER      <existing folder> | e2e/
 REPORT PATH     documentation/plans/<version>/test-run.md (the open version
                 folder, the one without summary.md) — already created by
-                the session with every case ⏳ ждёт; you keep it live
+                the session with every case of CASES ⏳ ждёт; you keep it live
 
 RULES
 - Launch, check and clean up the stand as VERIFY says; run its doctor
@@ -46,7 +50,10 @@ RULES
   No bypass of real auth the architecture did not provide as a test stub:
   that is BLOCKED.
 - One spec file per section file, named like it (an existing suite keeps
-  its file names); each test titled with its TC- id. Build each case from
+  its file names); each test titled with its TC- id. Every case of CASE
+  FILES has its test, so CI's `test:e2e` runs the whole suite: a case
+  outside CASES keeps its test as it is, one with no test yet gets it
+  written (the close's full set runs it); only CASES run in pass 1. Build each case from
   its body and its «Трассировка» line: the step's visible label and the
   element the trace names (`шаг N → эл. M`, the spec's control name and
   role) give the role/label locator; the trace's operationId and status
@@ -94,8 +101,8 @@ RULES
   the texts (UX-78). A breach goes into the «Проверка экрана» list under
   the verdict with its screen and UX-n; it does not change the case's
   status.
-- Two passes (ui-test-cases → Mode run → Two passes). Pass 1: write and
-  run every case once (each case × mode its own row) — ✅ прошёл /
+- Two passes (ui-test-cases → Mode run → Two passes). Pass 1 — the set in
+  scope: run every case of CASES once (each case × mode its own row) — ✅ прошёл /
   ❌ не прошёл (seen vs expected) / ⛔ заблокирован (a missing stub that can
   be added) / ⏭ не автоматизирован (needs a failure that would break the
   shared stand, an app restart with other settings, or a state the stand

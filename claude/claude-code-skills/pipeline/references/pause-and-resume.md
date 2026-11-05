@@ -16,7 +16,8 @@ resume note holds exactly that.
 ## The note
 
 `documentation/plans/<version>/resume.md` — in git with the rest of
-`plans/`, pushed at a stop (Pausing, step 5), so another machine picks up from it. Created when the run starts, written with the Edit tool, kept
+`plans/`, pushed at a stop (Pausing, step 5) together with `work`'s run report (`run-report.md` beside it), so
+another machine picks up from both. Created when the run starts, written with the Edit tool, kept
 short, refreshed after each item (a unit committed, a case run, an area
 audited) so an abrupt end — the app quit, a compaction, a lost connection —
 still leaves it current. **Removed when the run ends** — finished, or
@@ -58,12 +59,15 @@ saying they are leaving with the run unfinished:
    ```
 
    Check the patch holds every changed and new file, then restore the tree
-   to the last commit. No `wip:` commit on the iteration branch.
+   to the last commit — all but `documentation/plans/`, whose note, progress and run report step 5 commits: a
+   restore there loses them. No `wip:` commit on the iteration branch.
 3. Stop the watchers; stands follow the stage's cleanup rule, or stay up
    and are named in the note when the user said they resume soon.
 4. Bring the note up to date and post its link with the progress line.
-5. Run `pipeline/scripts/push_branch.py`: it commits the note, the progress and the reports in `plans/` and pushes
-   the branch, so whoever continues — on this machine or another — starts from them.
+5. Run `pipeline/scripts/push_branch.py`: it commits the note, the progress, `work`'s run report
+   (`run-report.md`) and the other reports in `plans/` and pushes the branch, so whoever continues — on this
+   machine or another — starts from them; the agents' details files and the patch stay in `pipeline-work/`, on
+   this machine only.
 
 ## Picking up
 

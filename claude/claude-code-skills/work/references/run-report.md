@@ -1,8 +1,10 @@
 # Run report
 
 Read at Step 1, when the file is started, and at Step 7, before the report is finished: its shape, filled for
-one run. A second run in the same iteration (units appended to the plan) adds its own section, «прогон 2», under
-its own BASE; the first run's section stays above it.
+one run. The file is `documentation/plans/<version>/run-report.md`, committed by `push_branch.py` with the rest of
+`plans/`, never by a unit (`references/run-state.md`); the review files it links stay in `pipeline-work/`. A
+second run in the same iteration (units appended to the plan) adds its own section, «прогон 2», under its own
+BASE; the first run's section stays above it.
 
 ```markdown
 ## Отчёт о прогоне — <plan path> · прогон <n>

@@ -1,9 +1,16 @@
 # Sharing an iteration with other people
 
-Read when the user hands work to another person — «отдать дизайн
-дизайнеру», «схему, API и архитектуру сделает аналитик», «ТЗ на экраны
-сделает аналитик» — and in any session of a person who picks work up from
-the iteration's branch.
+Read when the user says another person goes on — «отдать дизайн
+дизайнеру», «дальше продолжит аналитик» — and in any session of a person
+who picks work up from the iteration's branch.
+
+Who takes which stage is decided between the people, case by case, not by
+the plugin (the user's decision, 2026-11-05): one person finishes a stage,
+committed and pushed; another pulls, writes «продолжи» and picks a stage from
+the list of the remaining ones. So the plugin never asks «which stages go to
+whom», writes no per-person hand-off text, and never records or guesses who
+owns a stage — a guess sends the wrong person to the wrong stage, and a
+recorded owner goes stale the moment the people agree otherwise.
 
 The branch carries everything stages 1–9 make: each document is committed
 the moment it is written (`SKILL.md` → Commit each document as soon as it
@@ -40,30 +47,21 @@ proof is git's ref-update line (`<old>..<new> <branch> -> <branch>`) — «Every
 | `ui-test-cases` write (9) | the screen specs |
 | `docs-consistency` (10) | every document of stages 2–9 the iteration has — the meeting point |
 
-A typical split: the designer takes the mockups; an analyst takes the
-schema, the API and the architecture while the designer draws, then pulls
-the frames and writes the screen specs; the person who runs the plan takes
-stage 10 and everything after it.
+An example of how people may share, not a rule: the designer draws the
+mockups; an analyst writes the schema, the API and the architecture while
+the designer draws, then pulls the frames and writes the screen specs; the
+person who runs the plan takes stage 10 and everything after it.
 
-## Handing over (the session of the person handing)
+## Handing over
 
-1. When the user hands work over — at the fork after the SRS (`SKILL.md` →
-   Two branches) or at any message — ask which stages go to whom: one
-   question per person, the stages from the table. When the iteration's
-   design owner is a designer with the plugin
-   (`references/design-owner.md`), `ui-design` is theirs without asking.
-2. Make sure everything those stages read is committed on the iteration
-   branch and pushed (`scripts/push_branch.py`) — finished documents only,
-   their reviews and fixes done.
-3. Write the hand-off text in the chat, ready to forward, one per person:
-   clone the repository (or pull), install the plugin (README → Установка),
-   `git switch iteration/<version>`, the Figma file link when the stage
-   draws, and `/dev-pipeline:continue`. Add which input is not there yet
-   and who brings it («ТЗ на экраны начнёте, когда на ветке появятся
-   макеты»).
-
-The person handing goes on with what stays theirs, committing and pushing
-each finished document so the others can pull it.
+A hand-over is «everything of this stage is committed and pushed» — the
+stage's close already does it (`SKILL.md` → Commit each document;
+`scripts/push_branch.py`) — plus one line in the chat, ready to forward:
+«<этап> готов и запушен в `iteration/<version>`; у вас: git pull, затем
+«продолжи» — выберите этап из списка», and, when the stage is the mockups, «; если поправите кадры —
+«макеты поменялись»», so the designer's later edits reach the documents. Nothing else: no question about who
+goes on, no per-person text — the next person's `continue` reads the branch
+and lists what is left.
 
 ## In a session that picks work up
 
@@ -73,7 +71,7 @@ each finished document so the others can pull it.
   branch.
 - **Inputs come from the branch.** `git pull --rebase` before a stage
   starts; when an input the table names is not there yet, say what is
-  missing and from whom, and stop — nothing here can replace it.
+  missing and which stage writes it, and stop — nothing here can replace it.
 - **The stage runs as usual** — its gates and its stamp included, with this
   person answering. Each document is committed at once, and pushed once it
   is final — its reviews and their fixes done (`SKILL.md` → Commit each
@@ -83,12 +81,10 @@ each finished document so the others can pull it.
   ready to forward («Нужно решение: …»), mark the item `⛔ остановлено: ждёт
   решения`, go on with the rest, and pull once it has landed. In any other
   document it lands as `references/decision-changes.md` says, and is pushed.
-- **Between this person's own stages**, offer the next of them as usual
-  (`SKILL.md` → Asking before a transition). A stage someone else took is
-  not offered: name who has it.
-- **Done** — after the last stage this person took: its close plus one line,
-  ready to forward: «<этапы> готовы и запушены в `iteration/<version>`:
-  <что сделано>. Дальше: <следующий этап> — <кто>».
+- **After a stage**, offer the next stage as usual (`SKILL.md` → Asking
+  before a transition); the person decides whether to take it or stop.
+- **Done** — when the person stops: the stage's close plus the line to
+  forward from Handing over.
 
 ## When someone reports done, and «где я»
 
@@ -96,7 +92,7 @@ each finished document so the others can pull it.
 then `where_am_i.py`: which documents are on the branch, which stage is
 still open (written, not stamped), which input a stage still waits for.
 Check what came: the commits change only that stage's documents; every
-screen spec has `reviewed:` or a named skip. Say who can start now — the
-analyst once the frames are there, the test cases once the screen specs are
-— with the line to forward. The meeting point (stage 10) waits until every
-stage of 2–9 the iteration has is on the branch.
+screen spec has `reviewed:` or a named skip. Say what is on the branch and
+which stage the files make next — the screen specs once the frames and the
+API are there, the test cases once the screen specs are. The meeting point
+(stage 10) waits until every stage of 2–9 the iteration has is on the branch.

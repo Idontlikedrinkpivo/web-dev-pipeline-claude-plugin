@@ -199,6 +199,27 @@ Every value under `services:` and in the `docker run` line is a copy of
 `docker-compose.test.yml` — this is the path where the "Drifted fixtures"
 guardrail applies.
 
+## Optional: the `e2e` job (both variants)
+
+SKILL Step 4, «Browser e2e». Append under `jobs:` of either variant. The job runs on pull requests and on pushes
+to the default branch only, so a push to `iteration/<version>` (even when the file's `push.branches` lists it)
+runs lint, typecheck and the unit suite and skips this job: the suite is the longest part of CI, the iteration
+branch gets a push at every stage's close and stop, and the PR and `main` runs still catch a regression before it
+ships. The condition is on the job, so the workflow keeps one `on:` block.
+
+```yaml
+  e2e:
+    if: github.event_name == 'pull_request' || github.ref == 'refs/heads/<default-branch>'
+    runs-on: ubuntu-latest
+    timeout-minutes: <e.g. 30>
+    steps:
+      # checkout, setup, install, browsers and the stand as SKILL Step 4 says; then `npm run test:e2e`
+```
+
+On GitLab the same is `rules: - if: $CI_PIPELINE_SOURCE == "merge_request_event"` plus
+`- if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH` on the job; on CircleCI a workflow `filters: branches: only:
+<default-branch>` for the push run, with the e2e job in the PR-run workflow.
+
 ## Optional: the `security` job (both variants)
 
 SKILL Step 7. Append under `jobs:` of either variant; nothing else in the
