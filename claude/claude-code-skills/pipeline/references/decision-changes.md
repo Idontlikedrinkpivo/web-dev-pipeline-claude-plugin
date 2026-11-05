@@ -143,9 +143,17 @@ decision made by nobody, and every stage reads only its own documents.
   `python3 "${CLAUDE_SKILL_DIR}/../doc-versioning/scripts/open_questions.py" "$PWD" --for "<этап>"`
   prints `<file>\t<question>` per row from every question file of the project,
   blocks first, the count last (`--pending`: counts per addressee). Each row
-  goes to the writer's packet under `QUESTIONS TO SETTLE`; a stage with no
-  writer settles or asks them as its own questions. A `Блокирует старт` row the
-  stage cannot settle is a stop: ask the user, as the stage's other stops.
+  goes to the writer's packet under `QUESTIONS TO SETTLE` — as it is, not
+  asked of the user first: the writer settles what the documents and its
+  judgement settle, records each as a decision or an assumption, and returns
+  BLOCKED only for what the user alone can decide. What comes back is asked
+  **one per message**, per `references/question-format.md` — the example,
+  the options, a recommendation — never as a numbered list with «принимаю
+  всё»: one word answered eight decisions nobody read, and «только номера с
+  поправками» cannot be parsed (architecture, live run 2026-11-05). A stage
+  with no writer does the same: settles what it can, asks the rest one at a
+  time. A `Блокирует старт` row the stage cannot settle is a stop: ask the
+  user, as the stage's other stops.
 - **At the stage's close**, the session edits each settled row's «Класс» to
   `Решено: <где>` (Edit; the file stays in its source document's folder). It
   belongs to the other document: stage it in the close commit as a changed-

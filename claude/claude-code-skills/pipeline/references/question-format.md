@@ -61,7 +61,10 @@ Then stop. The next question is a new message after the user answered.
 ## One question, one message, no card
 
 - One question per message. Several open questions in one message dilute
-  every answer; a question that depends on an unanswered one waits. The
+  every answer; a question that depends on an unanswered one waits. A
+  stage's set of questions — the ones addressed to it, a writer's BLOCKED,
+  findings the user must rule on — is still one per message, with no
+  «принимаю всё» shortcut. The
   one exception: before work the user leaves to run without them (several
   iterations in a row), the standing answers come as one list
   (`references/unattended.md`).

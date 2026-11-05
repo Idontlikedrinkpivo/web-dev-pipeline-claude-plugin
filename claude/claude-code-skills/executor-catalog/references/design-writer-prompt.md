@@ -133,7 +133,9 @@ QUESTIONS TO SETTLE <the rows `open_questions.py --for "<этап>"` printed
                 references/decision-changes.md → Questions addressed to a
                 stage). Settle each in the document, or return it as an
                 assumption `(ДП-n)`, or BLOCKED when only the user can
-                decide; name each in your report. Or: none>
+                decide — one question per BLOCKED, the rest recorded as
+                assumptions so the session asks the user one at a time;
+                name each in your report. Or: none>
 
 POPULATED       <db-schema-design on an increment: one line per existing
                 table the slice changes — `rows: yes` (its creating

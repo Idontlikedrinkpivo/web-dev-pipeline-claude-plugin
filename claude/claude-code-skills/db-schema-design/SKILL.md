@@ -42,7 +42,8 @@ defect or a check's lines (step 4).
    v<last version> documentation/db/migrations/`), `rows: no` when this
    unreleased iteration created it; with no tag and a live database, ask. The questions addressed to this stage —
    `python3 "${CLAUDE_SKILL_DIR}/../doc-versioning/scripts/open_questions.py" "$PWD" --for "схема БД"` — go into
-   `QUESTIONS TO SETTLE` (`pipeline` → `references/decision-changes.md` → Questions addressed to a stage).
+   `QUESTIONS TO SETTLE`, not to the user first; what the writer returns BLOCKED is asked one per message
+   (`pipeline` → `references/decision-changes.md` → Questions addressed to a stage).
 3. Read `executor-catalog` and
    `executor-catalog/references/design-complexity.md`. Dispatch
    exactly one writer with

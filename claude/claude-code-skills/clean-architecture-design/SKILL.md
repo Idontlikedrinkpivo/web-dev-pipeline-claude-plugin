@@ -82,7 +82,8 @@ The session dispatches the typist only for a check's lines (`executor-catalog`
      `references/architecture-diagram.md` (diagram → architecture); a `.d2` and its document that disagree
      with no word on which is newer: ask once.
    - Questions addressed here: `open_questions.py "$PWD" --for "архитектура"` (`doc-versioning/scripts/`) →
-     `QUESTIONS TO SETTLE` (`pipeline` → `references/decision-changes.md` → Questions addressed to a stage).
+     `QUESTIONS TO SETTLE`, not to the user first; a BLOCKED the writer returns is asked one per message
+     (`pipeline` → `references/decision-changes.md` → Questions addressed to a stage).
 2. **Pick the modes.** Greenfield runs all three in this stage, in
    order: `foundation` → `domain` → `scenarios:<area>` for every area
    the SRS groups name. An increment picks only the documents what

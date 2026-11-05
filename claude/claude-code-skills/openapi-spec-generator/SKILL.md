@@ -30,7 +30,8 @@ dispatches the typist only for a print defect or a check's lines (step 4).
    One question per message (`pipeline/references/question-format.md`);
    each answer goes into the packet's ANSWERS. The questions addressed to this stage —
    `python3 "${CLAUDE_SKILL_DIR}/../doc-versioning/scripts/open_questions.py" "$PWD" --for "API"` — go into
-   `QUESTIONS TO SETTLE` (`pipeline` → `references/decision-changes.md` → Questions addressed to a stage).
+   `QUESTIONS TO SETTLE`, not to the user first; what the writer returns BLOCKED is asked one per message
+   (`pipeline` → `references/decision-changes.md` → Questions addressed to a stage).
    A single-file spec is split here, before dispatch (writers and the
    typist do not commit): run
    `python3 "${CLAUDE_SKILL_DIR}/scripts/split_spec.py" .` — it splits with
