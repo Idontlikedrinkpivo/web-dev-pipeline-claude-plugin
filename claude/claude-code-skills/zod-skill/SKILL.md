@@ -27,6 +27,23 @@ it (`clean-architecture-design/references/machine-checkable-boundaries.md`). At 
 is the boundary and there is no separate input type. In an existing repo, keep its schema files and the types its
 services already take.
 
+## Essentials
+
+Read first, in full; the sections below hold the detail — the packet names the ones this unit needs.
+
+- Parse once, at the entry point; no service or repository parses again — two error paths, the second a 500
+  → Boundary rules.
+- A request body or query is the strict object form: an undeclared owner, role or price is refused, not stored;
+  responses stay non-strict → Boundary rules.
+- `safeParse` for untrusted input, a throwing `parse` only for startup config; never throw in a refinement
+  → Boundary rules.
+- The use case gets its own input type, mapped from the parsed value without a cast; `domain/` never imports zod
+  → Boundary rules.
+- Wire types come from the schema or the generated contract, never a hand-written mirror → Boundary rules.
+- A failed parse is the contract's validation Problem, built by the global handler; no raw input or issues in a
+  response or a log → Failure response.
+- Tests go through `safeParse` and assert issue path and code, unknown keys included → Schema evolution and tests.
+
 ## Boundary rules
 
 - **Parse once, at the boundary.** The entry point turns `unknown` into a typed value; nothing

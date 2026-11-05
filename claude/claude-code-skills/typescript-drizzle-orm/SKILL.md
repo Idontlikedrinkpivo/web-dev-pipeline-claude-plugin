@@ -7,6 +7,26 @@ description: >-
 
 # Drizzle ORM
 
+## Essentials
+
+Read first, in full; the sections below hold the detail — the packet names the ones this unit needs.
+
+- Tables transcribe `documentation/db/schema.md`; a missing table is a question, not an invention → Rules 1.
+- Migrations are the SQL files from `db-schema-design`: no `drizzle-kit generate`, never edit a committed file
+  → Rules 10.
+- The database enforces what races (unique, FK, CHECK), and a race test proves it; a pre-check alone fails
+  → Rules 5.
+- Classify driver errors by `sqlState(e)` through the `cause` chain, never `e.code` or the message
+  → Rules 6, The reviewer checks 4.
+- `40001` / `40P01` is rethrown; only the `bootstrap/` helper reruns the whole use case → Rules 9,
+  The reviewer checks 8.
+- Idempotent create: unique key plus `onConflictDoNothing()` and a re-read of the winner → Rules 9.
+- A repository returns entities through the mapper (restore factory), never records → Rules 3, 4.
+- One query per read, and keyset pages (`limit + 1`, never `.offset(`) → Rules 7, 8.
+- `sql.raw` never takes a value from a request or a record; a dynamic identifier goes through an allow-list
+  → Rules 13.
+- A business rule in a query uses its owner's constant, never a literal → Rules 11.
+
 ## Which layout applies
 
 The cases (architecture document, Framework-first, existing repo) are in
@@ -44,11 +64,13 @@ first. Drizzle's placement in them:
    keep the classification in the repository or a db-error helper it calls, not in a route.
 5. **The database enforces what races, and a race test proves it** (`typescript/references/shared-test-rules.md`
    → 2, written by `vitest`). A unique index, FK, or CHECK holds under concurrent writes; an app-side "check,
-   then insert" does not. Keep the pre-check if it gives a nicer error, and
-   also classify the constraint violation, because two instances can pass the check together.
-6. **Classify driver errors by SQLSTATE read from the wrapped error** (walk the `cause` chain), not
-   from the message: unique `23505`, FK `23503`, check `23514`, serialization `40001`, deadlock
-   `40P01`. Never put the driver message into a client-facing detail; it carries SQL and parameters.
+   then insert" does not. Keep the pre-check if it gives a nicer error, and also classify the violation, because
+   two instances can pass the check together (`typescript/references/conflicts-and-retries.md` → rules 1, 5).
+6. **Classify driver errors by SQLSTATE read through the `cause` chain** (`sqlState(e)`,
+   `references/repository-adapter.md` → Reading the SQLSTATE), never the message: Drizzle wraps the driver error,
+   so `e.code` on the outer one is not the SQLSTATE. What `23505`, `23503`, `23514`, `40001` and `40P01` each
+   become is `conflicts-and-retries.md` → rules 1–3. The driver message never goes into a client-facing detail;
+   it carries SQL and parameters.
 7. **One query per read.** Load a list with its related rows through one join or relational query,
    never one query per item in a loop.
 8. **Keyset pagination**, when the contract pages a collection: `ORDER BY` the sort columns plus the
@@ -57,10 +79,10 @@ first. Drizzle's placement in them:
    precision. Encoding and validating the cursor is the HTTP layer's job (`typescript-fastify`).
 9. **Transactions.** A single-aggregate save is one transaction inside `repository.save`; a write
    spanning aggregates goes through a `UnitOfWork` port only when the architecture names one.
-   Idempotent create: a unique constraint on the key plus an insert that does nothing on conflict
-   (or catches `23505`) and re-reads the winner. Never an in-process map as the source of truth. A
-   serialization failure or deadlock is rerun around the use case's whole run by the one shared
-   helper `bootstrap/` wires (`references/repository-adapter.md` → Reading the SQLSTATE).
+   Idempotent create: a unique constraint on the key plus `.onConflictDoNothing()` (or a caught `23505`)
+   and a re-read of the winner, never an in-process map (`conflicts-and-retries.md` → rule 4). A
+   serialization failure or deadlock is rethrown, and `rerunOnConflict`, the one helper `bootstrap/` wires,
+   reruns the use case's whole run (`repository-adapter.md` → Reading the SQLSTATE; rule 2).
 10. **Migrations are the SQL files in `documentation/db/migrations/`**, written by `db-schema-design`;
     `schema.ts` follows them, not the other way round. Do not `drizzle-kit generate` them — that
     writes a second migration history from `schema.ts`. Apply them with the command `repo-scaffold`
@@ -75,6 +97,12 @@ first. Drizzle's placement in them:
 12. **Options, not a checklist.** Relations, optimistic locking (a version column in every
     update's `WHERE`), and pool tuning only for a present need. The driver owns its pool: close it
     in the existing shutdown path, no second tracker.
+13. **Raw SQL binds every value.** The `sql` template tag sends each `${…}` as a bound parameter, so a value goes
+    there and only there. `sql.raw(...)` never takes a value from a request or a stored record — only a literal
+    the code owns: it is pasted into the statement as text, and a value in it is injection even when the app
+    produces it today, because the next caller passes a request field through the same function. A dynamic column
+    or table name (a sort field, a report's table) goes through an allow-list map from the request's word to the
+    column or table object (or `sql.identifier` of a literal from that map), never `sql.raw` of the input.
 
 ## Shape of a repository adapter
 
@@ -111,3 +139,7 @@ of fetching docs. Outside `work`, read the file and check each point you rely on
    pre-check.
 6. **A repository returns entities or read models through the mapper**, which has a round-trip test; a business
    rule in a query uses its owner's constant, never a literal.
+7. **No `sql.raw(...)` of a value from a request or a record**: values go through the `sql` tag's `${…}`, a dynamic
+   identifier through an allow-list map to the column or table object.
+8. **`40001`/`40P01` is rethrown unchanged by the repository and rerun only by the `bootstrap/` helper**, around the
+   use case's whole run; an idempotent create re-reads the winner (`typescript/references/conflicts-and-retries.md`).

@@ -27,7 +27,8 @@ export function sqlState(e: unknown): string | undefined {
 | `40001`, `40P01` | serialization failure, deadlock | rethrow unchanged — the shared helper reruns the use case's whole transaction a bounded number of times (below); what is left is the contract's 503 with `Retry-After` |
 | anything else | | rethrow unchanged; the global handler logs it with its SQLSTATE and answers the contract's 500 |
 
-A uniqueness clash reaches the client only as its named error, never as a bare 409 (`typescript-fastify` → Errors,
+A uniqueness clash reaches the client only as its named error, never as a bare 409 — the rules behind this table,
+shared with the Python stack, are `typescript/references/conflicts-and-retries.md` (contract side:
 `openapi-spec-generator` → Step 6).
 
 A rerun wraps load → decide → save, not one statement — the decision was made on the rows the lost transaction

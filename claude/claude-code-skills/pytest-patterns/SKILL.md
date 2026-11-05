@@ -8,6 +8,20 @@ compatibility: 'Python, pytest, pytest-asyncio, httpx, factory_boy; versions com
 
 # Pytest Patterns
 
+## Essentials
+
+Read first, in full; the sections below hold the detail — the packet names the ones this unit needs.
+
+- The test schema comes from the migrations, never `create_all` — a model off the files fails. → Test layout
+- Tests use `TEST_DATABASE_URL` on PostgreSQL, never `DATABASE_URL` — no stand is dropped. → Real database, not mocks
+- No `MagicMock` / `AsyncMock` for an `AsyncSession` or a port — a wrong query passes. → The reviewer checks 1
+- Mock only what leaves the process (HTTP, mail, time, random), never the session. → Real database, not mocks
+- One rolled-back transaction per test, joined by a savepoint — tests never see each other. → Real database, not mocks
+- Every error response the contract declares has its test, status first — happy paths hide breaks. → API tests
+- A paged operation is tested past page one, a tampered cursor included — limit bugs hide there. → API tests
+- A double-action guard gets a race test, one session per task — a session is one connection. → Fixtures
+- No autouse database fixture in the root `conftest.py` — every unit test would connect. → Test layout
+
 ## Which layout governs — decide first
 
 The cases (architecture document, Framework-first, existing repo) and the contract's authority over expected

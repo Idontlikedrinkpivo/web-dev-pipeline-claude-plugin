@@ -10,6 +10,19 @@ description: >-
 The same rules as `typescript`, in Python's words. A machine-checked rule is one line with its rule; the config is
 `repo-scaffold/references/quality-gates.md`.
 
+## Essentials
+
+Read first, in full; the sections below hold the detail — the packet names the ones this unit needs.
+
+- A failure the route tells apart is a class with fields, raised `from e` — the cause stays. → The reviewer checks 1
+- Failures become answers in one module, the exception handlers — a per-route mapper drifts. → The reviewer checks 2
+- Each outbound call has a timeout; only idempotent calls retry — a mute partner stalls all. → The reviewer checks 11
+- Impossible states are unrepresentable: a union of frozen dataclasses, not loose flags. → The reviewer checks 4
+- Narrow by `match`, `isinstance` or an honest `TypeIs`; a `cast` on outside data is a lie. → The reviewer checks 5
+- Independent awaits run together, never over one `AsyncSession` — it is one connection. → The reviewer checks 6
+- A format, status list or limit is imported from its owner, never retyped — a copy drifts. → The reviewer checks 9
+- A shared step lives in a shared-steps module, not in a use case — one change moves both. → The reviewer checks 10
+
 ## The machine checks
 
 | Rule | Check |
@@ -48,3 +61,11 @@ The same rules as `typescript`, in Python's words. A machine-checked rule is one
    «Кто ещё применяет»), never typed again — a copy matches today and drifts at the next change.
 10. **A shared step lives in a module of shared steps**, never imported from another use case's module — otherwise
     a change to one use case silently changes the other.
+11. **Every outbound call has an explicit timeout.** `httpx.AsyncClient(timeout=httpx.Timeout(…))` (or `timeout=`
+    on the call) is set and never `None`, which waits forever; a client library (an SDK, `boto3`, a queue, SMTP)
+    gets its connect and read timeouts set, never left at its default — several default to none. A retry is
+    bounded (a few attempts, a growing random wait) and only for an idempotent call (a GET, a PUT with the same
+    body, a call carrying an idempotency key): retrying a POST that timed out can charge or send twice. The reason:
+    a partner that stops answering without a timeout holds the request open, then every request behind it, until
+    the connection pool or the worker runs out and the whole service stops answering. A timeout is raised as a
+    named exception `from e` (rule 1) and answered through the one translation (rule 2).

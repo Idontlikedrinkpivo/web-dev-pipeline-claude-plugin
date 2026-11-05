@@ -11,6 +11,20 @@ The project's conventions for the FastAPI web layer: routes, dependencies, reque
 problem+json error handlers, login and settings, tooling. The database layer (models, repositories, sessions,
 Alembic) belongs to `fastapi-sqlalchemy`.
 
+## Essentials
+
+Read first, in full; the sections below hold the detail — the packet names the ones this unit needs.
+
+- Errors reach the client only through the handlers in `bootstrap/` — one error format. → Errors as problem+json
+- A handler parses, calls one use case, maps the result — no rule, no ORM record returned. → The reviewer checks 1
+- Request models `extra="forbid"`, writes take fields by name — a client never sets a role. → The reviewer checks 9
+- A session cookie needs one CSRF middleware in `bootstrap/` — browsers send it cross-site. → Auth and configuration
+- Login is timing-safe: PyJWT, `pwdlib`, a dummy hash, the role read from the database. → The reviewer checks 3
+- A secret has no default or literal; CORS names exact origins — a missing one stops the start. → Auth and configuration
+- No blocking call inside `async def` — it stalls every request on the loop. → Conventions (Sync vs async)
+- Every outbound HTTPX call has an explicit `timeout=` — a silent partner holds every request. → `python` → 11
+- A unit that adds or changes a route keeps the contract test green, never loosening it. → The contract test
+
 ## Which layout governs — decide first
 
 The cases (architecture document, Framework-first, existing repo) and the contract's authority are in
@@ -58,14 +72,23 @@ The container, and any run the platform stops, starts through the production ent
   - a named domain or use-case error → the status and `code` the contract gives it (foundation §4 named-error → HTTP table), in the contract's Problem body;
   - a request that fails its schema → the contract's validation status, `code` and per-field list, field names in the wire casing. FastAPI's default `{"detail": [...]}` body is not that answer, so the handler for `RequestValidationError` replaces it;
   - a request that cannot be parsed (malformed JSON, an undecodable cursor) → the contract's status for it;
-  - a serialization failure (`40001`) or deadlock (`40P01`) that is left after the bounded reruns (`fastapi-sqlalchemy` → Driver errors and install) → the contract's 503 with `Retry-After`;
-  - anything unnamed → logged with its cause, the contract's 500 with a generic `detail` — never the message, stack or SQL. An unexpected constraint violation is this case: the repository classifies the conflicts it expects into named errors, and a duplicate is never answered as a bare 409 (`openapi-spec-generator` → Step 6).
+  - a serialization failure (`40001`) or deadlock (`40P01`) left after the bounded reruns of the shared helper → the contract's 503 with `Retry-After` (`typescript/references/conflicts-and-retries.md` → rule 2);
+  - anything unnamed → logged with its cause (and SQLSTATE for a driver error), the contract's 500 with a generic `detail` — never the message, stack or SQL. An unexpected constraint violation is this case; a duplicate the repository expects arrives as its named error, never a bare 409 (`conflicts-and-retries.md` → rules 1 and 3).
 - Routes and use cases raise named errors; they do not build bodies or `raise HTTPException(detail=...)`.
 - Brownfield without `openapi.yaml`: keep the error format the repo already returns. Never introduce a second one.
 
 ## Auth and configuration
 
 - Token kind, lifetime, hashing and roles come from architecture §1 «Решения по безопасности»; brownfield: from the existing code or the user. Implementing registration, password login with JWT or the current-user dependencies: read [references/jwt-auth.md](references/jwt-auth.md) — libraries, the timing-safe check, `algorithms=[...]`, 401 with `WWW-Authenticate`, roles read from the database.
+- **A session cookie needs CSRF protection; a Bearer token does not.** When architecture §1 sends the session as
+  an API cookie (`react` → 14), the cookie is `HttpOnly` (no script reads it), `Secure` (never over plain HTTP), has
+  a `Path` scoped to the API, and `SameSite=Lax` or `Strict`; and every state-changing route (POST, PUT, PATCH,
+  DELETE) is guarded against cross-site requests by one middleware registered once in `bootstrap/` that checks
+  `Origin` (`Referer` when it is missing) against the exact allowed origins, or a CSRF token — never a check per
+  route, which the next route forgets. The reason: a browser attaches cookies to a form another site posts, so the
+  cookie alone proves nothing about who sent the request; `SameSite` is not enough on its own (older browsers, a
+  sibling subdomain counts as same-site). With a Bearer token held in memory nothing is needed: the browser never
+  adds an `Authorization` header by itself, so a cross-site post arrives unauthenticated.
 - Settings via `pydantic-settings`, built in `bootstrap/`. A secret (a signing key, an API token, a password) has no default, so a missing one stops the start; `.env.example` lists every variable. Touch only the settings the task needs: in an existing repo, keep the defaults of settings the task is not about (removing `DATABASE_URL`'s default breaks every command run without `.env`). CORS lists exact origins, never `*` with credentials.
 
 ## Service endpoints, logs and shutdown
@@ -91,7 +114,7 @@ reason to loosen the comparison.
   (`repo-scaffold/references/quality-gates.md`). Language rules: `python`.
 - `asyncio.to_thread` for a blocking call that must run inside `async def` (Sync vs async above) — the one tool,
   the same the conftest template uses, and no extra dependency.
-- HTTPX for outbound HTTP; prefer it over Requests.
+- HTTPX for outbound HTTP, prefer it over Requests; always with an explicit `timeout=` (`python` → 11).
 - SQLModel only if the user asks for it, and never beside an existing SQLAlchemy layer: that gives two model systems for one table.
 
 **Version-sensitive points** — `references/version-checks.md`. In a `work` packet their answers come in
@@ -121,3 +144,9 @@ Outside `work`, read the file and check each point you rely on against the insta
 9. **A write takes the request model's fields by name**: no `**body.model_dump()` into a record or an update, and
    a field the client may not set — the owner, a role, a status, a price — is not in the request model; request
    models forbid extra fields (`extra="forbid"`), so a sent one is refused, not stored.
+10. **A database conflict answers what the contract declares** (`typescript/references/conflicts-and-retries.md`):
+    a duplicate is its named error, never a bare 409; `40001`/`40P01` is 503 with `Retry-After` only after the
+    shared helper's bounded reruns; anything else is the generic 500, the driver message never in the body.
+11. **With a session cookie, state-changing routes are CSRF-protected** by one middleware in `bootstrap/` (`Origin`
+    / `Referer` against exact origins, or a token), and the cookie is `HttpOnly`, `Secure`, `SameSite=Lax` or
+    `Strict`, with a `Path`; with a Bearer token in memory no such check is added.

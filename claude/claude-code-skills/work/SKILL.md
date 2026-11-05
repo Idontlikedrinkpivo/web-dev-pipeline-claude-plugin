@@ -66,7 +66,7 @@ once**, committed before the next dispatch, without the user asking —
 | `executor-catalog` skill | **yes** | read before the first dispatch; it is the only source of name → agent routing (each agent's file holds its model) |
 | The design documents the plan cites | on demand | read the cited section when building a worker packet, not up front |
 | Context7 MCP (`resolve-library-id`, `query-docs`) | no | live library docs for the packet's `CURRENT LIB DOCS` (Step 2b). Missing MCP is a skip, not a stop |
-| Stack skills | yes | chosen per unit from §1 «Стек» and the unit's files — `typescript`, `react`, `python`, the library skills — plus any the user attached, forwarded as `STACK SKILLS` (`references/stack-skills.md`) |
+| Stack skills | yes | chosen per unit from §1 «Стек» and the unit's files — `typescript`, `react`, `python`, the library skills — plus any the user attached, forwarded as `STACK SKILLS`, each `SKILL.md` with the sections this unit reads (`references/stack-skills.md` → Sections by subject) |
 | `frontend` and `web-design-guidelines` skills | for frontend units | every `impl-ui` unit, and any unit whose `Файлы` are browser UI code, gets them in `STACK SKILLS` without being attached: the `frontend` `SKILL.md` plus the one `references/<profile>.md` that matches architecture §1 «Стек» (or the line `no profile — <stack>`), and the `web-design-guidelines` `SKILL.md`, each by its absolute path. Backend units never get them |
 
 ### Readiness gate
@@ -185,7 +185,8 @@ every slot: paste the cited design excerpts rather than telling the worker to
 go read the architecture, list the exact files, carry the unit's `Подход`,
 `Тестовые сценарии` and `Проверка` verbatim — «Меняет символы» and «Не
 затрагивается» too, into `SYMBOLS CHANGED` and `NOT TOUCHED` — list in `STACK SKILLS` the absolute
-paths chosen by `references/stack-skills.md` (the `frontend` skill, its one
+paths chosen by `references/stack-skills.md`, each with `— sections: …` from
+its Sections by subject table (the `frontend` skill, its one
 profile and `web-design-guidelines` for a frontend unit too — see Inputs),
 paste `CURRENT LIB DOCS` from Step 2b, fill `FROM DEPENDENCIES` from the run
 report's `Decisions` of every `Зависит от` unit, and include the `DELEGATION`

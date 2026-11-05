@@ -21,6 +21,21 @@ lockfile); an answer written beside a point is a dated hint, so confirm it again
 Of the two profile sections below, ask only the one the architecture's §1 «Стек» names (`SKILL.md` → Pick the stack
 profile).
 
+## React major
+
+Asked for any React project; `react/SKILL.md` names its lint rules by what they check, the ids live here.
+
+- `eslint-plugin-react-hooks`: its major and the rule ids of its `recommended` set (v7: `purity`, `refs`,
+  `set-state-in-render`, `immutability`, `globals`, `set-state-in-effect`, `static-components`, `rules-of-hooks`,
+  `exhaustive-deps`); a rule that does not exist in the installed major is dropped from the config, not invented.
+- `@eslint-react`: the ids of the index-key rule (`no-array-index-key`) and of the DOM rule against
+  `dangerouslySetInnerHTML`, as the installed major names them.
+- `eslint-plugin-testing-library`: that it loads with the installed ESLint major, and the config name for the React
+  preset.
+- Whether the installed React takes `ref` as an ordinary prop (no `forwardRef`) and renders `<Context>` as its own
+  provider (both from React 19).
+- Whether the React Compiler is on (its Babel or Vite plugin in the build config): if so, no hand memoization.
+
 ## Profile: Next.js (`nextjs.md`)
 
 - Caching and revalidation defaults for `fetch` and route segments; refresh after a mutation.

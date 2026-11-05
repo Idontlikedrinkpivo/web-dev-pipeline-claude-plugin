@@ -7,6 +7,29 @@ description: >-
 
 # Fastify
 
+## Essentials
+
+Read first, in full; the sections below hold the detail — the packet names the ones this unit needs.
+
+- A handler parses, calls one use case or query, maps the result; no business rule, no error body built in a route
+  → Rules 2, The reviewer checks 1.
+- One global handler renders the contract's Problem; a client's bad input is never a 500, an unknown error a generic
+  500 → Errors.
+- Every status a route answers is one the contract declares: a duplicate is a named error, never a bare 409; `40001`
+  / `40P01` is 503 only after the bounded reruns → Errors, The reviewer checks 2.
+- A cursor is decoded inside `try` and checked for shape, types and sort before the query — else the 400
+  → Collections and cursors.
+- An idempotency key or a duplicate is settled by the database constraint, never an in-process map
+  → Idempotency keys.
+- A write takes the contract's fields by name; the request schema refuses extra fields, so an owner or role sent is
+  refused → The reviewer checks 10.
+- Auth runs in a hook before validation on the prefix it protects; 401 missing, 403 not allowed → Rules 9.
+- With a session cookie: `HttpOnly`, `Secure`, `SameSite`, and one CSRF hook in `bootstrap/` for every write
+  → Rules 9, The reviewer checks 11.
+- Passwords with Argon2id, a dummy hash for an unknown email, login rate-limited → The reviewer checks 9.
+- A route keeps the contract's `operationId` and `tags`; the contract test stays green, never loosened
+  → The contract test.
+
 ## Which contract and layout apply
 
 The cases (architecture document, Framework-first, existing repo) and the contract's authority are in
@@ -51,6 +74,15 @@ first. Fastify's placement in them:
    before validation, registered on the prefix it protects so sibling route plugins inherit it. Implementing
    registration, password login, tokens or a route guard: read [references/auth.md](./references/auth.md) —
    libraries, the timing-safe check, explicit algorithms, roles read from the database, rate limits.
+   When architecture §1 sends the session as an API cookie (`react` → 14), the cookie is `HttpOnly` (no script
+   reads it), `Secure` (never over plain HTTP), has a `Path` scoped to the API and `SameSite=Lax` or `Strict`;
+   and every state-changing route (POST, PUT, PATCH, DELETE) is guarded against cross-site requests by one
+   `onRequest` hook registered once in `bootstrap/` that checks `Origin` (`Referer` when it is missing) against
+   the exact allowed origins, or a CSRF token (`@fastify/csrf-protection`) — never a check per route, which the
+   next route forgets. The reason: a browser attaches cookies to a form another site posts, so the cookie alone
+   proves nothing about who sent it, and `SameSite` alone is not enough (older browsers, a sibling subdomain
+   counts as same-site). With a Bearer token held in memory nothing is needed: the browser never adds an
+   `Authorization` header by itself, so a cross-site post arrives unauthenticated.
 10. Reuse canonical identifiers; change the id format only when the task selects it.
 
 ## Errors
@@ -62,18 +94,11 @@ first. Fastify's placement in them:
   without a contract: its own 400 or 422; a client's bad input is never a 500), named errors (status from the mapping table, or the existing `AppError`
   hierarchy in a brownfield repo), everything else (log it; 500 with a generic `detail`, never the
   internal message, stack, or SQL).
-- A database conflict is answered the way the contract declares it (`openapi-spec-generator` → Step 6),
-  the same in both stacks:
-  - a conflict the repository expects (a duplicate key, a dangling reference) it classifies into a named
-    error (`typescript-drizzle-orm`), answered with the status the contract gives that error — never a
-    bare 409;
-  - a serialization failure (`40001`) or deadlock (`40P01`) is first rerun by the server: a use case
-    whose transaction can lose to a concurrent one is wrapped in `bootstrap/` by one shared helper that
-    reruns its whole run a bounded number of times (the repository never loops). When the attempts run
-    out, the handler answers the contract's 503 with `Retry-After`, read through the persistence error
-    helper;
-  - any other driver error — an unexpected violation included — is the third case: logged with its
-    SQLSTATE, the contract's 500.
+- A database conflict is answered the way the contract declares it, the same in both stacks
+  (`typescript/references/conflicts-and-retries.md`): an expected duplicate or dangling reference reaches the
+  handler as its named error, never a bare 409 (rule 1); a `40001` / `40P01` left after the `bootstrap/` helper's
+  bounded reruns is the contract's 503 with `Retry-After`, recognised through the persistence error helper
+  (`sqlState`, rule 2); any other driver error is the third case, logged with its SQLSTATE, the 500 (rule 3).
 - Every extension member an error can emit (`errors`, `retryable`, a context key) is declared in the
   spec's Problem schema and in the shared route response schema, or the serializer strips it. Do not
   open the schema to let undeclared members through; error context is not spread into the body
@@ -107,8 +132,9 @@ caller's access predicate.
 
 When the spec (or the task) declares an `Idempotency-Key` header on a create: requests without it
 behave as before; with it, the key is stored under a unique index and a replay returns the first
-call's status and resource instead of a conflict. The race is settled by the constraint (insert on
-conflict do nothing, or catch the unique violation, then re-read), never by an in-process map.
+call's status and resource instead of a conflict. The race is settled by the unique constraint, never an
+in-process map or a read-then-insert alone (`typescript/references/conflicts-and-retries.md` → rule 4; the
+insert itself is `typescript-drizzle-orm`'s).
 
 ## Versions side by side
 
@@ -159,11 +185,11 @@ of fetching docs. Outside `work`, read the file and check each point you rely on
    built in a route or hook.
 2. **Every status a route can answer is one the contract declares for that operation**: a duplicate is a named
    error, never a bare 409 from a SQLSTATE; a serialization failure or deadlock is 503 with `Retry-After` only
-   after the bounded reruns.
+   after the bounded reruns (`typescript/references/conflicts-and-retries.md`).
 3. **A cursor is decoded inside `try` and checked for shape, value types and sort before the query**; anything else
    is the contract's 400, never a 500.
 4. **An idempotency key or a duplicate is settled by the database constraint**, never by an in-process map or a
-   read-then-insert alone.
+   read-then-insert alone (`conflicts-and-retries.md` → rule 4).
 5. **Auth runs in a hook before validation, registered on the prefix it protects**; missing credentials 401, a
    missing permission 403.
 6. **A new or changed route carries the contract's `operationId` and `tags`**, and the contract test passes.
@@ -179,3 +205,6 @@ of fetching docs. Outside `work`, read the file and check each point you rely on
     field the client may not set — the owner, a role, a status, a price — is not in the request schema, and the
     schema refuses extra fields (`additionalProperties: false`; with Zod the strict object form, `zod-skill` →
     Boundary rules), so a sent one is refused, not stored.
+11. **With a session cookie, state-changing routes are CSRF-protected** by one hook in `bootstrap/` (`Origin` /
+    `Referer` against exact origins, or a token), and the cookie is `HttpOnly`, `Secure`, `SameSite=Lax` or
+    `Strict`, with a `Path`; with a Bearer token in memory no such check is added.

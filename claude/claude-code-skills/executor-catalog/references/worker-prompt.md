@@ -65,15 +65,20 @@ FROM DEPENDENCIES
   design, stop and report BLOCKED with both quoted.
 
 SKILLS ROOT     <absolute folder holding the plugin's skills>
-STACK SKILLS    read each file in full before you write any code; a
+STACK SKILLS    before you write any code, read each SKILL.md's
+                `## Essentials` in full, then the sections named after its
+                path (`— sections: …`); a path with no sections named is
+                read whole, and so is a `references/…` path. A
                 `<skill>/references/…` path a skill names resolves under
                 SKILLS ROOT
   <absolute paths of the stack skills `work` picked for this unit from
    architecture §1 «Стек» and the unit's «Файлы»
-   (`work/references/stack-skills.md`) — each SKILL.md, a references/ file
-   only when the skill sends you there for this unit — plus any skill the
-   user attached; for a frontend unit, also the `frontend` SKILL.md, its
-   one stack profile and the `web-design-guidelines` SKILL.md;
+   (`work/references/stack-skills.md`) — each SKILL.md with
+   `— sections: <names>` (`stack-skills.md` → Sections by subject), a
+   references/ file only when the skill sends you there for this unit —
+   plus any skill the user attached; for a frontend unit, also the
+   `frontend` SKILL.md, its one stack profile and the
+   `web-design-guidelines` SKILL.md;
    or: none — no stack skill for <stack>>
 
 CURRENT LIB DOCS

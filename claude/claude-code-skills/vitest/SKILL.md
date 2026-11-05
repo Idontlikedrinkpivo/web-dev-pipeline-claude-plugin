@@ -23,6 +23,22 @@ read both first. Vitest's placement in the cases:
 - **Existing repo** — mirror its placement, naming, setup files and fakes (colocated `*.test.ts` when there is no
   precedent).
 
+## Essentials
+
+Read first, in full; the sections below hold the detail — the packet names the ones this unit needs.
+
+- Pass an in-memory fake of a port; never `vi.mock` the project's own module or the database client — a test of a
+  mock proves the mock → House rules 2, The reviewer checks 1.
+- Assert what was stored and returned, not call counts → House rules 2.
+- A guard against a double action gets a race test on the real database, two calls on two connections
+  → House rules 9.
+- The test database is `TEST_DATABASE_URL`, named «test», never defaulted — a fallback once wiped a running stand
+  → House rules 11.
+- Error path and exact boundary values beside the happy path, one behaviour per test → House rules 3.
+- Undo in `afterEach` what a test changed; fake time, never sleep; the file passes shuffled → House rules 5.
+- Break the code once and watch the test fail; every `.resolves` / `.rejects` awaited → House rules 6,
+  The machine checks.
+
 ## The machine checks — keep them green
 
 `@vitest/eslint-plugin` (`repo-scaffold/references/quality-gates.md`); the prose below keeps only what lint cannot

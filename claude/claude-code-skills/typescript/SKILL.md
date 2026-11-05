@@ -11,6 +11,27 @@ The model knows TypeScript; these are the places where code an agent writes goes
 audit of a real project found. A rule a machine checks is one line here with its lint rule; the config is
 `repo-scaffold/references/quality-gates.md`. Examples «так / не так»: `references/examples.md`.
 
+## Essentials
+
+Read first, in full; the sections below hold the detail — the packet names the ones this unit needs.
+
+- No `any`, no `as` on outside data, no `!`: outside data is `unknown` until a schema parses it
+  → The machine checks.
+- Each named error is its own class with a literal `kind`; an empty one lets a missed branch pass as success
+  → The reviewer checks 1.
+- An error made in a `catch` passes `{ cause: e }`; a new such class joins `errorClassNames` → The reviewer checks 1.
+- Failures become answers in one module, an exhaustive `switch (e.kind)` with `assertNever` → The reviewer checks 2.
+- Every promise is awaited or `void`ed with a reason; independent awaits run in `Promise.all`
+  → The machine checks, The reviewer checks 6.
+- Impossible states are unrepresentable: one status union, not `isLoading` / `error?` / `data?`
+  → The reviewer checks 4.
+- Ids of different things are different types — a user id is not an email → The reviewer checks 7.
+- One rule, one module: a format, status list or limit is imported from its owner, never copied
+  → The reviewer checks 9.
+- Every outbound call has an explicit timeout; a retry is bounded and only for an idempotent call — a hung partner
+  stops the whole service → The reviewer checks 11.
+- A generic answer writes one log line with the cause's name, never secrets, keys or addresses → The reviewer checks 3.
+
 ## The machine checks — keep them green, never disable one without a reason in the comment
 
 | Rule | Lint / compiler |
@@ -55,5 +76,13 @@ audit of a real project found. A rule a machine checks is one line here with its
    model's «Кто ещё применяет» names it. A second regex or literal of the same rule is a finding even when it
    matches today: copies drift.
 10. **A shared step lives in a module of shared steps**, never imported from another use case's file.
+11. **Every outbound call has an explicit timeout.** `fetch` / undici gets `signal: AbortSignal.timeout(ms)`
+    (combined with the request's own signal by `AbortSignal.any` when the caller can cancel); a client library
+    (an SDK, a queue, a mail or storage client) gets its timeout option set, never its default — several default to
+    none. A retry is bounded (a few attempts, a growing random wait) and only for an idempotent call (a GET, a PUT
+    with the same body, a call carrying an idempotency key): retrying a POST that timed out can charge or send
+    twice. The reason: a partner that stops answering without a timeout holds the request open, then every request
+    behind it, until the connection pool or the event loop's sockets run out and the whole service stops answering.
+    A timeout is a failure with its cause (rule 1), answered through the one translation (rule 2).
 
 Python has the same rules in its own words: `python`.
