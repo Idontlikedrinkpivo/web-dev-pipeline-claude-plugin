@@ -1,8 +1,9 @@
 ---
 name: reflect
 description: >-
-  At an iteration's end, finds in its sessions where the dev-pipeline plugin itself failed and what the iteration cost
-  by agent. Use for «разбери сессии для плагина», «сколько стоила итерация». One session's tokens: explain-usage.
+  At an iteration's end and at every stop, finds in its sessions where the dev-pipeline plugin itself failed and what
+  it cost by agent. Use for «разбери сессии для плагина», при остановке («стоп», «на сегодня всё»), «сколько стоила
+  итерация». One session's tokens: explain-usage.
 ---
 
 # Reflect
@@ -21,10 +22,14 @@ A **finding** is a moment where the plugin, not the project, was the
 cause — and it cost the user something:
 
 - the user corrected a stage or reminded it of a rule (the strongest
-  signal: their words are the evidence);
+  signal: their words are the evidence — this is why a nested session's
+  waiting prompt asks the user to write remarks on the plugin in the chat,
+  at the moment of the fault: `pipeline` → `references/parent-session.md`);
 - a stage did what its skill forbids, or skipped what it requires;
 - a rule was followed until a `=== CONTEXT COMPACTED ===` line and lost
-  after it;
+  after it, or after a hand-over (`ПЕРЕДАН` → `ОЧИСТКА` → `ПРОДОЛЖЕНИЕ` in
+  the digests; `list` marks the cleared session's new transcript
+  «# продолжение … после передачи» — read both as one stage);
 - the session spent many turns working out what a skill should have said
   (how to start the stand, which branch, where a file goes);
 - a skill's instruction was wrong for the case (it led the stage astray).
@@ -33,12 +38,23 @@ Not a finding: the project's own bugs, a product decision, a one-off with
 no cost to the user, anything already answered by the plugin's current
 rules (check them — the session may have run an older version).
 
+## When
+
+At the iteration's close (`pipeline` → End of the pipeline), on «разбери сессии для плагина», and **at every stop**
+of the work by the user («стоп», «подожди», «на сегодня всё», the day closed): in a parent session after a nested
+one reported «ОСТАНОВЛЕНА» or the user said stop there (the parent runs it — it alone sees every nested session's
+end); without a parent, in the stage's session after `pipeline` → `references/pause-and-resume.md` → Pausing. A stop
+writes a part section («… · часть <n>, до <что остановило>»); the close's run then reads only what came after. A
+live test that stops mid-way otherwise leaves its evidence only in transcripts nobody reads later; a part costs one
+reviewer per session read.
+
 ## Steps
 
 1. **Scope.** `python3 "${CLAUDE_SKILL_DIR}/scripts/sessions.py" window "$PWD"` (add `--version <v>` when the
    iteration being closed is not the current branch's) prints the window's start as `--since <…>` — the
    iteration's first commit, or the end of the last «Окно» already in the feedback file when that is later (a
-   part read before a restart, a run by hand mid-iteration), so no moment is read twice; exit 1 means neither a
+   part read before a restart, a stop, a run by hand mid-iteration), so no moment is read twice and a window from
+   the last section to a stop is one part; exit 1 means neither a
    branch nor a folder names the iteration: ask the user from which date (`YYYY-MM-DD`, or
    `YYYY-MM-DDTHH:MM` for a time). That `--since` goes into every command
    below. List this project's sessions in it:
@@ -53,11 +69,14 @@ rules (check them — the session may have run an older version).
    the iteration opened, say so in the report — sessions may sit under a
    path not passed. The script lists a session copied under both paths once,
    and skips one that a later session continued (its messages are the start
-   of the longer one) as «повтор».
+   of the longer one) as «повтор»; a session the parent cleared at a hand-over
+   stays listed, its new transcript marked «# продолжение «<title>» после
+   передачи · продолжает <id>» — digest both.
 2. **Digest.** For each session:
    `python3 "${CLAUDE_SKILL_DIR}/scripts/sessions.py" digest <session.jsonl> <tmp>/<n>.md --since <the same start>`
    — the user's typed messages, Claude's replies, the skills and agents
-   run, and the compaction marks, in order; tool output is left out. Then
+   run, the nested-session flow with the hand-over chain, and the compaction marks, in order; tool output is
+   left out. Then
    the failed calls of the whole window, the agents' own logs included:
    `python3 "${CLAUDE_SKILL_DIR}/scripts/sessions.py" errors "$PWD" <tmp>/errors.md --since <the same start>`
    (and the same `--also`) — an agent that fixed its own failed command

@@ -12,7 +12,11 @@ DIGEST          <path to the digest .md> — chronological lines:
                 parent-session.md): OPENED BY SESSION (the card a parent
                 opened this one with), FROM SESSION «title» (a message from
                 another session), TO SESSION / OPENS SESSION / RENAMES /
-                ARCHIVES / STOPS / SETS EFFORT (this session's calls).
+                ARCHIVES / STOPS / SETS EFFORT (this session's calls); the
+                hand-over chain: ПЕРЕДАН → / ← (the stage's report),
+                ОЧИСТКА <id>: approved | refused (the parent's clear),
+                ПРОДОЛЖЕНИЕ после передачи (a cleared session restarted),
+                ПРОДОЛЖАЙ ЗДЕСЬ (the clear refused, it goes on in place).
                 Over ~400 KB: read it in parts with offsets, all of it.
 PLUGIN SKILLS   <path to the installed plugin's skills folder> — read the
                 SKILL.md and references of any skill a finding touches.
@@ -27,7 +31,11 @@ FIND
 - the nested-session flow broken: a stage started twice or in the wrong
   session, a report («ЭТАП … ЗАКРЫТ», «ПЕРЕДАН») never sent or never acted
   on, a session opened without the user's turn or on another model, a
-  closed stage's session still answering, the handover check skipped.
+  closed stage's session still answering, the handover check skipped;
+- the hand-over chain broken: a ПЕРЕДАН with no ОЧИСТКА or ПРОДОЛЖАЙ
+  ЗДЕСЬ after it, a continuation that redid a unit already committed,
+  rules lost after the continuation as after a compaction mark, the
+  context in ПЕРЕДАН far above the hand-over point (a check skipped).
 
 DO NOT REPORT
 - the project's own defects, product decisions, one-offs with no cost to

@@ -125,7 +125,10 @@ One line each from a nested session (`SendMessage` to the parent):
   - **Refused** — declined, on the user's screen, pinned, opened by another parent, holds live work → send it
     «продолжай здесь с <item>»: it goes on in place and the host compacts it when needed (`references/context.md`
     → When to hand over), and `mark … идёт`. Never a new session for the stage;
-- «ОСТАНОВЛЕНА · <причина>» → tell the user, with the session's title;
+- «ОСТАНОВЛЕНА · <причина>» → tell the user, with the session's title; then — and on the user's own stop here
+  («стоп», «на сегодня всё») — the parent runs `reflect` over the window since its last section, a part «… · часть
+  <n>, до <что остановило>»: it alone sees every nested session's end, and a stopped live test otherwise leaves its
+  evidence only in transcripts nobody reads later;
 - «ВОПРОС · …» — only when a nested session runs without the user (a chain left for the night,
   `references/unattended.md`): the standing answers settle it, or the user is asked here and the answer sent back.
 
@@ -162,6 +165,8 @@ SRS · схема БД · API · архитектура · каркас · ма�
 сессия — «iteration <version>», id <parent's session id> — пиши ей через SendMessage на этот id. Своё место в списке
 находишь сама: python3 <plugin>/pipeline/scripts/subsessions.py <project> <version> whoami <твой id>.
 Вопросы пользователю — только сообщением в чате, без карточек выбора.
+Замечания к работе плагина пишите прямо в этот чат, в момент, когда что-то пошло не так: разбор сессий (reflect)
+возьмёт их как улики.
 Сейчас ничего не начинай: ответь одним словом «жду» и закончи ход. Когда придёт «начинай» (от родительской
 сессии), запусти /dev-pipeline:<skill> <arguments, or nothing> и работай с пользователем здесь, как обычно. Если в
 сообщении «начинай» есть «продолжи с <пункт>» — продолжай с него; состояние — в

@@ -6,10 +6,13 @@ usage:
                      one line per main session: path, start, end, size; a session copied
                      under several project folders is listed once, and a session whose typed
                      messages all reappear, in order, at the start of a longer one (it was
-                     resumed into a new file) is marked «# повтор <id>» and skipped
+                     resumed into a new file) is marked «# повтор <id>» and skipped; one a parent cleared at a
+                     hand-over and restarted (it opens with the waiting prompt and «продолжи с <item>») stays listed,
+                     marked «# продолжение «<title>» после передачи · продолжает <id>»
   sessions.py digest <session.jsonl> <out.md> [--since …]  the session as a short chronological digest (from --since on):
                      the person's messages, the replies, skills and agents run, and the nested-session flow — the
-                     card a parent opened it with, messages between sessions, sessions opened, renamed, archived
+                     card a parent opened it with, messages between sessions, sessions opened, renamed, archived,
+                     and the hand-over chain: ПЕРЕДАН, ОЧИСТКА (approved | refused), ПРОДОЛЖЕНИЕ, ПРОДОЛЖАЙ ЗДЕСЬ
   sessions.py window <project-dir> [--version <v>]
                      the --since every other command takes: from the iteration's first commit on its branch (or
                      its plans/<version>/ folder's date), or later — from the end of the last «Окно: … — <end>» in
@@ -168,7 +171,13 @@ def cmd_list(cwd: str, since: str | None, also: list[str]) -> None:
         if dup:
             print(f"# повтор {dup.stem[:8]}: {p}")
             continue
-        print(f"{p}\t{a}\t{b}\t{p.stat().st_size // 1024} KB")
+        note = ""
+        title = continuation_of(p)
+        if title:  # a session cleared at a hand-over: the reviewer reads both transcripts as one stage
+            prev = max(((qa, q) for q, qa, _, _ in rows if q != p and qa <= a and opened_as(q) == title),
+                       default=(None, None))[1]
+            note = f"\t# продолжение «{title}» после передачи" + (f" · продолжает {prev.stem[:8]}" if prev else "")
+        print(f"{p}\t{a}\t{b}\t{p.stat().st_size // 1024} KB{note}")
 
 
 def cmd_mine(cwd: str, marker: str, out: str) -> None:
@@ -196,26 +205,88 @@ SESSION_TOOLS = {"SendMessage": "TO SESSION", "mcp__ccd_session_mgmt__send_messa
                  "mcp__ccd_session__start_session": "OPENS SESSION", "mcp__ccd_session_mgmt__set_session_title": "RENAMES",
                  "mcp__ccd_session_mgmt__archive_session": "ARCHIVES", "mcp__ccd_session_mgmt__stop_session": "STOPS",
                  "mcp__ccd_session_mgmt__set_session_effort": "SETS EFFORT"}
+# The context hand-over (pipeline → references/parent-session.md → What comes back): the stage's «ПЕРЕДАН», the
+# parent's clear of that same session — a new transcript file for it — then its waiting prompt with «начинай: продолжи
+# с <item>», or «продолжай здесь с <item>» when the clear was refused. Shown as their own lines, so the reviewer sees
+# the chain and where it broke instead of ordinary messages between sessions.
+CLEAR_TOOL = "mcp__ccd_session_mgmt__clear_session"
+PASSED_RX = re.compile(r"ПЕРЕДАН\s*·")
+HERE_RX = re.compile(r"продолжай здесь с ([^;,\s«»]+)", re.I)
+CONT_RX = re.compile(r"продолжи с (?!<)([^;,\s«»]+)")   # not the prompt's own «продолжи с <пункт>»
+WAIT_RX = re.compile(r"Ты — подсессия «([^»]+)»")
+OPENER = "Background (from the session that started this one)"
+REFUSED_RX = re.compile(r"declin|refus|denied|reject|not allowed|cannot|can't|failed|отклон|отказ", re.I)
+
+
+def continuation_of(path: Path) -> str:
+    """The title of the stage this transcript continues after a hand-over, or "": its first user message is a
+    waiting prompt sent by another session (not the card a session was opened with) and an early one says
+    «продолжи с <item>»."""
+    title, n = "", 0
+    for line in open(path, errors="ignore"):
+        try:
+            d = json.loads(line)
+        except json.JSONDecodeError:
+            continue
+        if d.get("type") != "user":
+            continue
+        txt = text_of(d.get("message", {}).get("content")).strip()
+        if not txt:
+            continue
+        n += 1
+        if n == 1:
+            m = WAIT_RX.search(txt)
+            if not m or txt.startswith(OPENER):
+                return ""
+            title = m.group(1)
+        if CONT_RX.search(txt):
+            return title
+        if n >= 3:
+            return ""
+    return ""
+
+
+def opened_as(path: Path) -> str:
+    """The title in the waiting prompt a transcript opens with, or ""."""
+    for n, line in enumerate(open(path, errors="ignore")):
+        if n > 60:
+            break
+        try:
+            d = json.loads(line)
+        except json.JSONDecodeError:
+            continue
+        m = WAIT_RX.search(text_of(d.get("message", {}).get("content"))) if d.get("type") == "user" else None
+        if m:
+            return m.group(1)
+    return ""
 
 
 def session_line(name: str, inp: dict) -> str:
     """A session tool call in one line: whom it addresses and what — the nested-session flow
     (pipeline → references/parent-session.md) the reviewer checks."""
     to = inp.get("to") or inp.get("session_id") or ""
+    msg = str(inp.get("message", "") or "")
     if name.endswith("start_session"):
         what = f"«{inp.get('title', '')}» ({inp.get('initiation', '')}, model {inp.get('model', 'default')})"
     elif name.endswith("set_session_title"):
         what = f"{to} → «{inp.get('title', '')}»"
     elif name.endswith("set_session_effort"):
         what = f"{to} → {inp.get('effort', '')}"
+    elif PASSED_RX.search(msg):
+        return f"ПЕРЕДАН → {to}: {msg[:500]}"
+    elif HERE_RX.search(msg):
+        return f"ПРОДОЛЖАЙ ЗДЕСЬ → {to}: {HERE_RX.search(msg).group(1)}"
     else:
-        what = f"{to}: {str(inp.get('message', ''))[:500]}" if inp.get("message") else str(to)
+        what = f"{to}: {msg[:500]}" if msg else str(to)
     return f"{SESSION_TOOLS[name]}: {what}"
 
 
 def cmd_digest(src: str, out: str, since: str | None = None) -> None:
     rows: list[str] = []
     opened = False   # a nested session's first message is its card from the parent, not typed by the person
+    first = None     # the first user message seen: a waiting prompt from another session marks a continuation
+    cont = False     # a continuation whose «продолжи с <item>» is not shown yet
+    clears: dict = {}  # clear_session call id → its row, filled in when its result comes
     since = since.replace("T", " ") if since else None
     for line in open(src, errors="ignore"):
         try:
@@ -223,16 +294,39 @@ def cmd_digest(src: str, out: str, since: str | None = None) -> None:
         except json.JSONDecodeError:
             continue
         ts = (d.get("timestamp") or "")[:16].replace("T", " ")
+        t = d.get("type")
+        content = d.get("message", {}).get("content")
+        if t == "user" and first is None and text_of(content).strip():
+            first = text_of(content).strip()
+            peer = isinstance(d.get("origin"), dict) and d["origin"].get("kind") == "peer"
+            cont = peer and bool(WAIT_RX.search(first))
         if since and ts and ts < since:  # a part of the session an earlier reflect section already read
             continue
-        t = d.get("type")
         if t == "user":
             origin = d.get("origin") if isinstance(d.get("origin"), dict) else {}
-            txt = text_of(d.get("message", {}).get("content")).strip()
+            txt = text_of(content).strip()
+            for b in content if isinstance(content, list) else []:
+                if isinstance(b, dict) and b.get("type") == "tool_result" and b.get("tool_use_id") in clears:
+                    i, cts, sid = clears.pop(b["tool_use_id"])
+                    res = b.get("content")
+                    res = " ".join(x.get("text", "") for x in res if isinstance(x, dict)) if isinstance(res, list) \
+                        else str(res or "")
+                    why = re.sub(r"\s+", " ", re.sub(r"</?tool_use_error>", "", res)).strip()[:200]
+                    ok = not b.get("is_error") and not REFUSED_RX.search(why)
+                    rows[i] = f"[{cts}] ОЧИСТКА {sid}: " + ("approved" if ok else f"refused: {why}")
             if origin.get("kind") == "peer":   # another session wrote: the parent's «начинай», a stage's report
                 m = CROSS.search(txt)
                 if m:
-                    rows.append(f"[{ts}] FROM SESSION «{m.group(1)}»: {m.group(2).strip()[:700]}")
+                    name, body = m.group(1), m.group(2).strip()
+                    if PASSED_RX.search(body):
+                        rows.append(f"[{ts}] ПЕРЕДАН ← «{name}»: {body[:500]}")
+                    elif HERE_RX.search(body):
+                        rows.append(f"[{ts}] ПРОДОЛЖАЙ ЗДЕСЬ: {HERE_RX.search(body).group(1)} (от «{name}»)")
+                    else:
+                        rows.append(f"[{ts}] FROM SESSION «{name}»: {body[:700]}")
+                    if cont and CONT_RX.search(body):
+                        rows.append(f"[{ts}] ПРОДОЛЖЕНИЕ после передачи: {CONT_RX.search(body).group(1)}")
+                        cont = False
                 continue
             if origin.get("kind") != "human":
                 if not opened and txt.startswith("Background (from the session that started this one)"):
@@ -255,6 +349,10 @@ def cmd_digest(src: str, out: str, since: str | None = None) -> None:
                         rows.append(f"[{ts}] AGENT: {inp.get('subagent_type', 'general')} — {str(inp.get('description', ''))[:120]}")
                     elif name in SESSION_TOOLS:
                         rows.append(f"[{ts}] {session_line(name, inp)}")
+                    elif name == CLEAR_TOOL:
+                        sid = inp.get("session_id") or inp.get("to") or ""
+                        clears[b.get("id")] = (len(rows), ts, sid)
+                        rows.append(f"[{ts}] ОЧИСТКА {sid}: результата нет")
         elif t == "system" and d.get("subtype") == "compact_boundary":
             rows.append(f"[{ts}] === CONTEXT COMPACTED ===")
     Path(out).write_text("\n".join(rows) + "\n")

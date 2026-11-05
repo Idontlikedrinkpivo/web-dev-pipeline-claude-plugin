@@ -16,6 +16,9 @@ stage skill, its heading the skill's folder name; a stage with no section gets �
   nothing was stamped (`doc-versioning` → `references/version-birth.md`).
 - The iteration closes in `scripts/close_iteration.py`'s order: audit, stamp, site, summary, tag, reflect to the
   end, servers. Never merge into main or delete `iteration/<version>` before the tag.
+- At every stop by the user («стоп», «на сегодня всё», «ОСТАНОВЛЕНА» from a nested session) run `reflect` for the
+  window since its last section — a part (`references/pause-and-resume.md` → Pausing, step 6); with a parent, the
+  parent runs it.
 - In a nested session: report to the parent «ЭТАП … ЗАКРЫТ · дальше: …» after the handover check
   (`references/handover-check.md`); unsure of the stage — `scripts/subsessions.py … whoami <own id>`.
 
