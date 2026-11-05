@@ -123,6 +123,7 @@ there, so the session's copy and the packet cannot drift; the session dispatches
 | **Executor validity** | structural | is every `Исполнитель` / `Вложенный` on the assignable list, with no model slug? |
 | **Existing work** | structural | does a unit recreate what exists, and does every `Образец` resolve? |
 | **Service version** | structural | do §1's version and level match the typed changes, with the bump unit last when needed? |
+| **Unit size** | structural | no two grade-0/Low units of one file or module left apart (P2); no unit past ~250,000 tokens of executor context (P1)? |
 | **Plan hygiene** | structural | unique U-ids, no progress state, repo-relative paths, pins, open questions blocking named units? |
 
 ### Step 3. Dispatch
@@ -134,7 +135,7 @@ parallel, because the two halves fail differently:
 
 | Executor | Carries |
 |---|---|
-| `plan-review-medium` | the structural lenses — dependency graph, parallel safety, files completeness, citation integrity, coverage, executor validity, existing work, service version, plan hygiene. These are checkable against the text, the tree and a search for the changed symbols, and they are where volume lives. |
+| `plan-review-medium` | the structural lenses — dependency graph, parallel safety, files completeness, citation integrity, coverage, executor validity, existing work, service version, unit size, plan hygiene. These are checkable against the text, the tree and a search for the changed symbols, and they are where volume lives. |
 | `plan-review-hard` | the judgment lenses — commit atomicity, grade calibration, test-first writability. Deciding that a unit *cannot* land alone, or that a Low unit is really Mid, is the same kind of reasoning that graded it, so it needs a tier that can hold the cascade and argue with it. |
 
 Fill the structural packet's LINT with `plan_lint.py`'s lines: fields, executors, the dependency graph, parallel
@@ -161,8 +162,8 @@ would be the "do the row's work on the session" the catalog forbids.
 | Level | Meaning | Effect |
 |---|---|---|
 | **P0** | the plan cannot execute as written: a dependency cycle, a unit that cannot land green alone, a floor violation, a `Документы` citation that does not resolve, an invariant or AC covered by no unit, an `Исполнитель` or `Вложенный` name absent from the assignable list | blocks the handoff to `work` |
-| **P1** | the plan will execute but buy avoidable rework: a false `Параллельно: yes`, a grade off by one tier without a floor breach, a scenario whose expected outcome is not yet decided, a unit duplicating scaffold output, a PATCH over «добавляет» / «ломает» changes, a partner API broken inside its major, or no bump unit | blocks the handoff |
-| **P2** | ordering or naming that a maintainer would improve — a wave that could be wider, a `Почему` that names a weak signal | recorded, does not block |
+| **P1** | the plan will execute but buy avoidable rework: a false `Параллельно: yes`, a grade off by one tier without a floor breach, a scenario whose expected outcome is not yet decided, a unit duplicating scaffold output, a PATCH over «добавляет» / «ломает» changes, a partner API broken inside its major, no bump unit, or a unit past the executor's context | blocks the handoff |
+| **P2** | ordering or naming that a maintainer would improve — a wave that could be wider, a `Почему` that names a weak signal, small units of one file left apart | recorded, does not block |
 | **P3** | nit | recorded, does not block |
 
 Three dismissal rules:

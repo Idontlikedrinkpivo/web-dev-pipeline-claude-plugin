@@ -18,7 +18,11 @@ Errors (exit 1), one line each with the unit and what to fix:
   - no unit «Обновление поверх v<prev>» while the branch adds a migration since the last tag v<prev>
     (plan → references/writer.md → Step 2, «Upgrade over the last release»).
 Warnings (exit 0 when only these):
-  - an acceptance criterion of a use case the plan cites that no unit names in Документы or Тестовые сценарии.
+  - an acceptance criterion of a use case the plan cites that no unit names in Документы or Тестовые сценарии;
+  - two or more grade-0/Low units whose Файлы is the same single file — merge them (the orchestrator's cost per
+    unit is fixed; plan → references/writer.md → Step 2);
+  - a unit whose Файлы lists more than 8 existing files or more than 1,500 existing lines — above the executor's
+    context; split it (same step).
 
 The repository is read at its current state (--repo, default the plan's repository): run it before work starts.
 Standard library only; the plan format is plan → references/plan-template.md.
@@ -215,6 +219,25 @@ def main() -> None:
             if common:
                 errors.append(f"U{a['id']} и U{b['id']}: обе «Параллельно: yes», не зависят друг от друга и правят "
                               f"один файл — {', '.join(sorted(common))}")
+
+    # Unit size (plan → references/writer.md → Step 2): small units of one file cost a fixed orchestrator share each;
+    # a unit over the executor's context degrades it. Warnings: `work` must still run on the plan.
+    by_file: dict[str, list[int]] = {}
+    for u in us:
+        g = (u["f"].get("Сложность", "").split() or [""])[0]
+        fs = files_of(u)
+        if g in ("0", "Low") and len(fs) == 1:
+            by_file.setdefault(next(iter(fs)), []).append(u["id"])
+    for path, ids in sorted(by_file.items()):
+        if len(ids) > 1:
+            warnings.append(f"задачи {', '.join(f'U{i}' for i in ids)} — сложности 0/Low с одним и тем же файлом "
+                            f"{path}: слейте их в одну (plan → references/writer.md → Step 2)")
+    for u in us:
+        existing = [repo / p for p in files_of(u) if "*" not in p and (repo / p).is_file()]
+        lines = sum(len(f.read_bytes().splitlines()) for f in existing)
+        if len(existing) > 8 or lines > 1500:
+            warnings.append(f"U{u['id']} (строка {u['line']}): задача правит {len(existing)} файлов / {lines} строк — "
+                            "больше контекста исполнителя (plan → references/writer.md → Step 2); разбейте её")
 
     req, ops = requirement_ids(docs), operation_ids(docs)
     for u in us:

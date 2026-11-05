@@ -144,10 +144,16 @@ Effort buys thinking where a row decides, not where it types:
   `srs-author`, `screen-writer`, `ui-test-runner`, `figma-opus`, and the
   remaining reviewers — `review-medium`, `review-full-plan`,
   `doc-review-medium`, `doc-review-hard`, `docs-consistency-checker`,
-  `security-auditor`, `code-auditor`;
-- `xhigh` — the single-shot adversarial judgments where a missed finding is
-  the expensive failure, `review-hard` and `plan-review-hard`, and the High
-  writers `design-hard` and `plan-hard` (measured below);
+  `security-auditor`, `code-auditor`, and, since 2026-11-05, `review-hard`
+  and `plan-review-hard` (they were `xhigh`: on ai-initiatives 2.1.5–2.2.0
+  they were ~25% of those roles' spend, $61–137 an iteration, and the one
+  measurement, `review-full-plan` below, showed `xhigh` at 1.6× `medium`
+  adding only P2 findings; no P1 evidence for `xhigh`. The first live
+  iteration on `high` is compared through reflect's «Принятие задач» — units
+  sent back and P1 found — and the effort goes back to `xhigh` if P1
+  findings drop);
+- `xhigh` — the High writers `design-hard` and `plan-hard` (measured
+  below);
 - `max` — not used.
 
 Checked against `_agents/*.md` on 2026-10-22; when an `effort:` line moves,

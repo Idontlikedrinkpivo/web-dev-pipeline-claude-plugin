@@ -66,7 +66,7 @@ Slice along the architecture's own seams:
 | Query / read model | one unit per audience-shaped read |
 | HTTP surface | one unit per operation group sharing a controller |
 | Migration | one unit per new file in `documentation/db/migrations/`, ordered before its adapter |
-| Screen | one unit per screen with all its states, citing its screen spec and the `nodeId`. A screen of more than ~40 elements, or a spec over ~100 KB, is split by its parts — a form, a block, a dialog, a panel, as the annotation groups them: each unit cites `S-<n> эл. <from>–<to>` with the states and response errors those elements show; the first sets up the screen (route, data hook, layout) and the rest depend on it in order; together they cover every element once, and the last runs the whole screen's check |
+| Screen | one unit per screen with all its states, citing its screen spec and the `nodeId`. A screen of more than ~25 element rows or three nested steps, or a spec over ~100 KB, is split by its parts (the context limit below) — a form, a block, a dialog, a panel, as the annotation groups them: each unit cites `S-<n> эл. <from>–<to>` with the states and response errors those elements show; the first sets up the screen (route, data hook, layout) and the rest depend on it in order; together they cover every element once, and the last runs the whole screen's check |
 | Theme (after a `ui-design` restyle) | one unit: the project's theme file — colours light and dark, radius, shadows, density, fonts with their Cyrillic subset — from the Figma variables, and the values screens hardcode moved into it; `Документы` cite the register's «Визуальное направление» line and the `🎨 Tokens` `nodeId`; `impl-ui`; screen units that fix the look depend on it |
 | Mechanical batch | one unit for a repo-wide rename, codemod, or config sweep |
 | Plugin code change (DEFERRED in the packet) | one unit per change, first in the plan: its `fix` is the approach, `Документы` cite `plugin change <id>`; graded by the cascade |
@@ -78,6 +78,31 @@ Split a unit when it crosses a ring (domain **and** adapter), when it mixes a
 decision with mechanics, when two halves would land in separate commits
 anyway, or when its `Файлы` pass ~8 files of different kinds (a mechanical
 sweep of one shape is exempt) — an executor's context grows with its footprint. Merge two units when neither can land green alone.
+
+**Merge small units of one file or module.** Grade-0 and Low units whose `Файлы` are the same single file, or
+sibling files of one module with no unit between them that depends on only one of them, become one unit — one
+commit, one packet; the grade stays the higher of the two, 0 or Low, and the Low batch review covers it as today. Keep them apart only when a
+later unit depends on one part alone, when the parts need different executors, or when one part is a migration or
+config the other must see committed first. Why: the orchestrator's share of a unit — packet, dispatch,
+integration, review hand-off — is fixed, about $5 of a unit's average $13 whatever its size; a grade-0 or Low unit
+costs $1–3 of executor and review but $1.3–1.5 of orchestrator, 45–98% of its price, so three mechanical units
+cost three times what one does for the same code (53 `mechanical-worker` dispatches in one iteration,
+ai-initiatives 2.1.5 and 2.2.0). `plan_lint.py` warns on two such units of one file.
+
+**Split a unit whose executor would need more than ~250,000 tokens of context.** Past that an executor re-reads
+its own files and degrades: `impl-ui` ran at an average peak of 496,000 tokens per screen, `impl-medium` up to
+754,000 (ai-initiatives 2.1.5 and 2.2.0). Estimate each unit before printing it: the design excerpts its packet
+will paste, its `Файлы` (the existing size plus what it writes), an `impl-ui` unit's screen-spec rows, its test
+scenarios. Rules of thumb:
+
+| The unit | Split it |
+|---|---|
+| Screen whose spec has more than ~25 element rows or more than three nested steps | by states or by nested step, as the screen row of the seam table above cites parts |
+| Mid touching more than ~6 files or more than ~800 lines of existing code | by file group, each group landing green alone |
+| High over the limit | only along a seam the design names; with none, the unit stays whole and §1 says why |
+
+`plan_lint.py` warns on a unit listing more than 8 existing files or more than ~1,500 existing lines. Splitting
+keeps the invariant: each part is one commit that lands green alone.
 
 Never produce: a 5-minute micro-step, a unit spanning unrelated concerns, a
 layer batch ("all entities", "all adapters", "wire everything" — it cannot
@@ -265,7 +290,9 @@ with the D2 graph at DIAGRAM PATH, §3 Юниты (Step 4 blocks), §4 Волн�
 ## Quality gate
 
 1. Every unit lands as one green commit; none crosses a ring without a stated
-   reason, none recreates what the scaffold already has — Step 2, `plan/SKILL.md` → Inputs.
+   reason, none recreates what the scaffold already has — Step 2, `plan/SKILL.md` → Inputs. No two grade-0/Low
+   units share one file or module without a reason to stay apart, and no unit's executor needs more than
+   ~250,000 tokens of context — Step 2.
 2. Every `Документы` citation resolves to a real section or id; no unit invents a
    method, signature, status, or column the design never named — Step 4.
 3. Every quoted invariant row and every AC in scope appears in some

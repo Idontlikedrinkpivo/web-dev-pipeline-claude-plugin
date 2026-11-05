@@ -176,6 +176,18 @@ LARGE FILES     A diff or a plan over ~25,000 tokens is read in parts: the diff'
     differs from the folder's, the last unit is the grade-0
     mechanical-worker bump to that number, depending on every other unit;
     when they are equal, no bump unit is needed, and a fix plan adds none.
+  Unit size (plan/references/writer.md → Step 2) — grade-0/Low units whose
+    «Файлы» are the same single file, or sibling files of one module, with
+    no reason to stay apart (a later unit depends on one part alone,
+    different executors, a migration or config committed first): P2
+    «мелкие задачи одного файла: U<a>, U<b> — слить». The orchestrator's
+    cost per dispatch is fixed, so each extra unit is paid in full. A unit
+    whose executor will clearly need more than ~250,000 tokens — a screen
+    spec over ~25 element rows or three nested steps, a Mid unit over ~6
+    files or ~800 lines of existing code, pasted excerpts beyond that: P1
+    «задача не влезет в контекст исполнителя: <reason>» — past the limit
+    the executor re-reads its files and degrades or fails. plan_lint.py's
+    ⚠ lines on both are leads; judge each.
   Plan hygiene — U-ids unique and unrenumbered, no progress state (status:,
     checkboxes, "done"), repo-relative paths, version pins present, Open
     Questions blocking named units rather than absorbed as guesses; the plan

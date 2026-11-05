@@ -74,7 +74,8 @@ Grade inflation is the expensive failure: it gives a transcription High
 latitude and a second review pass, and hides which units actually need care.
 
 - **Volume is not complexity.** 30 files of one shape is **0**. A unit is not
-  Mid because it is long.
+  Mid because it is long. Size changes the slicing, not the grade: merging small 0/Low units of one file keeps
+  the higher of their grades, and a unit past the executor's context is split (`references/writer.md` → Step 2).
 - **Domain importance is not complexity.** The core aggregate's *getter* is
   still Low. Grade the unit, not the module's prestige.
 - **Unfamiliarity is not complexity.** A framework the planner has not used,

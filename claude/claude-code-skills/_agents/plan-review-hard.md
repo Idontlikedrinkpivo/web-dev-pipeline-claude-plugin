@@ -2,7 +2,7 @@
 name: plan-review-hard
 description: Read-only judgment review of a plan. Dispatched by plan-review via executor-catalog; not for direct use.
 model: opus
-effort: xhigh
+effort: high
 tools: Read, Grep, Glob, Bash
 ---
 

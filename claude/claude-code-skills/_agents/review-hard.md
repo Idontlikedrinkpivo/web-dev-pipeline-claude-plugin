@@ -2,7 +2,7 @@
 name: review-hard
 description: Read-only adversarial review of one High unit's diff. Dispatched by code-review-unit via executor-catalog; not for direct use.
 model: opus
-effort: xhigh
+effort: high
 tools: Read, Grep, Glob, Bash
 ---
 
