@@ -16,7 +16,7 @@ Refused:
 - Bash `sed -i` without a suffix argument (`sed -i ''` and `sed -i.bak` pass) — BSD sed on macOS takes the next
   argument as the backup suffix and corrupts files; Edit instead;
 - Bash that writes a progress file (documentation/plans/…/progress*.md, test-run.md, security-audit.md) — the page
-  is redrawn only after Edit/Write or by the progress scripts (pipeline → references/progress-files.md → How);
+  is redrawn only after Edit/Write or by the progress scripts (pipeline → references/progress-keeping.md → How);
 - Bash `git stash`, `git reset --hard`, `git clean`, `git checkout -- .` / `git restore .` in the main working tree
   — they wipe other agents' and the user's uncommitted work (run-hygiene → Executors in the shared tree);
 - Edit / Write of a file outside the worktree the agent runs in — its edit lands in the main tree
@@ -190,7 +190,7 @@ def decide(tool: str, inp: dict, cwd: str, *, branch: str = "", open_iteration: 
         if writes_progress(bare, bodies):
             return deny("this command writes a progress file from the shell; the page the user watches is redrawn "
                         "only after Edit/Write or by the progress scripts. Change rows with Edit, the bar and count "
-                        "with progress_set.py (pipeline → references/progress-files.md → How).")
+                        "with progress_set.py (pipeline → references/progress-keeping.md → How).")
         if not worktree_root and destructive(bare) and "/.claude/worktrees/" not in bare:
             return deny("git stash (of everything) / reset --hard / clean -f / checkout -- . in the main working "
                         "tree wipe uncommitted work of other agents and of the user. Restore only the files you "

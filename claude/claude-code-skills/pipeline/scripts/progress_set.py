@@ -7,7 +7,7 @@ Rewrites the first bar (`█…░… N%`) of the file — or of the section tha
 «обновлено …» time of that section's state line, then redraws the page beside the file. The rows themselves still
 change with Edit, one row per call. An Edit of the bar fails whenever the copy in the old string is off by one
 cell; this script is the second allowed writer of a progress file outside Edit/Write (pipeline →
-references/progress-files.md → How). Percent = ⌊done × 100 / total⌋, the filled cells equal the percent.
+references/progress-keeping.md → How). Percent = ⌊done × 100 / total⌋, the filled cells equal the percent.
 Standard library only.
 """
 from __future__ import annotations

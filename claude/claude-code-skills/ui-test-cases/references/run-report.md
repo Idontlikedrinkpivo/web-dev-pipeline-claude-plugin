@@ -211,5 +211,5 @@ that is running — then the bars it moves (its section's and «Общий ит�
 with `progress_set.py` (it redraws the page itself). Nothing else from the
 shell (`python`, `sed`, `cat >`): the plugin's hook rebuilds the report's
 `.html` page — the one the user watches — only after an Edit or Write call,
-so a shell write leaves that page stale, and the guard hook refuses it (`pipeline` → `references/progress-files.md` → Rules for every
-file, «The page» and «How»).
+so a shell write leaves that page stale, and the guard hook refuses it (`pipeline` → `references/progress-files.md` → The form of every
+file, «The page», and `references/progress-keeping.md` → How).

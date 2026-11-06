@@ -111,7 +111,7 @@ as they are. The report names the number and what limited it («3 стенда:
   never replaced by a script that rewrites the report on a timer — the
   plugin's hook rebuilds the page the user watches only after an Edit or
   Write call, so a script's write leaves it stale (`pipeline` →
-  `references/progress-files.md` → Rules for every file, «How»). It folds each result into the report with the Edit tool as it
+  `references/progress-keeping.md` → How). It folds each result into the report with the Edit tool as it
   arrives — the
   case's row, one bar over all stands, and under the count line one line
   per stand («Стенд 2 · 8180: 120 из 188 · упало 4»).
@@ -154,7 +154,7 @@ A run removes what it started, and nothing else.
 - **Watchers too.** Every Monitor or background wait the run started for
   its stands and queues is stopped with them, and the verdict waits until
   the task list shows none of the run's own watchers (`pipeline` →
-  `references/progress-files.md` → Every watcher ends with its work).
+  `references/progress-keeping.md` → Every watcher ends with its work).
 - **Checked.** `docker ps -a --filter
   label=com.docker.compose.project=<project>` is empty for every project
   removed; the report ends with one line: «Стенды убраны: 3, контейнеров

@@ -1,15 +1,21 @@
 # Progress files
 
 - [Which stages keep one](#which-stages-keep-one)
-- [Rules for every file](#rules-for-every-file)
+- [The form of every file](#the-form-of-every-file)
 - [Statuses](#statuses)
-- [Keeping the run moving](#keeping-the-run-moving)
 - [The files](#the-files)
 
 Read this before a stage that keeps a progress file creates it. A long stage —
 one that works through many items of one kind (screens, documents, cases,
 units, steps) while the user waits — keeps one, so the user sees where it is
 without asking and can tell a slow step from a stuck one.
+
+This file says what a progress file is: which stages keep one, its
+form, the statuses, the template of each. How a stage keeps it true —
+Edit only and the scripts, the chat line after each item, a watch over
+the subagents that change rows — is `references/progress-keeping.md`,
+read with this one; how a long run keeps going while the user is away is
+`references/unattended.md` → Keeping the run moving.
 
 ## Which stages keep one
 
@@ -38,7 +44,7 @@ question names its place («Замечание 3 из 8»). A stage that writes 
 document keeps none, nor does the architecture: one writer settles all its
 documents at once, so their rows moved in lockstep and told the user nothing.
 
-## Rules for every file
+## The form of every file
 
 - **Where.** In the iteration's open folder `documentation/plans/<version>/`,
   in git with the folder (`push_branch.py` commits it). Creating the file writes into
@@ -102,83 +108,8 @@ documents at once, so their rows moved in lockstep and told the user nothing.
   e2e suite). Paste the line as printed: a link typed by hand is how a
   `.md` link or a dead file path reaches the user. A subagent that owns
   rows does not post the line; the session does when its dispatch returns.
-- **When.** Create the file before the first step or dispatch, every row
-  `⏳ ждёт`, run the script, open the link in the built-in browser
-  yourself when there is one, and paste the line before the first step
-  starts. A run resumed after a break or a context compaction rebuilds
-  the rows from what is on disk, sets anything half-done back to
-  `⏳ ждёт`, and pastes the line again before it goes on. The script
-  prints its warnings on stderr — a status word nobody defined, a bar that
-  disagrees with the count, no count line — and the stage fixes the file
-  before it pastes the line.
-- **After each item.** Every time an item is finished — its row reaches
-  done, stopped or returned — run the script and paste its line, so a user
-  who closed the page or stepped away reopens it from the last message,
-  not by scrolling to the start. A stop or a question to the user carries
-  the line too, as its last line. Any message that mentions the progress
-  file carries the line; a file name in plain text or in backticks opens
-  nothing.
-- **The server** is stopped at the iteration's close
-  (`references/closing-cleanup.md`) or when the user says they are done
-  watching: `python3 "<pipeline skill folder>/scripts/progress_server.py"
-  documentation/plans/<version> --stop`.
 - **One set of statuses** in every progress file (below), so the user reads
   every file the same way.
-- **The file is never named without its line.** «Обновил прогресс в
-  progress-design.md — файл можно открыть» is wrong: the name opens
-  nothing, and the user has to search for the file. Where a subagent
-  changes the rows (the Figma builder, the test writer, the test runner),
-  paste the script's line each time its dispatch returns.
-- **How.** Change it with the **Edit** tool the moment a row changes — one
-  call per row or line, the bar and the count together with the row — and
-  **Write** only to create it (a shell write to a progress file is refused by the plugin's hook,
-  `hooks/guard.py`). Never from the shell (`python`, `sed`,
-  `cat >`), and never by a script that rewrites the file on a timer: the
-  page is rebuilt by the plugin's hook on Edit and Write only, so a file
-  changed any other way is fresh on disk and stale on the page the user
-  watches. Four scripts are the exception, and all redraw the page
-  themselves: `progress_e2e.py` (`work` → `references/progress-file.md` →
-  The e2e section), `progress_mutation.py` (the top of
-  `progress-mutation.md`, from the mutation logs),
-  `progress_set.py <file> <done> <total> [--section
-  "<heading>"]`, which sets the bar, the count line and the section's
-  «обновлено» time — never copy a
-  hundred-cell bar into an Edit by hand: one cell off and the Edit fails —
-  and `progress_link.py`, which stamps the file's «обновлено» time as it
-  prints the chat line.
-  Rows still change with Edit, after a fresh Read of the file. After a
-  compaction this rule is the first one lost: re-read it before the next
-  change of the file; `progress_link.py` names a bar that disagrees with the
-  count, and remembers `--desktop` beside the file. A script may compute the numbers; the agent writes them. The bar is printed, not counted by
-  hand: `python3 -c "d,t=<done>,<total>;p=d*100//t;print('█'*p+'░'*(100-p),f'{p}%')"`.
-- **A subagent's rows are watched, not trusted.** A subagent deep in its
-  task forgets the progress file, and then the user sees a hang. So while
-  a dispatch that owns rows runs and writes files, the session watches its
-  output folder with the Monitor tool — a loop that prints each file as it
-  changes, e.g. `while sleep 20; do git status --porcelain --
-  documentation/ui/test-cases; done | awk '!seen[$0]++'` — and on each new
-  line sets that item's row to `🔄 в работе` if the subagent has not
-  (without Monitor: a background `sleep 30`, then the same check). When
-  the dispatch returns, it reconciles every row, the bar and the count
-  with what is on disk before the chat line, and says in that line what it
-  corrected. Output that is not files (Figma) is reconciled on return,
-  from the report.
-- **Every watcher ends with its work.** A Monitor or a background wait the
-  run starts carries its own end: it watches until a condition that the
-  work's end makes true (the queue's last result, a done marker, the
-  process gone) and then exits, never only until its timeout. The run keeps
-  the ids of the watchers it started and, when it ends — finished, failed
-  or stopped — stops any still running (TaskStop) before its last line. A
-  watcher left behind keeps waking the session for nothing; an agent that tries to end with one still running
-  is held back by the plugin's hook (`hooks/watchers.py`) until it stops it.
-- **Results from background work** (stands, long commands) wake the agent,
-  and the agent edits: watch their output with the Monitor tool, which
-  wakes the session on each new line, or — without it — a background
-  `sleep 30` whose finish wakes the session to edit what changed and start
-  the next one.
-- **A subagent** that changes rows gets the path in its packet as
-  `PROGRESS FILE` and changes only its rows, the bar and the count line;
-  the title, the other sections and the state line stay the session's.
 - **A new run** of the same stage in the same iteration rewrites the file.
   It is never committed and never cited by a document. The one exception
   is `security-audit.md`: it is the audit's result as well as its progress,
@@ -212,52 +143,6 @@ The one exception is a test case's **outcome** in a UI test run's
 <причина>`, and the triage results (`ui-test-cases` →
 `references/run-report.md` → Statuses). While a
 case waits or runs it uses `⏳ ждёт` and `🔄 в работе` like any row.
-
-## Keeping the run moving
-
-A long stage runs while the user is away — asleep, in a meeting — so a turn
-that ends with nothing running stops it for hours: nothing wakes the
-session until the user writes again.
-
-- **A turn ends only while the next step runs — or on a question that
-  blocks it.** Until the last item is done, every turn ends with the next
-  step already started — an executor, a reviewer, a check, dispatched in
-  the background, whose completion wakes the session again. The one other
-  way to end a turn is a question the run cannot go past without the
-  user's answer — one of the stage's own stop cases (a missing decision, a
-  review's `STOP`, rounds that stopped making progress): then nothing is
-  started, the question is the end of the turn, and the row says
-  `⛔ остановлено`. Never end a turn on prose alone, and never on
-  «продолжаю…» without the call.
-- **Call first, then write.** Start the next step, then write the chat
-  line (After each item). Text written before the call can be cut off —
-  a dropped connection, a stream that ends mid-sentence — and the call
-  after it is lost with it; text after the call costs nothing if it is
-  cut. A blocking question has no call after it, so it is simply the last
-  thing in the turn.
-- **A message that is not a decision does not stop the run.** A stray
-  keystroke, «ну?», «ты тут?», a question about progress: answer in one
-  line with the count and the link, and go on. Only a stop («стоп»,
-  «подожди», «остановись») or a changed decision changes the run — the
-  latter through `pipeline` → `references/decision-changes.md`.
-- **Check, don't ask, when a run can find out.** Before a question to the
-  user inside a run (`work`, a UI test run, an audit), sort it: a fact the
-  session can observe by running something — which port the stand uses,
-  whether the API returns a field, whether a test passes without the fix,
-  whether a failure is the app's or the test's, whether a library supports
-  a call — is not the user's to answer: run the check and record it as
-  «решил по проверке: <что запустил> → <результат>». Only a decision —
-  product, scope, a rule the documents leave open, a finding against a
-  settled decision — goes to the user. The design stages ask their
-  questions on purpose and are not affected.
-- **Pause and pick up through the resume note.** A long run keeps
-  `resume.md` beside its progress file and reads it first when it resumes
-  (`references/pause-and-resume.md`).
-- **Never ask whether to continue.** The run was agreed when it started; it
-  asks only in its stage's stop cases. A turn that finds the run idle — the
-  last one was cut off, the session was compacted, the user wrote into a
-  silence — rebuilds the rows from disk and git and starts the next step
-  at once, saying in one line that it resumed.
 
 ## The files
 

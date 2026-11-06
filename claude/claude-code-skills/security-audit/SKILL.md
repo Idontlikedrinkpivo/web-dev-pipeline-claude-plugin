@@ -65,8 +65,8 @@ then post its progress line, and again after each row: run
 prints, never a link written by hand; after each area returns, check the context (`pipeline` →
 `references/context.md` → When to hand over). Change the file with Edit only — never
 from the shell, also after a compaction: the page redraws on Edit and Write
-alone. Keeping the run moving applies: every
-turn ends with the next scanner or auditor running. Its shape:
+alone (`pipeline` → `references/progress-keeping.md`). Keeping the run moving applies
+(`pipeline` → `references/unattended.md`): every turn ends with the next scanner or auditor running. Its shape:
 `references/report.md`.
 
 The audit is a long run, so it keeps the resume note too (`pipeline` →

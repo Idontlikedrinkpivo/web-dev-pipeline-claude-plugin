@@ -52,7 +52,7 @@ rounds that stop making progress (`pipeline` → `references/convergence.md`). T
 <причина>`, and in the chat what blocks it, what was tried, and what the user
 can decide — that question ends the turn. Every other turn ends with the
 next dispatch running, called before the chat line; never «продолжать?»
-(`pipeline` → `references/progress-files.md` → Keeping the run moving).
+(`pipeline` → `references/unattended.md` → Keeping the run moving).
 
 **A decision that changes during the run goes into its documents at
 once**, committed before the next dispatch, without the user asking —

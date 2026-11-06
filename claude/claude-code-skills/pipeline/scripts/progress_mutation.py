@@ -22,7 +22,7 @@ mutmut has tested every mutant, or on --done.
 It rewrites the file from its top down to the first `## ` heading — the bar, the count line, the parts table, the
 state line — and keeps every section below it (the survivors, which the session keeps with Edit); a missing file is
 created with an empty survivors section. Then it redraws the page beside the file: like progress_e2e.py, it is an
-allowed writer of a progress file outside Edit/Write (pipeline → references/progress-files.md → How). It prints one
+allowed writer of a progress file outside Edit/Write (pipeline → references/progress-keeping.md → How). It prints one
 line per part whose status changed since the last call, then the summary line. A part that has passed ~5% timed-out
 mutants is marked for a look: the machine was overloaded (work → references/health.md). Standard library only.
 """

@@ -484,8 +484,10 @@ read when their case comes up:
   pass; what keeps a round cheap and when lack of progress stops it. Read
   whenever a check sends work back.
 - `references/progress-files.md` — which stages keep a progress file in
-  `plans/<version>/`, its shape, and the chat line `scripts/progress_link.py`
-  prints for it. Read before a stage that keeps one creates it.
+  `plans/<version>/`, its form, statuses and templates; `references/progress-keeping.md` — how the
+  stage keeps it true (Edit only, the scripts, the chat line after each item, watchers). Read both
+  before a stage that keeps one creates it; `references/unattended.md` → Keeping the run moving — for
+  every long run.
 - `references/pause-and-resume.md` — the resume note a long run (`work`,
   `ui-test-cases` mode run, `security-audit`) keeps current, and what a
   session that picks up a stopped run reads first.
