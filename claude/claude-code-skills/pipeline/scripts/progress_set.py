@@ -3,11 +3,12 @@
     python3 progress_set.py <progress file .md> <done> <total> [--section "<heading>"]
 
 Rewrites the first bar (`█…░… N%`) of the file — or of the section that starts at the heading given, e.g.
-"## Исправления по финальному ревью" — and the «N из M» of the count line right under that bar, then redraws the
-page beside the file. The rows themselves still change with Edit, one row per call. An Edit of the bar fails
-whenever the copy in the old string is off by one cell; this script is the second allowed writer of a progress
-file outside Edit/Write (pipeline → references/progress-files.md → How). Percent = ⌊done × 100 / total⌋, the
-filled cells equal the percent. Standard library only.
+"## Исправления по финальному ревью" — and the «N из M» of the count line right under that bar, stamps the
+«обновлено …» time of that section's state line, then redraws the page beside the file. The rows themselves still
+change with Edit, one row per call. An Edit of the bar fails whenever the copy in the old string is off by one
+cell; this script is the second allowed writer of a progress file outside Edit/Write (pipeline →
+references/progress-files.md → How). Percent = ⌊done × 100 / total⌋, the filled cells equal the percent.
+Standard library only.
 """
 from __future__ import annotations
 
@@ -45,12 +46,16 @@ def main() -> None:
     nxt = re.compile(r"^#{1,3} ", re.M).search(text, after)
     if c and (not nxt or c.start() < nxt.start()):
         text = text[: c.start()] + f"{done} из {total}" + text[c.end():]
-    md.write_text(text, encoding="utf-8")
     try:
         import progress_page
-        progress_page.page(md)
     except Exception as e:  # the page is a view; the file is already right
+        progress_page = None
         print(f"progress_set: page not rebuilt ({e})", file=sys.stderr)
+    if progress_page:
+        text = progress_page.stamp(text, after)   # the «обновлено …» of this section's state line: now
+    md.write_text(text, encoding="utf-8")
+    if progress_page:
+        progress_page.page(md)
     print(f"{md.name}: {done} из {total} · {pct}%")
 
 

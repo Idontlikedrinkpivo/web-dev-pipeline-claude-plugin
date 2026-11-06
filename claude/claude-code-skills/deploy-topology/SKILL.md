@@ -82,8 +82,9 @@ with 7a and 7b, `⏳ ждёт` — and post its progress line
 pasted as printed). Set each row `🔄 в работе` → `✅ готово` (or `⏭ пропущено: …`) as
 you go, and post the progress line after each step; the
 image build in Step 8 runs for minutes, and its row says so
-while it runs. The line under the table carries the compose-contract tests
-and the release folder.
+while it runs. The «Состояние:» line under the table names the step that
+runs, the compose-contract tests and the release folder; its time is the
+scripts' (`progress_link.py` stamps it), not yours.
 
 ### Step 1. Inventory before writing anything
 

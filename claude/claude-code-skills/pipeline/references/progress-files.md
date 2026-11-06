@@ -13,17 +13,24 @@ without asking and can tell a slow step from a stuck one.
 
 ## Which stages keep one
 
-| Stage | File in `documentation/plans/<version>/` | One row per | Who changes the rows |
-|---|---|---|---|
-| `ui-design` — style tiles, drawing, restyle, redraw | `progress-design.md` | screen, plus the direction tiles | the Figma builder as it draws each screen; the session as it verifies |
-| `screen-spec` | `progress-screen-specs.md` | screen | the session, around each dispatch |
-| `ui-test-cases` write | `progress-test-cases.md` | section of the case set, plus «Без интерфейса» | the writer, as it finishes each section |
-| `ui-test-cases` run | `test-run.md` | case | the runner — `ui-test-cases` → Mode run |
-| `security-audit` | `security-audit.md` (the report itself) | scanner, area, the verify pass | the session — `security-audit` → `references/report.md` |
-| `repo-scaffold` | `progress-scaffold.md` | step | the session |
-| `work` | `progress.md` | unit, then fix | the session — `work` → `references/progress-file.md` |
-| `work` — mutation runs at the close | `progress-mutation.md` | part or share of the run, plus each part not measured | `scripts/progress_mutation.py` from the logs; the survivors section — the session (`work` → `references/health.md` → Progress) |
-| `deploy-topology` | `progress-deploy.md` | step | the session |
+| Stage | File in `documentation/plans/<version>/` | Title (`# … — итерация <version>`) and label | One row per | Who changes the rows |
+|---|---|---|---|---|
+| `ui-design` — style tiles, drawing, restyle, redraw | `progress-design.md` | «Прогресс макетов», label «Макеты» | screen, plus the direction tiles | the Figma builder as it draws each screen; the session as it verifies |
+| `screen-spec` | `progress-screen-specs.md` | «Прогресс ТЗ на экраны», label «ТЗ на экраны» | screen | the session, around each dispatch |
+| `ui-test-cases` write | `progress-test-cases.md` | «Прогресс тест-кейсов», label «Тест-кейсы» | section of the case set, plus «Без интерфейса» | the writer, as it finishes each section |
+| `ui-test-cases` run | `test-run.md` | «Прогресс прогона по кейсам», label «UI-тестирование» | case | the runner — `ui-test-cases` → Mode run |
+| `security-audit` | `security-audit.md` (the report itself) | «Аудит безопасности», label the same | scanner, area, the verify pass | the session — `security-audit` → `references/report.md` |
+| `repo-scaffold` | `progress-scaffold.md` | «Прогресс каркаса проекта», label «Каркас» | step | the session |
+| `work` | `progress.md` | «Прогресс выполнения плана», label «План» | unit, then fix | the session — `work` → `references/progress-file.md` |
+| `work` — mutation runs at the close | `progress-mutation.md` | «Прогресс мутационной проверки», label «Мутации» | part or share of the run, plus each part not measured | `scripts/progress_mutation.py` from the logs; the survivors section — the session (`work` → `references/health.md` → Progress) |
+| `deploy-topology` | `progress-deploy.md` | «Прогресс развёртывания», label «Релиз» | step | the session |
+
+The title is the file's first line, as the column says — a stage does not
+invent one («Прогресс сборки образов» was one). The label is the word the
+page's header and the chat line both use for the stage; it lives in
+`scripts/progress_page.py` (`FILES`) and `scripts/progress_link.py`
+(`LABEL`), the same in both (`check_plugin.py` compares them), and README
+calls the stage by the same word.
 
 The stages that only ask questions (`grill-me`, `doc-review`,
 `docs-consistency`) keep no file: the chat is their progress, and each
@@ -39,21 +46,36 @@ documents at once, so their rows moved in lockstep and told the user nothing.
   version first (`pipeline` → Service version) — on a fresh clone or work
   picked up from another person, from the iteration branch `where_am_i.py`
   names (`pipeline` → `references/team.md`).
-- **Shape.** The title «Прогресс … — итерация <version>»; right under it
+- **Shape.** The title from the table above; right under it
   the bar alone in a ```` ```text ```` block — a hundred cells, `█` done,
   `░` the rest, then the percent, ⌊done × 100 / total⌋ (`work` →
   `references/progress-file.md` → The progress bar); then the count line
-  with its label; then the table; under the table one state line ending
-  «обновлено YYYY-MM-DD HH:MM».
+  with its label; then the table; under the table one state line that
+  starts «Состояние: …» and ends «обновлено YYYY-MM-DD HH:MM». The state
+  line names what the stage is doing now and its closing check (the
+  review of the set, the quality gate, the final review's verdict), always
+  with that label: a line that lost it («Изменение devops-ready · release/0.1.0/
+  …») reads as a stray note. The one exception is `test-run.md`, whose
+  state line is the report's `Verdict:` line (`ui-test-cases` →
+  `references/run-report.md`). **The time is stamped by the scripts** —
+  `progress_set.py` for the section it sets, `progress_link.py` for the
+  file's line each time it prints the chat line — never typed by an agent:
+  typed by hand it was forgotten and stood hours behind the rows.
 - **The page.** Each progress file has its page beside it, the same name
   in `.html` (`progress-screen-specs.md` → `progress-screen-specs.html`):
-  the bar drawn as a bar, the count, the status counts — one per row of
+  the stage's label, the title, the bar drawn as a bar, the count, one
+  line under the bar saying what the bar measures («доля готовых задач»,
+  «доля кейсов, которые проходят», «по строкам: …» — so «20 из 20» beside
+  90% explains itself), the status counts — one per row of
   the main table, the first table with a «Статус» column under the file's
-  first bar, by the status's words («✅ прошёл: 144») — then the file in
+  first bar, by the status's words («✅ прошёл: 144») — the state line with
+  its label set off, then the file in
   full. **For the stage files whose rows are documents, screens or steps** —
   design, screen specs, test cases, scaffold, deploy, the
   audit — **the page computes the bar and the count from those rows itself**:
-  ✅ and ⏭ whole, 🔍 two thirds, 🔄 and 🔁 a third, ⏳ and ⛔ nothing. Measured:
+  ✅ and ⏭ whole, 🔍 two thirds, 🔄 and 🔁 a third, ⏳ and ⛔ nothing; the
+  count says «Готово: 6 из 11 · пропущено 5 · в работе 1» — «Готово»
+  counts only ✅, a skipped row is nothing left to do, not work done. Measured:
   agents changed the rows and left the bar, so these pages stood at 0% through
   whole stages. In those files only the rows matter; their bar line is not
   read. The plan's, the UI run's and the mutation run's bars are kept by their
@@ -85,7 +107,10 @@ documents at once, so their rows moved in lockstep and told the user nothing.
   yourself when there is one, and paste the line before the first step
   starts. A run resumed after a break or a context compaction rebuilds
   the rows from what is on disk, sets anything half-done back to
-  `⏳ ждёт`, and pastes the line again before it goes on.
+  `⏳ ждёт`, and pastes the line again before it goes on. The script
+  prints its warnings on stderr — a status word nobody defined, a bar that
+  disagrees with the count, no count line — and the stage fixes the file
+  before it pastes the line.
 - **After each item.** Every time an item is finished — its row reaches
   done, stopped or returned — run the script and paste its line, so a user
   who closed the page or stepped away reopens it from the last message,
@@ -111,13 +136,16 @@ documents at once, so their rows moved in lockstep and told the user nothing.
   `cat >`), and never by a script that rewrites the file on a timer: the
   page is rebuilt by the plugin's hook on Edit and Write only, so a file
   changed any other way is fresh on disk and stale on the page the user
-  watches. Three scripts are the exception, and all redraw the page
+  watches. Four scripts are the exception, and all redraw the page
   themselves: `progress_e2e.py` (`work` → `references/progress-file.md` →
   The e2e section), `progress_mutation.py` (the top of
-  `progress-mutation.md`, from the mutation logs) and
+  `progress-mutation.md`, from the mutation logs),
   `progress_set.py <file> <done> <total> [--section
-  "<heading>"]`, which sets the bar and the count line — never copy a
-  hundred-cell bar into an Edit by hand: one cell off and the Edit fails.
+  "<heading>"]`, which sets the bar, the count line and the section's
+  «обновлено» time — never copy a
+  hundred-cell bar into an Edit by hand: one cell off and the Edit fails —
+  and `progress_link.py`, which stamps the file's «обновлено» time as it
+  prints the chat line.
   Rows still change with Edit, after a fresh Read of the file. After a
   compaction this rule is the first one lost: re-read it before the next
   change of the file; `progress_link.py` names a bar that disagrees with the
@@ -162,7 +190,10 @@ documents at once, so their rows moved in lockstep and told the user nothing.
 
 Every row of every progress file — a unit, a screen, a document, a
 section, a scanner, a fix, a stand — uses only these seven. A stage may add
-a short detail after a colon (`🔄 в работе: печать`), never a new word or emoji. `🔍` names the kind of
+a short detail after a colon (`🔄 в работе: печать`), never a new word or emoji
+(`✅ закоммичен`, `✅ прошёл после исправления теста` were both seen: the page
+counted each apart from its status, and the user read a word nobody defined).
+`progress_link.py` names such a row on stderr; fix it before pasting the line. `🔍` names the kind of
 check instead of the word «проверка» when it has one: `🔍 ревью`, `🔍 аудит`, `🔍 разбор`:
 
 | Status | Means |
@@ -288,13 +319,13 @@ The page computes the bar from the rows (The page, above).
 | S-3 | Мои брони | 🔄 в работе | | |
 | S-4 | Переговорные | ⏳ ждёт | | |
 
-Ревью ТЗ: не запускалось · обновлено 2026-10-07 14:20
+Состояние: пишет screen-writer S-3 · ревью ТЗ не запускалось · обновлено 2026-10-07 14:20
 ````
 
 Statuses: `⏳ ждёт`, `🔄 в работе` (dispatched), `🔍 проверка` (the
 session's inspection), `✅ готово`, `🔁 возвращено: <что>`,
-`⛔ остановлено: <причина>`. The state line names the `doc-review` gate
-over the set: не запускалось → идёт → its verdict.
+`⛔ остановлено: <причина>`. The state line names what runs now and the
+`doc-review` gate over the set: ревью ТЗ не запускалось → идёт → its verdict.
 
 ### `ui-test-cases` write — `progress-test-cases.md`
 
@@ -339,16 +370,17 @@ counts the acceptance criteria listed there.
 | 5 | Точка входа | ⏳ ждёт |
 | 6 | Карта проекта | ⏳ ждёт |
 
-Проверка качества: не запускалась · обновлено 2026-10-07 14:20
+Состояние: шаг 4 · проверка качества не запускалась · обновлено 2026-10-07 14:20
 ````
 
 The rows are the stage's own steps: for `repo-scaffold` its sections 1–6,
-for `deploy-topology` one row per Step, 1–9 with 7a («Сборка образов»
+for `deploy-topology` (title «Прогресс развёртывания») one row per Step, 1–9 with 7a («Сборка образов»
 under Step 8 can run for minutes — its row says so while it runs). Statuses: `⏳ ждёт`,
 `🔄 в работе`, `✅ готово`, `⏭ пропущено: <почему>`, `⛔ остановлено:
-<причина>`. The state line carries the closing check: the quality gate for
+<причина>`. The state line, after «Состояние:», carries the step that runs and the closing check: the quality gate for
 the scaffold, the compose-contract tests and the release folder for the
-topology.
+topology («Состояние: шаг 8, сборка образов · compose-contract не
+запускались · обновлено …»).
 
 ### `work` mutation runs — `progress-mutation.md`
 

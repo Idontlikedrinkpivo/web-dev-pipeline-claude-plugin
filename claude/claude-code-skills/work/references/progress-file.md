@@ -24,17 +24,34 @@ no changelog, no `sources:`.
 
 | U | Цель | Исполнитель | Статус | Ревью |
 |---|---|---|---|---|
-| U1 | <goal from the plan> | impl-lite | ✅ готово | COMMIT |
-| U2 | … | impl-medium | ⛔ остановлено: <one-line reason> | — |
-| U3 | … | impl-hard | ⏳ ждёт | — |
+| U1 | <goal from the plan> | impl-lite | ✅ готово | принято с первого ревью (COMMIT) |
+| U2 | … | impl-medium | ✅ готово | исправлено после ревью (FIX_THEN_COMMIT: <что>) |
+| U3 | … | impl-medium | ⛔ остановлено: <one-line reason> | — |
+| U4 | … | impl-hard | ⏳ ждёт | — |
 
-Финальное ревью: <не запускалось | verdict of code-review-full> · BASE `<sha>` · обновлено <YYYY-MM-DD HH:MM>
+Состояние: <what runs now> · финальное ревью <не запускалось | verdict of code-review-full> · BASE `<sha>` · обновлено <YYYY-MM-DD HH:MM>
 ````
 
 Statuses: `⏳ ждёт`, `🔄 в работе`, `🔍 ревью`, `✅ готово`,
 `⛔ остановлено: <причина>`, `⏭ пропущено: вне объёма прогона`. Escalations add `(эскалация → impl-critical)` to the
-executor cell. The Ревью cell shows the unit review's path
-(`FIX_THEN_COMMIT (<что>) → исправлено`, `review-hard ×2: COMMIT`).
+executor cell. **The Ревью cell says the outcome in words, the verdict code
+in brackets after them** — the user reads the words, `reflect`'s
+`measure.py` reads the code:
+
+- `принято с первого ревью (COMMIT)`;
+- `исправлено после ревью (FIX_THEN_COMMIT: <что>)`;
+- `принято после двух кругов (review-hard ×2: COMMIT)`, `переделано
+  (RETURN_TO_EXECUTOR ×2 → COMMIT)`;
+- a fix after the final review: `исправлено в F1 · <sha>`.
+
+Never the code alone: a column of `COMMIT` and `FIX_THEN_COMMIT (текст
+ошибки) → исправлено` told the user nothing.
+
+The state line, as in every progress file (`pipeline` →
+`references/progress-files.md` → Shape), starts «Состояние:» and names
+what runs now (`U4 у impl-hard, U5 на ревью`), the final review's verdict
+path, and the base commit; its time is stamped by `progress_set.py` and
+`progress_link.py`, never typed.
 
 When a decision changes during the run (`pipeline` →
 `references/decision-changes.md`), a section «Изменённые решения» appears
@@ -71,8 +88,8 @@ the old version.
 Change it the moment a status changes, not in a batch at the commit:
 `🔄 в работе` when the unit is dispatched (with its executor), `🔍 ревью`
 when `code-review-unit` starts, `✅ готово` right after the unit's commit
-lands — and the progress bar line and the `Обновлено` time with each change.
-The bar and the count line are set by
+lands — and the progress bar line with each change.
+The bar, the count line and the «обновлено» time are set by
 `python3 "${CLAUDE_SKILL_DIR}/../pipeline/scripts/progress_set.py" documentation/plans/<version>/progress.md <done> <total>`
 (the fixes section: add `--section "## Исправления по финальному ревью"`), never by
 copying the bar into an Edit. A
@@ -140,7 +157,7 @@ python3 "${CLAUDE_SKILL_DIR}/../pipeline/scripts/progress_e2e.py" <that log> doc
 | `e2e/booking.spec.ts` | 31 | 0 | 0 | ✅ прошёл |
 | `e2e/admin.spec.ts` | 12 | 2 | 1 | ⛔ есть падения |
 
-Стенд: e2e-стенд, вход по паролю, образы HEAD · прогон идёт · обновлено 2026-10-23 19:20
+Состояние: прогон идёт · стенд: e2e-стенд, вход по паролю, образы HEAD · обновлено 2026-10-23 19:20
 ````
 
 The bar is the share of the suite that passed; a retried test counts once, by
@@ -155,7 +172,7 @@ When `code-review-full` returns anything but `PASS`, the fixes are planned in
 the file **before the first fix is dispatched**, so the user can follow them
 the same way as the units, and the progress line goes to the chat again
 before the first fix (`work` → Step 7). Add this section under the units table, set the
-`Финальное ревью:` line to the verdict:
+«финальное ревью» part of the «Состояние:» line to the verdict:
 
 ````markdown
 ## Исправления по финальному ревью
@@ -172,7 +189,7 @@ before the first fix (`work` → Step 7). Add this section under the units table
 | F2 | старый валидатор вместимости остался в HTTP-адаптере | P1 | RF1 (U2, U5) | mechanical-worker | ⏳ ждёт | — |
 | F3 | имя `roomCap` против `capacity` | P2 | — | — | ⏭ пропущено: в отчёт, не блокирует | — |
 
-Вердикт: RETURN_TO_UNIT · замечаний 3 (P1 — 2, P2 — 1) · повторное ревью: ждёт · обновлено <YYYY-MM-DD HH:MM>
+Состояние: вердикт RETURN_TO_UNIT · замечаний 3 (P1 — 2, P2 — 1) · повторное ревью: ждёт · обновлено <YYYY-MM-DD HH:MM>
 ````
 
 - **One row per finding**, in the review's order, with its severity. A
@@ -194,9 +211,9 @@ before the first fix (`work` → Step 7). Add this section under the units table
   section's bar and count, the update time), like a unit.
 - **The re-reviews** (`code-review-full` over each round's fix commits, until
   `PASS`): each round's verdict goes to «повторное ревью:» on the line under
-  the fixes table («круг 2: закрыто 2, осталось 1»), and the `Финальное
-  ревью:` line shows the path (`RETURN_TO_UNIT → исправлено → RETURN_TO_UNIT
-  → исправлено → PASS`). New findings of a round are added under the same
+  the fixes table («круг 2: закрыто 2, осталось 1»), and the «Состояние:»
+  line of the file shows the path («финальное ревью RETURN_TO_UNIT → исправлено → RETURN_TO_UNIT
+  → исправлено → PASS»). New findings of a round are added under the same
   table as `F4`, `F5`… When progress stops (`pipeline` →
   `references/convergence.md`): «Повторное ревью: <verdict> → остановлено,
   решает пользователь», the open rows `⛔ остановлено: ждёт решения`.

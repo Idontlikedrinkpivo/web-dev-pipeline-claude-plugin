@@ -11,8 +11,10 @@ acceptance) for compare.py, which compares several runs of two variants (reflect
 --progress (one per iteration whose progress file is still there) and --units (the iterations' git range, e.g.
 v2.1.2..HEAD) add «Принятие задач»: how many plan units passed their review the first time, how many went back,
 and what one accepted unit cost — executors and code review together, divided by the units accepted. From the
-progress file's Ревью column (`COMMIT` alone is the first time; `RETURN_…`, `FIX_THEN_COMMIT`, `×2`, `→` mean
-rounds). Each progress file read is also saved outside the project — ~/.claude/dev-pipeline-feedback/.acceptance/
+progress file's Ревью column — the words first, the code in brackets after them («принято с первого ревью
+(COMMIT)», «исправлено после ревью (FIX_THEN_COMMIT: …)»): `COMMIT` alone is the first time; `RETURN_…`,
+`FIX_THEN_COMMIT`, `×2`, `→`, «возвращ…», «эскалац…» mean rounds. Each progress file read is also saved outside
+the project — ~/.claude/dev-pipeline-feedback/.acceptance/
 <project>/<version>.txt — because reflect runs at the iteration's close before the cleanup removes the file; a
 later run reads the saved numbers for a version whose file is gone. Without either, from git — a unit with more
 than one commit carrying its Plan-Unit line was fixed after its commit.

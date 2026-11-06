@@ -61,7 +61,7 @@ def section(results: dict, total: int, stand: str, finished: bool) -> str:
     rows = []
     for file in sorted(files):
         c = files[file]
-        status = "⛔ есть падения" if c["fail"] else "✅ прошёл" if not c["skip"] else "✅ прошёл, есть пропуски"
+        status = "⛔ есть падения" if c["fail"] else "✅ прошёл" if not c["skip"] else "✅ прошёл: есть пропуски"
         rows.append(f"| `{file}` | {c['pass'] + c['flaky']} | {c['fail']} | {c['skip']} | {status} |")
     state = "закончен" if finished else "идёт"
     return "\n".join([
@@ -77,7 +77,7 @@ def section(results: dict, total: int, stand: str, finished: bool) -> str:
         "|---|---|---|---|---|",
         *rows,
         "",
-        f"Стенд: {stand or '—'} · прогон {state} · обновлено {now}",
+        f"Состояние: прогон {state} · стенд: {stand or '—'} · обновлено {now}",
         "",
     ])
 

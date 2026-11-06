@@ -18,8 +18,10 @@ dropped the flag — still starts or reuses the server, so the link never falls 
 The Codex build always uses HTTP: its local HTML file preview can be blocked.
 When HTTP was requested but cannot start, report the failure instead of a broken file link.
 
-A bar that disagrees with the count line (a file edited from the shell, so the page and the bar were not redrawn)
-is named on stderr; the line on stdout stays as it is.
+Before the line it stamps the «обновлено …» time of the file's state line (so nobody edits the time by hand) and
+rebuilds the page. On stderr, never on stdout: a bar that disagrees with the count line (a file edited from the
+shell, so the page and the bar were not redrawn), a row whose status is not one of the shared words (a detail
+belongs after the colon), a file with no count line under its bar.
 
 The count is the file's count line (the line under its bar, «Сделано: 3 из 6»), without its label; the label is
 the stage's name. Paste the line as printed — never write the link by hand. Standard library only.
@@ -34,13 +36,56 @@ from pathlib import Path
 HERE = Path(__file__).resolve().parent
 sys.path.insert(0, str(HERE))
 
-# the chat label per progress file (pipeline → references/progress-files.md → Which stages keep one)
+# the chat label per progress file (pipeline → references/progress-files.md → Which stages keep one) — the same
+# words as FILES in progress_page.py (check_plugin.py compares them)
 LABEL = {
     "progress.md": "План", "progress-design.md": "Макеты", "progress-screen-specs.md": "ТЗ на экраны",
-    "progress-test-cases.md": "Тест-кейсы", "test-run.md": "Проверка через интерфейс",
+    "progress-test-cases.md": "Тест-кейсы", "test-run.md": "UI-тестирование",
     "security-audit.md": "Аудит безопасности",
     "progress-scaffold.md": "Каркас", "progress-deploy.md": "Релиз", "progress-mutation.md": "Мутации",
 }
+
+# the words a status cell may start with, before any colon (pipeline → references/progress-files.md → Statuses);
+# a stage adds its detail after the colon, never a new word — the page counts rows by these words
+COMMON = {"⏳ ждёт", "🔄 в работе", "🔍 проверка", "🔍 ревью", "🔍 аудит", "🔍 разбор", "✅ готово", "🔁 возвращено",
+          "⛔ остановлено", "⏭ пропущено"}
+EXTRA = {
+    # the e2e section's rows, written by progress_e2e.py
+    "progress.md": {"✅ прошёл", "⛔ есть падения"},
+    # a test case's outcome in the run report (ui-test-cases → references/run-report.md → Statuses)
+    "test-run.md": {"✅ прошёл", "❌ не прошёл", "⛔ заблокирован", "⏭ не автоматизирован", "✅ тест исправлен, прошёл",
+                    "⛔ тест не удалось исправить", "❌ дефект приложения", "🖼 расхождение с макетом",
+                    "❓ пробел в ТЗ"},
+}
+
+
+def status_warnings(md: Path) -> list[str]:
+    """One warning per row whose status is not one of the allowed words — «✅ закоммичен», «✅ прошёл после
+    исправления теста»: the page counts it apart from «✅ прошёл», and the user reads a status nobody defined."""
+    allowed = COMMON | EXTRA.get(md.name, set())
+    out = []
+    col = None
+    for line in md.read_text(encoding="utf-8", errors="replace").splitlines():
+        if not line.lstrip().startswith("|"):
+            col = None
+            continue
+        cells = [c.strip() for c in line.strip().strip("|").split("|")]
+        if re.match(r"^\s*\|[\s:|-]+\|\s*$", line):
+            continue
+        if col is None:
+            col = next((k for k, c in enumerate(cells) if c.startswith("Статус")), -1)
+            continue
+        if col < 0 or col >= len(cells):
+            continue
+        cell = re.sub(r"[*`]", "", cells[col])
+        if not cell or cell[:1].isalnum() or cell in ("—", "-"):
+            continue
+        label = re.split(r":|\s·\s", cell, 1)[0].strip()   # as progress_page.status_word reads it
+        if label not in allowed:
+            out.append(f"progress_link: row «{cells[0]}» has the status «{cell}» — not one of the statuses every "
+                       f"progress file shares; use one of them and put the detail after a colon "
+                       f"(pipeline → references/progress-files.md → Statuses)")
+    return out
 
 
 def rebuild(md: Path) -> None:
@@ -50,6 +95,19 @@ def rebuild(md: Path) -> None:
         progress_page.page(md)
     except Exception:
         subprocess.run([sys.executable, str(HERE / "progress_page.py"), str(md)], capture_output=True)
+
+
+def stamp_time(md: Path) -> None:
+    """Set the «обновлено …» of the file's state line to now — this script runs after every finished item, so the
+    time is the last report's, and no agent edits it by hand. A failure never blocks the line."""
+    try:
+        import progress_page
+        text = md.read_text(encoding="utf-8", errors="replace")
+        new = progress_page.stamp(text)
+        if new != text:
+            md.write_text(new, encoding="utf-8")
+    except Exception:
+        pass
 
 
 def count_of(md: Path) -> str:
@@ -138,7 +196,13 @@ def main() -> None:
         sys.exit(f"progress_link: no progress file {md}")
     md = md.resolve()
     count = args[args.index("--count") + 1] if "--count" in args else count_of(md)
+    stamp_time(md)
     rebuild(md)
+    for w in status_warnings(md):
+        print(w, file=sys.stderr)
+    if not count and md.name not in DERIVED_NAMES:
+        print("progress_link: no count line under the bar («Сделано: N из M») — the page's bar stays empty; add it "
+              "with progress_set.py", file=sys.stderr)
     page = md.with_suffix(".html")
     marker = md.parent / ".progress-desktop"
     # Codex-only: native file previews can block HTML. This build must use HTTP

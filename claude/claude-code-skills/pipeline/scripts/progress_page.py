@@ -22,14 +22,39 @@ here = Path(__file__).resolve().parent
 sys.path.insert(0, str(here.parent.parent / "docs-site" / "scripts"))
 import mdhtml  # noqa: E402
 
-# the files the stages keep (pipeline → references/progress-files.md), with the stage's name
+# the files the stages keep (pipeline → references/progress-files.md), with the stage's name — the same words as
+# LABEL in progress_link.py (check_plugin.py compares them): the page's header and the chat line name one stage alike
 FILES = {
     "progress-design.md": "Макеты", "progress-screen-specs.md": "ТЗ на экраны",
-    "progress-test-cases.md": "Тест-кейсы", "progress-scaffold.md": "Каркас", "progress.md": "Код",
-    "test-run.md": "Проверка через интерфейс", "security-audit.md": "Аудит безопасности",
+    "progress-test-cases.md": "Тест-кейсы", "progress-scaffold.md": "Каркас", "progress.md": "План",
+    "test-run.md": "UI-тестирование", "security-audit.md": "Аудит безопасности",
     "progress-deploy.md": "Релиз", "progress-mutation.md": "Мутации",
 }
 STATUS = ["✅", "❌", "🔄", "🔍", "⏳", "🔁", "⛔", "⏭", "🖼", "❓"]
+# what the file's own bar measures — one line under it on the page, so «20 из 20» beside 90% explains itself
+HINT = {
+    "progress.md": "доля готовых задач", "progress-mutation.md": "доля проверенных мутантов",
+    "test-run.md": "доля кейсов, которые проходят",
+}
+DERIVED_HINT = "по строкам: готово и пропущено — целиком, на проверке — две трети, в работе — треть"
+# a section's bar, by its heading
+SECTION_HINT = [(r"e2e", "доля успешных тестов"), (r"исправлени", "доля исправленных замечаний"),
+                (r"разбор", "доля разобранных кейсов"), (r"прогон|повтор|общий итог", "доля кейсов, которые проходят")]
+
+
+def hint(name: str, label: str = "") -> str:
+    """The one line under a bar that says what it measures: the file's own bar by its name, a section's by its
+    heading; "" when there is nothing to say."""
+    if label:
+        low = label.lower()
+        return next((h for pat, h in SECTION_HINT if re.search(pat, low)), "")
+    return DERIVED_HINT if name in DERIVED else HINT.get(name, "")
+
+
+def status_word(cell: str) -> str:
+    """The status's words alone: «✅ готово: 8 из 8» and «✅ готово · release/0.1.0/» are both «✅ готово». The rule
+    is a colon before the detail; a « · » is read the same way, so a row written that way is still counted right."""
+    return re.split(r":|\s·\s", cell, 1)[0].strip()
 
 
 def status_counts(lines: list[str], lo: int = 0, hi: int | None = None) -> list[tuple[str, int]]:
@@ -52,7 +77,7 @@ def status_counts(lines: list[str], lo: int = 0, hi: int | None = None) -> list[
                 for r in rows:
                     cell = r[col] if col < len(r) else ""
                     if cell[:1] and not cell[:1].isalnum():
-                        label = cell.split(":")[0].strip()
+                        label = status_word(cell)
                         counts[label] = counts.get(label, 0) + 1
                 order = {e: n for n, e in enumerate(STATUS)}
                 return sorted(counts.items(), key=lambda kv: (order.get(kv[0][:1], len(STATUS)), -kv[1]))
@@ -97,8 +122,11 @@ def derived(text: str) -> tuple[int, str] | None:
             if not marks:
                 return None
             pct = int(sum(WEIGHT[m] for m in marks) * 100 // len(marks))
-            done = sum(1 for m in marks if m in "✅⏭")
-            extra = [f"{w} {n}" for w, n in (("в работе", sum(1 for m in marks if m in "🔄🔁")),
+            # «Готово» counts only ✅: a skipped row is nothing left to do, so the bar takes it whole, but it is not
+            # work done — «6 из 11 · пропущено 5» instead of «11 из 11» over a file whose own line said 6
+            done = marks.count("✅")
+            extra = [f"{w} {n}" for w, n in (("пропущено", marks.count("⏭")),
+                                              ("в работе", sum(1 for m in marks if m in "🔄🔁")),
                                               ("на проверке", marks.count("🔍")), ("остановлено", marks.count("⛔")))
                      if n]
             return pct, f"Готово: {done} из {len(marks)}" + (" · " + " · ".join(extra) if extra else "")
@@ -126,8 +154,20 @@ def bars(text: str) -> list[dict]:
                 count = re.sub(r"[*`]", "", x)
                 break
         out.append({"label": label, "pct": int(m.group(1)), "count": count,
-                    "chips": status_counts(lines, i, nxt)})
+                    "chips": status_counts(lines, i, nxt), "hint": hint("", label)})
     return out
+
+
+UPDATED = re.compile(r"обновлено\s+\d{4}-\d{2}-\d{2} \d{2}:\d{2}(?::\d{2})?")
+
+
+def stamp(text: str, start: int = 0) -> str:
+    """The text with the first «обновлено YYYY-MM-DD HH:MM» after `start` set to now — the state line of the file
+    (start 0) or of the section a script just changed. The scripts stamp it (progress_set.py, progress_link.py) so
+    no agent edits the time by hand and forgets it."""
+    now = dt.datetime.now().strftime("%Y-%m-%d %H:%M")
+    m = UPDATED.search(text, start)
+    return text if not m else text[: m.start()] + f"обновлено {now}" + text[m.end():]
 
 
 CSS = """
@@ -139,8 +179,9 @@ h1{font-size:24px;line-height:1.25;margin:4px 0 16px}.head{background:var(--card
 .head>.lbl{font-size:13px;font-weight:600;color:var(--muted);margin-bottom:2px}.row{display:flex;align-items:baseline;justify-content:space-between;gap:12px}.count{font-weight:600}.pct{font-size:28px;font-weight:700;font-variant-numeric:tabular-nums}
 .track{height:12px;background:var(--bar);border-radius:7px;overflow:hidden;margin:10px 0}.fill{height:100%;background:var(--done);border-radius:7px}
 .chips{display:flex;flex-wrap:wrap;gap:6px;font-size:13px;color:var(--muted)}.chips span{background:var(--bar);border-radius:999px;padding:2px 10px}
-.sub{color:var(--muted);font-size:12.5px;margin-top:10px}.runs{margin-top:14px;border-top:1px solid var(--line);padding-top:10px;display:grid;gap:10px}
-.run .lbl{font-size:13px;font-weight:600}.run .cnt{font-size:13px;color:var(--muted)}.run .track{height:8px;margin:5px 0}.run .chips{font-size:12px}.body{overflow-x:auto}.body h1{display:none}.body h2{font-size:18px;margin:28px 0 10px}.body h3{font-size:16px}
+.hint{color:var(--muted);font-size:12.5px;margin:-4px 0 8px}.state{font-size:14px;margin-top:10px}.state b{font-weight:600;color:var(--muted)}
+.sub{color:var(--muted);font-size:12.5px;margin-top:6px}.runs{margin-top:14px;border-top:1px solid var(--line);padding-top:10px;display:grid;gap:10px}
+.run .lbl{font-size:13px;font-weight:600}.run .cnt{font-size:13px;color:var(--muted)}.run .track{height:8px;margin:5px 0}.run .chips{font-size:12px}.run .hint{margin:0 0 4px}.body{overflow-x:auto}.body h1{display:none}.body h2{font-size:18px;margin:28px 0 10px}.body h3{font-size:16px}
 table{border-collapse:collapse;width:100%;font-size:14px;background:var(--card)}th,td{border-bottom:1px solid var(--line);padding:7px 9px;text-align:left;vertical-align:top}
 th{color:var(--muted);font-weight:600;white-space:nowrap}pre{background:var(--bar);padding:8px 10px;border-radius:6px;overflow-x:auto;font-size:12px}code{font-size:.92em}
 a{color:var(--acc)}.hash{display:none}
@@ -158,7 +199,8 @@ def percent(text: str) -> int | None:
 
 
 def lines_of(text: str) -> tuple[str, str]:
-    """The count line (right under the bar's block) and the state line («… обновлено …»)."""
+    """The count line (right under the bar's block) and the state line — the last line outside a table that carries
+    «обновлено …», which every file's «Состояние: …» line does (test-run.md: its `Verdict:` line)."""
     lines = [l.strip() for l in text.splitlines() if l.strip()]
     count = ""
     for i, l in enumerate(lines):
@@ -187,12 +229,18 @@ def page(md: Path) -> None:
     found = bars(text)
     chip = lambda cs: "".join(f"<span>{html.escape(label)}: {n}</span>" for label, n in cs)
     chips = chip(found[0]["chips"]) if found else chip(status_counts(text.splitlines(), 0, len(text.splitlines())))
+    hint_div = lambda h: f"<div class=hint>{html.escape(h)}</div>" if h else ""
     runs = "".join(
         f'<div class="run"><div class="row"><div class="lbl">{html.escape(b["label"] or "—")}</div>'
         f'<div class="lbl">{b["pct"]}%</div></div><div class="cnt">{html.escape(b["count"])}</div>'
         f'<div class="track"><div class="fill" style="width:{b["pct"]}%"></div></div>'
+        f'{hint_div(b["hint"])}'
         f'<div class="chips">{chip(b["chips"])}</div></div>' for b in found[1:])
     lead = (found[0]["label"] or "Общий итог") if len(found) > 1 else ""
+    what = hint(md.name) or (hint("", lead) if lead else "")
+    # the state line under the table, with its label set off: «Состояние: …», or the run report's «Verdict: …»
+    sm = re.match(r"^(Состояние|Verdict|Вердикт)\s*:\s*(.*)$", state)
+    state_html = (f"<b>{html.escape(sm.group(1))}:</b> {html.escape(sm.group(2))}" if sm else html.escape(state))
     # the bar and the count line are drawn in the header, not repeated in the body
     body_md = re.sub(r"```text\n[█░\s\d%]+\n```\n*", "", text, count=1)
     # the header already shows the count and the state: their lines leave the body — the file's own count too, which
@@ -215,9 +263,11 @@ def page(md: Path) -> None:
            f'<div class="row"><div class="count">{html.escape(count)}</div>'
            f'<div class="pct">{"—" if pct is None else f"{pct}%"}</div></div>'
            f'<div class="track"><div class="fill" style="width:{width}%"></div></div>'
+           f'{hint_div(what)}'
            f'<div class="chips">{chips}</div>'
            f'{f"<div class=runs>{runs}</div>" if runs else ""}'
-           f'<div class="sub">{html.escape(state)}{" · " if state else ""}страница обновляется сама каждые 5 секунд · '
+           f'{f"<div class=state>{state_html}</div>" if state else ""}'
+           f'<div class="sub">страница обновляется сама каждые 5 секунд · '
            f'собрана {now} из <a href="{html.escape(md.name)}">{html.escape(md.name)}</a></div></div>'
            f'<div class="body">{body}</div></main></body></html>')
     out = md.with_suffix(".html")

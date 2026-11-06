@@ -318,8 +318,9 @@ is particular to code: a `FIX_THEN_COMMIT` fix by `mechanical-worker` is
 confirmed by the orchestrator's own check; at `impl-critical`, when the
 premise check finds the approach itself false (or cannot tell), the next round
 is two approaches from one base, picked by the tests
-(`references/two-approaches.md`); the Ревью cell shows the rounds
-(`RETURN_TO_EXECUTOR ×2 → COMMIT`).
+(`references/two-approaches.md`); the Ревью cell shows the rounds in words
+with the code after them (`переделано (RETURN_TO_EXECUTOR ×2 → COMMIT)`,
+`references/progress-file.md`).
 
 **A fix after a commit** (from a Low batch or the final review) — a new commit on top, by the executor the verdict
 names, with its trailer: `references/fixes-and-decisions.md` → A fix after a commit, read when one is due.
@@ -362,7 +363,7 @@ Anything but `PASS`: the fix rounds of `references/close.md` → Fixes after the
 lists every fix before the first one, each fix lands like a unit, and `code-review-full` re-reviews only each
 round's fix commits until `PASS`, while each round makes progress.
 
-**Close.** Write the verdict path into the `Финальное ревью:` line
+**Close.** Write the verdict path into the «Состояние:» line's «финальное ревью»
 (`RETURN_TO_UNIT → исправлено → PASS`, or plain `PASS`), write the run
 report (`references/run-report.md` — read it now) with the addressed questions settled (each row marked
 `Решено: <где>`), stop every watcher the run started, and delete `resume.md`. The run's last message is the progress line,
