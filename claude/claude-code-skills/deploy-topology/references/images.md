@@ -82,22 +82,25 @@ Dockerfiles, per `pipeline` → `references/question-format.md`:
 В образе без оболочки нет `sh`, утилит и пакетного менеджера: зайти в
 контейнер командой `docker exec … sh` нельзя, зато сканер находит в нём
 меньше уязвимостей, а платформы с правилом «образ без оболочки» его
-принимают. Приложение работает одинаково (`distroless` — образ только с
-рантаймом: Node или Python, без утилит ОС).
+принимают. Приложение работает одинаково, а настройки фронта задаются
+переменными только в образе с оболочкой; без неё это смонтированный файл
+(`distroless` — образ только с рантаймом: Node или Python, без утилит ОС).
 
   A. Без оболочки — distroless; проверки делает сам рантайм или кластер.
-  B. С оболочкой — alpine / slim; тоже без root и с защитой контейнера.
+  B. С оболочкой — alpine / slim; тоже без root и с защитой контейнера. (рекомендую)
 
-Рекомендую A: <платформа, куда уходит сервис, требует образ без оболочки>.
+Рекомендую B: проверка образа перед размещением часто заходит в него через
+`sh`, а фронт настраивается обычными переменными окружения.
 
 Ответьте сообщением: буква или свой текст.
 ```
 
-«(рекомендую)» goes on A, with that reason, when the user or their
-platform's requirements say images go to a platform with such a rule;
-otherwise say any answer is fine. Write the answer into the progress
-file's Step 2 row at once («Образ: без оболочки»), and into the card in
-Step 8 («Образ: без оболочки» | «Образ: с оболочкой»).
+B is the default recommendation: a platform's preflight often lists an image through `--entrypoint sh`, and a
+`preStop` that runs `sleep` inside the container needs that binary. «(рекомендую)» moves to A, with the reason
+«<платформа, куда уходит сервис, требует образ без оболочки>», only when the user or their platform's requirements
+say so. Write the answer into the progress
+file's Step 2 row at once («Образ: с оболочкой»), and into the card in
+Step 8 («Образ: с оболочкой» | «Образ: без оболочки»).
 
 ## Checking a tag
 
