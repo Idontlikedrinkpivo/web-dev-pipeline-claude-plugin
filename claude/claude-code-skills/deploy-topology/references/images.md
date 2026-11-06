@@ -413,7 +413,8 @@ RUN npm run build                                  # → /app/dist
 
 FROM nginxinc/nginx-unprivileged:<version>-alpine-slim
 ENV NGINX_ENVSUBST_OUTPUT_DIR=/tmp NGINX_ENTRYPOINT_LOCAL_RESOLVERS=1 \
-    LOG_LEVEL=notice TRUSTED_PROXY_CIDR=127.0.0.1/32
+    LOG_LEVEL=notice TRUSTED_PROXY_CIDR=127.0.0.1/32 \
+    MAX_BODY_SIZE=<from the NFR> CLIENT_TIMEOUT=<from the NFR> BACKEND_TIMEOUT=<from the NFR>
 COPY nginx/ /etc/nginx/
 COPY --from=build /app/dist /usr/share/nginx/html
 ARG APP_VERSION=dev CI_COMMIT_SHORT_SHA=unknown
@@ -432,12 +433,11 @@ write-time values filled:
 |---|---|---|
 | `<<SERVICE>>` | `nginx.conf`, three log formats | `<project>-frontend` |
 | `<<CONF_DIR>>` | `nginx.conf`, `default`, `plain`, `secure`, `runtime` templates | `/tmp` with a shell (rendered at start); `/etc/nginx/conf.d` without one (rendered at build) |
-| `<<MAX_BODY_SIZE>>` | `default.conf.template` | the SRS NFR for the largest upload (`4G`), through foundation §1 «Решения по NFR» |
-| `<<CLIENT_TIMEOUT>>` | `default.conf.template` | the NFR for the longest client request or upload (`600s`) |
-| `<<BACKEND_TIMEOUT>>` | `default.conf.template` | the NFR for the longest backend response (`600s`) |
 
-When the SRS names no such NFR, write nginx's defaults (`1m`, `60s`,
-`60s`) and say so in the report — never another project's values. The
+The Dockerfile's `ENV` holds the defaults of the three limits, from foundation §1 «Решения по NFR»: `MAX_BODY_SIZE`
+from the NFR for the largest upload (`4G`), `CLIENT_TIMEOUT` from the longest client request or upload (`600s`),
+`BACKEND_TIMEOUT` from the longest backend response (`600s`). When the SRS names no such NFR, write nginx's defaults
+(`1m`, `60s`, `60s`) and say so in the report — never another project's values. The
 body limit covers the request as sent: a file sent as base64 inside JSON
 is a third larger than the file, so size the limit to the encoded body and
 say so. A Content-Security-Policy is added only when foundation §1
@@ -453,6 +453,9 @@ environment and `/tmp` is the only path it writes:
 | `BACKEND_PROTOCOL` | `http` or `https` to the backend; `https` verifies the certificate against a mounted `/etc/nginx/ssl/backend-ca.pem` and does not start without it | `http` | `http` (same network) |
 | `LOG_LEVEL` | nginx's error log: `debug`, `info`, `notice`, `warn`, `error`, `crit` | `notice` | `notice` |
 | `TRUSTED_PROXY_CIDR` | the network of the proxy in front: `X-Forwarded-For` is believed only from it | `127.0.0.1/32` | the operators' ingress network |
+| `MAX_BODY_SIZE` | the largest request body, nginx's size format (`1m`, `4G`); a larger one gets 413 | the image's default | the image's default, or the operators' value agreed with their ingress |
+| `CLIENT_TIMEOUT` | how long nginx waits between reads and writes to the client (`600s`) | the image's default | the same |
+| `BACKEND_TIMEOUT` | how long nginx waits to connect to, write to and read from the backend (`600s`) | the image's default | the same |
 | `SECURE_MODE` | `plain` — HTTP on 8080; `secure` — TLS 1.2/1.3 and HTTP/2 on 8080 with `/etc/nginx/ssl/fullchain.pem` and `privkey.pem` mounted read-only | `plain` | `plain` behind the operator's TLS terminator; `secure` when this nginx terminates TLS itself |
 
 - `/api/` is proxied to the backend on the same origin, with the
@@ -478,7 +481,7 @@ environment and `/tmp` is the only path it writes:
 - Health: `/_healthz` on port 8081, outside the access log; the frontend's
   own check, not the backend's.
 - Read-only root: nginx writes its pid, temp files and rendered config under `/tmp` only. A file uploaded through
-  it is buffered there first, so the `/tmp` volume is at least `<<MAX_BODY_SIZE>>`; DEPLOY.md says so.
+  it is buffered there first, so the `/tmp` volume is at least `MAX_BODY_SIZE`; DEPLOY.md says so.
 - Access log: one JSON line per request on stdout (`json_combined`) with `logger` and `msg`, the path without its
   query string and no credential header. `json_detailed` and `json_debug` stay defined for switching. The error log
   is nginx's own plain text on stderr, which nginx cannot change; DEPLOY.md's «Логи» says so.
@@ -506,9 +509,12 @@ ARG SECURE_MODE=plain
 ARG LOG_LEVEL=notice
 ARG TRUSTED_PROXY_CIDR=127.0.0.1/32
 ARG NGINX_LOCAL_RESOLVERS=127.0.0.11               # Docker's DNS: the compose stand; a cluster mounts its own upstream.conf
+ARG MAX_BODY_SIZE=<from the NFR>
+ARG CLIENT_TIMEOUT=<from the NFR>
+ARG BACKEND_TIMEOUT=<from the NFR>
 COPY nginx/templates/ /tmp/templates/
 RUN mkdir -p /tmp/conf.d && for t in /tmp/templates/*.template; do \
-      envsubst '${BACKEND_SERVICE} ${BACKEND_PROTOCOL} ${SECURE_MODE} ${LOG_LEVEL} ${TRUSTED_PROXY_CIDR} ${NGINX_LOCAL_RESOLVERS}' \
+      envsubst '${BACKEND_SERVICE} ${BACKEND_PROTOCOL} ${SECURE_MODE} ${LOG_LEVEL} ${TRUSTED_PROXY_CIDR} ${NGINX_LOCAL_RESOLVERS} ${MAX_BODY_SIZE} ${CLIENT_TIMEOUT} ${BACKEND_TIMEOUT}' \
         < "$t" > "/tmp/conf.d/$(basename "$t" .template)"; \
     done
 
@@ -531,8 +537,8 @@ EXPOSE 8080
   (nginx's config test, through its entrypoint) — it fails on a missing
   `mime.types` or include.
 - **What depends on the environment comes as a mounted file.** A shell-less image reads no variables, so in a
-  cluster the operators mount `/etc/nginx/conf.d/upstream.conf`: its DNS server, the backend's full name and the
-  proxy's network (DEPLOY.md gives the file). Built in are only the compose stand's values. TLS inside the
+  cluster the operators mount `/etc/nginx/conf.d/upstream.conf`: its DNS server, the backend's full name, the
+  proxy's network and the limits (DEPLOY.md gives the file). Built in are only the compose stand's values. TLS inside the
   container (`SECURE_MODE=secure`) needs a rebuild with that build argument.
 - Only `/tmp` needs to be writable (the config is already in the image).
   No compose healthcheck (table above); `frontend`'s compose

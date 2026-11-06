@@ -6,20 +6,10 @@
     root /usr/share/nginx/html;
     index index.html;
 
-    # Максимальный размер загружаемого файла и таймауты — из NFR SRS (<<…>> подставляются при записи файла)
-    client_max_body_size <<MAX_BODY_SIZE>>;
+    # Размер загрузки и таймауты клиента и бэкенда — переменные среды, в upstream.conf
     client_body_buffer_size 128k;
-
-    # Таймауты
-    client_body_timeout <<CLIENT_TIMEOUT>>;
     client_header_timeout 120s;
     keepalive_timeout 65;
-    send_timeout <<CLIENT_TIMEOUT>>;
-
-    # Таймауты для бэкенда
-    proxy_connect_timeout <<BACKEND_TIMEOUT>>;
-    proxy_send_timeout <<BACKEND_TIMEOUT>>;
-    proxy_read_timeout <<BACKEND_TIMEOUT>>;
 
     # Оптимизация производительности
     sendfile on;

@@ -1210,5 +1210,39 @@
       }
     },
     "fix": "deploy-topology → references/deploy-doc.md: дописать разделы по шаблону и источникам из таблицы, остальное в документе не трогать; затем sync-тест проекта."
+  },
+  {
+    "id": "nginx-limits-in-env",
+    "version": "1.2.284",
+    "title": "Размер загрузки и таймауты фронта — переменные",
+    "kind": "code",
+    "what": "Размер загрузки и таймауты nginx задаются переменными MAX_BODY_SIZE, CLIENT_TIMEOUT и BACKEND_TIMEOUT, значения по умолчанию лежат в Dockerfile. Раньше они записывались в файл настроек один раз, и для другого лимита приходилось пересобирать образ.",
+    "applies": {
+      "any": [
+        {
+          "exists": "nginx/nginx.conf"
+        },
+        {
+          "exists": "*/nginx/nginx.conf"
+        }
+      ]
+    },
+    "behind": {
+      "any": [
+        {
+          "grep": {
+            "path": "nginx/templates/default.conf.template",
+            "pattern": "^\\s*client_max_body_size\\s"
+          }
+        },
+        {
+          "grep": {
+            "path": "*/nginx/templates/default.conf.template",
+            "pattern": "^\\s*client_max_body_size\\s"
+          }
+        }
+      ]
+    },
+    "fix": "deploy-topology → assets/nginx и references/images.md → Frontend image: перенести client_max_body_size и таймауты из default.conf.template в upstream.conf.template как переменные, прежние значения записать в ENV Dockerfile, добавить переменные в таблицу frontend в deploy.md и в .env.example. Проверка: scripts/image_preflight.py stand."
   }
 ]

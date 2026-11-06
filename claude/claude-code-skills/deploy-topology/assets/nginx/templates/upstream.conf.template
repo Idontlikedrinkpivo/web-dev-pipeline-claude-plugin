@@ -1,4 +1,4 @@
-# Адрес бэкенда, DNS-сервер и доверенный прокси — всё, что зависит от среды.
+# Адрес бэкенда, DNS-сервер, доверенный прокси, размер загрузки и таймауты — всё, что зависит от среды.
 # Без блока upstream: с ним nginx ищет адрес один раз при старте и падает, если бэкенда ещё нет.
 resolver ${NGINX_LOCAL_RESOLVERS} valid=10s;
 
@@ -10,3 +10,11 @@ map $host $backend_upstream {
 set_real_ip_from ${TRUSTED_PROXY_CIDR};
 real_ip_header X-Forwarded-For;
 real_ip_recursive on;
+
+# Лимит согласуется с лимитом прокси перед этим контейнером: действует меньший
+client_max_body_size ${MAX_BODY_SIZE};
+client_body_timeout ${CLIENT_TIMEOUT};
+send_timeout ${CLIENT_TIMEOUT};
+proxy_connect_timeout ${BACKEND_TIMEOUT};
+proxy_send_timeout ${BACKEND_TIMEOUT};
+proxy_read_timeout ${BACKEND_TIMEOUT};

@@ -386,6 +386,7 @@ Present in all three files, after `backend`. The image is the SPA image of
       SECURE_MODE: plain                # prod: plain behind the operator's TLS terminator, or secure + certs below
       LOG_LEVEL: notice
       TRUSTED_PROXY_CIDR: 127.0.0.1/32  # prod: the network of the proxy in front
+      # MAX_BODY_SIZE, CLIENT_TIMEOUT, BACKEND_TIMEOUT: the image's defaults from the NFRs; prod names them with their values
     # prod with SECURE_MODE=secure only:
     # volumes:
     #   - ${TLS_CERT_DIR}:/etc/nginx/ssl:ro    # fullchain.pem, privkey.pem
@@ -427,10 +428,11 @@ up-test:   build + start docker-compose.test.yml, --wait, then remove exited one
 up-dev:    same, docker-compose.dev.yml
 up-prod:   same, docker-compose.prod.yml (removes only migrate; no <object-store>-init in prod)
 
-env-test:  copy .env.example -> .env.test.local if absent, patch known test-safe keys
-env-dev:   copy .env.example -> .env.dev.local if absent, patch known dev-shape keys, remind to fill real credentials
-env-prod:  copy .env.example -> .env.prod.local if absent, patch known prod-shape keys, create .env.prod.migrate.local
-           with an empty DATABASE_URL, remind to fill real secrets and both accounts
+env:       scripts/env_files.py . build: .env.test.local, .env.dev.local and documentation/deploy/prod.env.example from
+           the one template, a filled secret kept; never written or patched by hand. Remind to fill dev's real credentials
+env-prod:  only to run the prod shape locally: copy the built prod.env.example -> .env.prod.local if absent, create
+           .env.prod.migrate.local with an empty DATABASE_URL, remind to fill real secrets and both accounts; the
+           non-secret values change in .env.example, then `env` and this again
 ```
 
 One-shot containers (`migrate`, `<object-store>-init`) stay declared in the
@@ -466,7 +468,8 @@ CI instead of shipping:
   block is left: a name resolved once at the start kills the container when the backend is not up. With a shell,
   `frontend`'s healthcheck reaches `:8081/_healthz` and its environment
   sets `BACKEND_SERVICE`, `BACKEND_PROTOCOL`, `SECURE_MODE`, `LOG_LEVEL` and `TRUSTED_PROXY_CIDR`, its Dockerfile
-  sets `NGINX_ENVSUBST_OUTPUT_DIR=/tmp`, and `/etc/nginx/conf.d` is in no `tmpfs`; without
+  sets `NGINX_ENVSUBST_OUTPUT_DIR=/tmp` and the defaults of `MAX_BODY_SIZE`, `CLIENT_TIMEOUT` and `BACKEND_TIMEOUT`,
+  and `/etc/nginx/conf.d` is in no `tmpfs`; without
   one, it has neither and its Dockerfile renders the templates at build.
 - `scripts/build-images.sh` passes `--platform "$PLATFORM"` and both `--build-arg`s, saves to
   `release/<APP_VERSION>/<project>-<APP_VERSION>.tar`, and puts

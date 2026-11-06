@@ -178,6 +178,9 @@ requests — обычное значение, округлённое вверх;
 | BACKEND_PROTOCOL | да | нет | `http` или `https` | протокол до бэкенда; `https` проверяет сертификат по файлу `/etc/nginx/ssl/backend-ca.pem`, без файла контейнер не стартует |
 | LOG_LEVEL | нет | нет | `notice`; допустимо `debug`, `info`, `notice`, `warn`, `error`, `crit` | подробность журнала ошибок |
 | TRUSTED_PROXY_CIDR | нет | нет | `10.0.0.0/8`; по умолчанию `127.0.0.1/32` — не доверять никому | сеть внешнего прокси: от неё принимается `X-Forwarded-For` |
+| MAX_BODY_SIZE | нет | нет | `4G`; по умолчанию из требований | самый большой запрос. Больше — ответ 413. Лимит вашего ingress не ниже этого значения, иначе действует меньший |
+| CLIENT_TIMEOUT | нет | нет | `600s`; по умолчанию из требований | сколько nginx ждёт клиента между чтением и записью |
+| BACKEND_TIMEOUT | нет | нет | `600s`; по умолчанию из требований | сколько nginx ждёт бэкенд. Таймауты вашего ingress — не меньше |
 | SECURE_MODE | да | нет | `plain` или `secure` | `plain` — HTTP, TLS на прокси эксплуатации; `secure` — TLS в самом контейнере, сертификаты в `/etc/nginx/ssl/`. Другое значение — nginx не стартует |
 
 ## Внешние зависимости
@@ -260,7 +263,7 @@ ALTER DEFAULT PRIVILEGES FOR ROLE <schema>_migrate IN SCHEMA <schema>
 | Контейнер | runAsUser | Пишет на диск | Объём |
 |---|---|---|---|
 | backend, migrate | 1000 | только `/tmp` | до 16Mi |
-| frontend | 101 | только `/tmp` | до 16Mi плюс самый большой загружаемый файл: nginx сначала складывает его сюда |
+| frontend | 101 | только `/tmp` | до 16Mi плюс `MAX_BODY_SIZE`: nginx сначала складывает загружаемый файл сюда |
 
 Для всех: `runAsNonRoot: true`; `readOnlyRootFilesystem: true` с `emptyDir` на каждый путь из
 таблицы; `allowPrivilegeEscalation: false`; capabilities — drop ALL; `seccompProfile: RuntimeDefault`.
@@ -344,6 +347,13 @@ map $host $backend_upstream {
 set_real_ip_from <сеть внешнего прокси>;
 real_ip_header X-Forwarded-For;
 real_ip_recursive on;
+
+client_max_body_size <размер>;
+client_body_timeout <время>;
+send_timeout <время>;
+proxy_connect_timeout <время>;
+proxy_send_timeout <время>;
+proxy_read_timeout <время>;
 ```
 
 **Probe timings.** Liveness: timeout 2 s, period 10 s, failure threshold 3.
