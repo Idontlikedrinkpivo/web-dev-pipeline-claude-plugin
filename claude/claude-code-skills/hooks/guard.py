@@ -20,7 +20,9 @@ Refused:
 - Bash `git stash`, `git reset --hard`, `git clean`, `git checkout -- .` / `git restore .` in the main working tree
   — they wipe other agents' and the user's uncommitted work (run-hygiene → Executors in the shared tree);
 - Edit / Write of a file outside the worktree the agent runs in — its edit lands in the main tree
-  (executor-catalog → worker-prompt RULES).
+  (executor-catalog → worker-prompt RULES);
+- Edit of a progress file whose new text carries a bar (twenty or more █/░ cells) — the bar is set by
+  progress_set.py; a hand-copied bar came out 104 cells long with no percent (pipeline → progress-keeping.md → How).
 
 Acts only in a project with documentation/.dev-pipeline.json. Never fails the tool call on its own error. Each
 refusal is also logged outside the project (~/.claude/dev-pipeline-feedback/.guard/<project>.jsonl), and reflect
@@ -202,6 +204,14 @@ def decide(tool: str, inp: dict, cwd: str, *, branch: str = "", open_iteration: 
         paths = re.findall(r"^\*\*\* (?:(?:Add|Update|Delete) File|Move to): (.+?)\s*$", patch, re.M)
     elif tool in ("Edit", "Write", "MultiEdit", "NotebookEdit"):
         paths = [str(inp.get("file_path") or inp.get("notebook_path") or "")]
+    if tool in ("Edit", "MultiEdit") and paths and PROGRESS_FILE.search(paths[0].replace(os.sep, "/")):
+        new_text = " ".join(str(e.get("new_string") or "") for e in inp.get("edits", [])) if tool == "MultiEdit" \
+            else str(inp.get("new_string") or "")
+        if re.search(r"[█░]{20,}", new_text):
+            return deny("this edit writes the progress bar by hand; one cell off and the bar lies — a hand-copied "
+                        "bar came out 104 cells long with no percent. Change the row with Edit, then set the bar "
+                        "and the count with python3 \"<pipeline skill folder>/scripts/progress_set.py\" <file> "
+                        "<done> <total> [--section \"<heading>\"] (pipeline → references/progress-keeping.md → How).")
     if worktree_root and main_root:
         for path in paths:
             if not path:
@@ -219,7 +229,8 @@ def decide(tool: str, inp: dict, cwd: str, *, branch: str = "", open_iteration: 
 
 RULES = [("commit-chained", "chained to a test"), ("commit-on-main", "would land on"), ("merge-before-close", "is not closed (no tag"),
          ("plan-unit-trailer", "Plan-Unit"), ("sed-i", "sed -i"), ("progress-from-shell", "progress file from the shell"),
-         ("wipe-shared-tree", "git stash (of everything)"), ("edit-outside-worktree", "you work in the worktree")]
+         ("wipe-shared-tree", "git stash (of everything)"), ("edit-outside-worktree", "you work in the worktree"),
+         ("bar-by-hand", "progress bar by hand")]
 
 
 def host_home() -> Path:

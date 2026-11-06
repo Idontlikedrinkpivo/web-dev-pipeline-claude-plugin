@@ -22,7 +22,7 @@ NAMES = {"commit-chained": "коммит склеен с проверкой", "c
          "merge-before-close": "слияние в main до закрытия итерации",
          "plan-unit-trailer": "Plan-Unit, который git не прочитает", "sed-i": "sed -i по-GNU",
          "progress-from-shell": "файл прогресса из оболочки", "wipe-shared-tree": "stash / reset / clean в общей папке",
-         "edit-outside-worktree": "правка основной папки из worktree", "other": "другое"}
+         "edit-outside-worktree": "правка основной папки из worktree", "bar-by-hand": "полоса прогресса в Edit руками", "other": "другое"}
 
 
 def main() -> None:

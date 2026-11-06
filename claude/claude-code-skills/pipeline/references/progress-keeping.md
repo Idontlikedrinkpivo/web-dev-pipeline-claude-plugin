@@ -31,7 +31,12 @@ moving.
   not by scrolling to the start. A stop or a question to the user carries
   the line too, as its last line. Any message that mentions the progress
   file carries the line; a file name in plain text or in backticks opens
-  nothing.
+  nothing. **The plugin's Stop hook holds this** (`hooks/progress-line.py`):
+  a turn that changed a progress file — an Edit or Write of it,
+  `progress_set.py`, `progress_e2e.py` — cannot end without the line, and
+  no turn ends with a link to the `.md` in place of the page; the block
+  says what to run. A live run went a whole hand-over without one line
+  until the user asked «где файл прогресса?», with the rule in its packet.
 - **The file is never named without its line.** «Обновил прогресс в
   progress-design.md — файл можно открыть» is wrong: the name opens
   nothing, and the user has to search for the file. Where a subagent
@@ -58,9 +63,11 @@ moving.
   `progress_set.py <file> <done> <total> [--section
   "<heading>"]`, which sets the bar, the count line and the section's
   «обновлено» time — never copy a
-  hundred-cell bar into an Edit by hand: one cell off and the Edit fails —
-  and `progress_link.py`, which stamps the file's «обновлено» time as it
-  prints the chat line.
+  hundred-cell bar into an Edit by hand: one cell off and the Edit fails,
+  and an Edit that carries a bar is refused by the plugin's hook
+  (`hooks/guard.py`: a hand-copied bar came out 104 cells long with no
+  percent) — and `progress_link.py`, which stamps the file's «обновлено»
+  time as it prints the chat line.
   Rows still change with Edit, after a fresh Read of the file. After a
   compaction this rule is the first one lost: re-read it before the next
   change of the file; `progress_link.py` names a bar that disagrees with the
