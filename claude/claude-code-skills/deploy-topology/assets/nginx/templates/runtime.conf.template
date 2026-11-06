@@ -1,1 +1,4 @@
-include /etc/nginx/conf.d/${SECURE_MODE}.conf;
+# Подробность журнала ошибок nginx: debug | info | notice | warn | error | crit
+error_log /dev/stderr ${LOG_LEVEL};
+
+include <<CONF_DIR>>/${SECURE_MODE}.conf;

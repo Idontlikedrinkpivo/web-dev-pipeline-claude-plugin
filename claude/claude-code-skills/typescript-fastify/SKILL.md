@@ -164,6 +164,23 @@ for all four is written once, in `bootstrap/` and the entry point, from
   data in a line.
 - The entry point owns SIGTERM and SIGINT: `app.close()` within `SHUTDOWN_TIMEOUT_SEC`, a resource closed in an
   `onClose` hook, exit 0.
+- `/metrics` also carries `app_build_info` (`APP_VERSION`, `CI_COMMIT_SHORT_SHA`) and `db_pool_connections`. No
+  `@fastify/swagger-ui` in production: the docs site shows the contract.
+
+The config module holds these too (`deploy-topology` → `references/env-and-config-contract.md` → What the
+application's code holds to):
+
+- A signing or encryption key under 32 characters, or a placeholder (`change-me`), stops the start like a missing
+  one. The first administrator comes from variables out of a Secret, never a default in code or a migration.
+- Each integration is configured: its URL, connect and response timeouts, its pool's size where it has one, and
+  `<INTEGRATION>_ENABLE`. No address or personal email in code or defaults.
+- TLS verification stays on: `rejectUnauthorized: false` and `NODE_TLS_REJECT_UNAUTHORIZED` never appear. A corporate
+  CA comes as a file path (`NODE_EXTRA_CA_CERTS`, `<INTEGRATION>_SSL_FILE`).
+- Behind a proxy: `TRUSTED_PROXIES` reaches Fastify's `trustProxy`, so the client's address and scheme are believed
+  only from those networks; a link for the outside uses `PUBLIC_BASE_URL`.
+- Nothing shared lives in the process: sessions, rate-limit counters, locks and caches go to an external store,
+  unless architecture §1 «Решения по NFR» says «одна реплика» with the reason. A scheduled job takes
+  `pg_advisory_lock` or a Redis lock.
 
 ## The contract test
 

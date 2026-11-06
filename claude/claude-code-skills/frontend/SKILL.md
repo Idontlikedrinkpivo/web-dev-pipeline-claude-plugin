@@ -94,7 +94,9 @@ ships over a third-party package. A library already in the project is used as is
    follow without edits unless one hardcodes a value — that value moves into the theme in the same unit. **Fonts** come
    from the frame: the family, weights and sizes its text styles or variables name. Load that family with its `cyrillic`
    subset (the framework's font loader or self-hosted files, UX-59) instead of letting the browser fall back to a system
-   font, because a fallback changes every text width and weight on the screen.
+   font, because a fallback changes every text width and weight on the screen. Fonts, scripts and styles ship in the
+   build: no `<link>` or `<script>` to a public CDN (`fonts.googleapis.com`, `cdnjs`), which a closed network cannot reach.
+   Vite: the `@fontsource` package or files in `src/`; Next.js: `next/font`, which self-hosts.
 8. **Behaviour follows `ux-patterns`** (load it; the variant from the frames register's **Тип продукта**) wherever the
    spec and the frame leave the mechanics open: sections 2–6 for actions, forms, feedback, navigation, dialogs and data
    states, section 7 on B2C, section 8 for every screen, section 9 for every text the code adds, such as an

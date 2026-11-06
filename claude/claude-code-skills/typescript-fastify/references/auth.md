@@ -14,7 +14,8 @@ says, and of this file only the guard rules (401 / 403, role from the database) 
 - Tokens: the library the project already has (`@fastify/jwt` or `jose`); with neither, `jose`. One library, so
   signing and checking cannot disagree.
 - Rate limit: `@fastify/rate-limit`, on the login and registration routes only, unless §1 puts the limit in the
-  proxy.
+  proxy. Its default store is the process's memory, which each replica counts apart: its `redis` option, unless
+  §1 «Решения по NFR» says «одна реплика». «By address» relies on `trustProxy` (`service-endpoints.md`).
 - Check the current releases and the signatures you call against the installed versions — which hash options are
   the defaults, how the JWT library takes the allowed algorithms (`references/version-checks.md` → Auth libraries).
 

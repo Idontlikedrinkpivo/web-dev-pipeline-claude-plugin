@@ -5,13 +5,19 @@ its runtime, handed over as one tar. Match the shapes below; do not add labels o
 each extra one is a fact the operators must check and nobody asked for. What every image holds, and why:
 
 - **An unprivileged process with a numeric `USER`** — a Kubernetes platform's preflight (`runAsNonRoot`)
-  can verify only a number.
+  can verify only a number. The app runs under any other UID the platform sets as well: the files are readable
+  by everyone and it writes nothing but `/tmp` (`image_preflight.py` proves it under UID 5000).
+- **Only what runs** — a final stage copies named paths, never the whole context, so no compose file, `.env*`,
+  `Dockerfile`, test, document, client source or key reaches the image (`.dockerignore` below).
+- **The version inside** — `APP_VERSION` and `CI_COMMIT_SHORT_SHA` in the environment; the backend also has the
+  `app_build_info` metric.
 - **A root filesystem the process never writes** — the test and prod files run it `read_only`, as a
   restricted namespace does.
 - **Pinned bases, checked against the registry** — a remembered or floating tag builds a different image
   tomorrow.
 - **Healthchecks through the image's own runtime** — no `wget`/`curl` to install, and a shell-less image
   has none.
+- **Everything the client loads inside the image** — fonts and libraries too: a closed network reaches no CDN.
 - **The SQL migrations at their repository path** — the backend image carries
   `documentation/db/migrations/`, the one place migrations live, not a copy in the code tree.
 - **A tag with the app version and the build date**, nginx's upload size and timeouts from the SRS NFRs,
@@ -22,10 +28,12 @@ Contents:
 - Which images
 - Shell or no shell — asked once per project
 - Checking a tag
-- A vulnerable base (Step 8, item 5)
+- What stops the hand-over (Step 8, item 5)
 - Backend image — with a shell (TypeScript)
 - Backend image — with a shell (Python)
 - Backend image — without a shell
+- A worker container
+- `.dockerignore`
 - Healthchecks through the runtime
 - Frontend image — the reference (SPA)
 - Frontend image — without a shell
@@ -122,13 +130,26 @@ docker buildx imagetools inspect gcr.io/distroless/nodejs<major>-debian<N>:nonro
   user is the number the card names, and the entrypoint is what `CMD`, the
   healthcheck and the `migrate` command assume.
 
+- **At every release, again.** A pinned tag or digest stops getting fixes, so Step 8 resolves each base once
+  more: a newer patch tag of the same line or a new digest of the same moving tag replaces the old one before
+  the build. A release is what keeps the base fresh; the scan then runs on the new one.
+
 No access to the registry here: say so and leave the placeholder for the
 user rather than a remembered tag.
 
-## A vulnerable base (Step 8, item 5)
+## What stops the hand-over (Step 8, item 5)
 
-The scan finds a CRITICAL in a package of the base image, and a fixed
-version exists. First try what changes nothing in the app: a fresh digest
+**A secret in an image** always stops it: `trivy_images.py` exits 2. Remove it from the image, rotate it (a key
+that reached an image counts as compromised) and rebuild. There is no «pass as is» here.
+
+**Any CRITICAL** stops it until it is fixed or accepted with a date: in the base image, in a dependency, with a
+fix or without one.
+
+- In a dependency: update it to the fixed version, rebuild, rescan. No fix exists — ask A. replace the dependency,
+  B. pass as is, written into «Принятый риск» with the date.
+- In the base image — below.
+
+The scan finds a CRITICAL in a package of the base image. First try what changes nothing in the app: a fresh digest
 of the same tag, then the newest Debian branch (distroless) or a newer
 patch tag; rebuild and rescan. Still there — the hand-over stops with one
 question per `pipeline` → `references/question-format.md`. Its text is the
@@ -139,9 +160,9 @@ no audit question of its own to share:
 **Вопрос 1. Критическая уязвимость в базовом образе**
 
 Сканер нашёл в образе `<project>-backend` критическую уязвимость
-`<CVE>` в пакете `<пакет> <версия>`: исправление вышло (`<версия>`), а в
-базовом образе `<база>` его ещё нет. Платформа может не принять такой
-образ на проверке перед установкой.
+`<CVE>` в пакете `<пакет> <версия>`: <исправление вышло (`<версия>`), а в
+базовом образе `<база>` его ещё нет | исправления пока нет>. Платформа может
+не принять такой образ на проверке перед установкой.
 
   A. Перейти на базу `<чистая база>` и пересобрать — сканер её проверил.
   B. Подождать исправленную базу — комплект не передаём, пока сканер не чист.
@@ -173,6 +194,8 @@ COPY package.json package-lock.json* ./
 RUN npm ci --omit=dev
 COPY --from=build /app/dist ./dist
 COPY documentation/db/migrations ./documentation/db/migrations   # same repo-relative path the runner reads
+ARG APP_VERSION=dev CI_COMMIT_SHORT_SHA=unknown    # last, so a new version does not rebuild the layers above
+ENV APP_VERSION=$APP_VERSION CI_COMMIT_SHORT_SHA=$CI_COMMIT_SHORT_SHA
 USER 1000                                          # the image's `node` user, by number
 EXPOSE 3000
 CMD ["node", "dist/<entry>.js"]
@@ -186,7 +209,11 @@ CMD ["node", "dist/<entry>.js"]
 - Two stages: the build stage has the TypeScript toolchain; the runtime
   stage installs production dependencies only (`npm ci --omit=dev`, the
   manifest copied before the code so the dependency layer is cached) and
-  copies the compiled `dist`.
+  copies the compiled `dist`. `npm run build` compiles the application only: tests stay out of `dist` through
+  the build's own tsconfig, or they ship in the image.
+- **Memory.** `NODE_OPTIONS=--max-old-space-size=<75% of the memory limit, in MB>` is set in compose and in
+  DEPLOY.md's «Ресурсы», never in the image: the limit is the operators'. Without it V8 can outgrow the limit
+  and the container is killed under load.
 - Files stay root-owned and the process runs as 1000: it can read its code
   and cannot change it. It writes nothing but `/tmp`, which compose and
   the cluster mount as a tmpfs / `emptyDir` over a read-only root.
@@ -220,6 +247,8 @@ RUN useradd --system --uid 10001 --no-create-home --shell /usr/sbin/nologin app
 COPY --from=build /app/.venv ./.venv
 COPY --from=build /app/<source-dir> ./<source-dir>          # and the migrate tool's config, e.g. alembic.ini
 COPY documentation/db/migrations ./documentation/db/migrations
+ARG APP_VERSION=dev CI_COMMIT_SHORT_SHA=unknown
+ENV APP_VERSION=$APP_VERSION CI_COMMIT_SHORT_SHA=$CI_COMMIT_SHORT_SHA
 USER 10001
 EXPOSE 8000
 CMD ["python", "-m", "<package>.bootstrap.serve"]
@@ -258,6 +287,8 @@ COPY --from=build /app/package.json ./
 COPY --from=build /app/node_modules ./node_modules
 COPY --from=build /app/dist ./dist
 COPY documentation/db/migrations ./documentation/db/migrations
+ARG APP_VERSION=dev CI_COMMIT_SHORT_SHA=unknown
+ENV APP_VERSION=$APP_VERSION CI_COMMIT_SHORT_SHA=$CI_COMMIT_SHORT_SHA
 USER 65532
 EXPOSE 3000
 CMD ["dist/<entry>.js"]                            # the entrypoint is node itself
@@ -290,6 +321,8 @@ COPY --from=build /app/.venv ./.venv
 COPY --from=build /app/<source-dir> ./<source-dir>
 COPY documentation/db/migrations ./documentation/db/migrations
 ENV PATH=/app/.venv/bin:$PATH PYTHONDONTWRITEBYTECODE=1
+ARG APP_VERSION=dev CI_COMMIT_SHORT_SHA=unknown
+ENV APP_VERSION=$APP_VERSION CI_COMMIT_SHORT_SHA=$CI_COMMIT_SHORT_SHA
 USER 65532
 EXPOSE 8000
 CMD ["/app/.venv/bin/python", "-m", "<package>.bootstrap.serve"]
@@ -299,6 +332,54 @@ CMD ["/app/.venv/bin/python", "-m", "<package>.bootstrap.serve"]
 needs; the interpreter is copied to the same path it was installed at, so
 the venv's links resolve. When the stack skill documents another minimal
 Python image, use that instead.
+
+## A worker container
+
+A background worker (a queue consumer, a scheduler) is the backend image with another `command`: no image of its
+own, one process per container, the same SIGTERM rule. With no HTTP server, its liveness is one of:
+
+- a minimal HTTP endpoint on its own port, when the stack makes that cheap;
+- a heartbeat file in `/tmp`, touched by the work loop and checked through the runtime
+  (`node -e` / `python -c`: the file is younger than N seconds).
+
+Its row in DEPLOY.md's «Сеть и проверки» names which, and a scheduler is named under «Масштабирование» as a
+one-instance component with its lock.
+
+## `.dockerignore`
+
+One beside each build context, written whole. A final stage copies named paths, and this file keeps the rest out
+of the build context as well, so a `COPY . .` in a build stage never sees a key:
+
+```text
+.git
+.env
+.env.*
+docker-compose*.yml
+Dockerfile*
+.dockerignore
+release/
+**/node_modules
+**/.venv
+**/__pycache__
+**/*.pem
+**/*.key
+**/*.crt
+**/*.p12
+tests/
+test/
+coverage/
+*.md
+documentation/**
+!documentation/db/
+!documentation/db/migrations/
+!documentation/db/migrations/**
+!documentation/api/
+!documentation/api/**
+```
+
+`documentation/api/` is there only when the build generates a client from the contract; a final stage does not
+copy it. `documentation/db/migrations/` is the one folder of `documentation/` an image holds: migrations are
+runtime. `deploy_check.py` holds the list; `image_preflight.py contents` looks at the built image.
 
 ## Healthchecks through the runtime
 
@@ -328,8 +409,12 @@ COPY . .
 RUN npm run build                                  # → /app/dist
 
 FROM nginxinc/nginx-unprivileged:<version>-alpine-slim
+ENV NGINX_ENVSUBST_OUTPUT_DIR=/tmp NGINX_ENTRYPOINT_LOCAL_RESOLVERS=1 \
+    LOG_LEVEL=notice TRUSTED_PROXY_CIDR=127.0.0.1/32
 COPY nginx/ /etc/nginx/
 COPY --from=build /app/dist /usr/share/nginx/html
+ARG APP_VERSION=dev CI_COMMIT_SHORT_SHA=unknown
+ENV APP_VERSION=$APP_VERSION CI_COMMIT_SHORT_SHA=$CI_COMMIT_SHORT_SHA
 USER 101                                           # the base image's user, written out for the contract test
 EXPOSE 8080
 CMD ["nginx", "-g", "daemon off;"]
@@ -343,6 +428,7 @@ write-time values filled:
 | Placeholder | File | Value |
 |---|---|---|
 | `<<SERVICE>>` | `nginx.conf`, three log formats | `<project>-frontend` |
+| `<<CONF_DIR>>` | `nginx.conf`, `default`, `plain`, `secure`, `runtime` templates | `/tmp` with a shell (rendered at start); `/etc/nginx/conf.d` without one (rendered at build) |
 | `<<MAX_BODY_SIZE>>` | `default.conf.template` | the SRS NFR for the largest upload (`4G`), through foundation §1 «Решения по NFR» |
 | `<<CLIENT_TIMEOUT>>` | `default.conf.template` | the NFR for the longest client request or upload (`600s`) |
 | `<<BACKEND_TIMEOUT>>` | `default.conf.template` | the NFR for the longest backend response (`600s`) |
@@ -354,19 +440,27 @@ is a third larger than the file, so size the limit to the encoded body and
 say so. A Content-Security-Policy is added only when foundation §1
 security decisions set one; otherwise the commented note stays.
 
-At container start the base image renders every template into
-`/etc/nginx/conf.d/` from the environment, so one image serves every
-environment:
+At container start the base image renders every template into `/tmp`
+(`NGINX_ENVSUBST_OUTPUT_DIR`) from the environment, so one image serves every
+environment and `/tmp` is the only path it writes:
 
 | Variable | Meaning | test / dev | prod |
 |---|---|---|---|
-| `BACKEND_SERVICE` | `host:port` of the backend | `backend:<app-port>` | `backend:<app-port>` |
-| `BACKEND_PROTOCOL` | `http` or `https` to the backend | `http` | `http` (same network) |
+| `BACKEND_SERVICE` | `host:port` of the backend | `backend:<app-port>` | `backend:<app-port>` in compose; the **full DNS name** in a cluster (`backend.<namespace>.svc.cluster.local:<app-port>`): nginx's resolver does not use the search domains |
+| `BACKEND_PROTOCOL` | `http` or `https` to the backend; `https` verifies the certificate against a mounted `/etc/nginx/ssl/backend-ca.pem` and does not start without it | `http` | `http` (same network) |
+| `LOG_LEVEL` | nginx's error log: `debug`, `info`, `notice`, `warn`, `error`, `crit` | `notice` | `notice` |
+| `TRUSTED_PROXY_CIDR` | the network of the proxy in front: `X-Forwarded-For` is believed only from it | `127.0.0.1/32` | the operators' ingress network |
 | `SECURE_MODE` | `plain` — HTTP on 8080; `secure` — TLS 1.2/1.3 and HTTP/2 on 8080 with `/etc/nginx/ssl/fullchain.pem` and `privkey.pem` mounted read-only | `plain` | `plain` behind the operator's TLS terminator; `secure` when this nginx terminates TLS itself |
 
 - `/api/` is proxied to the backend on the same origin, with the
   forwarding, `X-Request-ID` and `X-Correlation-ID` headers. The SPA calls
   relative `/api/...` URLs; no CORS, no build-time API host.
+- **The backend is looked up per request.** `upstream.conf` holds the address in a variable and a `resolver`
+  (`NGINX_LOCAL_RESOLVERS`, read from the container's own `resolv.conf`), never an `upstream` block, which
+  resolves once at the start: nginx would die when the backend is not up yet and would keep a dead address after
+  the backend is recreated. A backend that is down gives 502 on `/api/`; the container and the static files keep
+  working.
+- `X-Forwarded-Proto` passes on what the proxy in front said, so the backend knows the client came over TLS.
 - **Only `/api/` reaches the backend.** Its service endpoints —
   `/health/live`, `/health/ready`, `/metrics` — sit outside `/api/`, so
   the entry point never exposes them: a request for `/metrics` there gets
@@ -380,12 +474,13 @@ environment:
   headers, gzip — all in the template.
 - Health: `/_healthz` on port 8081, outside the access log; the frontend's
   own check, not the backend's.
-- Read-only root: nginx writes its pid and temp files under `/tmp`
-  (`nginx.conf`), and the start renders the templates into
-  `/etc/nginx/conf.d/` — so this image needs both writable: a tmpfs on
-  each in compose, an `emptyDir` on each in the cluster.
-- Access log: one JSON line per request on stdout (`json_combined`); the
-  `json_detailed` and `json_debug` formats stay defined for switching.
+- Read-only root: nginx writes its pid, temp files and rendered config under `/tmp` only. A file uploaded through
+  it is buffered there first, so the `/tmp` volume is at least `<<MAX_BODY_SIZE>>`; DEPLOY.md says so.
+- Access log: one JSON line per request on stdout (`json_combined`) with `logger` and `msg`, the path without its
+  query string and no credential header. `json_detailed` and `json_debug` stay defined for switching. The error log
+  is nginx's own plain text on stderr, which nginx cannot change; DEPLOY.md's «Логи» says so.
+- Stop: the image's signal is SIGQUIT, a graceful stop bounded by `worker_shutdown_timeout 25s`; SIGTERM also ends
+  it with code 0, at once.
 
 ## Frontend image — without a shell
 
@@ -405,20 +500,26 @@ FROM nginxinc/nginx-unprivileged:<version>-alpine-slim AS config   # only for en
 ARG BACKEND_SERVICE=backend:<app-port>
 ARG BACKEND_PROTOCOL=http
 ARG SECURE_MODE=plain
+ARG LOG_LEVEL=notice
+ARG TRUSTED_PROXY_CIDR=127.0.0.1/32
+ARG NGINX_LOCAL_RESOLVERS=127.0.0.11               # Docker's DNS: the compose stand; a cluster mounts its own upstream.conf
 COPY nginx/templates/ /tmp/templates/
 RUN mkdir -p /tmp/conf.d && for t in /tmp/templates/*.template; do \
-      envsubst '${BACKEND_SERVICE} ${BACKEND_PROTOCOL} ${SECURE_MODE}' < "$t" > "/tmp/conf.d/$(basename "$t" .template)"; \
+      envsubst '${BACKEND_SERVICE} ${BACKEND_PROTOCOL} ${SECURE_MODE} ${LOG_LEVEL} ${TRUSTED_PROXY_CIDR} ${NGINX_LOCAL_RESOLVERS}' \
+        < "$t" > "/tmp/conf.d/$(basename "$t" .template)"; \
     done
 
 FROM cgr.dev/chainguard/nginx@sha256:<digest>      # no shell; its free tier publishes `latest` only — the digest pins it
 COPY nginx/nginx.conf /etc/nginx/nginx.conf
 COPY --from=config /tmp/conf.d/ /etc/nginx/conf.d/
 COPY --from=build /app/dist /usr/share/nginx/html
+ARG APP_VERSION=dev CI_COMMIT_SHORT_SHA=unknown
+ENV APP_VERSION=$APP_VERSION CI_COMMIT_SHORT_SHA=$CI_COMMIT_SHORT_SHA
 USER 65532
 EXPOSE 8080
 ```
 
-- `envsubst` gets the list of the three variables, so nginx's own `$uri`,
+- `envsubst` gets the list of these variables, so nginx's own `$uri`,
   `$host` and the rest stay as they are.
 - The base's `ENTRYPOINT`/`CMD` stay when `docker image inspect` shows
   nginx in the foreground reading `/etc/nginx/nginx.conf`; otherwise set
@@ -426,11 +527,10 @@ EXPOSE 8080
   `docker run --rm --read-only --tmpfs /tmp <project>-frontend:<tag> -t`
   (nginx's config test, through its entrypoint) — it fails on a missing
   `mime.types` or include.
-- The three variables are fixed in the image: the frontend reaches
-  `backend:<app-port>` over HTTP. DEPLOY.md says so — the operators name
-  the backend's service `backend`, or mount their own
-  `/etc/nginx/conf.d/upstream.conf`; TLS inside the container
-  (`SECURE_MODE=secure`) needs a rebuild with that build argument.
+- **What depends on the environment comes as a mounted file.** A shell-less image reads no variables, so in a
+  cluster the operators mount `/etc/nginx/conf.d/upstream.conf`: its DNS server, the backend's full name and the
+  proxy's network (DEPLOY.md gives the file). Built in are only the compose stand's values. TLS inside the
+  container (`SECURE_MODE=secure`) needs a rebuild with that build argument.
 - Only `/tmp` needs to be writable (the config is already in the image).
   No compose healthcheck (table above); `frontend`'s compose
   `environment:` holds no `BACKEND_*` / `SECURE_MODE`.
@@ -464,7 +564,7 @@ Images are handed over as one file, never pushed to a registry. Write
 1. reads the version from the manifest, takes the date once, and sets
    `PLATFORM` from the card;
 2. builds each image with
-   `docker buildx build --platform "$PLATFORM" --load -t <project>-<backend|frontend>:<tag> -f <Dockerfile> <context>`;
+   `docker buildx build --platform "$PLATFORM" --load --build-arg APP_VERSION="$APP_VERSION" --build-arg CI_COMMIT_SHORT_SHA="$(git rev-parse --short HEAD)" -t <project>-<backend|frontend>:<tag> -f <Dockerfile> <context>`;
 3. saves both into one archive named after the project and the service
    version, in that version's release folder:
    `docker save <project>-frontend:<tag> <project>-backend:<tag> -o release/<APP_VERSION>/<project>-<APP_VERSION>.tar`
@@ -488,6 +588,9 @@ Images are handed over as one file, never pushed to a registry. Write
      ```
    - `documentation/operations/operations.md`, when it exists →
      `OPERATIONS.md` (`operations-doc`);
+   - each Dockerfile and its `.dockerignore` → `build/<backend|frontend>.Dockerfile`,
+     `build/<backend|frontend>.dockerignore`: what the images were built from, and DEPLOY.md's «Сборка образа»
+     says how;
 5. checks the folder against `DEPLOY.md`, so an operator never gets an
    instruction for a file they do not have. A file name is a backtick span
    with no space or `/` that ends in a known extension — a logger name
@@ -507,7 +610,8 @@ Images are handed over as one file, never pushed to a registry. Write
 
 The file name carries the version so the releases sit side by side and an
 older one is still there for a rollback; a rebuild of the same version
-replaces its folder's contents (the build date is in the image tags inside).
+replaces its folder's contents (the build date is in the image tags inside). The scan's reports land in the same
+folder, under `scan/`, after the build (Step 8, item 5), so the operators get them too.
 `release/` is in `.gitignore` and `.dockerignore`.
 
 The receiver runs `docker load -i <project>-<APP_VERSION>.tar`; both images

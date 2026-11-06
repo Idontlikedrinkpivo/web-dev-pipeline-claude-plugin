@@ -1,0 +1,4 @@
+# До бэкенда — HTTPS: сертификат проверяется всегда. Нет файла CA — nginx не стартует.
+proxy_ssl_verify on;
+proxy_ssl_trusted_certificate /etc/nginx/ssl/backend-ca.pem;
+proxy_ssl_server_name on;

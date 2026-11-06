@@ -35,7 +35,7 @@ lockfile); an answer written beside a point is a dated hint, so confirm it again
   `jwt.encode` / `jwt.decode` and `PasswordHash.recommended()` / `hash` / `verify`, and which extra installs the
   Argon2 backend.
 - **uvicorn and the production entry** (`references/service-endpoints.md`) — `uvicorn.run`'s `log_config`,
-  `access_log`, `timeout_graceful_shutdown` and `workers`; whether it still re-raises the captured signal after a
+  `access_log`, `timeout_graceful_shutdown`, `workers`, `proxy_headers` and `forwarded_allow_ips` (networks, not only addresses); whether it still re-raises the captured signal after a
   graceful shutdown (it does from 0.29: under the default SIGTERM handler the process then ends with 143, hence the
   no-op handlers); whether the installed `fastapi run` has gained a shutdown-timeout option and leaves logging to the
   app (fastapi-cli 0.0.32 has neither) — only then may the container start through it.

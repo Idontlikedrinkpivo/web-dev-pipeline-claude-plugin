@@ -1,3 +1,12 @@
-upstream backend {
-  server ${BACKEND_SERVICE};
+# Адрес бэкенда, DNS-сервер и доверенный прокси — всё, что зависит от среды.
+# Без блока upstream: с ним nginx ищет адрес один раз при старте и падает, если бэкенда ещё нет.
+resolver ${NGINX_LOCAL_RESOLVERS} valid=10s;
+
+map $host $backend_upstream {
+    default "${BACKEND_PROTOCOL}://${BACKEND_SERVICE}";
 }
+
+# Настоящий адрес клиента: X-Forwarded-For принимается только от этой сети
+set_real_ip_from ${TRUSTED_PROXY_CIDR};
+real_ip_header X-Forwarded-For;
+real_ip_recursive on;

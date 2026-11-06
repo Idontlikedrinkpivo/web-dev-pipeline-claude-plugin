@@ -8,12 +8,16 @@ decide, so the stage closes on facts.
   compose     docker-compose.{dev,test,prod}.yml all exist. In test and prod, every service built from the project
               (`build:`) runs read_only, with /tmp as tmpfs, cap_drop ALL and no-new-privileges; `backend` has a
               healthcheck on /health/ready; prod runs no local stateful service (Postgres, MySQL, Redis, MinIO, …).
-  images      every Dockerfile the compose files build: the stage they build ends with a numeric USER other than 0;
-              a .dockerignore sits in the build context.
+  images      every Dockerfile the compose files build: the stage they build ends with a numeric USER other than 0
+              and sets APP_VERSION and CI_COMMIT_SHORT_SHA; a .dockerignore in the build context hides .env*,
+              compose files, Dockerfiles, .git, tests and keys, and leaves no exception for .env.example.
+  nginx       a client's nginx/: no <<…>> left, no `upstream` block, /etc/nginx/conf.d in no tmpfs of an image with a
+              shell (rendered into /tmp).
+  code        no switched-off TLS check in the project's source; no public CDN in a client's index.html.
   env         every environment's variables file matches .env.example in names and order (env_files.py check):
               built from the one template, never written by hand.
-  release     release/<version>/ (the given version, else the newest) holds a .tar, DEPLOY.md, an .env.example and
-              one openapi.yaml; every file name DEPLOY.md cites in backticks is in that folder.
+  release     release/<version>/ (the given version, else the newest) holds a .tar, DEPLOY.md, an .env.example,
+              one openapi.yaml, build/ and scan/; every file name DEPLOY.md cites in backticks is in that folder.
 
 Exit 0 — clean; 1 — a line per problem. Run at deploy-topology's close (Before you finish). A parser of the compose
 shape this skill writes, not of all YAML: an unusual layout it cannot read is reported, never passed silently.
@@ -27,6 +31,17 @@ from pathlib import Path
 
 STATEFUL = re.compile(r"\b(postgres|postgis|mysql|mariadb|mongo|redis|valkey|minio|rabbitmq|kafka|elasticsearch|"
                       r"opensearch|clickhouse|cassandra)\b", re.I)
+
+
+DOCKERIGNORE = {".env": r"^\.env\s*$", ".env.*": r"^\.env\.\*", "docker-compose*": r"^docker-compose\*",
+                "Dockerfile*": r"^Dockerfile\*", ".git": r"^\.git/?\s*$", "tests/": r"^(\*\*/)?tests?/?\s*$",
+                "*.pem": r"^(\*\*/)?\*\.pem\s*$", "*.key": r"^(\*\*/)?\*\.key\s*$"}
+TLS_OFF = re.compile(r"verify\s*=\s*False|rejectUnauthorized\s*:\s*false|NODE_TLS_REJECT_UNAUTHORIZED|ssl\s*=\s*False|"
+                     r"InsecureRequestWarning|CERT_NONE")
+CDN = re.compile(r"https?://(fonts\.googleapis\.com|fonts\.gstatic\.com|cdnjs\.cloudflare\.com|cdn\.jsdelivr\.net|"
+                 r"unpkg\.com|ajax\.googleapis\.com|code\.jquery\.com|cdn\.tailwindcss\.com)")
+SKIP_DIRS = {"node_modules", ".venv", "venv", "dist", "build", ".next", ".git", "release", "documentation", "tests",
+             "test", "__pycache__", ".claude", "coverage"}
 
 
 def services(text: str) -> dict[str, str]:
@@ -88,6 +103,8 @@ def check_compose(root: Path, out: list) -> list[tuple[str, str, str]]:
                     out.append(f"{f.name}: сервис {name} — нет read_only: true")
                 if "/tmp" not in key_block(block, "tmpfs"):
                     out.append(f"{f.name}: сервис {name} — /tmp не смонтирован как tmpfs")
+                if "/etc/nginx/conf.d" in key_block(block, "tmpfs"):
+                    out.append(f"{f.name}: сервис {name} — запись в /etc/nginx/conf.d не нужна, настройки пишутся в /tmp")
                 if "ALL" not in key_block(block, "cap_drop"):
                     out.append(f"{f.name}: сервис {name} — нет cap_drop: [ALL]")
                 if "no-new-privileges" not in key_block(block, "security_opt"):
@@ -114,10 +131,9 @@ def check_images(root: Path, builds: list, out: list) -> None:
         if not df.exists():
             out.append(f"{rel}: Dockerfile, который собирает compose, не найден")
             continue
-        if not (ctx / ".dockerignore").exists() and ctx not in seen_ctx:
+        if ctx not in seen_ctx:
             seen_ctx.add(ctx)
-            out.append(f"{ctx.relative_to(root.resolve()) if ctx != root.resolve() else '.'}: нет .dockerignore в "
-                       "контексте сборки")
+            check_dockerignore(root, ctx, out)
         stages = re.split(r"(?im)^FROM\s+", df.read_text(encoding="utf-8", errors="replace"))[1:]
         chosen = None
         for st in stages:
@@ -134,6 +150,58 @@ def check_images(root: Path, builds: list, out: list) -> None:
             out.append(f"{label}: USER {user} — нужен числовой uid, чтобы рантайм проверил «не root»")
         elif user == "0":
             out.append(f"{label}: USER 0 — это root")
+        if not re.search(r"(?im)^ENV\b.*\bAPP_VERSION=", chosen) or not re.search(r"(?im)^ENV\b.*\bCI_COMMIT_SHORT_SHA=", chosen):
+            out.append(f"{label}: в образе не задана версия — ENV APP_VERSION и CI_COMMIT_SHORT_SHA из аргументов сборки")
+
+
+def check_dockerignore(root: Path, ctx: Path, out: list) -> None:
+    label = ctx.relative_to(root.resolve()) if ctx != root.resolve() else "."
+    f = ctx / ".dockerignore"
+    if not f.exists():
+        out.append(f"{label}: нет .dockerignore в контексте сборки")
+        return
+    text = f.read_text(encoding="utf-8", errors="replace")
+    for name, pattern in DOCKERIGNORE.items():
+        if not re.search(pattern, text, re.M):
+            out.append(f"{label}/.dockerignore: не закрывает {name} (references/images.md → .dockerignore)")
+    if re.search(r"^!.*\.env", text, re.M):
+        out.append(f"{label}/.dockerignore: исключение для .env* — в образ не попадает ни один такой файл")
+
+
+def check_nginx(root: Path, out: list) -> None:
+    for conf in [*root.glob("nginx/nginx.conf"), *root.glob("*/nginx/nginx.conf")]:
+        folder = conf.parent
+        rel = folder.relative_to(root)
+        for f in [conf, *sorted(folder.glob("templates/*"))]:
+            text = f.read_text(encoding="utf-8", errors="replace")
+            if "<<" in text and re.search(r"<<[A-Z_]+>>", text):
+                out.append(f"{f.relative_to(root)}: остался шаблонный параметр <<…>>")
+            if re.search(r"(?m)^\s*upstream\s+\w+\s*\{", text):
+                out.append(f"{f.relative_to(root)}: блок upstream ищет адрес один раз при старте — фронт упадёт без "
+                           "бэкенда (assets/nginx → upstream.conf.template)")
+        if not list(folder.glob("templates/*")):
+            out.append(f"{rel}: нет templates/")
+
+
+def check_code(root: Path, out: list) -> None:
+    def walk(folder: Path):
+        for item in folder.iterdir():
+            if item.is_dir():
+                if item.name not in SKIP_DIRS:
+                    yield from walk(item)
+            else:
+                yield item
+    for f in walk(root):
+        if f.suffix in (".py", ".ts", ".tsx", ".js", ".mjs", ".cjs"):
+            match = TLS_OFF.search(f.read_text(encoding="utf-8", errors="replace"))
+            if match:
+                out.append(f"{f.relative_to(root)}: {match.group(0)} — проверка TLS отключена; корпоративный CA "
+                           "подключается файлом (env-and-config-contract.md)")
+        elif f.name == "index.html":
+            match = CDN.search(f.read_text(encoding="utf-8", errors="replace"))
+            if match:
+                out.append(f"{f.relative_to(root)}: {match.group(1)} — в закрытом контуре CDN недоступен, файл должен "
+                           "лежать в образе")
 
 
 def check_release(root: Path, version: str | None, out: list) -> None:
@@ -154,6 +222,10 @@ def check_release(root: Path, version: str | None, out: list) -> None:
     for need in ("DEPLOY.md", "openapi.yaml"):
         if need not in names:
             out.append(f"release/{v}: нет {need}")
+    if not list((folder / "build").glob("*Dockerfile")):
+        out.append(f"release/{v}/build: нет Dockerfile образов — их копирует scripts/build-images.sh")
+    if not list((folder / "scan").glob("trivy-*.json")):
+        out.append(f"release/{v}/scan: нет отчётов сканера — trivy_images.py <tar> release/{v}/scan")
     if not any(n.endswith(".env.example") for n in names):
         out.append(f"release/{v}: нет <project>.env.example")
     deploy = folder / "DEPLOY.md"
@@ -171,6 +243,8 @@ def main() -> None:
     out: list[str] = []
     builds = check_compose(root, out)
     check_images(root, builds, out)
+    check_nginx(root, out)
+    check_code(root, out)
     check_release(root, version, out)
     if (root / ".env.example").exists():   # the variables files against their one template
         import subprocess

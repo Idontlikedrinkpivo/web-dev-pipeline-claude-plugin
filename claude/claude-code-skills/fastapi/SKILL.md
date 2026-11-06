@@ -90,6 +90,11 @@ The container, and any run the platform stops, starts through the production ent
   sibling subdomain counts as same-site). With a Bearer token held in memory nothing is needed: the browser never
   adds an `Authorization` header by itself, so a cross-site post arrives unauthenticated.
 - Settings via `pydantic-settings`, built in `bootstrap/`. A secret (a signing key, an API token, a password) has no default, so a missing one stops the start; `.env.example` lists every variable. Touch only the settings the task needs: in an existing repo, keep the defaults of settings the task is not about (removing `DATABASE_URL`'s default breaks every command run without `.env`). CORS lists exact origins, never `*` with credentials.
+- A signing or encryption key under 32 characters, or a placeholder (`change-me`), stops the start like a missing one. The first administrator comes from variables out of a Secret, never a default in code or a migration.
+- Each integration is configured: its URL, connect and read timeouts (`httpx.Timeout`), its pool's size where it has one, and `<INTEGRATION>_ENABLE`. No address or personal email in code or defaults.
+- TLS verification stays on: `verify=False` and `ssl=False` never appear. A corporate CA comes as a file path (`SSL_CERT_FILE`, `<INTEGRATION>_SSL_FILE`).
+- Behind a proxy: `TRUSTED_PROXIES` reaches uvicorn's `forwarded_allow_ips`, so the client's address and scheme are believed only from those networks; a link for the outside uses `PUBLIC_BASE_URL`.
+- Nothing shared lives in the process: sessions, rate-limit counters, locks and caches go to an external store, unless architecture §1 «Решения по NFR» says «одна реплика» with the reason. A scheduled job takes `pg_advisory_lock` or a Redis lock (`deploy-topology` → `references/env-and-config-contract.md` → What the application's code holds to).
 
 ## Service endpoints, logs and shutdown
 
@@ -97,6 +102,7 @@ The platform the service is handed to probes it, scrapes it, collects its stdout
 
 - `GET /health/live` touches nothing; `GET /health/ready` checks the database (2 s) and each store the app cannot serve without, never a partner's API; `GET /metrics` serves `prometheus-client`'s registry with `http_request_duration_seconds`, which one pure ASGI middleware fills, labelled by the route template. The three sit outside the contract (`NOT_IN_CONTRACT`, `include_in_schema=False`) and outside auth.
 - Logs are stdlib `logging` with the JSON formatter from `bootstrap/`, configured before the server starts; uvicorn's loggers go through the same handler. One object per line with `time`, `level`, `msg`, `logger`, `request_id` (a contextvar the middleware sets from `X-Request-Id`) and `err`. Code logs through `logging.getLogger(__name__)`, never `print`. No secret, token or personal data in a line.
+- `/metrics` also carries `app_build_info` (`APP_VERSION`, `CI_COMMIT_SHORT_SHA`) and `db_pool_connections`; `/docs`, `/redoc` and `/openapi.json` are off (`docs_url=None`, `redoc_url=None`, `openapi_url=None`): a generated API page does not belong in production, and the docs site shows the contract.
 - Shutdown: uvicorn's `timeout_graceful_shutdown` from `SHUTDOWN_TIMEOUT_SEC`, the lifespan's shutdown disposes the engine, exit 0. One worker process per container; several workers need `prometheus_client`'s multiprocess mode.
 
 ## The contract test

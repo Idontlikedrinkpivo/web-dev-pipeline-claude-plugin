@@ -24,10 +24,11 @@ from datetime import UTC, datetime
 
 from fastapi import APIRouter, Response
 from fastapi.responses import JSONResponse
-from prometheus_client import CONTENT_TYPE_LATEST, REGISTRY, Histogram, generate_latest
+from prometheus_client import CONTENT_TYPE_LATEST, REGISTRY, Gauge, Histogram, generate_latest
 from sqlalchemy import text
 from sqlalchemy.exc import SQLAlchemyError
 from sqlalchemy.ext.asyncio import AsyncEngine
+from sqlalchemy.pool import QueuePool
 from starlette.datastructures import MutableHeaders
 from starlette.types import ASGIApp, Message, Receive, Scope, Send
 
@@ -38,6 +39,8 @@ REQUEST_DURATION = Histogram(
     "HTTP request duration by route template",
     ("method", "route", "status_code"),
 )
+APP_BUILD = Gauge("app_build_info", "The running build", ("version", "commit"))
+DB_POOL = Gauge("db_pool_connections", "Database pool connections by state", ("state",))
 _RECORD_FIELDS = frozenset(vars(logging.makeLogRecord({}))) | {"message", "asctime", "color_message"}
 logger = logging.getLogger(__name__)
 access_log = logging.getLogger("http.access")
@@ -140,6 +143,9 @@ def build_service_router(engine: AsyncEngine | None) -> APIRouter:
 
     @router.get("/metrics")
     def metrics() -> Response:
+        if engine is not None and isinstance(engine.pool, QueuePool):
+            DB_POOL.labels("in_use").set(engine.pool.checkedout())
+            DB_POOL.labels("idle").set(engine.pool.checkedin())
         return Response(generate_latest(REGISTRY), media_type=CONTENT_TYPE_LATEST)
 
     return router
@@ -172,7 +178,8 @@ def create_app(settings: Settings) -> FastAPI:
         if engine is not None:
             await engine.dispose()  # after uvicorn has finished the in-flight requests
 
-    app = FastAPI(lifespan=lifespan)
+    app = FastAPI(lifespan=lifespan, docs_url=None, redoc_url=None, openapi_url=None)  # no generated pages in prod
+    APP_BUILD.labels(settings.app_version, settings.commit_sha).set(1)  # APP_VERSION, CI_COMMIT_SHORT_SHA of the image
     app.add_middleware(RequestContext)
     app.include_router(build_service_router(engine))
     # ...the area routers, the problem+json handlers
@@ -216,6 +223,8 @@ def main() -> None:
         workers=1,  # one process per container; replicas scale it
         log_config=None,  # keep the JSON handler configured above
         access_log=False,  # RequestContext writes the access line, with the route template
+        proxy_headers=True,
+        forwarded_allow_ips=settings.trusted_proxies or "",  # TRUSTED_PROXIES; empty — believe nobody's X-Forwarded-*
         timeout_graceful_shutdown=settings.shutdown_timeout_sec,
     )
 
@@ -224,6 +233,9 @@ if __name__ == "__main__":
     main()
 ```
 
+- `Settings` holds `trusted_proxies: str = ""` (`TRUSTED_PROXIES`, networks separated by commas), `app_version: str =
+  "dev"` (`APP_VERSION`) and `commit_sha: str = Field("unknown", validation_alias="CI_COMMIT_SHORT_SHA")`. The last two
+  come from the image and are not in `.env.example`.
 - Not `fastapi run`: it installs its own log format and passes no graceful-shutdown timeout to uvicorn
   (`version-checks.md`). `fastapi dev` stays the local run.
 - On SIGTERM uvicorn stops accepting, finishes the in-flight requests within `SHUTDOWN_TIMEOUT_SEC`, runs the

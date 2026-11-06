@@ -145,7 +145,7 @@ The motion tokens — one set for every product, defined once in the theme (CSS 
 - No layout reads in render (`getBoundingClientRect`, `offsetHeight`, `offsetWidth`, `scrollTop`) → UX-75
 - DOM reads and writes are batched, not interleaved → UX-75
 - Prefer uncontrolled inputs; keep a controlled input cheap per keystroke → UX-75
-- `<link rel="preconnect">` for CDN and asset domains → UX-75
+- `<link rel="preconnect">` only for an asset domain of the project's own; fonts and libraries ship in the build, never from a public CDN → UX-75
 - Critical fonts: `<link rel="preload" as="font">` with `font-display: swap` → UX-75
 - A muted looping `<video autoplay muted loop playsinline>` instead of an animated GIF, with a still alternative; for short loops, an H.264 MP4 source for Safari and a `prefers-reduced-motion` still → UX-75, UX-61
 

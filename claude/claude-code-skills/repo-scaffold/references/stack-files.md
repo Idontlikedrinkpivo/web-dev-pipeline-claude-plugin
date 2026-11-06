@@ -17,7 +17,8 @@ Create:
 - `tsconfig.json` — `rootDir` / `paths` follow the tree (`src/`); the
   compiler flags of `quality-gates.md` → By stack (`strict`,
   `noUncheckedIndexedAccess` and the rest); the tests inside it or in a
-  test `tsconfig`, so `typecheck` covers them
+  test `tsconfig`, so `typecheck` covers them, and `build` compiles through a config that leaves them out, so
+  `dist/` and the image never hold a test
 - `.dependency-cruiser.cjs` from the architecture sketch; `$1` for area
   capture, `tsPreCompilationDeps: true`, `tsConfig` pointing at the root
   `tsconfig.json` (so `paths` aliases resolve), the `not-to-unresolvable`

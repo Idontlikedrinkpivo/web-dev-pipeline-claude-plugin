@@ -43,7 +43,12 @@ Besides its own, the backend's config layer reads these; each is in
 |---|---|---|---|
 | `LOG_LEVEL` | no | `info` | the logger's level; the set is the stack logger's (`typescript-fastify`, `fastapi`) |
 | `SHUTDOWN_TIMEOUT_SEC` | no | `25` | seconds the server drains in-flight requests after SIGTERM — below Kubernetes' default 30 s grace period |
+| `TRUSTED_PROXIES` | no | empty: nobody | networks of the proxies whose `X-Forwarded-*` the backend believes: the frontend's pods and the ingress |
 | `OTEL_EXPORTER_OTLP_ENDPOINT`, `OTEL_SERVICE_NAME` | only when the project chose tracing | — | where spans go and under which name; absent otherwise |
+
+`APP_VERSION` and `CI_COMMIT_SHORT_SHA` come from the image (`images.md`): the config layer reads them, with `dev`
+and `unknown` when run outside an image, and no compose file or table lists them. A Node backend's `NODE_OPTIONS`
+(`--max-old-space-size`, `images.md`) is set in each compose file and named in «Ресурсы».
 
 The first two are environment-fixed behavior flags (the second category):
 each compose file sets them inline in `environment:` — `backend` both,
@@ -125,7 +130,8 @@ remember:
 4. **No default for a prod/dev secret.** A missing required secret is a
    startup crash naming the variable, in code and in the compose file both
    — an empty string that silently "works" until the first real call fails
-   is worse than a crash at boot.
+   is worse than a crash at boot. So is one too short for its use (a signing or encryption key under 32 characters)
+   or a known placeholder (`change-me`, `secret`, `admin`).
 5. **Resource-budget arithmetic, if the architecture named one.** Worker
    count × per-worker connection/resource usage ≤ the configured limit,
    checked at startup. A misconfiguration should fail the readiness check
@@ -134,6 +140,26 @@ remember:
    to something outside its set — `LOG_LEVEL=verbose`,
    `SHUTDOWN_TIMEOUT_SEC=30s` — is a startup crash naming it, so a typo in
    the operators' manifest does not quietly run with the default.
+
+## What the application's code holds to
+
+These reach `work`'s executors through the stack skills (`fastapi`, `typescript-fastify`), each in that stack's
+terms; this list is their home. A platform that accepts the service checks each of them.
+
+- **The first administrator** comes from variables out of a Secret, or a documented command. No default account in
+  code, a migration or a config file.
+- **Each integration is configured**: its URL, connect and read timeouts, its connection pool's size where it has
+  one, and `<INTEGRATION>_ENABLE`. No address, IP or personal email in code or in a default.
+- **TLS verification is always on.** `verify=False`, `rejectUnauthorized: false` and their kin never appear. A
+  corporate CA comes as a file path: `NODE_EXTRA_CA_CERTS`, `SSL_CERT_FILE`, `<INTEGRATION>_SSL_FILE`.
+- **The app sits behind a TLS-terminating proxy.** Trusted proxies come from `TRUSTED_PROXIES`, so the client's
+  address and the scheme in `X-Forwarded-*` are believed only from them: the rate limit by address and the Secure
+  cookie depend on it. A link the app builds for the outside uses a configured `PUBLIC_BASE_URL`.
+- **Service interfaces stay off in production**: an API's generated docs and admin screens are switched off by
+  config or closed by authorization. The human-readable API documentation lives in the docs site.
+- **Nothing that must be shared lives in the process.** Sessions, rate-limit counters, locks, caches and queues go
+  to an external store; with only one replica possible, DEPLOY.md's «Масштабирование» says so and why. A scheduled
+  job takes a distributed lock (`pg_advisory_lock`, a Redis lock).
 
 ## The `.env.example` sync test
 

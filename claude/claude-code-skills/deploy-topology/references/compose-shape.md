@@ -39,9 +39,8 @@ rules a restricted Kubernetes namespace enforces (Pod Security Standards,
 ```
 
 No `user:` key: the image's numeric `USER` holds (`images.md`), and an
-override here would hide a Dockerfile that runs as root. Two app images
-write somewhere besides `/tmp`, each with one more tmpfs: nginx with a
-shell renders its templates into `/etc/nginx/conf.d` at start, and a
+override here would hide a Dockerfile that runs as root; `image_preflight.py stand` runs the same file under a
+foreign UID. One app image writes somewhere besides `/tmp`, with one more tmpfs: a
 Next.js SSR frontend writes `/app/.next/cache`. Third-party store services
 (the database, the S3 emulator, their init containers) stay as their images
 ship — their vendors' images are not built for a read-only root.
@@ -385,13 +384,14 @@ Present in all three files, after `backend`. The image is the SPA image of
       BACKEND_SERVICE: backend:<app-port>
       BACKEND_PROTOCOL: http
       SECURE_MODE: plain                # prod: plain behind the operator's TLS terminator, or secure + certs below
+      LOG_LEVEL: notice
+      TRUSTED_PROXY_CIDR: 127.0.0.1/32  # prod: the network of the proxy in front
     # prod with SECURE_MODE=secure only:
     # volumes:
     #   - ${TLS_CERT_DIR}:/etc/nginx/ssl:ro    # fullchain.pem, privkey.pem
     read_only: true                     # test and prod
     tmpfs:
-      - /tmp
-      - /etc/nginx/conf.d               # templates rendered at start; the shell-less image needs only /tmp
+      - /tmp                            # the only path it writes: the rendered config lives here too
     cap_drop:
       - ALL
     security_opt:
@@ -406,7 +406,8 @@ Present in all three files, after `backend`. The image is the SPA image of
 ```
 
 **Invariants with a client:**
-- `frontend` waits for `backend` to be healthy, not merely started.
+- `frontend` waits for `backend` to be healthy, so `up --wait` means the whole stand works; the frontend itself
+  starts without a backend (`images.md`), and a cluster needs no such order.
 - In prod only `frontend` publishes a port (loopback); `backend` publishes none —
   the browser reaches the API through `/api/` on the same origin, and the
   backend's `/health/*` and `/metrics` are not reachable through it. In test
@@ -461,14 +462,17 @@ CI instead of shipping:
   and prod's `migrate` also reads `.env.prod.migrate.local`.
 - With a client: no `<<…>>` placeholder is left in `nginx/`, and its only
   uncommented `proxy_pass` is under `location /api/` (the backend's
-  `/health/*` and `/metrics` stay off the entry point). With a shell,
+  `/health/*` and `/metrics` stay off the entry point), that `proxy_pass` names a variable, and no `upstream {`
+  block is left: a name resolved once at the start kills the container when the backend is not up. With a shell,
   `frontend`'s healthcheck reaches `:8081/_healthz` and its environment
-  sets `BACKEND_SERVICE`, `BACKEND_PROTOCOL` and `SECURE_MODE`; without
+  sets `BACKEND_SERVICE`, `BACKEND_PROTOCOL`, `SECURE_MODE`, `LOG_LEVEL` and `TRUSTED_PROXY_CIDR`, its Dockerfile
+  sets `NGINX_ENVSUBST_OUTPUT_DIR=/tmp`, and `/etc/nginx/conf.d` is in no `tmpfs`; without
   one, it has neither and its Dockerfile renders the templates at build.
-- `scripts/build-images.sh` passes `--platform "$PLATFORM"`, saves to
+- `scripts/build-images.sh` passes `--platform "$PLATFORM"` and both `--build-arg`s, saves to
   `release/<APP_VERSION>/<project>-<APP_VERSION>.tar`, and puts
-  `DEPLOY.md`, `<project>.env.example` and `openapi.yaml` (bundled when
-  the contract is split) beside it.
+  `DEPLOY.md`, `<project>.env.example`, `openapi.yaml` (bundled when
+  the contract is split) and `build/` beside it.
+- Every Dockerfile's final stage sets `APP_VERSION` and `CI_COMMIT_SHORT_SHA` from build arguments.
 - `documentation/deploy/deploy.md` agrees with `docker-compose.prod.yml`
   and `.env.example`: containers, every variable per container with its
   required and secret marks, ports, probes, volumes, the allowed
@@ -477,8 +481,9 @@ CI instead of shipping:
   card, «Для DBA», «Остановка» and «Безопасность пода» agree with the
   build script, the Dockerfiles, the migrations, `roles.sql` and the
   config layer — "The sync test" in `references/deploy-doc.md`.
-- `.dockerignore` exists and matches `.env.*.local` (a build context
-  that can see `.env.prod.local` fails the test).
+- `.dockerignore` exists and holds `images.md` → `.dockerignore`: `.env`, `.env.*`, `docker-compose*.yml`,
+  `Dockerfile*`, `.git`, tests and keys (a build context that can see `.env.prod.local` or a `.pem` fails the
+  test), with no exception for `.env.example`.
 - `backend` in every compose file has a `healthcheck` that asks
   `/health/ready` through the runtime (`node`/`python`, not `wget`/`curl`) —
   it is what makes `up --wait` mean "the app can serve", not "the container

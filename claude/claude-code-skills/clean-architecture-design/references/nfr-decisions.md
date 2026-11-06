@@ -88,3 +88,7 @@ read the architecture, not the SRS table.
   next pipeline transition — that stays in `pipeline`.
 - No quality tree and no scenarios table: the SRS already states the
   measure.
+- **Replicas decide where state lives.** A service is expected to run in several replicas, so sessions, rate-limit
+  counters, locks, caches and queues go to an external store, and a store this adds is in «Хранилища». A service that
+  cannot get a row saying «одна реплика» with the reason; a scheduler is named as a one-instance component with
+  its lock. `deploy-topology` copies this into DEPLOY.md's «Масштабирование».

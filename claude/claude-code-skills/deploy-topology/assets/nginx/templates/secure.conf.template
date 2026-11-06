@@ -1,4 +1,4 @@
-include /etc/nginx/conf.d/healthz.conf;
+include <<CONF_DIR>>/healthz.conf;
 
 server {
     listen 8080 ssl default_server;
@@ -17,12 +17,5 @@ server {
     ssl_session_timeout 1d;
     ssl_session_tickets off;
 
-    # OCSP stapling
-    # ssl_stapling on;
-    # ssl_stapling_verify on;
-    # ssl_trusted_certificate /etc/nginx/ssl/chain.pem;  # intermediate chain
-    # resolver 8.8.8.8 8.8.4.4 valid=300s;
-    # resolver_timeout 5s;
-
-    include /etc/nginx/conf.d/default.conf;
+    include <<CONF_DIR>>/default.conf;
 }

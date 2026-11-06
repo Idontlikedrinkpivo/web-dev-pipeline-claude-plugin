@@ -114,6 +114,8 @@ It writes one `$OUT/trivy-<image>.json` per image. The script keeps the
 `pipeline-trivy-cache` volume and scans by image name through the docker
 socket, because `trivy image --input` over a multi-image archive gives
 nothing and no error — a false «0 findings». An empty report is a failed scan.
+It looks for secrets as well, at any severity. Exit 2 means a CRITICAL or a secret; `deploy-topology` →
+`references/images.md` → What stops the hand-over says what follows.
 
 ## When a scanner cannot run
 

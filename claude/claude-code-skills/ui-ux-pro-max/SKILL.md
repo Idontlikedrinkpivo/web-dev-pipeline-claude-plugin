@@ -18,6 +18,9 @@ original licence; `VENDORED.md` lists every change against the original.
 | `ui-design`, step «Визуальное направление» | `--design-system`; `--domain color`, `typography`, `google-fonts`, `style`, `landing` | two or three directions (palette, fonts, style, density) for the user to choose from; landing patterns when the SRS has a public page; suggested effects as proposals |
 | `figma-opus` (`MODE direction`, `MODE draw`), `figma-sonnet` (`MODE restyle`) | the chosen direction as the packet states it | style tiles; the token set; rebinding existing frames |
 
+The Google Fonts links in `data/typography.csv` serve to preview and pick a font; the project's code ships the
+files itself (`frontend`), since a closed network cannot reach them.
+
 Rules for front-end code are not here: `react` and `frontend` own them,
 `web-design-guidelines` the UI-code rules. The stack notes (`--stack`,
 `--domain react`) are a secondary index — search them only for a detail

@@ -7,7 +7,9 @@ Usage: trivy_images.py <release tar> <out dir> [--severity HIGH,CRITICAL]
 (backend + frontend in one file) it prints nothing and exits 0. So the image
 names are read from manifest.json, loaded into docker if missing, and scanned
 by name through the docker socket. An empty or malformed report is a failed
-scan, never "0 findings". Exit 0: every image scanned; 1: otherwise.
+scan, never "0 findings". Vulnerabilities are filtered by --severity; a secret
+counts at any severity. Exit 0: every image scanned, nothing that stops the
+hand-over; 2: scanned, and a CRITICAL or a secret was found; 1: a scan failed.
 """
 import json
 import re
@@ -28,11 +30,11 @@ def run(cmd):
     return subprocess.run(cmd, capture_output=True, text=True)
 
 
-def scan(name, severity):
+def trivy(name, *options):
     """Return (report dict, None) or (None, reason)."""
     cmd = ["docker", "run", "--rm", "-v", "/var/run/docker.sock:/var/run/docker.sock",
            "-v", "pipeline-trivy-cache:/root/.cache/trivy", "aquasec/trivy:latest",
-           "image", name, "--severity", severity, "--format", "json"]
+           "image", name, "--format", "json", *options]
     res = run(cmd)
     if not res.stdout.strip():
         return None, "пустой вывод trivy (%s)" % (res.stderr.strip()[-200:] or "без сообщения")
@@ -42,6 +44,18 @@ def scan(name, severity):
         return None, "вывод trivy не JSON"
     if not isinstance(report, dict) or "Results" not in report:
         return None, "в отчёте нет ключа Results"
+    return report, None
+
+
+def scan(name, severity):
+    """Vulnerabilities at the given severity and secrets at any, as one report."""
+    report, why = trivy(name, "--scanners", "vuln", "--severity", severity)
+    if report is None:
+        return None, why
+    secrets, why = trivy(name, "--scanners", "secret")
+    if secrets is None:
+        return None, why
+    report["Results"] = (report["Results"] or []) + (secrets["Results"] or [])
     return report, None
 
 
@@ -67,7 +81,7 @@ def main(argv):
         Path(out_dir).mkdir(parents=True, exist_ok=True)
         loaded = False
         failed = 0
-        total = {"HIGH": 0, "CRITICAL": 0}
+        total = {"HIGH": 0, "CRITICAL": 0, "SECRET": 0}
         for name in names:
             if run(["docker", "image", "inspect", name]).returncode != 0 and not loaded:
                 loaded = True
@@ -79,23 +93,27 @@ def main(argv):
                 failed += 1
                 print("trivy %s: СКАН НЕ УДАЛСЯ — %s" % (name, why))
                 continue
-            counts = {"HIGH": 0, "CRITICAL": 0}
+            counts = {"HIGH": 0, "CRITICAL": 0, "SECRET": 0}
             for result in report["Results"] or []:
                 for vuln in result.get("Vulnerabilities") or []:
                     if vuln.get("Severity") in counts:
                         counts[vuln["Severity"]] += 1
+                counts["SECRET"] += len(result.get("Secrets") or [])
             out = Path(out_dir) / ("trivy-%s.json" % re.sub(r"[/:]", "_", name))
             out.write_text(json.dumps(report, ensure_ascii=False, indent=1), encoding="utf-8")
             for key in total:
                 total[key] += counts[key]
-            print("trivy %s: HIGH %d · CRITICAL %d → %s" % (name, counts["HIGH"], counts["CRITICAL"], out))
+            print("trivy %s: HIGH %d · CRITICAL %d · секретов %d → %s"
+                  % (name, counts["HIGH"], counts["CRITICAL"], counts["SECRET"], out))
     except FileNotFoundError:
         print("docker не найден: образы нельзя проверить, скан не выполнен")
         return 1
-    print("Итого: образов %d, просканировано %d, HIGH %d · CRITICAL %d. Код выхода %d: %s"
-          % (len(names), len(names) - failed, total["HIGH"], total["CRITICAL"], 1 if failed else 0,
-             "есть неудавшиеся сканы, это не «0 находок»" if failed else "все образы просканированы"))
-    return 1 if failed else 0
+    code = 1 if failed else 2 if total["CRITICAL"] or total["SECRET"] else 0
+    verdict = {0: "все образы просканированы", 1: "есть неудавшиеся сканы, это не «0 находок»",
+               2: "CRITICAL или секрет — комплект не передаётся (images.md → What stops the hand-over)"}[code]
+    print("Итого: образов %d, просканировано %d, HIGH %d · CRITICAL %d · секретов %d. Код выхода %d: %s"
+          % (len(names), len(names) - failed, total["HIGH"], total["CRITICAL"], total["SECRET"], code, verdict))
+    return code
 
 
 if __name__ == "__main__":

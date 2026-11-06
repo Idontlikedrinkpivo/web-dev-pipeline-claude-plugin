@@ -4,8 +4,9 @@ Contents:
 
 - Where it lives — the source in `documentation/deploy/`, the hand-over copy.
 - What it holds — the template of `deploy.md`, section by section: Карточка сервиса, Контейнеры, Порядок
-  запуска, Сеть и проверки, Ресурсы, Переменные, Внешние зависимости, Для DBA, Логи, Метрики, Остановка,
-  Безопасность пода, Трассировка, Состояние и тома, Первый запуск, Обновление на новую версию; then probe
+  запуска, Сеть и проверки, Ресурсы, Масштабирование, Переменные, Внешние зависимости, Для DBA, Логи, Метрики,
+  Остановка, Безопасность пода, Трассировка, Состояние и тома, Первый запуск, Сборка образа, Обновление на новую
+  версию; then probe
   timings, secrets and the files it may name.
 - The stand's proof (Step 7b) — the service check in the container, measuring resources.
 - The variables file — `<project>.env.example` for the operators.
@@ -17,7 +18,8 @@ Step 7 while writing its sync test, and in Step 7b for the stand's proof
 
 The operators receive one folder per release: the image archive,
 `DEPLOY.md`, the variables file `<project>.env.example`, the API contract
-`openapi.yaml`, and `OPERATIONS.md` when the operations document exists.
+`openapi.yaml`, `build/` (the Dockerfiles and `.dockerignore`), `scan/` (the
+scanner's reports), and `OPERATIONS.md` when the operations document exists.
 They do not receive `docker-compose.prod.yml` — they run the images in
 their own way (their compose, their orchestrator, their secrets store), so
 they need the facts, not this project's file. So `DEPLOY.md` names no file
@@ -65,7 +67,8 @@ comes from this project's files.
 
 Комплект: `<project>-<версия>.tar` (образы `<project>-backend:<тег>`,
 `<project>-frontend:<тег>`), этот файл, `<project>.env.example` —
-переменные прода с пометками, и `openapi.yaml` — контракт API.
+переменные прода с пометками, `openapi.yaml` — контракт API, папка `build/` — Dockerfile и
+.dockerignore каждого образа, папка `scan/` — отчёты сканера уязвимостей и секретов.
 
 Загрузка образов: `docker load -i <project>-<версия>.tar`
 
@@ -76,13 +79,15 @@ comes from this project's files.
 | Образы | `<project>-backend:<тег>`, `<project>-frontend:<тег>` |
 | Архитектура | linux/amd64 |
 | Образ | с оболочкой (alpine) |
-| Пользователь | backend и migrate — UID 1000, frontend — UID 101; root не нужен |
+| Версия | `APP_VERSION`, `CI_COMMIT_SHORT_SHA` в окружении образа; метрика `app_build_info` у backend |
+| Пользователь | backend и migrate — UID 1000, frontend — UID 101; root не нужен; работают и под другим UID (проверено под 5000) |
 | Порты | backend 3000 — API, проверки, метрики; frontend 8080 — вход, 8081 — его проверка |
 | Проверки | backend: живость `GET /health/live`, готовность `GET /health/ready`; frontend: `GET /_healthz` на 8081 |
 | Метрики | `GET /metrics` на backend:3000, формат Prometheus |
 | Переменные | раздел «Переменные»; образец — `<project>.env.example` |
 | Ресурсы | backend: 100m и 128Mi, лимит памяти 256Mi; frontend: 50m и 64Mi, лимит 64Mi (замерено 2026-10-23) |
 | Зависимости | PostgreSQL 17, S3-совместимое хранилище, почтовый сервис — раздел «Внешние зависимости» |
+| Масштабирование | backend и frontend — можно несколько реплик; компонентов в одном экземпляре нет — раздел «Масштабирование» |
 | Заметки | миграции — контейнер `migrate`, один раз перед `backend`; остановка по SIGTERM за 25 с; томов нет — состояние в PostgreSQL и S3 |
 
 ## Контейнеры
@@ -99,7 +104,7 @@ comes from this project's files.
    `backend` на непримененной схеме не запускать. Повторный запуск безопасен: применённые миграции
    пропускаются.
 2. `backend` — после успешного `migrate`.
-3. `frontend` — после того как `backend` отвечает на проверку готовности.
+3. `frontend` — в любой момент: без бэкенда он стартует, а `/api/` отвечает 502, пока тот не появится.
 
 ## Сеть и проверки
 
@@ -118,7 +123,10 @@ comes from this project's files.
 Наружу публикуется только `frontend:8080`. Служебные пути backend — `/health/live`, `/health/ready`,
 `/metrics` — доступны только внутри кластера на порту 3000: `frontend` проксирует к бэкенду лишь
 `/api/`. TLS и внешний прокси перед `frontend` — на стороне эксплуатации; `frontend` работает по
-HTTP, а адрес бэкенда получает из `BACKEND_SERVICE`.
+HTTP, а адрес бэкенда получает из `BACKEND_SERVICE` и ищет его при каждом запросе.
+
+Отдельного служебного порта у backend нет: проверки и метрики на порту приложения. Поэтому порт 3000
+в ingress не публикуется; наружу выходит только `frontend:8080`.
 
 ## Ресурсы
 
@@ -128,6 +136,9 @@ HTTP, а адрес бэкенда получает из `BACKEND_SERVICE`.
 | frontend | 0m / 2m / 15m | 6Mi / 8Mi / 12Mi | < 1 с | 50m, 64Mi | 64Mi |
 | migrate | не замерялся (разовый) | — | — | как у backend | как у backend |
 
+Память Node согласована с лимитом: `NODE_OPTIONS=--max-old-space-size=<75% лимита в МБ>`, для лимита
+256Mi — `--max-old-space-size=192`. Меняете лимит — меняйте и эту переменную.
+
 Замерено 2026-10-23 на тестовом стенде: Docker 28, 8 ядер, образы собраны под linux/arm64 этой
 машины (без эмуляции); `docker stats` каждые 2 с. Покой — 30 с без запросов. Обычно — постоянные
 5 запросов/с 2 мин: профиль из требований, NFR-4 — до 50 пользователей, запрос раз в 10 с. Пик —
@@ -136,6 +147,15 @@ e2e-тесты (42 теста, 6 мин). Это нагрузка стенда, 
 requests — обычное значение, округлённое вверх; лимит памяти — пик × 1,5, округлённый до 64Mi.
 Лимит CPU не рекомендуем: с ним процесс притормаживается квотой (throttling) даже на свободном
 узле; если политика кластера его требует — не ниже пика.
+
+## Масштабирование
+
+| Контейнер | Реплик | Процессов в контейнере | Память на процесс | Почему так |
+|---|---|---|---|---|
+| backend | можно несколько | 1 (`<переменная>`) | 95Mi | состояние — в PostgreSQL и S3, в памяти процесса нет ни сессий, ни счётчиков, ни блокировок |
+| frontend | можно несколько | по числу ядер | 8Mi | только статика и прокси |
+
+Компонентов, которые работают строго в одном экземпляре, нет.
 
 ## Переменные
 
@@ -147,14 +167,17 @@ requests — обычное значение, округлённое вверх;
 | DATABASE_URL | да | да | `postgres://user:***@host:5432/db?options=-c%20search_path%3D<schema>` | подключение к PostgreSQL, схема `<schema>`. У `backend` — учётка backend (только данные), у `migrate` — учётка migrate (владелец схемы): значения разные |
 | LOG_LEVEL | нет | нет | `info`; допустимо `trace`, `debug`, `info`, `warn`, `error`, `fatal` | подробность логов |
 | SHUTDOWN_TIMEOUT_SEC | нет | нет | `25` (секунды) | сколько `backend` после SIGTERM дожидается текущих запросов |
+| TRUSTED_PROXIES | нет | нет | `10.0.0.0/8`; пусто — не доверять никому | сети прокси, чьим `X-Forwarded-*` верит `backend`: сеть подов `frontend` и внешнего прокси |
 | … | | | | |
 
 ### frontend
 
 | Переменная | Обязательна | Секрет | Пример / формат | Что задаёт |
 |---|---|---|---|---|
-| BACKEND_SERVICE | да | нет | `backend:3000` | адрес бэкенда |
-| BACKEND_PROTOCOL | да | нет | `http` | протокол до бэкенда |
+| BACKEND_SERVICE | да | нет | `backend.<namespace>.svc.cluster.local:3000` | адрес бэкенда; в кластере — полное DNS-имя: короткое nginx не найдёт |
+| BACKEND_PROTOCOL | да | нет | `http` или `https` | протокол до бэкенда; `https` проверяет сертификат по файлу `/etc/nginx/ssl/backend-ca.pem`, без файла контейнер не стартует |
+| LOG_LEVEL | нет | нет | `notice`; допустимо `debug`, `info`, `notice`, `warn`, `error`, `crit` | подробность журнала ошибок |
+| TRUSTED_PROXY_CIDR | нет | нет | `10.0.0.0/8`; по умолчанию `127.0.0.1/32` — не доверять никому | сеть внешнего прокси: от неё принимается `X-Forwarded-For` |
 | SECURE_MODE | да | нет | `plain` или `secure` | `plain` — HTTP, TLS на прокси эксплуатации; `secure` — TLS в самом контейнере, сертификаты в `/etc/nginx/ssl/`. Другое значение — nginx не стартует |
 
 ## Внешние зависимости
@@ -167,7 +190,8 @@ requests — обычное значение, округлённое вверх;
 | Прокси эксплуатации | — | 8080, HTTP | прокси → frontend | TLS завершается на прокси |
 
 DNS-имена и адреса — ваши: приложение берёт их только из переменных. Других исходящих
-соединений нет.
+соединений нет. Проверка TLS-сертификатов не отключается. Корпоративный CA подключается файлом: смонтируйте
+его и укажите путь в `NODE_EXTRA_CA_CERTS` (Node) или `SSL_CERT_FILE` (Python).
 
 ## Для DBA
 
@@ -209,8 +233,10 @@ ALTER DEFAULT PRIVILEGES FOR ROLE <schema>_migrate IN SCHEMA <schema>
 - Секретов, токенов и персональных данных в логах нет.
 - `request_id` сквозной: берётся из заголовка `X-Request-Id` (его ставит `frontend`) или создаётся,
   и возвращается в ответе.
-- frontend (nginx) пишет журнал запросов JSON-строками в stdout (`@timestamp`, `status`,
-  `request_time`, `request_id`, …), ошибки — в stderr.
+- frontend (nginx) пишет журнал запросов JSON-строками в stdout (`@timestamp`, `level`, `logger`, `msg`,
+  `status`, `request_time`, `request_id`, …), без query-строки и заголовков с учётными данными.
+- Журнал ошибок nginx идёт в stderr обычным текстом: формат задан самим nginx и не настраивается.
+- Успешные обращения к проверкам и метрикам в журнал не пишутся.
 
 ## Метрики
 
@@ -218,7 +244,7 @@ ALTER DEFAULT PRIVILEGES FOR ROLE <schema>_migrate IN SCHEMA <schema>
 |---|---|
 | Где | `GET /metrics` на backend:3000, без авторизации; через `frontend` наружу не доступен |
 | Формат | Prometheus, текстовый |
-| Основные | `http_request_duration_seconds` — гистограмма длительности запросов с метками `method`, `route` (шаблон пути), `status_code`; стандартные метрики процесса (`process_cpu_seconds_total`, `process_resident_memory_bytes`, …) |
+| Основные | `http_request_duration_seconds` — гистограмма длительности запросов с метками `method`, `route` (шаблон пути), `status_code`: из неё и количество, и ошибки; `db_pool_connections` — соединения пула с меткой `state`; `app_build_info` — версия и коммит; стандартные метрики процесса (`process_cpu_seconds_total`, `process_resident_memory_bytes`, …) |
 | frontend | метрик нет |
 
 ## Остановка
@@ -227,18 +253,19 @@ ALTER DEFAULT PRIVILEGES FOR ROLE <schema>_migrate IN SCHEMA <schema>
   `SHUTDOWN_TIMEOUT_SEC` (по умолчанию 25 с), закрывает пул соединений с базой и завершается с кодом 0.
 - Рекомендуем `terminationGracePeriodSeconds` не меньше 30 (25 + 5).
 - migrate — разовый, останавливать не нужно.
-- frontend (nginx) останавливается сигналом образа SIGQUIT и дожидается текущих запросов.
+- frontend (nginx) останавливается сигналом образа SIGQUIT и дожидается текущих запросов не дольше 25 с.
 
 ## Безопасность пода
 
-| Контейнер | runAsUser | Пишет на диск |
-|---|---|---|
-| backend, migrate | 1000 | только `/tmp` |
-| frontend | 101 | `/tmp`, `/etc/nginx/conf.d` |
+| Контейнер | runAsUser | Пишет на диск | Объём |
+|---|---|---|---|
+| backend, migrate | 1000 | только `/tmp` | до 16Mi |
+| frontend | 101 | только `/tmp` | до 16Mi плюс самый большой загружаемый файл: nginx сначала складывает его сюда |
 
 Для всех: `runAsNonRoot: true`; `readOnlyRootFilesystem: true` с `emptyDir` на каждый путь из
 таблицы; `allowPrivilegeEscalation: false`; capabilities — drop ALL; `seccompProfile: RuntimeDefault`.
-Все порты выше 1024. Тестовый стенд работает с теми же ограничениями.
+Все порты выше 1024. Образы работают и под другим `runAsUser`, например 5000: файлы образа им только читаются.
+Тестовый стенд работает с теми же ограничениями и проверен под UID 5000.
 
 ## Трассировка
 
@@ -250,7 +277,17 @@ ALTER DEFAULT PRIVILEGES FOR ROLE <schema>_migrate IN SCHEMA <schema>
 
 ## Первый запуск
 
-Как появляется первый администратор (или начальные данные) — по шагам.
+Как появляется первый администратор (или начальные данные) — по шагам. Его учётные данные задаются
+переменными из Secret, значений по умолчанию нет.
+
+## Сборка образа
+
+Образы собраны из файлов папки `build/`. Пересборка из исходников того же коммита:
+
+`docker buildx build --platform linux/amd64 --build-arg APP_VERSION=<версия> --build-arg CI_COMMIT_SHORT_SHA=<коммит> -t <project>-backend:<тег> -f build/backend.Dockerfile <корень репозитория>`
+
+Базовые образы закреплены версией или digest и обновляются при каждом выпуске. Отчёты сканера за этот выпуск —
+в папке `scan/`.
 
 ## Обновление на новую версию
 
@@ -275,10 +312,11 @@ Where each section comes from:
 | Карточка сервиса | the sections below, one line each; «Архитектура» — `PLATFORM` in the build script; «Образ» — the project's answer (`images.md` → Shell or no shell); «Пользователь» — each image's numeric `USER` |
 | Контейнеры | `docker-compose.prod.yml` services, the Dockerfiles' `CMD`, the migrate command |
 | Порядок запуска | `depends_on` conditions in `docker-compose.prod.yml` |
-| Сеть и проверки | the container ports, the published port, the service endpoints; timings by the rules below; a startup row from «Ресурсы»' time to ready |
-| Ресурсы | the measurement in Step 7b (below); the load profile from the SRS NFRs, or «в требованиях не задан» |
+| Сеть и проверки | the container ports, the published port, the service endpoints; timings by the rules below; a startup row from «Ресурсы»' time to ready. No client: the backend is the entry, so the section says to publish only the `/api/` prefix in the ingress, never `/health/*` and `/metrics` |
+| Ресурсы | the measurement in Step 7b (below); the load profile from the SRS NFRs, or «в требованиях не задан»; a Node backend's `NODE_OPTIONS` from the memory limit |
+| Масштабирование | the process count variable and the peak memory ÷ processes from «Ресурсы»; state kept in the process and one-instance components from the architecture's «Решения по NFR». Anything held in the process (a limit counter, a lock, a cache) means «одна реплика» with the reason. A one-instance component is named with its lock (`pg_advisory_lock`, a Redis lock) |
 | Переменные | each service's `environment:` / `env_file` in `docker-compose.prod.yml`, and `.env.example`'s markers for required / secret (`env-and-config-contract.md` → Markers in `.env.example`); `[infra]` keys never appear |
-| Внешние зависимости | what `docker-compose.prod.yml` points outside itself, each with the variable that holds its address; the external systems of architecture foundation §1 as outgoing rows; versions from the architecture |
+| Внешние зависимости | what `docker-compose.prod.yml` points outside itself, each with the variable that holds its address; the external systems of architecture foundation §1 as outgoing rows, every outgoing connection named; versions from the architecture |
 | Для DBA | `schema.md` «Решения по базе» (DBMS and major, schema, collation); `CREATE EXTENSION` in `documentation/db/migrations/`; the grants of `docker/db-init/roles.sql`, the database grant written with `<база>`; the pool size the config layer sets |
 | Логи | the fields the app's JSON formatter writes; nginx's `json_combined` |
 | Метрики | `/metrics`, the request histogram, the stack's default process metrics |
@@ -286,16 +324,27 @@ Where each section comes from:
 | Безопасность пода | each Dockerfile's `USER`; each app service's `tmpfs:` paths in `docker-compose.prod.yml` |
 | Трассировка | «Нет.», or the `OTEL_` variables when the project chose tracing |
 | Состояние и тома | `volumes:` in `docker-compose.prod.yml` |
-| Первый запуск | the architecture or SRS (how the first admin or seed data appears); ask the user when neither says |
+| Первый запуск | the architecture or SRS (how the first admin or seed data appears), through variables from a Secret, never a default in code or config; ask the user when neither says |
+| Сборка образа | `PLATFORM` and the Dockerfiles from the build script; one command per image |
 | Обновление | fixed text above, with the project's names; «Когда откатывать»: the readiness wait from «Сеть и проверки», the 5xx share and the key scenario from the SRS NFRs and this release's main change — when the NFRs give no threshold, ask the user once; never left as a placeholder |
 
 The image without a shell changes three places: «Образ» says «без
-оболочки (distroless)», the UIDs are 65532, and the frontend has no
-variables — its table says «Переменных нет: адрес бэкенда `backend:<port>`
-и протокол заданы при сборке образа» and the network section tells the
-operators to name the backend's service `backend` or mount their own
-`/etc/nginx/conf.d/upstream.conf` (`images.md` → Frontend image — without a
-shell). Its frontend writes only `/tmp`.
+оболочки (distroless)», the UIDs are 65532, and the frontend reads no
+variables — its table says «Переменных нет: что зависит от среды, задаётся смонтированным файлом» and the network
+section gives that file, to mount at `/etc/nginx/conf.d/upstream.conf` (`images.md` → Frontend image — without a
+shell):
+
+```nginx
+resolver <адрес DNS кластера> valid=10s;
+
+map $host $backend_upstream {
+    default "http://backend.<namespace>.svc.cluster.local:<port>";
+}
+
+set_real_ip_from <сеть внешнего прокси>;
+real_ip_header X-Forwarded-For;
+real_ip_recursive on;
+```
 
 **Probe timings.** Liveness: timeout 2 s, period 10 s, failure threshold 3.
 Readiness: timeout 3 s — above the 2 s database ping it waits for — period
@@ -530,8 +579,8 @@ headers — split rows on `|`), and assert:
    variable's comment line in `.env.example` carries `[required]`, and
    «Секрет» exactly when it carries `[secret]` — the one marker format of
    `env-and-config-contract.md` → Markers in `.env.example`.
-5. **Probes.** Each long-running service has a liveness and a readiness row
-   on its container port; `backend`'s paths are `/health/live` and
+5. **Probes.** Each long-running service with an HTTP port has a liveness and a readiness row
+   on its container port, and a worker without one a liveness row naming its check; `backend`'s paths are `/health/live` and
    `/health/ready`, and its readiness timeout is above 2 s; the path the
    compose `healthcheck` asks is the readiness row's. A startup row exists
    exactly when «Ресурсы»' time to ready exceeds 10 s, and then its
@@ -588,6 +637,10 @@ headers — split rows on `|`), and assert:
     file is at least as long.
 16. **Tracing.** «Трассировка» says «Нет.» exactly when `.env.example` has
     no `OTEL_` variable.
+17. **Scaling.** «Масштабирование» has a row per long-running app container with a filled «Реплик» and «Почему
+    так», and the card's row agrees with it.
+18. **Node memory.** For a Node backend, `NODE_OPTIONS` in `docker-compose.prod.yml` holds a
+    `--max-old-space-size` at most 80% of «Ресурсы»' memory limit.
 
 The failure message names the file to fix: «deploy.md: переменная
 S3_BUCKET у backend есть в docker-compose.prod.yml, но нет в таблице

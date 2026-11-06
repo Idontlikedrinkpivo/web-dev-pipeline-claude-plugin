@@ -1017,8 +1017,12 @@
     "what": "Класс в open-questions.md теперь адресат: «Блокирует старт», «Решить при: <этап>» (схема БД, API, архитектура, макеты, ТЗ на экраны, тест-кейсы, план, разработка, релиз, эксплуатация), «Отложено» или «Решено: <где>». Каждый этап перед работой видит вопросы, адресованные ему из файлов других документов; прежнее «Можно решить при архитектуре» ещё читается как «Решить при: архитектура».",
     "applies": {
       "any": [
-        {"exists": "documentation/*/open-questions.md"},
-        {"exists": "documentation/*/*/open-questions.md"}
+        {
+          "exists": "documentation/*/open-questions.md"
+        },
+        {
+          "exists": "documentation/*/*/open-questions.md"
+        }
       ]
     },
     "behind": {
@@ -1028,5 +1032,183 @@
       }
     },
     "fix": "doc-versioning → Открытые вопросы: в каждом documentation/**/open-questions.md заменить класс «Можно решить при архитектуре» на «Решить при: архитектура»; вопросы, которые уже решены в документе, пометить «Решено: <документ §раздел>». Затем python3 <doc-versioning>/scripts/doc_check.py . и закоммитить файлы вопросов одним коммитом «docs: классы открытых вопросов (плагин 1.2.274)»."
+  },
+  {
+    "id": "nginx-per-request-lookup",
+    "version": "1.2.282",
+    "title": "Фронт стартует без бэкенда и пишет только в /tmp",
+    "kind": "code",
+    "what": "nginx ищет адрес бэкенда при каждом запросе, а не один раз при старте: раньше без бэкенда контейнер падал, а после пересоздания бэкенда терял его. Настройки теперь пишутся в /tmp, вторая папка для записи не нужна. В журнале нет query-строки и заголовков с учётными данными, X-Forwarded-Proto передаётся бэкенду.",
+    "applies": {
+      "any": [
+        {
+          "exists": "nginx/nginx.conf"
+        },
+        {
+          "exists": "*/nginx/nginx.conf"
+        }
+      ]
+    },
+    "behind": {
+      "any": [
+        {
+          "grep": {
+            "path": "nginx/templates/upstream.conf.template",
+            "pattern": "^\\s*upstream\\s"
+          }
+        },
+        {
+          "grep": {
+            "path": "*/nginx/templates/upstream.conf.template",
+            "pattern": "^\\s*upstream\\s"
+          }
+        }
+      ]
+    },
+    "fix": "deploy-topology → references/images.md → Frontend image: заново скопировать assets/nginx/ в папку клиента, заполнить параметры <<…>> (новый — <<CONF_DIR>>), добавить в Dockerfile ENV NGINX_ENVSUBST_OUTPUT_DIR=/tmp NGINX_ENTRYPOINT_LOCAL_RESOLVERS=1 LOG_LEVEL=notice TRUSTED_PROXY_CIDR=127.0.0.1/32, убрать /etc/nginx/conf.d из tmpfs в compose, обновить контрактные тесты и таблицы deploy.md. Проверка: scripts/image_preflight.py stand."
+  },
+  {
+    "id": "dockerignore-whole",
+    "version": "1.2.282",
+    "title": "Полный .dockerignore",
+    "kind": "code",
+    "what": "В контекст сборки и в образ не попадают .env* без исключений (раньше .env.example разрешался), compose-файлы, Dockerfile, тесты, документы и ключи. Содержимое готового образа теперь проверяется скриптом.",
+    "applies": {
+      "any": [
+        {
+          "exists": ".dockerignore"
+        },
+        {
+          "exists": "*/.dockerignore"
+        }
+      ]
+    },
+    "behind": {
+      "not": {
+        "any": [
+          {
+            "grep": {
+              "path": ".dockerignore",
+              "pattern": "^Dockerfile\\*"
+            }
+          },
+          {
+            "grep": {
+              "path": "*/.dockerignore",
+              "pattern": "^Dockerfile\\*"
+            }
+          }
+        ]
+      }
+    },
+    "fix": "deploy-topology → references/images.md → .dockerignore: записать список целиком в каждый контекст сборки; затем scripts/deploy_check.py и scripts/image_preflight.py contents <образ:тег>. Что нашлось в образе — убрать из копирования в итоговой стадии."
+  },
+  {
+    "id": "image-version-inside",
+    "version": "1.2.282",
+    "title": "Версия сборки внутри образа",
+    "kind": "code",
+    "what": "Dockerfile задаёт APP_VERSION и CI_COMMIT_SHORT_SHA из аргументов сборки, у backend есть метрика app_build_info. Раньше версия была только в теге. В папке выпуска появились build/ (Dockerfile и .dockerignore) и scan/ (отчёты сканера).",
+    "applies": {
+      "any": [
+        {
+          "exists": "Dockerfile"
+        },
+        {
+          "exists": "*/Dockerfile"
+        }
+      ]
+    },
+    "behind": {
+      "not": {
+        "any": [
+          {
+            "grep": {
+              "path": "Dockerfile",
+              "pattern": "^ENV .*APP_VERSION="
+            }
+          },
+          {
+            "grep": {
+              "path": "*/Dockerfile",
+              "pattern": "^ENV .*APP_VERSION="
+            }
+          }
+        ]
+      }
+    },
+    "fix": "deploy-topology → references/images.md: ARG и ENV перед USER в итоговой стадии каждого Dockerfile, --build-arg и копирование в build/ в scripts/build-images.sh; метрика — fastapi или typescript-fastify → references/service-endpoints.md."
+  },
+  {
+    "id": "service-code-for-platform",
+    "version": "1.2.282",
+    "title": "Код сервиса: метрики сборки и пула, доверенные прокси",
+    "kind": "code",
+    "what": "В /metrics появились app_build_info и db_pool_connections, TRUSTED_PROXIES задаёт, чьим X-Forwarded-* верить. У FastAPI выключены /docs, /redoc и /openapi.json. Секрет короче 32 символов останавливает старт, у каждой интеграции свои настройки, проверка TLS не отключается, общее состояние — вне процесса.",
+    "applies": {
+      "any": [
+        {
+          "exists": "src/bootstrap/service-routes.ts"
+        },
+        {
+          "exists": "*/src/bootstrap/service-routes.ts"
+        },
+        {
+          "exists": "src/*/bootstrap/serve.py"
+        },
+        {
+          "exists": "*/src/*/bootstrap/serve.py"
+        }
+      ]
+    },
+    "behind": {
+      "not": {
+        "any": [
+          {
+            "grep": {
+              "path": "src/bootstrap/*",
+              "pattern": "app_build_info"
+            }
+          },
+          {
+            "grep": {
+              "path": "*/src/bootstrap/*",
+              "pattern": "app_build_info"
+            }
+          },
+          {
+            "grep": {
+              "path": "src/*/bootstrap/*",
+              "pattern": "app_build_info"
+            }
+          },
+          {
+            "grep": {
+              "path": "*/src/*/bootstrap/*",
+              "pattern": "app_build_info"
+            }
+          }
+        ]
+      }
+    },
+    "fix": "fastapi или typescript-fastify → references/service-endpoints.md: перенести изменения кода; deploy-topology → references/env-and-config-contract.md → What the application's code holds to: сверить настройки и записать найденное в план исправлений. Проверка: repo-scaffold/scripts/service_check.py и deploy-topology/scripts/image_preflight.py stand."
+  },
+  {
+    "id": "deploy-doc-scaling",
+    "version": "1.2.282",
+    "title": "В deploy.md — масштабирование и сборка образа",
+    "what": "Новые разделы «Масштабирование» (реплики, процессы, память на процесс, компоненты в одном экземпляре) и «Сборка образа»; в «Безопасности пода» — объём записи; у фронта новые переменные LOG_LEVEL и TRUSTED_PROXY_CIDR, BACKEND_SERVICE в кластере — полное DNS-имя.",
+    "applies": {
+      "exists": "documentation/deploy/deploy.md"
+    },
+    "behind": {
+      "not": {
+        "grep": {
+          "path": "documentation/deploy/deploy.md",
+          "pattern": "^## Масштабирование"
+        }
+      }
+    },
+    "fix": "deploy-topology → references/deploy-doc.md: дописать разделы по шаблону и источникам из таблицы, остальное в документе не трогать; затем sync-тест проекта."
   }
 ]

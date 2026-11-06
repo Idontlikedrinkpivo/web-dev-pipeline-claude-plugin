@@ -20,6 +20,7 @@ const app = Fastify({
     timestamp: () => `,"time":"${new Date().toISOString()}"`, // ISO-8601 UTC, not epoch milliseconds
     formatters: { level: (label) => ({ level: label }) }, // "info", not 30
   },
+  trustProxy: deps.trustedProxies.length > 0 ? deps.trustedProxies : false, // TRUSTED_PROXIES; empty — believe nobody
   requestIdHeader: "x-request-id", // the caller's id when present...
   genReqId: () => randomUUID(), // ...else a new one
   logController: new LogController({ requestIdLogLabel: "request_id" }),
@@ -28,7 +29,7 @@ app.addHook("onRequest", (request, reply, done) => {
   reply.header("x-request-id", request.id) // echoed, on errors and 404s too
   done()
 })
-registerServiceRoutes(app, deps.ready) // before the area routes, so the histogram hook covers them
+registerServiceRoutes(app, deps) // before the area routes, so the histogram hook covers them
 ```
 
 - Every line is then `{"level","time","logger","msg"}`, plus `request_id` inside a request and `err` (`type`,
@@ -46,11 +47,17 @@ registerServiceRoutes(app, deps.ready) // before the area routes, so the histogr
 
 ```typescript
 import type { FastifyInstance, LogLevel } from "fastify"
-import { collectDefaultMetrics, Histogram, Registry } from "prom-client"
+import { collectDefaultMetrics, Gauge, Histogram, Registry } from "prom-client"
 
 export type CheckState = "up" | "down"
 /** Each store the app cannot serve without, by name: `{ db: "up" }`. Never a third-party API. */
 export type ReadinessChecks = () => Promise<Record<string, CheckState>>
+
+export type ServiceDeps = {
+  ready: ReadinessChecks
+  build: { version: string; commit: string } // APP_VERSION, CI_COMMIT_SHORT_SHA of the image, through the config module
+  poolStats: (() => { total: number; idle: number; waiting: number }) | undefined // undefined: no database
+}
 
 const SERVICE_PATHS = new Set(["/health/live", "/health/ready", "/metrics"])
 /** The levels quieter than warn: the service routes follow the app down to them. */
@@ -70,9 +77,29 @@ export async function probe(check: () => Promise<unknown>, ms = 2000): Promise<C
 }
 
 /** /health/live, /health/ready, /metrics and the request-duration histogram. Register before the area routes. */
-export function registerServiceRoutes(app: FastifyInstance, ready: ReadinessChecks): void {
+export function registerServiceRoutes(app: FastifyInstance, { ready, build, poolStats }: ServiceDeps): void {
   const registry = new Registry() // one per app: tests build many servers, and the global one refuses a second metric
   collectDefaultMetrics({ register: registry })
+  new Gauge({
+    name: "app_build_info",
+    help: "The running build",
+    labelNames: ["version", "commit"] as const,
+    registers: [registry],
+  }).set(build, 1)
+  if (poolStats !== undefined) {
+    new Gauge({
+      name: "db_pool_connections",
+      help: "Database pool connections by state",
+      labelNames: ["state"] as const,
+      registers: [registry],
+      collect() {
+        const { total, idle, waiting } = poolStats()
+        this.set({ state: "total" }, total)
+        this.set({ state: "idle" }, idle)
+        this.set({ state: "waiting" }, waiting)
+      },
+    })
+  }
   const duration = new Histogram({
     name: "http_request_duration_seconds",
     help: "HTTP request duration by route template",
@@ -121,7 +148,10 @@ const config = loadConfig(process.env)
 const pool = config.databaseUrl === undefined ? undefined : new Pool({ connectionString: config.databaseUrl })
 const app = buildServer({
   logLevel: config.logLevel,
+  trustedProxies: config.trustedProxies,
   ready: async () => ({ db: pool === undefined ? "down" : await probe(() => pool.query("select 1")) }),
+  build: { version: config.appVersion, commit: config.commitSha },
+  poolStats: pool && (() => ({ total: pool.totalCount, idle: pool.idleCount, waiting: pool.waitingCount })),
   // ...the dependencies the routes take
 })
 app.addHook("onClose", async () => {
@@ -158,7 +188,9 @@ process.once("SIGINT", shutDown)
 
 `LOG_LEVEL` (optional; one of pino's levels, default `info`) and `SHUTDOWN_TIMEOUT_SEC` (optional; a positive
 integer, default `25` — under Kubernetes' default 30 s grace period) are read and validated in the config module
-with the other variables, and listed in `.env.example`.
+with the other variables, and listed in `.env.example`. So is `TRUSTED_PROXIES` (`trustedProxies`: a comma-separated
+list of networks, empty by default). `APP_VERSION` and `CI_COMMIT_SHORT_SHA` (`appVersion`, `commitSha`) come from the
+image, `dev` and `unknown` outside one, and are not in `.env.example`.
 
 ## The check
 
