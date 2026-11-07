@@ -33,7 +33,8 @@ moving.
   file carries the line; a file name in plain text or in backticks opens
   nothing. **The plugin's Stop hook holds this** (`hooks/progress-line.py`):
   a turn that changed a progress file — an Edit or Write of it,
-  `progress_set.py`, `progress_e2e.py` — cannot end without the line, and
+  `progress_set.py`, `progress_e2e.py`, `progress_link.py`, or any shell
+  command naming a file that changed during the turn — cannot end without the line, and
   no turn ends with a link to the `.md` in place of the page; the block
   says what to run. A live run went a whole hand-over without one line
   until the user asked «где файл прогресса?», with the rule in its packet.

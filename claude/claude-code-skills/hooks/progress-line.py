@@ -10,14 +10,15 @@ progress.md, dispatched, reviewed, and the user had to ask «где файл п�
 
 How: the session's own transcript says what this turn did. Since the last message that started the turn (the user's,
 a task notification, another session's message), was a progress file written — an Edit/Write/MultiEdit of
-documentation/plans/<version>/progress*.md, test-run.md or security-audit.md, or a progress_set.py / progress_e2e.py
-call? Then the turn's assistant text must carry a link to the page (`[progress….html](…)`). And whatever the turn did,
+documentation/plans/<version>/progress*.md, test-run.md or security-audit.md; a progress_set.py / progress_e2e.py /
+progress_link.py call; or a shell command that names such a file which changed on disk during the turn (a heredoc
+wrote progress-container-split.md with open(…,'w') and the turn ended with no line — 2026-11-07)? Then the turn's assistant text must carry a link to the page (`[progress….html](…)`). And whatever the turn did,
 its text may not link the .md itself. Either miss blocks the stop once, with what to do; a second stop in a row
 (stop_hook_active) always passes, so the hook can never trap the session.
 
     stdin: the Stop JSON (transcript_path, stop_hook_active, cwd)
 
-Acts only in a project with documentation/.dev-pipeline.json. Never fails on its own error.
+Acts only in a pipeline project: documentation/.dev-pipeline.json or documentation/plans/ (as session-start.sh). Never fails on its own error.
 """
 from __future__ import annotations
 
@@ -31,7 +32,8 @@ FILE = r"(?:progress[\w-]*|test-run|security-audit)\.md"
 PROGRESS_PATH = re.compile(r"documentation/plans/[^/\s'\"]+/" + FILE + r"$")
 PAGE_LINK = re.compile(r"\[(?:progress[\w-]*|test-run|security-audit)\.html\]\(")
 MD_LINK = re.compile(r"\[" + FILE + r"\]\(")
-SCRIPTS = re.compile(r"progress_(?:set|e2e)\.py")
+SCRIPTS = re.compile(r"progress_(?:set|e2e|link)\.py")
+NAMED = re.compile(r"documentation/plans/([^/\s'\"]+)/(" + FILE + r")")
 
 
 def turn(transcript: Path) -> list[dict]:
@@ -54,7 +56,16 @@ def turn(transcript: Path) -> list[dict]:
     return entries
 
 
-def judge(entries: list[dict]) -> tuple[set[str], bool, set[str]]:
+def started(entries_before: str) -> float:
+    """The turn's start as a Unix time, from its first entry's ISO timestamp; 0 when unknown."""
+    from datetime import datetime
+    try:
+        return datetime.fromisoformat(entries_before.replace("Z", "+00:00")).timestamp()
+    except ValueError:
+        return 0.0
+
+
+def judge(entries: list[dict], project: str = "", since: float = 0.0) -> tuple[set[str], bool, set[str]]:
     """(progress files this turn wrote, whether its text links a page, the .md files its text links)."""
     wrote: set[str] = set()
     page = False
@@ -71,9 +82,19 @@ def judge(entries: list[dict]) -> tuple[set[str], bool, set[str]]:
                     path = str(inp.get("file_path") or "").replace(os.sep, "/")
                     if PROGRESS_PATH.search(path):
                         wrote.add(os.path.basename(path))
-                elif c.get("name") == "Bash" and SCRIPTS.search(str(inp.get("command") or "")):
-                    for m in re.finditer(FILE, str(inp.get("command") or "")):
-                        wrote.add(m.group(0))
+                elif c.get("name") == "Bash":
+                    cmd = str(inp.get("command") or "")
+                    if SCRIPTS.search(cmd):
+                        for m in re.finditer(FILE, cmd):
+                            wrote.add(m.group(0))
+                    # any other writer — python, a heredoc, a script: the file it names changed during the turn
+                    for m in NAMED.finditer(cmd) if project and since else ():
+                        f = os.path.join(project, "documentation", "plans", m.group(1), m.group(2))
+                        try:
+                            if os.path.getmtime(f) >= since:
+                                wrote.add(m.group(2))
+                        except OSError:
+                            pass
             elif c.get("type") == "text":
                 text = c.get("text") or ""
                 if PAGE_LINK.search(text):
@@ -88,12 +109,15 @@ def main() -> None:
     except Exception:
         return
     project = os.environ.get("CLAUDE_PROJECT_DIR") or data.get("cwd") or os.getcwd()
-    if data.get("stop_hook_active") or not os.path.isfile(os.path.join(project, "documentation", ".dev-pipeline.json")):
+    if data.get("stop_hook_active") or not (os.path.isfile(os.path.join(project, "documentation", ".dev-pipeline.json"))
+                                              or os.path.isdir(os.path.join(project, "documentation", "plans"))):
         return
     t = data.get("transcript_path")
     if not t or not Path(t).is_file():
         return
-    wrote, page, md_links = judge(turn(Path(t)))
+    entries = turn(Path(t))
+    since = started(str(entries[0].get("timestamp") or "")) if entries else 0.0
+    wrote, page, md_links = judge(entries, project, since)
     reasons = []
     if wrote and not page:
         names = ", ".join(sorted(wrote))

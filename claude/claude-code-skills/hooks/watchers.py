@@ -14,7 +14,7 @@ so the hook can never trap an agent.
 
     stdin: the SubagentStop JSON (transcript_path, agent_id or agent_transcript_path, stop_hook_active)
 
-Acts only in a project with documentation/.dev-pipeline.json. Never fails on its own error.
+Acts only in a pipeline project: documentation/.dev-pipeline.json or documentation/plans/ (as session-start.sh). Never fails on its own error.
 """
 from __future__ import annotations
 
@@ -86,7 +86,8 @@ def main() -> None:
     except Exception:
         return
     project = os.environ.get("CLAUDE_PROJECT_DIR") or data.get("cwd") or os.getcwd()
-    if data.get("stop_hook_active") or not os.path.isfile(os.path.join(project, "documentation", ".dev-pipeline.json")):
+    if data.get("stop_hook_active") or not (os.path.isfile(os.path.join(project, "documentation", ".dev-pipeline.json"))
+                                              or os.path.isdir(os.path.join(project, "documentation", "plans"))):
         return
     t = agent_transcript(data)
     if not t:

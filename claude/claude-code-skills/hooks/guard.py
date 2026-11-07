@@ -15,7 +15,8 @@ Refused:
   then drops it from the trailers and the unit reads as unmapped (run-hygiene → Commits);
 - Bash `sed -i` without a suffix argument (`sed -i ''` and `sed -i.bak` pass) — BSD sed on macOS takes the next
   argument as the backup suffix and corrupts files; Edit instead;
-- Bash that writes a progress file (documentation/plans/…/progress*.md, test-run.md, security-audit.md) — the page
+- Bash that writes a progress file (documentation/plans/…/progress*.md, test-run.md, security-audit.md) by a
+  redirect, tee, sed -i / perl -i or a Python heredoc — also when the same command runs a progress script — the page
   is redrawn only after Edit/Write or by the progress scripts (pipeline → references/progress-keeping.md → How);
 - Bash `git stash`, `git reset --hard`, `git clean`, `git checkout -- .` / `git restore .` in the main working tree
   — they wipe other agents' and the user's uncommitted work (run-hygiene → Executors in the shared tree);
@@ -24,7 +25,7 @@ Refused:
 - Edit of a progress file whose new text carries a bar (twenty or more █/░ cells) — the bar is set by
   progress_set.py; a hand-copied bar came out 104 cells long with no percent (pipeline → progress-keeping.md → How).
 
-Acts only in a project with documentation/.dev-pipeline.json. Never fails the tool call on its own error. Each
+Acts only in a pipeline project: documentation/.dev-pipeline.json or documentation/plans/ (as session-start.sh). Never fails the tool call on its own error. Each
 refusal is also logged outside the project (~/.claude/dev-pipeline-feedback/.guard/<project>.jsonl), and reflect
 reports them (reflect/scripts/guard_report.py).
 `decide()` is pure, so `claude/tools/guard_replay.py` can run it over past sessions.
@@ -47,7 +48,6 @@ COMMIT = re.compile(r"\bgit\s+(?:-C\s+\S+\s+)?commit\b")
 CHAIN = re.compile(r"&&|\|\||;|\n")
 HEREDOC = re.compile(r"<<-?\s*(['\"]?)(\w+)\1[^\n]*\n(.*?)\n\s*\2(?=\s|$|\))", re.S)
 PROGRESS_FILE = re.compile(r"documentation/plans/[^/\s'\"]+/(?:progress[\w-]*\.md|test-run\.md|security-audit\.md)$")
-PROGRESS_SCRIPTS = re.compile(r"progress_(?:set|e2e|mutation|link|page)\.py")
 PY_WRITES = re.compile(r"write_text|\.write\(|open\([^)]*['\"][wa]\+?['\"]")
 # a progress file named as a path of its own — a string literal that is the path and nothing else — not the name
 # mentioned inside prose the script writes elsewhere (a journal naming progress-architecture.md was refused)
@@ -156,11 +156,15 @@ def bad_sed(cmd: str) -> bool:
 
 
 def writes_progress(bare: str, bodies: list[str]) -> bool:
-    if PROGRESS_SCRIPTS.search(bare):
-        return False
+    # a progress script named in the same command exempts nothing: a heredoc that wrote progress-container-split.md
+    # with open(…,'w') went through because the command then ran progress_link.py (Дашборд руководителя, 2026-11-07)
     targets = re.findall(r"(?:(?<![<>&\d])>{1,2}|\btee\s+(?:-a\s+)?)\s*['\"]?([^\s'\";|&)]+)", bare)
     if any(PROGRESS_FILE.search(t) for t in targets):
         return True
+    # an in-place edit (`sed -i ''`, `perl -i`) of a progress file: the status changed, the page did not (2026-11-07)
+    for seg in CHAIN.split(bare):   # the file named in the same command as the -i, not elsewhere in the line
+        if re.search(r"\b(?:sed|perl)\b.*\s-i", seg) and any(PROGRESS_FILE.search(w.strip("'\"")) for w in seg.split()):
+            return True
     return any(PY_WRITES.search(b) and PY_PROGRESS_PATH.search(b) for b in bodies
                if re.search(r"\bpython3?\b", bare))
 
@@ -299,7 +303,8 @@ def main() -> None:
         git(cwd, "rev-parse", "--path-format=absolute", "--git-common-dir") or "-")
     main_root = os.path.dirname(git(cwd, "rev-parse", "--path-format=absolute", "--git-common-dir")) if is_worktree else None
     project = os.environ.get("CLAUDE_PROJECT_DIR") or main_root or top or cwd   # the stamp lives in the main tree
-    if not os.path.isfile(os.path.join(project, "documentation", ".dev-pipeline.json")):
+    doc = os.path.join(project, "documentation")   # a pipeline project: the stamp, or plans/ (as session-start.sh)
+    if not (os.path.isfile(os.path.join(doc, ".dev-pipeline.json")) or os.path.isdir(os.path.join(doc, "plans"))):
         return
     branch = ""
     if tool == "Bash" and re.search(r"\b(?:merge|fetch|update-ref|push|branch)\b", str(inp.get("command", ""))):
