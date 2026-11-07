@@ -6,19 +6,18 @@ Prints one line: the context of the newest main session's last call, in tokens, 
 limit («передать»). `work` runs it after each commit (work → references/run-hygiene.md → Context): over the limit,
 the run hands over to a fresh session at that boundary. The newest session is the one written last; with two
 sessions working in the same project at once it may be the other one — the line names the session it read.
---session <id> (Claude Code only) reads the transcript whose file name is that session id instead of the newest: a
+--session <id> reads the transcript whose file name is that session id instead of the newest: a
 nested session passes its own id (it has it from `mcp__ccd_session_mgmt__get_session` with `self`), so two sessions
 working in one project do not measure each other; an id with no transcript falls back to the newest, and the line says so.
 Limit: --limit, else the integer `context_limit` in <project-dir>/documentation/.dev-pipeline.json, else 300000. The
 default suits a 1,000,000-token window; a 200,000 window needs a lower value, because the host compacts earlier.
-Claude Code: input + cache read + cache write of the last assistant message; the Codex build (codex_logs.py
-beside this file): `last_token_usage.input_tokens` of the last token_count event. Exit 2 over the limit.
+The context: input + cache read + cache write of the last assistant message. Exit 2 over the limit.
 --next adds what the next item usually takes (a High unit 120 thousand, a Mid 70, a Low 35, or a number): when the
 context and it pass the limit, exit 2 now — hand over at this boundary rather than cross the limit inside the item.
 Either way the run goes on without the user: exit 2 is a hand-over, exit 0 the next item, never a pause.
 In Claude Desktop the stage measures its context with the app's own tool (`mcp__ccd_session_mgmt__get_usage`, session
 "self": tokens used, the window and where auto-compact starts). This script is the measure only where that tool does not
-exist (a terminal) and in the Codex build; it cannot see the window, so it hands over at `context_limit` alone.
+exist (a terminal); it cannot see the window, so it hands over at `context_limit` alone.
 Standard library only.
 """
 from __future__ import annotations
@@ -57,27 +56,6 @@ def claude_newest(cwd: str, want: str = "") -> tuple[str, int, str, bool]:
     return p.stem, ctx, ts, bool(named) or not want
 
 
-def codex_newest(cwd: str, want: str = "") -> tuple[str, int, str, bool]:
-    import sessions  # the Codex build's sessions.py
-    root = os.path.realpath(cwd)
-    best = None
-    for p in sessions.rollouts():
-        m = sessions.meta(p)
-        if not m or m.get("parent_thread_id") or os.path.realpath(str(m.get("cwd", ""))) != root:
-            continue
-        if best is None or p.stat().st_mtime > best.stat().st_mtime:
-            best = p
-    if best is None:
-        return "", 0, "", True
-    ctx, ts = 0, ""
-    for d in sessions.records(best):
-        pl = d.get("payload") or {}
-        if d.get("type") == "event_msg" and pl.get("type") == "token_count" and pl.get("info"):
-            ctx = int(((pl["info"].get("last_token_usage") or {}).get("input_tokens")) or 0)
-            ts = (d.get("timestamp") or "")[:16]
-    return best.name, ctx, ts, True
-
-
 def main() -> None:
     args = sys.argv[1:]
     if not args:
@@ -93,8 +71,7 @@ def main() -> None:
         except (OSError, ValueError, AttributeError):
             pass
     want = args[args.index("--session") + 1] if "--session" in args and args.index("--session") + 1 < len(args) else ""
-    codex = (Path(__file__).resolve().parent / "codex_logs.py").exists()
-    sid, ctx, ts, found = (codex_newest if codex else claude_newest)(args[0], want)
+    sid, ctx, ts, found = claude_newest(args[0], want)
     if not sid:
         print("контекст: сессия не найдена — порог считается не перейдённым; скажите это одной строкой и продолжайте")
         return

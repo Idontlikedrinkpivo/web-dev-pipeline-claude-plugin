@@ -18,7 +18,8 @@ usage:
                      its plans/<version>/ folder's date), or later — from the end of the last «Окно: … — <end>» in
                      ~/.claude/dev-pipeline-feedback/<project>.md when that ends after it, so no moment is read
                      twice. UTC, as the logs and the «Окно» line keep time. The version: --version, else the
-                     iteration branch, else the newest plans/ folder without summary.md
+                     iteration branch, else the newest plans/ folder without summary.md; then «часть: <n>» — this
+                     iteration's sections already in that file plus one, the number the new section takes
   sessions.py mine   <project-dir> <marker> <out.md>
                      the digest of the newest session of this project whose opening messages hold the marker —
                      a nested session's title, «0.1.0 · 02 SRS»: the session finds its own conversation for the
@@ -215,7 +216,8 @@ HERE_RX = re.compile(r"продолжай здесь с ([^;,\s«»]+)", re.I)
 CONT_RX = re.compile(r"продолжи с (?!<)([^;,\s«»]+)")   # not the prompt's own «продолжи с <пункт>»
 WAIT_RX = re.compile(r"Ты — подсессия «([^»]+)»")
 OPENER = "Background (from the session that started this one)"
-REFUSED_RX = re.compile(r"declin|refus|denied|reject|not allowed|cannot|can't|failed|отклон|отказ", re.I)
+# a refusal in the clear's own answer; not «cannot» or «failed», which an approved answer may carry in passing
+REFUSED_RX = re.compile(r"declin|refus|denied|reject|not allowed|отклон|отказ", re.I)
 
 
 def continuation_of(path: Path) -> str:
@@ -503,6 +505,11 @@ def cmd_window(cwd: str, version: str | None) -> None:
         start, why = later, f"конец последнего «Окно» в {feedback} (это уже прочитано)"
     print(f"window: итерация {version or '?'} · с {start} UTC — {why}")
     print(f"--since {start.replace(' ', 'T')}")
+    # the number this section takes (reflect → The section → Its heading): this iteration's sections already in the
+    # feedback file plus one — a section without «часть» counts as one; «### Дополнение» lines are not sections
+    done = len(re.findall(rf"^## .* · итерация {re.escape(version)} · ", feedback.read_text(encoding="utf-8",
+               errors="replace"), re.M)) if version and feedback.exists() else 0
+    print(f"часть: {done + 1}")
 
 
 if __name__ == "__main__":

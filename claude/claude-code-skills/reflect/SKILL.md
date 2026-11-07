@@ -41,12 +41,13 @@ rules (check them — the session may have run an older version).
 ## When
 
 At the iteration's close (`pipeline` → End of the pipeline), on «разбери сессии для плагина», and **at every stop**
-of the work by the user («стоп», «подожди», «на сегодня всё», the day closed): in a parent session after a nested
+of the work by the user («стоп», «на сегодня всё», the day closed): in a parent session after a nested
 one reported «ОСТАНОВЛЕНА» or the user said stop there (the parent runs it — it alone sees every nested session's
 end); without a parent, in the stage's session after `pipeline` → `references/pause-and-resume.md` → Pausing. A stop
-writes a part section («… · часть <n>, до <что остановило>»); the close's run then reads only what came after. A
+writes a part section (The section → Its heading); the close's run then reads only what came after. A
 live test that stops mid-way otherwise leaves its evidence only in transcripts nobody reads later; a part costs one
-reviewer per session read.
+reviewer per session read, so a short hold is not a stop: «подожди», «секунду» or a question mid-way, after which
+the user goes on in the same session, runs no reflect — the next part or the close reads that time anyway.
 
 ## Steps
 
@@ -54,7 +55,8 @@ reviewer per session read.
    iteration being closed is not the current branch's) prints the window's start as `--since <…>` — the
    iteration's first commit, or the end of the last «Окно» already in the feedback file when that is later (a
    part read before a restart, a stop, a run by hand mid-iteration), so no moment is read twice and a window from
-   the last section to a stop is one part; exit 1 means neither a
+   the last section to a stop is one part — and the line `часть: <n>`, the number this section takes (The
+   section → Its heading); exit 1 means neither a
    branch nor a folder names the iteration: ask the user from which date (`YYYY-MM-DD`, or
    `YYYY-MM-DDTHH:MM` for a time). That `--since` goes into every command
    below. List this project's sessions in it:
@@ -88,8 +90,7 @@ reviewer per session read.
    foreground, with the packet in `references/reviewer-prompt.md`: the digest path, the plugin's skills
    folder (`${CLAUDE_SKILL_DIR}/..`), the plugin version installed now — the
    `version` field of the plugin's manifest in that same folder,
-   `.claude-plugin/plugin.json` (`.codex-plugin/plugin.json` under Codex);
-   the same number goes into the section's «версия плагина».
+   `.claude-plugin/plugin.json`; the same number goes into the section's «версия плагина».
    A digest over ~400 KB goes to one reviewer that reads it in parts.
 4. **Merge.** Collect the reviewers' findings; merge the same failure seen
    in several sessions into one finding with each occurrence; drop what
@@ -113,7 +114,10 @@ reviewer per session read.
 6. **Write.** Append one section to
    `~/.claude/dev-pipeline-feedback/<project folder's basename>.md` (create the
    folder and the file when missing; never rewrite earlier sections). Shape
-   below. Nothing is written into the project and nothing is committed.
+   below. Nothing is written into the project and nothing is committed. A finding that turns up after the
+   section is written (a check after the cleanup, a script run later in the same stop) goes at the end of the
+   file as «### Дополнение к <the section's heading without «## »>» with the same seven lines — never into the
+   section above, and with no «Окно» line of its own, so the next window is not moved.
 7. **Report** in one line: the file as a clickable link, how many findings,
    how many sessions read, the run's total from the measure. With none, write the section anyway, saying so —
    the maintainer sees the iteration was reviewed.
@@ -121,7 +125,7 @@ reviewer per session read.
 ## The section
 
 ```markdown
-## <project> · итерация <version> · <YYYY-MM-DD>      (mid-iteration: «… · часть <n>, до <what ended it>»)
+## <project> · итерация <version> · <YYYY-MM-DD>[ · часть <n>, до <what ended it> | закрытие]
 
 Сессий прочитано: <n> (<first date> — <last date>) · версия плагина: <x.y.z> · находок: <k>
 
@@ -137,11 +141,16 @@ reviewer per session read.
 ### Расход
 <measure.py's output from «Окно» on, unchanged>
 
-### Отказы хука
-<guard_report.py's table, unchanged>
+<guard_report.py's output, unchanged — it prints its own «### Отказы хука» heading; add no second one>
 ```
 
 Order by cost to the user: repeated corrections first.
+
+**Its heading.** `<n>` is the `часть:` line `sessions.py window` printed: this iteration's sections already in
+the file plus one, a section without «часть» counting as one. A stop writes «· часть <n>, до <what ended it>»
+(«до остановки на ночь», «до перезапуска сессии»). The close writes no «часть» when `<n>` is 1, else «· часть <n>,
+закрытие». A run after the close (the tag, a release asked for later) is a part like a stop: «· часть <n>, до
+<what ended it>».
 
 **Comparing two versions of the plugin** («стало ли дешевле после правки»): `references/comparing.md` — several
 runs per version, `measure.py --json` and `scripts/compare.py`.

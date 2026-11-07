@@ -68,8 +68,10 @@ saying they are leaving with the run unfinished:
    (`run-report.md`) and the other reports in `plans/` and pushes the branch, so whoever continues — on this
    machine or another — starts from them; the agents' details files and the patch stay in `pipeline-work/`, on
    this machine only.
-6. Run `reflect` over the window since its last section — a part, «… · часть <n>, до <что остановило>»; the close's
-   `reflect` then reads only what came after. In a nested session the parent runs it instead
+6. Run `reflect` over the window since its last section — a part, «… · часть <n>, до <что остановило>», `<n>` from
+   `sessions.py window` (`reflect` → The section → Its heading); the close's `reflect` then reads only what came
+   after. Not on a short hold — «подожди» or a question, after which the user goes on in this session: the next
+   part reads that time anyway. In a nested session the parent runs it instead
    (`references/parent-session.md` → What comes back). A test stopped mid-way otherwise leaves its evidence only in
    transcripts nobody reads later.
 

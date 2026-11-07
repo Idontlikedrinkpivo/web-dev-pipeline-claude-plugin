@@ -130,7 +130,7 @@ One line each from a nested session (`SendMessage` to the parent):
     → When to hand over), and `mark … идёт`. Never a new session for the stage;
 - «ОСТАНОВЛЕНА · <причина>» → tell the user, with the session's title; then — and on the user's own stop here
   («стоп», «на сегодня всё») — the parent runs `reflect` over the window since its last section, a part «… · часть
-  <n>, до <что остановило>»: it alone sees every nested session's end, and a stopped live test otherwise leaves its
+  <n>, до <что остановило>» (`reflect` → The section → Its heading; not on a short «подожди»): it alone sees every nested session's end, and a stopped live test otherwise leaves its
   evidence only in transcripts nobody reads later;
 - «ВОПРОС · …» — only when a nested session runs without the user (a chain left for the night,
   `references/unattended.md`): the standing answers settle it, or the user is asked here and the answer sent back;
