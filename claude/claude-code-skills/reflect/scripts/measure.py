@@ -18,6 +18,10 @@ the project — ~/.claude/dev-pipeline-feedback/.acceptance/
 <project>/<version>.txt — because reflect runs at the iteration's close before the cleanup removes the file; a
 later run reads the saved numbers for a version whose file is gone. Without either, from git — a unit with more
 than one commit carrying its Plan-Unit line was fixed after its commit.
+From the progress files it also splits the units by grade — the executor cell names it (mechanical-worker 0,
+impl-lite Low, impl-medium Mid, impl-hard High, impl-ui UI) — and by outcome: first time (`COMMIT`), fixed after
+the review (`FIX_THEN_COMMIT`), redone (`RETURN_…`, `×2`, `→`, an escalation), so the table shows which grade
+loses the most.
 
 Reads the project's main sessions (found as `sessions.py list` finds them) and every subagent transcript beside
 them (<session>/subagents/agent-*.jsonl with its .meta.json, which names the agent: `dev-pipeline:impl-medium`).
@@ -146,38 +150,65 @@ STORE = ((Path(os.environ.get("CODEX_HOME", Path.home() / ".codex"))
          / "dev-pipeline-feedback" / ".acceptance")  # outside every project; the Codex build keeps its own
 
 
+GRADES = (("mechanical-worker", "0"), ("impl-lite", "Low"), ("impl-medium", "Mid"), ("impl-hard", "High"),
+          ("impl-ui", "UI"))
+GRADE_NAMES = {"0": "0 — механическая", "Low": "Low — простая", "Mid": "Mid — средняя", "High": "High — сложная",
+               "UI": "UI — экран", "?": "не указана"}
+BY_GRADE: dict = {}   # grade -> [accepted, first, fixed, redone], filled by acceptance()
+
+
 def acceptance(progress: list, rng: str, cwd: str) -> tuple[int, int, int, str]:
     """(accepted, first time, sent back, source) over the plan units of the progress files, else of git."""
     import re
     import subprocess
     accepted = first = back = 0
+    BY_GRADE.clear()
     for path in progress:
         saved = STORE / Path(cwd).resolve().name / f"{Path(path).parent.name}.txt"
         try:
             text = Path(path).read_text(encoding="utf-8")
         except OSError:
             try:  # removed by the close's cleanup: the numbers this script saved while the file was there
-                a, f, b = (int(x) for x in saved.read_text().split()[:3])
-            except (OSError, ValueError):
+                lines = saved.read_text().splitlines()
+                a, f, b = (int(x) for x in lines[0].split()[:3])
+            except (OSError, ValueError, IndexError):
                 continue
             accepted, first, back = accepted + a, first + f, back + b
+            for row in lines[1:]:   # «<grade> <accepted> <first> <fixed> <redone>», saved since 1.2.283
+                g, *n = row.split()
+                if len(n) == 4 and all(x.isdigit() for x in n):
+                    BY_GRADE.setdefault(g, [0, 0, 0, 0])
+                    BY_GRADE[g] = [x + int(y) for x, y in zip(BY_GRADE[g], n)]
             continue
         a0, f0, b0 = accepted, first, back
+        mine: dict = {}
         for line in text.splitlines():
             cells = [c.strip() for c in line.strip().strip("|").split("|")]
             if len(cells) < 5 or not re.fullmatch(r"U\d+", cells[0]) or "✅" not in line:
                 continue
             accepted += 1
             review = cells[-1]
-            if re.search(r"RETURN|FIX_THEN|→|×\s*[2-9]|возвращ|эскалац", review + " " + line, re.I):
+            grade = next((g for name, g in GRADES if name in cells[2]), "?") if len(cells) > 2 else "?"
+            row = mine.setdefault(grade, [0, 0, 0, 0])
+            row[0] += 1
+            if re.search(r"RETURN|→|×\s*[2-9]|возвращ|эскалац|переделан", review + " " + line, re.I):
                 back += 1
+                row[3] += 1
+            elif re.search(r"FIX_THEN|исправлено после", review, re.I):
+                back += 1
+                row[2] += 1
             else:
                 first += 1
+                row[1] += 1
         try:
             saved.parent.mkdir(parents=True, exist_ok=True)
-            saved.write_text(f"{accepted - a0} {first - f0} {back - b0}\n")
+            saved.write_text(f"{accepted - a0} {first - f0} {back - b0}\n"
+                             + "".join(f"{g} {' '.join(map(str, n))}\n" for g, n in mine.items()))
         except OSError:
             pass
+        for g, n in mine.items():
+            BY_GRADE.setdefault(g, [0, 0, 0, 0])
+            BY_GRADE[g] = [x + y for x, y in zip(BY_GRADE[g], n)]
     if accepted:
         return accepted, first, back, "файлы прогресса"
     if not rng:
@@ -330,6 +361,17 @@ def report(args: list, cwd: str, since: str | None, session, agents: list, activ
             if first / accepted < 0.5:
                 flags.append(f"с первого ревью прошло меньше половины задач ({first / accepted:.0%}) — переделки "
                              "стоят больше, чем экономят проверки; смотреть пакеты и границы задач")
+            if BY_GRADE:
+                print("\n**По сложности задач** — сложность по исполнителю в файле прогресса:\n")
+                print("| Сложность | Задач | С первого ревью | Исправлено после ревью | Переделано | С первого раза |")
+                print("|---|---|---|---|---|---|")
+                order = ["0", "Low", "Mid", "High", "UI", "?"]
+                for g in sorted(BY_GRADE, key=lambda x: order.index(x) if x in order else len(order)):
+                    a, f, x, r = BY_GRADE[g]
+                    print(f"| {GRADE_NAMES.get(g, g)} | {a} | {f} | {x} | {r} | {f / a:.0%} |" if a else "")
+                    if a >= 3 and f / a < 0.5:
+                        flags.append(f"задачи сложности {GRADE_NAMES.get(g, g)}: с первого ревью {f / a:.0%} ({f} из {a}) — "
+                                     "здесь и просаживаемся; смотреть их пакеты, грейд в плане и исполнителя")
         else:
             print("нет данных: файлов прогресса нет, коммитов с Plan-Unit в диапазоне нет")
     print("\n#### На что посмотреть\n")
@@ -337,6 +379,7 @@ def report(args: list, cwd: str, since: str | None, session, agents: list, activ
     if "--json" in args and args.index("--json") + 1 < len(args):
         built = by_group.get("Исполнители", [0.0])[0] + by_group.get("Ревью кода", [0.0])[0]
         Path(args[args.index("--json") + 1]).write_text(json.dumps({
+            "by_grade": {g: dict(zip(("accepted", "first", "fixed", "redone"), n)) for g, n in BY_GRADE.items()},
             "total": total, "groups": {k: v[0] for k, v in by_group.items()},
             "session": session.units, "session_peak": session.peak, "calls": sum(a.calls for a in every),
             "executors": len(execs), "executors_over_250k": sum(1 for a in execs if a.peak > BIG),

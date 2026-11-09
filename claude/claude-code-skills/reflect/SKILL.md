@@ -103,7 +103,8 @@ the user goes on in the same session, runs no reflect — the next part or the c
    the file is still there, and the script keeps its numbers outside the project for a later run after the
    cleanup — and `--units <previous tag>..HEAD` — what the iteration's sessions and agents spent, from Claude
    Code's own logs: by group and by agent, the models, the context each agent reached, «Принятие задач» (units
-   accepted at the first review, units sent back, the cost of one accepted unit), and the flags it raises. Its output goes into the section unchanged,
+   accepted at the first review, units sent back, the cost of one accepted unit, and the same split by grade —
+   which grade loses the most), and the flags it raises. Its output goes into the section unchanged,
    under «### Расход»: the maintainer tunes unit size, reviews and packets from these numbers, and a paraphrase
    loses them. A flag becomes a finding only when a skill caused it (a stage pasting whole documents, a
    session kept for days on a huge context).
