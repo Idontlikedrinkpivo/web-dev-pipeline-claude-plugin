@@ -472,7 +472,8 @@ compares a screen with its frame. An item that cannot apply is skipped.
 1. **Every size** in the register's **Размеры** (or width in an older
    **Ширины**), the main one first: nothing clipped, no sideways page
    scroll, the key content visible without scrolling, nothing stretched on
-   an ultrawide screen (UX-74).
+   an ultrawide screen (UX-74). At each size the screen is used: a wide table
+   scrolled sideways and down keeps its fixed columns and header, with their background, over tall rows.
 2. **Keyboard only:** the whole screen works without a pointer; focus is
    always visible and never covered (UX-63, UX-64, UX-65).
 3. **Contrast** of text and controls in every theme the product has (UX-7,

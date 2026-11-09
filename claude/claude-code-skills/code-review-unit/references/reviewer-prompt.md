@@ -90,6 +90,9 @@ TEST CHECK
     the test was written from the code, not from the design;
   - a claimed red observation for a test that is not in the diff, or one that
     could not have failed against the pre-change tree;
+  - a rule the unit implements (a boundary, a rounding, a number, a branch)
+    missing from the worker's BREAK CHECK, or listed there with a test that
+    could not fail when that line breaks;
   - an existing assertion relaxed or deleted without the report saying the
     design changed;
   - something in the worker's details file that needed the orchestrator's

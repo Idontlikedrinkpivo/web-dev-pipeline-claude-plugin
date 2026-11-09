@@ -149,7 +149,11 @@ Read the real commands from `package.json` (dev, build, lint, typecheck, test); 
 3. When the spec cites a `nodeId`: run the app, `playwright-cli resize <width> <height>` to each size in the frames register (a size with no frame is
    checked against the Responsive layout rules, not against a picture),
    `screenshot` the page and each state, get the frame with `get_screenshot`, and list the visible differences (layout,
-   spacing, colour, missing element). If Figma or the running app is not reachable, say the comparison was not done.
+   spacing, colour, missing element). At each size use the screen, not only look at it: scroll a wide table sideways
+   and down with its fixed columns and header, fill the longest values the data allows and enough rows to scroll,
+   open menus and dialogs near the edges, and screenshot the state after each. A still page hides what breaks on
+   scroll: in Дашборд руководителя 1.2.0 a table's fixed cells lost their background at 1366 once rows grew taller
+   (2026-11-09). The report's SCREEN CHECK names each size and what was done at it. If Figma or the running app is not reachable, say the comparison was not done.
    Never report "matches the mockup" without that comparison: a reviewer cannot tell an unchecked screen from a checked
    one.
 4. Before hand-off, go through `ux-patterns` → «Проверка экрана перед сдачей» and review the diff with

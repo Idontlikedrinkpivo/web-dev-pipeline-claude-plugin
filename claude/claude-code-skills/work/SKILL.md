@@ -262,7 +262,8 @@ Per unit, in this order, and never skip to the next unit on a broken tree:
    no observed red and no recorded exception is not done** — send it back for
    the evidence rather than committing on the claim. `RED OBSERVED` cannot be
    reconstructed after the fact, which is exactly why an empty one is a return
-   and not a note in the report.
+   and not a note in the report. The same for an empty `BREAK CHECK` on a Low, Mid or High
+   unit (`executor-catalog/references/worker-prompt.md` → BREAK CHECK).
 4. **Review by grade** — first set the unit's row to `🔍 ревью` (the page shows the user where the run
    is); then `code-review-unit` does the review, and your part is its inputs and its verdict:
    1. Write the diff to a file under `$(git rev-parse --path-format=absolute --git-common-dir)/pipeline-work/`.

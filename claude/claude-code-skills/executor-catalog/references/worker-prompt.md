@@ -111,6 +111,18 @@ EVIDENCE STRATEGY   <test-first | characterization-first | smoke | none>
     or install check instead and report what it returned.
   none — no behavior at all; the report says why.
 
+BREAK CHECK   grades Low, Mid and High, with test-first or characterization-first
+  After the tests are green, prove they pin the rules. For each rule the unit
+  implements — a boundary, a rounding, a number from the SRS, a branch, an error
+  mapping — change its line once (flip the comparison, change the constant, drop
+  the branch), run the unit's tests, see a test fail, then restore the line. A
+  change no test notices means no test pins that rule: add the assertion and
+  repeat. Only in this unit's files; when done the tree is exactly your final
+  diff and the full checks are green again. A red observed before the
+  implementation proves a test can fail; this proves it fails for the right
+  reason — review sent back half the Low units of Дашборд руководителя 1.2.0
+  for tests that passed with the rule broken (2026-11-09).
+
 <when the unit's «Вложенный» is not —:>
 DELEGATION
   You may dispatch <nested name> for exactly this mechanical part:
@@ -207,8 +219,11 @@ RED OBSERVED      one line: the failing test and the first line of the failure y
                   saw before the implementation, or the exception the strategy
                   allows (baseline captured / smoke check / none — reason)
 VERIFICATION      one line per check: what ran → its summary line (run_check.py)
-SCREEN CHECK      UI units only: ok, or the items that are defects — one line each;
-                  `n/a` otherwise
+BREAK CHECK       one line per rule: <rule> → <the test that failed>; a rule no
+                  test caught, and the assertion added for it; or `n/a — <reason>`
+                  (grade 0, smoke, none)
+SCREEN CHECK      UI units only: each size checked and what was done at it, then
+                  ok or the items that are defects — one line each; `n/a` otherwise
 DECISIONS         each local decision you made that the design did not fix
                   (public name, signature, error type, file placement), one per
                   line — or none. Dependent units receive these verbatim.
@@ -221,11 +236,12 @@ BLOCKER           only for BLOCKED / HARDER_THAN_EXPECTED: what is missing or
 DETAILS           the path of the details file you wrote
 ```
 
-The details file: each test with the scenario it proves; the full red you observed; each check's command and
+The details file: each test with the scenario it proves; the full red you observed; each break of the break check
+and the failure it gave; each check's command and
 the path of its log; the evidence strategy as you followed it; the screen check item by item and the Figma
 comparison (UI units). A part of a screen checks its own elements; the last part checks the whole screen.
 
-`RED OBSERVED` and `TESTS` cannot be reconstructed from the diff afterwards —
+`RED OBSERVED`, `BREAK CHECK` and `TESTS` cannot be reconstructed from the diff afterwards —
 a worker that omits them on a behavior-bearing unit gets the unit returned, not
 committed with a caveat. A green suite proves the tests pass now; only the red
 proves they can fail. Everything else the orchestrator re-checks against the real tree

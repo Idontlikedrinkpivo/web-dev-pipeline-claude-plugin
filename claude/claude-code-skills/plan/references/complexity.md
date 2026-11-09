@@ -91,6 +91,10 @@ latitude and a second review pass, and hides which units actually need care.
 - **"Just wiring"** that decides transaction boundaries, error mapping, or
   ordering is Mid — wiring is where consequences get decided.
 - **A migration is never Low** once rows exist, even a one-column one.
+- **A rule with numbers is never Low**: a calculation, a rounding, a percentage, a threshold, a date or period
+  boundary, a format the SRS fixes. Precise docs do not make it a transcription — the edge values are where it goes
+  wrong, and only a test at each edge proves them. In Дашборд руководителя 1.2.0 a report's rounding graded Low came
+  back from review with P1 in two units, while every Mid and High unit passed (2026-11-09).
 - **First of its kind** is at least Mid even when the docs are precise, because
   there is no local pattern to check against — unless the mechanical gate
   (rule 3) graded it 0. This is the one rule for both: `plan`'s quality
@@ -123,6 +127,7 @@ Schematic on purpose — match the shape, not the domain.
 | A read model / query for an audience whose fields the design lists | **Low** | rule 5 — transcription |
 | Aggregate root owning three quoted invariants and a two-state transition | **Mid** | rule 6 — signal 6, and the transition is the first of its kind |
 | Use case whose steps are listed but whose error-to-status mapping the design leaves to the adapter | **Mid** | rule 4 — spec incomplete on the boundary |
+| A formatter or calculation the SRS gives with its numbers — rounding of a report cell, a percentage, a period boundary | **Mid** | anti-deflation — a rule with numbers is never Low |
 | Repository adapter with an explicit storage model and mapper in the design | **Low** | rule 5 — unless it introduces the unit-of-work shape, then Mid |
 | Migration adding a nullable column plus its backfill over existing rows | **Mid** | rule 1 — stored-state cost, shape given |
 | Authorization check across two aggregates, or the token issue/refresh path | **High** | rule 1 — risk plus an open decision |
