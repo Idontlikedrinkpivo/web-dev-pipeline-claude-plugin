@@ -1257,7 +1257,7 @@
       "not": {
         "grep": {
           "path": "documentation/requirements/srs/srs.md",
-          "pattern": "Поддерживаемые браузеры"
+          "pattern": "Поддерживаемые браузеры|Поддерживаются браузеры"
         }
       }
     },
