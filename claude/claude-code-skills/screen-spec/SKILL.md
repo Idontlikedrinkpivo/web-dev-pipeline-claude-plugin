@@ -234,10 +234,14 @@ The writer runs it while writing, not afterwards; each miss is a Разрывы 
    spelling included; grep each before writing it. A status or code the API
    does not declare is not written as declared; it is a Разрыв (`API`).
 9. Every date or time the screen shows or takes names, in its element row,
-   its kind from the SRS (`srs-writer` → Dates and times) and, for a time at
-   a place, the zone it is shown in and the field it comes from («время
-   офиса, пояс — `room.time_zone`»). A kind the SRS does not give → `SRS`; a
-   zone no response returns → `API`.
+   its kind (`srs-writer` → Dates and times) and, for a time at a place, the
+   zone it is shown in and the field it comes from («время офиса, пояс —
+   `room.time_zone`»). The kind comes from the SRS; an SRS written before
+   kinds existed has none, and then it is read from the API: `format: date`
+   — дата без времени; `date-time` with a zone field beside it or on its
+   place — время в месте; `date-time` alone — момент. Only a kind neither
+   gives, or the two contradicting, is a Разрыв (`SRS`); a time at a place
+   whose zone no response returns → `API`.
 
 Before a Разрыв says something is missing («нет кадра», «нет текста»),
 search the annotation's «Элементы» and «Тексты» and the register's states
