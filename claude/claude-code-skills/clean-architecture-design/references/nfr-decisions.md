@@ -89,7 +89,7 @@ read the architecture, not the SRS table.
   next pipeline transition — that stays in `pipeline`.
 - No quality tree and no scenarios table: the SRS already states the
   measure.
-- **Browsers.** The SRS «Совместимость» row becomes the frontend's build target, written as the row says it
+- **Browsers.** The SRS «Поддерживаемые браузеры» row becomes the frontend's build target, written as the row says it
   (Baseline «широко доступно» or the named browsers), and points at the frontend build config. An SRS written before
   this row existed has none: the decision says «Baseline «широко доступно» — по умолчанию, в SRS строки нет» and a
   row in `open-questions.md` asks `srs-writer` to add it, instead of the frontend guessing.

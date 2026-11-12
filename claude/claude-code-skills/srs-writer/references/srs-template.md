@@ -189,8 +189,9 @@ Fixed category checklist — every category gets a row or an explicit «Не п�
 - **Масштабируемость**
 - **Соответствие и аудит**
 - **Наблюдаемость**
-- **Совместимость** (supported browsers and devices) — a product with a web interface always gets this row, because
-  the frontend picks its build target and decides which platform features need a fallback from it. When the source
+- **Поддерживаемые браузеры** — a product with a web interface always gets this row, because the frontend picks its
+  build target and decides which platform features need a fallback from it. A row about backward compatibility of an
+  API («Совместимость — партнёрский API») is another requirement and does not count for this one. When the source
   names no browsers, write «Поддерживаются браузеры уровня Baseline «широко доступно»: возможности, которые не меньше
   2,5 лет работают в последних версиях Chrome, Edge, Firefox и Safari»; a named browser or version («Safari 16»,
   «Яндекс Браузер в закрытом контуре») replaces the default and is copied as said. «Как проверяется»: «цель сборки фронтенда

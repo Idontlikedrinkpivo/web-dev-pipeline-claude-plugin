@@ -17,7 +17,7 @@ between releases are checked live (Version-sensitive behaviour).
 | Input | Decides | Rule |
 |---|---|---|
 | Architecture foundation `documentation/architecture/architecture.md` §1 «Стек» / «Ключевые решения» | framework, language, profile | Read first. Pick the profile below |
-| Architecture foundation §1 «Решения по NFR», the browsers row (from the SRS «Совместимость») | the build target, which platform features need a fallback | Browser support below |
+| Architecture foundation §1 «Решения по NFR», the browsers row (from the SRS «Поддерживаемые браузеры») | the build target, which platform features need a fallback | Browser support below |
 | Architecture foundation §5 «Дерево файлов» | where each file goes | Wins over the profile layout. A file the tree does not place goes where the profile says, and the report names it |
 | Screen spec `documentation/ui/screen-specs/S-<n>-*.md` (`documentation/ui/<product>/screen-specs/` with several UI products) | elements and their behaviour per condition, the operation and fields each uses, states, response outcomes, derived values | Behaviour comes from here. Its element № matches the frame annotation |
 | Figma `S-n · Аннотация` «Тексты» table, or a text layer marked «текст слоя» in a designer's file without annotation (the screen spec quotes either) | the exact wording of every label and message | Copy verbatim, with no rewording. The «» that mark a text in the table are not part of it; quotes, «…» and dashes inside the text stay as written (UX-78). A text with no row is a gap question, not text you write |
@@ -70,7 +70,7 @@ checkbox.
 
 ## Browser support
 
-The target is the browsers row of the architecture's §1 «Решения по NFR» (the SRS «Совместимость»); with no row, it is
+The target is the browsers row of the architecture's §1 «Решения по NFR» (the SRS «Поддерживаемые браузеры»); with no row, it is
 Baseline «широко доступно» — what has worked for 2.5 years in current Chrome, Edge, Firefox and Safari — and the report
 says the row is missing.
 
