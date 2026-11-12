@@ -9,7 +9,8 @@ description: >-
 
 The code-level form of `ux-patterns`: what each rule looks like in markup,
 CSS and React. Every rule names the `ux-patterns` rule it belongs to (the
-Next.js hydration rules belong to `frontend`'s profile), so a finding here
+Next.js hydration rules belong to `frontend`'s profile, the browser support
+rules to `frontend` itself), so a finding here
 and a finding against the frames cite the same id. An
 embedded copy of Vercel's Web Interface Guidelines (MIT,
 `vercel-labs/web-interface-guidelines`, commit `434b7f9`); `LICENSE` is
@@ -66,6 +67,9 @@ quotes, focus after a failed submit).
 
 - Every interactive element has a visible focus: `focus-visible:ring-*` or equivalent → UX-63
 - Never `outline-none` / `outline: none` without a replacement → UX-63
+- Focus stays visible in Windows high contrast (forced colours), which removes shadows: a ring alone is a
+  `box-shadow`, so the element keeps a transparent outline that forced colours paint (`outline-hidden` in
+  Tailwind v4, not `outline-none`) → UX-63
 - `:focus-visible` rather than `:focus` (no ring on click) → UX-63
 - `:focus-within` for compound controls → UX-63
 - Sticky headers, footers and overlays do not cover the focused element → UX-65
@@ -75,6 +79,13 @@ quotes, focus after a failed submit).
 ### Forms
 
 - Inputs have `autocomplete` and a meaningful `name` → UX-19
+- The exact `autocomplete` token: sign-in `username` (or `email`) and `current-password`; sign-up and a password
+  change `new-password`, so the password manager offers to save or generate; `email`, `tel`, `name`, the address
+  tokens (`postal-code`, `address-line1`) → UX-19
+- A code from an SMS or email: `autocomplete="one-time-code"`, `inputmode="numeric"`, one field for the whole code,
+  so the phone offers the code from the message → UX-19
+- `aria-invalid="true"` appears together with the visible error — after the field is left or the form is submitted,
+  never on an untouched field at page load — and goes as soon as the value is fixed → UX-20, UX-28
 - The right `type` (`email`, `tel`, `url`) and `inputmode` (`numeric`, `decimal`); never `type="number"` → UX-19
 - Paste is never blocked (`onPaste` + `preventDefault`) → UX-19
 - A click on the label focuses the field (`htmlFor` or a wrapping label) → UX-69
@@ -132,6 +143,9 @@ The motion tokens — one set for every product, defined once in the theme (CSS 
 - Flex children that hold text have `min-w-0` → UX-71
 - Empty strings and arrays render the screen's empty state, not a broken layout → UX-44
 - The screen holds short, average and very long values → UX-71
+- Text inside a closed accordion, a collapsed block or «Читать дальше» is found by the browser's find-in-page: it is
+  kept as `hidden="until-found"` (the kit's prop for it, where the kit has one — `frontend` →
+  `references/version-checks.md`), not removed from the page; never for data the user must not see → UX-71
 
 ### Images
 
@@ -195,13 +209,32 @@ so the rest is held by these rules, and the screen is checked in a window of eac
 - `color-scheme: dark` on `<html>` in a dark theme → UX-62
 - `<meta name="theme-color">` matches the page background → UX-62
 - Native `<select>` has an explicit `background-color` and `color` → UX-62
+- In forced colours (`@media (forced-colors: active)`, Windows high contrast) a border, a separator or a state
+  (selected, error, current page) is still seen: it is a real border, outline or text, not only a `box-shadow`, a
+  background image or a colour; `forced-color-adjust: none` only where colour is the information (a colour swatch,
+  a chart legend) → UX-7, UX-63
 
 ### Locale
 
 - Dates and times through `Intl.DateTimeFormat`, not hand-made formats → UX-77
+- A date or time is shown as its kind (`srs-writer` → Dates and times): a moment in the user's time zone; a calendar
+  date as is, never through `new Date('2026-11-12')` (midnight UTC, the day before west of Greenwich) or a string
+  built as `` `${date}T00:00:00Z` ``; a time at a place in that place's zone (`timeZone: 'Europe/Moscow'`), with the
+  zone named when it can differ from the user's → UX-77
+- A time zone is an IANA name (`Europe/Moscow`), never an offset («UTC+3»), which changes with daylight saving and
+  law → UX-77
 - Numbers and money through `Intl.NumberFormat` → UX-77
 - The interface language from `Accept-Language` / `navigator.languages`, never from the IP → только по требованиям (a multilingual product)
 - Brand names, code tokens and identifiers carry `translate="no"` → UX-77
+
+### Browser support
+
+These belong to `frontend` → Browser support (the target from the architecture's browsers row); they have no `UX-n`.
+
+- A platform feature outside the build target is used only behind a check (`@supports`, a property test) with a
+  fallback that keeps the task doable → `frontend`
+- A UI-kit component is used where the kit has one; a native element only where the kit has none; a hand-written
+  focus trap or a dropdown placed by window measurement is a finding → `frontend`
 
 ### Next.js hydration
 
@@ -232,7 +265,9 @@ Only in a Next.js project; the details are in `frontend` →
 that show in the text: zoom disabled, paste blocked, `type="number"`,
 `transition: all`, `outline` removed with no replacement, `<div>` or
 `<span>` with `onClick`, navigation by `onClick`, `<img>` without size, a
-GIF, `autoFocus`, a date built by hand. What it cannot see — a long list
+GIF, `autoFocus`, a date built by hand, a calendar date read as midnight
+UTC, a time zone written as an offset, a password field without
+`autocomplete`. What it cannot see — a long list
 without virtualization, an icon button's name, a field's label, a
 gesture-only action — is found by reading, under the rules above.
 

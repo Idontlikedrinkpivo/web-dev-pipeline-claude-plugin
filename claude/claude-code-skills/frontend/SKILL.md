@@ -17,6 +17,7 @@ between releases are checked live (Version-sensitive behaviour).
 | Input | Decides | Rule |
 |---|---|---|
 | Architecture foundation `documentation/architecture/architecture.md` §1 «Стек» / «Ключевые решения» | framework, language, profile | Read first. Pick the profile below |
+| Architecture foundation §1 «Решения по NFR», the browsers row (from the SRS «Совместимость») | the build target, which platform features need a fallback | Browser support below |
 | Architecture foundation §5 «Дерево файлов» | where each file goes | Wins over the profile layout. A file the tree does not place goes where the profile says, and the report names it |
 | Screen spec `documentation/ui/screen-specs/S-<n>-*.md` (`documentation/ui/<product>/screen-specs/` with several UI products) | elements and their behaviour per condition, the operation and fields each uses, states, response outcomes, derived values | Behaviour comes from here. Its element № matches the frame annotation |
 | Figma `S-n · Аннотация` «Тексты» table, or a text layer marked «текст слоя» in a designer's file without annotation (the screen spec quotes either) | the exact wording of every label and message | Copy verbatim, with no rewording. The «» that mark a text in the table are not part of it; quotes, «…» and dashes inside the text stay as written (UX-78). A text with no row is a gap question, not text you write |
@@ -55,6 +56,30 @@ A profile's library choices are marked «по умолчанию, можно п�
 **Selection criterion.** A profile default, or a library this skill adds, is widely used with full official docs for the
 current major, because the code is checked against current docs (Version-sensitive behaviour); prefer what the framework
 ships over a third-party package. A library already in the project is used as is.
+
+**Which element to use**, in this order:
+
+1. The project's UI kit (shadcn/ui) has it → the kit's component, even where the browser has a native element: the
+   frames are drawn with the kit, and its focus and keyboard handling is already tested.
+2. The kit has none, and the browser has a native element or attribute for it inside the build target (Browser
+   support) — `<details>`, `<dialog>`, `popover`, `inputmode`, `field-sizing` → the native one, styled from the theme.
+3. Neither → a library, picked by the selection criterion above and named in the report as a decision.
+
+Never hand-write what step 1 or 2 gives: a focus trap, a dropdown placed by measuring the window in JS, a custom
+checkbox.
+
+## Browser support
+
+The target is the browsers row of the architecture's §1 «Решения по NFR» (the SRS «Совместимость»); with no row, it is
+Baseline «широко доступно» — what has worked for 2.5 years in current Chrome, Edge, Firefox and Safari — and the report
+says the row is missing.
+
+- The build config states the target, so the bundler transpiles to it (how the installed version takes it —
+  `references/version-checks.md` → Build target).
+- A platform feature inside the target is used as is, with no polyfill. Whether it is inside: its Baseline status on
+  MDN or webstatus.dev, compared with the target.
+- A feature outside the target only behind a check (`@supports`, `'showPicker' in input`) with a fallback that keeps
+  the task doable — plainer, not broken; a polyfill only when no such fallback exists, named in the report.
 
 ## Per screen or component
 
@@ -173,5 +198,5 @@ the file and check each point you rely on against the installed version (context
 
 Name: profile used (or "no profile"), files by `S-n`, each state and response outcome → where it is handled, commands
 run with results, the Figma comparison result or why it was skipped, the «Проверка экрана перед сдачей» items with their
-result (inside `work`, the report's SCREEN CHECK field), libraries added, and every gap sent back to `screen-spec` or
-`ui-design`.
+result (inside `work`, the report's SCREEN CHECK field), libraries added, the build target and any feature used
+behind a fallback, and every gap sent back to `screen-spec` or `ui-design`.

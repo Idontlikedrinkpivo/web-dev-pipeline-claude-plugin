@@ -259,8 +259,9 @@ gives the API name.
   column — not `money`, `float` / `real`.
 - Text: `text`; a length the SRS names is `CHECK (char_length(col) <= n)`
   — not `varchar(n)` / `char(n)` by default.
-- Instants: `timestamptz`; `date` for a calendar day with no time — not
-  `timestamp` without time zone.
+- Instants: `timestamptz`; `date` for a calendar day with no time — not `timestamp` without time zone. A time at
+  a place (`srs-writer` → Dates and times) is `timestamptz` too, plus the place's zone by IANA name
+  (`Europe/Moscow`) in a `text` column on the place's row — never an offset.
 - Ids and counters that can grow: `bigint` (identity for keys) — not
   `int` / `serial` / `bigserial`.
 

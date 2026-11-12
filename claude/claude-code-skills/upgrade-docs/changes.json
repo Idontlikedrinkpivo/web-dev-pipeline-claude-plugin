@@ -1244,5 +1244,23 @@
       ]
     },
     "fix": "deploy-topology → assets/nginx и references/images.md → Frontend image: перенести client_max_body_size и таймауты из default.conf.template в upstream.conf.template как переменные, прежние значения записать в ENV Dockerfile, добавить переменные в таблицу frontend в deploy.md и в .env.example. Проверка: scripts/image_preflight.py stand."
+  },
+  {
+    "id": "srs-browsers-row",
+    "version": "1.2.289",
+    "title": "В ТЗ — строка «Совместимость»: какие браузеры поддерживаются",
+    "what": "В нефункциональных требованиях SRS появилась седьмая категория «Совместимость»: какие браузеры поддерживает продукт (по умолчанию — Baseline «широко доступно»). По ней фронтенд выбирает цель сборки и решает, где нужен запасной вариант. Без строки он угадывает.",
+    "applies": {
+      "exists": "documentation/requirements/srs/srs.md"
+    },
+    "behind": {
+      "not": {
+        "grep": {
+          "path": "documentation/requirements/srs/srs.md",
+          "pattern": "Совместимость"
+        }
+      }
+    },
+    "fix": "srs-writer → references/srs-template.md, §4: дописать строку «Совместимость» со следующим номером NFR (браузеры из источника или Baseline «широко доступно»; у продукта без веб-интерфейса — «Не применимо»), остальное в SRS не трогать; затем clean-architecture-design → references/nfr-decisions.md: строка в «Решения по NFR» архитектуры."
   }
 ]

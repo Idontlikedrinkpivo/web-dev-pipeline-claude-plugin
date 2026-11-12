@@ -17,6 +17,16 @@ lockfile); an answer written beside a point is a dated hint, so confirm it again
   `destructive` variant and its neutral `outline` and input borders against their backgrounds (4.5:1 for text, 3:1
   for boundaries; earlier versions fell below it). A failing pair is fixed in the project's theme (`SKILL.md` →
   Accessibility baseline).
+- **Focus in Windows high contrast** — whether the installed kit's components hide the outline (`outline-none`) and
+  draw focus with a ring alone: a ring is a `box-shadow`, which forced colours remove, so focus vanishes there. If so,
+  the project's theme gives them an outline that only forced colours show (Tailwind v4: `outline-hidden` instead of
+  `outline-none`, or `forced-colors:outline`) — `web-design-guidelines` → Focus.
+- **Collapsed content found by search** — whether the installed kit's accordion and collapsible can keep closed
+  content as `hidden="until-found"` (a prop of the primitive, if any); if not, the rule in `web-design-guidelines` →
+  Long content is not applied, and the report says so.
+- **Build target** — how the installed bundler takes the browsers row (Browser support in `SKILL.md`): Vite —
+  `build.target` and its default in the installed major; Next.js — `browserslist` in `package.json` and its default
+  when there is none.
 
 Of the two profile sections below, ask only the one the architecture's §1 «Стек» names (`SKILL.md` → Pick the stack
 profile).

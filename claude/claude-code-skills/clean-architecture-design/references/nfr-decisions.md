@@ -77,6 +77,7 @@ read the architecture, not the SRS table.
 |---|---|---|
 | e.g. NFR-1 | e.g. «список площадок — один запрос с индексом по `venue_id`, без N+1» | e.g. сценарии `venues`: `VenueQueries.list`; индекс в схеме |
 | e.g. NFR-2 | e.g. «вне архитектуры — `deploy-topology`: две реплики, ежедневный бэкап» | — |
+| e.g. NFR-12 | e.g. «цель сборки — Baseline «широко доступно»; более новые возможности браузера — только с проверкой поддержки и запасным вариантом» | e.g. настройка сборки фронтенда (`frontend` → Browser support) |
 
 - **Требование** follows the same rule as the security table: copied from
   the SRS, continuous numbering, never invented.
@@ -88,6 +89,10 @@ read the architecture, not the SRS table.
   next pipeline transition — that stays in `pipeline`.
 - No quality tree and no scenarios table: the SRS already states the
   measure.
+- **Browsers.** The SRS «Совместимость» row becomes the frontend's build target, written as the row says it
+  (Baseline «широко доступно» or the named browsers), and points at the frontend build config. An SRS written before
+  this row existed has none: the decision says «Baseline «широко доступно» — по умолчанию, в SRS строки нет» and a
+  row in `open-questions.md` asks `srs-writer` to add it, instead of the frontend guessing.
 - **Replicas decide where state lives.** A service is expected to run in several replicas, so sessions, rate-limit
   counters, locks, caches and queues go to an external store, and a store this adds is in «Хранилища». A service that
   cannot get a row saying «одна реплика» with the reason; a scheduler is named as a one-instance component with

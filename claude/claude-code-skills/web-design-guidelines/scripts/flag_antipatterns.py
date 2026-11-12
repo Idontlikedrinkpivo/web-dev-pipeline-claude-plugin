@@ -44,6 +44,12 @@ PATTERNS = [
      re.compile(r"\bautoFocus\b|\sautofocus\b")),
     ("UX-77", "дата собрана вручную — Intl.DateTimeFormat",
      re.compile(r"getMonth\(\)\s*\+\s*1")),
+    ("UX-77", "календарная дата прочитана как полночь UTC — на западе от Гринвича станет вчерашней",
+     re.compile(r"new Date\(\s*['\"`]\d{4}-\d{2}-\d{2}['\"`]\s*\)|T00:00:00(?:\.000)?Z")),
+    ("UX-77", "часовой пояс сдвигом — нужно имя IANA (Europe/Moscow)",
+     re.compile(r"['\"`](?:UTC|GMT)\s?[+−-]\s?\d{1,2}(?::\d{2})?['\"`]")),
+    ("UX-19", "поле пароля без autocomplete — current-password или new-password",
+     re.compile(r"<\w+\b(?=[^>]*\btype\s*=\s*\{?\s*['\"]password['\"])(?![^>]*\bauto[Cc]omplete\b)[^>]*>", re.S)),
 ]
 
 

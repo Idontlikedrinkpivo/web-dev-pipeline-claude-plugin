@@ -233,6 +233,11 @@ The writer runs it while writing, not afterwards; each miss is a Разрывы 
    status — is copied from `documentation/api/openapi.yaml`, case and
    spelling included; grep each before writing it. A status or code the API
    does not declare is not written as declared; it is a Разрыв (`API`).
+9. Every date or time the screen shows or takes names, in its element row,
+   its kind from the SRS (`srs-writer` → Dates and times) and, for a time at
+   a place, the zone it is shown in and the field it comes from («время
+   офиса, пояс — `room.time_zone`»). A kind the SRS does not give → `SRS`; a
+   zone no response returns → `API`.
 
 Before a Разрыв says something is missing («нет кадра», «нет текста»),
 search the annotation's «Элементы» and «Тексты» and the register's states

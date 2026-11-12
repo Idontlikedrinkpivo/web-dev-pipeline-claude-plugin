@@ -43,6 +43,28 @@
 - The output format names the rule: `file:line — UX-n — суть`, in
   Russian.
 
+## Added from Modern Web Guidance
+
+Rules taken from Google Chrome's Modern Web Guidance
+(https://github.com/GoogleChrome/modern-web-guidance, v1.0.0, commit
+`4dd9683`, Apache 2.0) and rewritten to agree with `ux-patterns` and the
+shadcn/ui stack; nothing is fetched from it at run time:
+
+- Focus — focus stays visible in forced colours (`color` guide);
+- Forms — the exact `autocomplete` tokens, the one-time code field,
+  `aria-invalid` only with the visible error (`autofill-sign-in-form`,
+  `autofill-sign-up-form`, `sms-otp-form`, `accessible-error-announcement`);
+- Long content — collapsed text found by find-in-page
+  (`search-hidden-content`);
+- Theming — borders and states seen in forced colours (`color`);
+- Locale — dates by kind, zones by IANA name
+  (`capture-location-agnostic-data`, `coordinate-global-events`);
+- Browser support — the build target and the kit-first order of elements
+  (the guide's Baseline policy), owned by `frontend`.
+
+To update: compare the guides named above with the new release and bring
+over only what fits the stack.
+
 ## Removed
 
 - «`&` over "and" where space-constrained» — a norm of English text.

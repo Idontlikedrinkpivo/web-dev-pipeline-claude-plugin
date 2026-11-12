@@ -189,6 +189,13 @@ Fixed category checklist — every category gets a row or an explicit «Не п�
 - **Масштабируемость**
 - **Соответствие и аудит**
 - **Наблюдаемость**
+- **Совместимость** (supported browsers and devices) — a product with a web interface always gets this row, because
+  the frontend picks its build target and decides which platform features need a fallback from it. When the source
+  names no browsers, write «Поддерживаются браузеры уровня Baseline «широко доступно»: возможности, которые не меньше
+  2,5 лет работают в последних версиях Chrome, Edge, Firefox и Safari»; a named browser or version («Safari 16»,
+  «Яндекс Браузер в закрытом контуре») replaces the default and is copied as said. «Как проверяется»: «цель сборки фронтенда
+  совпадает с этой строкой». A product with no web interface (an API,
+  a job) writes «Не применимо — нет веб-интерфейса».
 
 Stack constraints belong here only as limits, not as a chosen framework:
 team language, "this repo already runs X", hosting, latency that rules a
@@ -293,6 +300,19 @@ The SRS has no open-questions section. Gaps this SRS could not settle, and a fin
 - **Russian.** Write the SRS in Russian, including every section heading and every table column in Document Structure. Do not translate ids (`A-`, `FR-`, `NFR-`, `BR-`, `UC-`, `AC-`, `Alt-`, `Exc-`). Frontmatter keys stay English.
 - **Readable** (`doc-versioning` → `references/readable.md`). An FR row is one requirement: a row that needs more than two sentences is two requirements, the second a dotted id under the first. An NFR's «Как проверяется» is one sentence — the measure and how it is taken. Section 1 «Кратко» is a few short paragraphs, not one.
 - **Plain language.** Write requirements and acceptance criteria so a new team member understands them without a glossary lookup — jargon that isn't already a defined domain term (per section 1.1) gets spelled out once.
+- **Dates and times.** Every date or time the product keeps or shows is one of three kinds, and the Glossary row
+  of its term (or the FR that introduces it) says which, because each is stored, sent and shown differently and a
+  wrong guess moves a value by hours or a day:
+  - **момент** — when something happened or must happen everywhere at once («создана», «оплачено», «срок
+    оплаты»): shown in the user's time zone;
+  - **дата без времени** — a calendar day with no zone («дата рождения», «день брони», «срок договора»): the same
+    day for everyone, never shifted;
+  - **время в месте** — a time on the clock of a place («бронь с 10:00 до 11:00 в переговорной офиса в
+    Новосибирске»): shown in that place's zone, and the SRS names where the zone comes from (the place's attribute,
+    a setting of the organisation).
+
+  A zone is named as in the IANA list (`Europe/Moscow`), never as an offset («UTC+3»). When the source does not say
+  whose clock a time is on, that is a row in `open-questions.md`, not a guess.
 - **Cite, don't restate.** A rule that lives in a Business Rule or a Non-Functional Requirement is referenced by ID in a Use Case step's «Требования» cell (`BR-3`), never copy-pasted into the flow text — one owner per rule, same discipline as the business-requirements document.
 - **No process exhaust.** No "captured at step X" notes, no italic provenance lines. Metadata lives in the frontmatter only.
 
@@ -300,7 +320,7 @@ The SRS has no open-questions section. Gaps this SRS could not settle, and a fin
 
 1. **Traceable** — every conditional FR has a Use Case; every Main / Alt / Exception flow has exactly one AC with one `When` / `Then` — §6.
 2. **No generic actors** — §2.
-3. **NFR complete** — six categories and every Security sub-item have a row, filled or «Не применимо» with a reason — §4.
+3. **NFR complete** — seven categories and every Security sub-item have a row, filled or «Не применимо» with a reason — §4.
 4. **IDs are ordered and permanent** — a new SRS numbers each section `PREFIX-1`, `PREFIX-2`, … down the page with no gap; on an increment no existing id changed and every new id follows Document Structure.
 5. **No invented decisions** — every requirement, actor, and rule traces to the source or to the user's answer in this run — `SKILL.md` → Input Resolution.
 6. **Consistent as a set** — read every FR, NFR, BR, and UC together, not one at a time; two requirements can each make sense and still be jointly impossible. No NFR bound contradicts an FR or a flow step (a synchronous step that waits on a third party vs. a p95 bound it cannot meet). No Scope Boundary excludes what an FR or UC includes. Every domain noun a requirement uses is in section 1.1 or is an `A-`/`BR-`/`UC-` id.

@@ -285,6 +285,10 @@ contract.
 - Mark required fields with the `required` array.
 - Use `nullable: true` on a single `type` for a field that may be absent as JSON null. Do not use `type: [string, "null"]`: that is OpenAPI 3.1, and this spec is 3.0.
 - Prefer `format` keywords: `int32`, `int64`, `float`, `date`, `date-time`, `uuid`, `email`, `uri`, `byte`, `binary`.
+- **Dates by their SRS kind** (`srs-writer` → Dates and times): a moment is `date-time` with an offset
+  (`2026-11-12T07:00:00Z`); a calendar day is `date` (`2026-11-12`), never a `date-time` at midnight; a time at a place
+  is `date-time` too, and the place's zone is a property beside it or on the place (`time_zone`, an IANA name, example
+  `Europe/Moscow`), so the client shows the place's clock without guessing.
 - **Property casing is the column casing.** A stored property is the column
   name verbatim (`snake_case`, e.g. `starts_at`). Wrapper, computed, and query
   and path parameter names use the same casing (`page_size`, `next_cursor`,
