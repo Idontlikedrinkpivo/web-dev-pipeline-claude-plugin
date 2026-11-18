@@ -29,13 +29,16 @@ FIND
 - many turns spent working out what a skill should have said;
 - a skill instruction that led the stage astray;
 - the nested-session flow broken: a stage started twice or in the wrong
-  session, a report («ЭТАП … ЗАКРЫТ», «ПЕРЕДАН») never sent or never acted
+  session, a report («ЭТАП … ЗАКРЫТ») never sent or never acted
   on, a session opened without the user's turn or on another model, a
   closed stage's session still answering, the handover check skipped;
-- the hand-over chain broken: a ПЕРЕДАН with no ОЧИСТКА or ПРОДОЛЖАЙ
-  ЗДЕСЬ after it, a continuation that redid a unit already committed,
-  rules lost after the continuation as after a compaction mark, the
-  context in ПЕРЕДАН far above the hand-over point (a check skipped).
+- the context stopping a stage: a pause, «готово к /compact», a question
+  to the user or a ПЕРЕДАН over the context — since 1.2.293 the host
+  compacts and the session goes on (pipeline → references/context.md →
+  Compaction); after a compaction mark, a unit redone though committed,
+  uncommitted work dropped, or a step lost that resume.md should have held;
+- in an older run's digest, a ПЕРЕДАН with no ОЧИСТКА or ПРОДОЛЖАЙ ЗДЕСЬ
+  after it, or a continuation that redid a unit already committed.
 
 DO NOT REPORT
 - the project's own defects, product decisions, one-offs with no cost to

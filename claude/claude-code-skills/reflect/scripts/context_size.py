@@ -3,21 +3,17 @@
     python3 context_size.py <project-dir> [--limit <tokens>] [--next high|mid|low|<tokens>] [--session <id>]
 
 Prints one line: the context of the newest main session's last call, in tokens, and whether it is over the
-limit («передать»). `work` runs it after each commit (work → references/run-hygiene.md → Context): over the limit,
-the run hands over to a fresh session at that boundary. The newest session is the one written last; with two
-sessions working in the same project at once it may be the other one — the line names the session it read.
---session <id> reads the transcript whose file name is that session id instead of the newest: a
-nested session passes its own id (it has it from `mcp__ccd_session_mgmt__get_session` with `self`), so two sessions
-working in one project do not measure each other; an id with no transcript falls back to the newest, and the line says so.
-Limit: --limit, else the integer `context_limit` in <project-dir>/documentation/.dev-pipeline.json, else 300000. The
-default suits a 1,000,000-token window; a 200,000 window needs a lower value, because the host compacts earlier.
+limit («за порогом»). A measure only, for a person or a reflect question: since 1.2.293 no stage hands over on it —
+the host compacts the session, and the plugin's PreCompact hook holds that until the unit in flight is committed
+(pipeline → references/context.md → Compaction). The newest session is the one written last; with two sessions
+working in the same project at once it may be the other one — the line names the session it read.
+--session <id> reads the transcript whose file name is that session id instead of the newest; an id with no
+transcript falls back to the newest, and the line says so.
+Limit: --limit, else the integer `context_limit` in <project-dir>/documentation/.dev-pipeline.json, else 300000.
 The context: input + cache read + cache write of the last assistant message. Exit 2 over the limit.
---next adds what the next item usually takes (a High unit 120 thousand, a Mid 70, a Low 35, or a number): when the
-context and it pass the limit, exit 2 now — hand over at this boundary rather than cross the limit inside the item.
-Either way the run goes on without the user: exit 2 is a hand-over, exit 0 the next item, never a pause.
-In Claude Desktop the stage measures its context with the app's own tool (`mcp__ccd_session_mgmt__get_usage`, session
-"self": tokens used, the window and where auto-compact starts). This script is the measure only where that tool does not
-exist (a terminal); it cannot see the window, so it hands over at `context_limit` alone.
+--next adds what an item usually takes (a High unit 120 thousand, a Mid 70, a Low 35, or a number) and exits 2 when
+the context and it pass the limit. In Claude Desktop the app's own `mcp__ccd_session_mgmt__get_usage` (session
+"self") gives the same with the window.
 Standard library only.
 """
 from __future__ import annotations
@@ -82,8 +78,8 @@ def main() -> None:
     print(f"контекст: {ctx // 1000} тыс. токенов (сессия {sid[:8]}, {ts.replace('T', ' ')}) · порог {limit // 1000} тыс."
           + (" (context_limit проекта)" if from_project else "")
           + (f" · сессия {want} не найдена, прочитана самая свежая" if not found else "")
-          + (" · передать сейчас" if over else "")
-          + (f" · передать сейчас: следующий пункт (~{ahead // 1000} тыс.) перейдёт порог" if early else "")
+          + (" · за порогом" if over else "")
+          + (f" · следующий пункт (~{ahead // 1000} тыс.) перейдёт порог" if early else "")
           + (" — без паузы и без вопроса пользователю" if over or early else ""))
     over = over or bool(early)
     sys.exit(2 if over else 0)

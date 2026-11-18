@@ -2,8 +2,8 @@
 
 How the pipeline always runs in Claude Desktop — the user's choice, not a default to opt out of: the session the user
 opens in a pipeline project is the **parent**; each stage runs in a **nested session** (a «подсессия») with a fresh context. A stage never inherits the context of the
-stages before it, the parent's own context stays small, and a long stage's session is cleared and restarted from the files
-instead of being compacted (`references/context.md`).
+stages before it, the parent's own context stays small, and a long stage's session is compacted by the host — in `work`
+between units (`references/context.md` → Compaction).
 
 **The host's rule — who may open a session.** Claude Desktop starts a session at once (`initiation: "user_asked"`)
 only in a turn **the user** began — their message, or their click on a proposal card. In a turn another session's
@@ -23,7 +23,7 @@ session-start hook's test) — or it is a **new project** (no `documentation/` y
 (a new product or feature: «давай подумаем», «хочу новую фичу», a brainstorm). The host's tool: Claude Desktop's
 `mcp__ccd_session__start_session`, often deferred (load it with ToolSearch `select:mcp__ccd_session__start_session`
 before deciding it is absent). Without such a tool (a terminal) there is no parent: the session runs the stages
-itself, as before, and over the context limit goes on in place (`references/context.md` → When to hand over, step 4).
+itself, as before, and the host compacts it in place (`references/context.md` → Compaction).
 
 ## The parent
 
@@ -44,8 +44,8 @@ itself, as before, and over the context limit goes on in place (`references/cont
 - **The list of sessions — `scripts/subsessions.py`.** Every session has its job and its title before it opens; there
   are no spares. The list lives in `documentation/plans/<version>/sessions.md` (out of git: its session ids are this machine's) and only
   the script writes it: `plan` (the rows), `set` (an id), `mark` (a state), `parent`, `show`, `whoami`.
-  One row per stage, and no parts: a stage over the context limit goes on in its own session once the parent clears
-  it (below). Pre-opened parts mostly stayed unused (Дашборд руководителя 1.1.0), and a part opened on the way
+  One row per stage, and no parts: a stage over the context limit goes on in its own session, compacted by the host
+  (`references/context.md` → Compaction). Pre-opened parts mostly stayed unused (Дашборд руководителя 1.1.0), and a part opened on the way
   needed the user's click each time, which broke an autonomous run (the user, 2026-11-02). No session for fixes
   either: what a check sends back runs inside that check's own session (below).
 - **The iteration's sessions, all at once.** In the turn the user starts or continues the iteration («продолжим»,
@@ -74,8 +74,10 @@ itself, as before, and over the context limit goes on in place (`references/cont
      …
      Какие открыть? Ответьте «все» или номера нужных этапов.
      ```
-     A stage the user asked for directly is in the list and marked «— вы просили». Nothing is opened before the
-     answer. Then `plan` with the chosen stages; a stage left out is not run in this iteration. When a left-out stage
+     A stage the user asked for directly is in the list and marked «— вы просили». When the parent's window is not
+     lowered to `context_limit` yet, the same message ends with the window question (`references/context.md` →
+     Compaction → The window), and a yes is written before step 4, so the sessions open with it. Nothing is opened
+     before the answer. Then `plan` with the chosen stages; a stage left out is not run in this iteration. When a left-out stage
      is a gate a chosen one needs (the chain table), say so in one line and ask once more.
   4. On the answer — a user turn — open each row «не открыта», in the list's order: locally, in this folder, a fresh
      context, no worktree, `wake_when_done: false`, titled as the row, with the waiting prompt below; record each id
@@ -106,28 +108,11 @@ One line each from a nested session (`SendMessage` to the parent):
 - «ЭТАП <stage> ЗАКРЫТ · дальше: <stage>[, <stage>]» — `mark … закрыт`, start each named stage's row; «· ждёт:
   <stage> после <stage>» — mark closed, start nothing for that branch: the row waits for the stage it names
   (`references/next-stage.md`); «· остановиться» — say where the iteration stands and start nothing;
-- «<stage> ПЕРЕДАН · после <item> · контекст <N> тыс. · продолжать с <item>» → `mark … передан`, then **clear
-  that same session** (`mcp__ccd_session_mgmt__clear_session` with its id — often deferred, load it with
-  ToolSearch) — not a new one: opening a session in a turn the user did not begin needs their click on a card,
-  and a part per ~300,000 tokens made a long `work` run stop for a click every few units (the user, 2026-11-02).
-  - **Idle first.** The clear works on an idle session this parent opened. When `get_session` shows it still busy
-    (its turn not ended yet), call `SendMessage` to it with `notify_when_idle: true` and no message — a one-shot
-    subscription that costs it nothing — and clear it when the idle notice arrives («[Cross-session idle
-    notice]»). Never poll, never send «are you done» messages. A notice that the subscription expired → check
-    `get_session` once more; still busy → send it «продолжай здесь с <item>» (the refusal below).
-  - **The permission mode decides the click.** In `default`, `acceptEdits` and `plan` modes the app asks the user
-    to approve every clear — a card at every hand-over, so an autonomous run stops there; in `auto` the app may
-    decide without asking (usually no click); in `bypassPermissions` it never asks (no click at all). The plugin
-    cannot raise a mode itself — that is a card too — so the user picks the parent's mode before the iteration
-    starts and the nested sessions inherit it. A parent and its nested sessions stay in one mode: a session in
-    another mode holds cross-session messages for the user's approval and the chain silently stalls, so the parent
-    never changes one session's mode alone (`references/context.md` → When to hand over, step 2).
-  - **Cleared** → its conversation is empty, its role too: send it the waiting prompt below with its title,
-    followed by «начинай: продолжи с <item>; состояние — в documentation/plans/<version>/resume.md и git», and
-    `mark … идёт`.
-  - **Refused** — declined, on the user's screen, pinned, opened by another parent, holds live work → send it
-    «продолжай здесь с <item>»: it goes on in place and the host compacts it when needed (`references/context.md`
-    → When to hand over), and `mark … идёт`. Never a new session for the stage;
+- «<stage> ПЕРЕДАН · …» — only from a session on a plugin before 1.2.293: never clear it (in `auto` the classifier
+  refused the clear, 2026-11-17); send it «продолжай здесь с <item>: контекст сжимает приложение, не останавливайся»
+  and `mark … идёт` (`references/context.md` → Compaction). The parent and its nested sessions stay in one
+  permission mode: a session in another mode holds cross-session messages for the user's approval and the chain
+  silently stalls, so the parent never changes one session's mode alone;
 - «ОСТАНОВЛЕНА · <причина>» → tell the user, with the session's title; then — and on the user's own stop here
   («стоп», «на сегодня всё») — the parent runs `reflect` over the window since its last section, a part «… · часть
   <n>, до <что остановило>» (`reflect` → The section → Its heading; not on a short «подожди»): it alone sees every nested session's end, and a stopped live test otherwise leaves its
@@ -211,14 +196,10 @@ It runs its stage as the stage's skill says, with the user, in this session. Wha
   жду», and this session waits for «продолжай» (`references/decision-changes.md` → Under a parent session). A
   closed session that gets «РЕШЕНИЕ ИЗМЕНЕНО · …» from the parent edits its document through its writer, commits,
   pushes and reports «РЕШЕНИЕ ЗАПИСАНО · <document> · коммит <sha> · задеты: …».
-- **Over the hand-over point** (`references/context.md` → When to hand over: its own `get_usage`, the lower of
-  `context_limit` and four fifths of the auto-compact point) it hands over, after the handover check where
-  `references/handover-check.md` asks for one (a stage that asked the user nothing skips it): it tells the parent «<stage> ПЕРЕДАН · после <item> · контекст
-  <N> тыс. · продолжать с <item>» and ends the turn (`references/context.md` → When to hand over); the parent clears
-  this same session and starts it again from the files, or tells it «продолжай здесь». The send's result
-  «delivered» (the parent's turn started) or «queued» (it waits behind the parent's current work) are both fine;
-  anything else is an error — the parent archived, the message refused or held for approval — and then the session
-  does not wait: it goes on in place, as after «продолжай здесь». It runs in the parent's permission mode: a session
-  in another mode holds cross-session messages for the user's approval, which silently stalls the chain.
+- **The context never stops it.** It does not measure the context to hand over, pause or ask: the host compacts it
+  — in `work` after the unit in flight is committed — and it picks up from `resume.md`, the progress file and git
+  (`references/context.md` → Compaction). It writes what the chat settles to its file at once, so any moment is safe
+  to compact. It runs in the parent's permission mode: a session in another mode holds cross-session messages for
+  the user's approval, which silently stalls the chain.
 - In the sidebar every session of the iteration shows as one list under the parent (seen in Claude Desktop,
   2026-10-31), in the user's sort: by name or by creation the titles' numbers make it read as the iteration's plan.

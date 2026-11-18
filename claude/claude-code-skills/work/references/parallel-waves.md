@@ -41,10 +41,10 @@ one commit — and most plans never need this file.
   resumed for a review fix, which comes home the same way — the unit's files in the main tree back to HEAD (by
   name; a new file deleted), then the worktree's new patch applied. A patch that does not apply means the files
   were not disjoint: run the rest of the wave serially.
-- **The context measure of Step 5.6 runs once per wave**, after its last unit is committed, not between its units.
-  The other units' patches are not in the tree yet, so each unit's boundary is clean, but a hand-over mid-wave
-  would leave the wave half-integrated. The next item for that measure is the next wave's first unit, or the sum
-  of the next wave's units when it is parallel too (`references/run-hygiene.md` → Context).
+- **A compaction waits for the wave.** While any unit of the wave is «🔄» or «🔍» in the progress file, the plugin's
+  hook holds the host's compaction (`references/run-hygiene.md` → Context), so it lands after the wave's last
+  commit and never leaves the wave half-integrated; past the hook's cap it goes through, and the units' lines in
+  `resume.md` and their patches carry the wave on.
 
 Re-verify the plan's parallel claim against the tree before dispatching, then
 decline parallelism under any remaining doubt. Speed is optional; a clean

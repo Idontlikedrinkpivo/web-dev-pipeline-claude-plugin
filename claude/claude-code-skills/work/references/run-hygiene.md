@@ -91,27 +91,28 @@ in a measured run its context grew by ~100,000 tokens per unit, a third of it ag
   or skipped grew) into the context. A failure is read in full from the log, the passing rest is not.
 - **Other long output goes to a file too** — a search, a diff, a listing: `> <file>`, then read the part needed.
 
-## Context — handing over to a fresh session
+## Context — compacted between units
 
-The rule, the hand-over point and its cases are `pipeline` → `references/context.md` → When to hand over; what is
-particular to `work`:
+The rule is `pipeline` → `references/context.md` → Compaction: the host compacts this session, the context is never
+a reason to stop, wait, hand over or ask, and there is no «ПЕРЕДАН». What is particular to `work`:
 
-- **When.** After each unit's commit (Step 5.6) — the unit is committed, nothing is in flight — measure the context
-  as that section says: the app's `get_usage` tool on `self`, or in a terminal
-  `python3 "${CLAUDE_SKILL_DIR}/../reflect/scripts/context_size.py" "$PWD" --next <the next unit's grade: high | mid | low>`.
-- **The next item** is the next unit's grade. After the last unit in scope it counts as High: the close checks, the
-  whole-run review and its fix rounds cost at least that (Step 7). In a parallel wave the measure runs once, after
-  the wave's last unit is committed (`references/parallel-waves.md`).
-- **Refreshed first**, as at any stop: `resume.md` (`pipeline` → `references/pause-and-resume.md`), the run report
-  with where the next session starts («продолжать с U<m>») and its «Low-партии» line, and the progress line.
-- **The message** to a parent: «РАЗРАБОТКА <version> ПЕРЕДАН · после U<n> · контекст <N> тыс. · продолжать с
-  U<m>» — the stage is «разработка», as the sessions list names it, never «ПРОГОН».
-
-With a parent, without one or in a terminal, what follows is that section's steps 2–4, not restated here; the next
-session starts from git, the run report and `resume.md` (Step 1) and repeats nothing. **Never a pause:** the
-context is not a reason to stop and tell the user, or to wait for them; a session that stopped at 236 thousand with
-«U33 перешёл бы порог посреди юнита» left an autonomous run waiting for nothing (the user, 2026-11-04). A question
-the next unit needs is asked as the unit's own question, not tied to the context.
+- **The hook holds the compaction while a unit is in flight.** A unit's progress row is «🔄 в работе» or «🔍 ревью»
+  from its dispatch to its commit (fix rounds included) and «✅ готово» after it (`references/progress-file.md`);
+  the plugin's `PreCompact` hook reads those rows and lets the host compact only when none is in flight, so the
+  compaction lands right after a commit. Set the row before the `Agent` call and close it with the commit — a row
+  left «🔄» or «🔍» after its commit keeps the session from compacting until the cap.
+- **Every step on disk as it happens**, since past the cap (`context_limit` + 150,000) the compaction goes through
+  mid-unit, and a session without the hook (a 200K window) compacts anywhere. The «Сейчас» and «Следующий шаг» lines
+  of `resume.md` follow the unit through its steps: executor dispatched (who, phase, task id) → returned (status,
+  files, checks) → review round <n> (verdict, open findings by id) → fixes dispatched → committed (sha). A decision
+  the parent sent goes into the run report or its document the turn it arrives.
+- **After a compaction** (Step 1): `plan_state.py`, then the «Сейчас» line against `git status`, `git diff` and
+  `git log`; finish the unit from the step it names — never redo finished work, never drop uncommitted work — and
+  believe the tree where the note and the tree differ. A dispatch in «В работе» is still out: wait for its result.
+- **Never «готово к /compact».** A session that stopped at 236 thousand with «U33 перешёл бы порог посреди юнита»
+  (2026-11-04), and one that stopped twice with «Готово к /compact» and «Пауза на границе юнитов» (ai-initiatives
+  2.3.0, 2026-11-18), left an autonomous run waiting for the user. A question the next unit needs is asked as the
+  unit's own question, never tied to the context.
 
 ## The orchestrator's own commits
 

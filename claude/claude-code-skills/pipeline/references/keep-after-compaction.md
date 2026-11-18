@@ -111,13 +111,13 @@ stage skill, its heading the skill's folder name; a stage with no section gets �
 
 - `progress.md` changes with Edit or `progress_set.py` — never from the shell; the line `progress_link.py` prints
   goes to the chat as printed.
-- After each commit measure the context (`pipeline` → `references/context.md` → When to hand over): the app's
-  `get_usage` on `self`, or `context_size.py "$PWD" --next <next unit's grade>` in a terminal; hand over when it
-  plus the next unit crosses the lower of `context_limit` and four fifths of auto-compact — the parent clears this
-  session and starts it again. Never a pause or a question over the context; after «продолжай здесь», no more
-  hand-overs in this stage.
+- The context never stops the run: no measure, no hand-over, no «готово к сжатию», no question — the host compacts,
+  and the plugin's hook holds it until the unit in flight is committed (`pipeline` → `references/context.md` →
+  Compaction). Each step of a unit goes into its line in `resume.md` as it happens (run-hygiene → Context); after
+  this compaction compare that line with `git status`, `git diff` and `git log`, finish the unit from its step, and
+  believe the tree where they differ.
 - «Low-партии» in the run report says which Low units were batch-reviewed — the next batch takes the committed
-  rest; before Step 7 the measure counts High.
+  rest.
 - A unit: the executor, `run_check.py`, `code-review-unit`, then its own commit with `Plan-Unit:` and
   `Co-Authored-By:` in the last paragraph — never chained to a check.
 - A parallel unit works in its worktree with repo-relative paths.

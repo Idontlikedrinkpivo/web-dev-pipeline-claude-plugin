@@ -172,15 +172,16 @@ A unit is ready when every id in `Зависит от` is done — the `ready` l
 committed — and before Step 7 in any case — run `code-review-unit`'s Low
 batch over every committed Low unit not yet listed in the run report's
 «Low-партии» line, before the next wave's first dispatch, and write the batch
-there right after its verdicts land: a session resumed after a hand-over or a
+there right after its verdicts land: a session resumed after a
 compaction reads there what was batched, so no Low unit is skipped or reviewed
 twice. Low units get no review of their own, so a run that skips this step
 commits them unreviewed. Its verdicts land as fix commits on top
 (`references/fixes-and-decisions.md` → A fix after a commit).
 
 Do not re-scope the run into sessions ("phase 1 of 3 for today"). Context
-pressure is handled by handing over at a unit boundary and resuming from git
-(Step 1, `references/run-hygiene.md` → Context), not by splitting the run.
+pressure is handled by the host's compaction, held by the plugin's hook until the
+unit in flight is committed, and resuming from git and `resume.md` (Step 1,
+`references/run-hygiene.md` → Context) — not by splitting the run or pausing.
 
 ### Step 4. Dispatch
 
@@ -297,8 +298,7 @@ Per unit, in this order, and never skip to the next unit on a broken tree:
    commit for a changed decision (`references/fixes-and-decisions.md`).
 6. **Update the task list, the run report** (the unit's row, the worker's
    `DECISIONS`, «В работе» cleared) **and the resume note**, post the progress
-   line (Step 1), measure the context (`references/run-hygiene.md` → Context; in a parallel wave once, after
-   its last unit), then move on. When the run stops on
+   line (Step 1), then move on — no context measure and no pause (`references/run-hygiene.md` → Context). When the run stops on
    a unit instead (a design gap, rounds that stopped making progress), set that row to
    `⛔ остановлено: <причина>`.
 
@@ -336,8 +336,7 @@ unit, and a plan carrying scars stops being a decision artifact.
 
 ### Step 7. Close the run
 
-When every unit in scope is committed, first measure the context as in Step 5.6 with the next item counted as
-High — the checks, the whole-run review and its fix rounds cost at least that. Then run the close checks yourself
+When every unit in scope is committed, run the close checks yourself
 — the plan's §5 критерии готовности
 (a browser suite with its verify skill and parallel stands), health and mutants, and the dead-code report — as
 `references/close.md` → The checks lists them; read it now. Save each output under

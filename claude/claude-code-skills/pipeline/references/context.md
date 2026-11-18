@@ -1,11 +1,11 @@
-# The session's context — what it keeps, and when to hand over
+# The session's context — what it keeps, and where it is compacted
 
 Read at the start of every stage that dispatches agents or runs for long — `work`, `ui-design`, `screen-spec`,
 `ui-test-cases`, `security-audit`, the design stages — and after a compaction. A session keeps everything it reads
 until it ends, and every later call pays for all of it again. Measured on a real project: one session of document
 stages kept 2.1 million characters of agents' reports (314 of them, 6,400 characters in the middle, up to 33,000)
-and 0.8 million of shell output; a `work` session grew by ~100,000 tokens a unit. Near the host's limit the session
-is compacted, and a compaction is where rules get lost. Right after one, the session-start hook prints the rules
+and 0.8 million of shell output; a `work` session grew by ~100,000 tokens a unit. At its auto-compact window the session is
+compacted, and a compaction is where rules get lost. Right after one, the session-start hook prints the rules
 of the stage the session ran last (`references/keep-after-compaction.md`, by `scripts/keep_rules.py`); a changed
 key rule of a stage changes its section there too.
 
@@ -20,51 +20,43 @@ key rule of a stage changes its section there too.
 - **Other long output goes to a file** — a search, a diff, a listing, a scanner's result: `> <file>`, then read the
   part needed. A document is read in the parts the step needs, not whole «to have it».
 
-## When to hand over
+## Compaction
 
-At each safe boundary — a stage closed, one item of a long stage done (a screen drawn, a screen spec written, a
-section of test cases, an audited area, a unit committed) — measure the context:
+The host compacts the session when the context reaches its auto-compact window; the session never stops, pauses,
+asks or hands over for the context. Three ways to free a session's context were tried live and two failed: a
+session cannot compact itself, a parent's «/compact» arrives as plain text, and a parent's `clear_session` of a
+nested session was refused by the auto-mode classifier (ai-initiatives 2.3.0, 2026-11-17) — so the run stopped at
+«готово к /compact» and waited for the user. The host's own compaction kept the same session going eight times in
+that run; the user chose compacting over clearing (2026-11-17) and no pauses (2026-11-04, 2026-11-18).
 
-- **The measure.** In Claude Desktop (the session tools exist): `mcp__ccd_session_mgmt__get_usage` with
-  `session_id` `self` (often deferred, load it with ToolSearch) — `tokensUsed`, `contextWindow`, `percentUsed`,
-  `autoCompactsAtPercent`. It reads this session's own process, so two sessions in one project cannot measure each
-  other. Only where there is no such tool (a terminal):
-  `python3 "${CLAUDE_SKILL_DIR}/../reflect/scripts/context_size.py" "$PWD" --next high|mid|low [--session <own id>]`
-  (from another skill: the plugin's `reflect/scripts/context_size.py`); it reads `context_limit` from the same file
-  below and cannot see the window (exit 2 — hand over, exit 0 — go on).
-- **The hand-over point** is the lower of two numbers: `context_limit` in the project's
-  `documentation/.dev-pipeline.json` — the cost limit, since every call pays for the whole context (an integer,
-  tokens, optional; 300,000 when absent) — and four fifths of where the app auto-compacts
-  (`autoCompactsAtPercent` / 100 × `contextWindow` × 0.8). A 1,000,000-token window: 0.97 × 1,000,000 × 0.8 ≈
-  776,000, so 300,000 wins; a 200,000-token window: 0.97 × 200,000 × 0.8 ≈ 155,000 wins. The rule fits any window
-  without a setting.
-- **Hand over when** `tokensUsed` plus what the next item usually takes — a High unit 120,000, a Mid 70,000, a Low
-  35,000; a screen, a screen spec or an audited area counts as Mid — crosses that point: at that boundary, at once
-  and without the user. Either way the context is never a reason to pause, stop or ask (the user, 2026-11-04).
-  Below it — go on.
+- **The window.** A 1M-token model compacts at about 967,000 tokens by default, and every call pays for the whole
+  context. The pipeline wants it at `context_limit` — the cost limit in the project's
+  `documentation/.dev-pipeline.json` (an integer, tokens, optional; 300,000 when absent). Before the first nested
+  session of an iteration — or, without a parent, before a long stage's first item — read the session's window
+  (`mcp__ccd_session_mgmt__get_usage` on `self`, often deferred: load it with ToolSearch): `contextWindow` above
+  `context_limit` means nothing lowers it yet. Then ask once, in chat: «Сжимать контекст на <N> тыс.? Запишу
+  `"autoCompactWindow": <N>` в `.claude/settings.local.json` проекта — новые сессии будут сжиматься на этом
+  пороге». On a yes, merge that key into the file (create it with `{}` when missing; keep its other keys); a session
+  already running takes the window only from `/autocompact <N>k` typed in its own window — say so for those still
+  open. On a no, go on: the run is the same, only dearer. It is the user's setting: never write it without the yes,
+  never in `~/.claude`.
+- **Compaction waits for a boundary in `work`.** The plugin's `PreCompact` hook (`hooks/compact-hold.py`) holds an
+  automatic compaction of the session that runs `work` while a unit is in flight — a row of
+  `plans/<version>/progress.md` neither «⏳ ждёт» nor «✅» — and the host skips it and tries again later, so it lands
+  after the unit's commit. The hold stops at `context_limit` + 150,000 and on a model without the 1M window; past it
+  the compaction goes through mid-unit, and the step lines in `resume.md` carry the unit on (`work` →
+  `references/run-hygiene.md` → Context). Each decision is a line in `plans/<version>/.progress-compact.log`. Other
+  stages compact where the host decides; their items are short and each ends written to disk.
+- **Any moment must be safe to compact**, since the hold has a cap and other stages have none: what the chat settled
+  goes to its file at once — the progress file, `resume.md` (`references/pause-and-resume.md`), the stage's report,
+  a decision into its document (`references/decision-changes.md`) — never «at the end». The hook also tells every
+  compaction what its summary keeps (the stage, the item and its step, decisions not yet on disk, rules the user or
+  the parent gave this session).
+- **After a compaction** the session-start hook prints the stage's rules (`references/keep-after-compaction.md`); the
+  session takes its place from git, the progress file and `resume.md` (`references/where-am-i.md`), not from the
+  summary — a unit listed in flight is still running: wait for it, never send it to a second executor.
+- **The user may compact or clear at any time** (`/compact`, or `/clear` and «продолжи»); the session picks up from
+  the same files. A `/compact` the user types is never held.
 
-To hand over:
-
-1. Save where the stage stands: its progress file and `resume.md` (`references/pause-and-resume.md`), the next
-   item named («продолжать с S-7»), anything decided in the chat that no document holds yet.
-2. **Run by a parent session:** send it «<этап> <version> ПЕРЕДАН · после <item> · контекст <N> тыс. · продолжать
-   с <item>» and end the turn. The parent clears this same session and starts it again with «продолжи с <item>» — no
-   new session (`references/parent-session.md` → What comes back). The send's result «delivered» (the parent's turn
-   started) or «queued» (it waits behind the parent's current work) are both fine; anything else is an error — the
-   parent archived, the message refused or held for approval — and then the session does not wait: it goes on in
-   place, as after «продолжай здесь». On «продолжай здесь» (the clear was refused) go on in this session and do not
-   hand over again in this stage: the host compacts it, and the session-start hook prints the stage's rules back. A
-   parent and its nested sessions run in one permission mode: a session in another mode holds cross-session
-   messages for the user's approval, which silently stalls the chain, so the parent never changes one session's
-   mode alone.
-3. **No parent, and the host can start a session** — a session the pipeline should have run from a parent
-   (`references/parent-session.md` → Which one am I): go on in this session, no new one — the host compacts it, and the
-   session-start hook prints the stage's rules back. A new session opened on the way needs the user's click on a
-   card and stops an autonomous run (the user, 2026-11-02).
-4. **Neither (a terminal):** go on in this session, as in step 3 — the host compacts it, and the session-start hook
-   prints the stage's rules back. The user may at any time run `/clear` themselves and write «продолжи»; the session
-   then picks up from `resume.md` and git. Stopping for the context is never right (the user, 2026-11-04).
-
-A cleared or new session finds its place from git, the progress file and `resume.md` (`references/where-am-i.md`). Two
-sessions working in one project at once matter only to the script (the app's tool reads its own session): without
-`--session` it reads the newest and names it — check the name.
+`reflect/scripts/context_size.py` reads a session's size from its transcript where the app's tool is absent (a
+terminal); it decides nothing.

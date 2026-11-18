@@ -22,7 +22,7 @@ before the `Agent` call and cleared when it returns. After a compaction a
 unit listed there is still running: wait for its result, or confirm its task
 ended, and never send it to a second executor. Its «Low-партии» line — which
 Low units a batch review already covered — is read with «В работе» after a
-compaction or a hand-over: the next batch takes exactly the committed Low
+compaction: the next batch takes exactly the committed Low
 units not listed there, none skipped, none reviewed twice.
 
 **The resume note.** On start read `documentation/plans/<version>/resume.md`

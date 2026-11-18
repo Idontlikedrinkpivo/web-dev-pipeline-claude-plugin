@@ -26,8 +26,11 @@ cause — and it cost the user something:
   waiting prompt asks the user to write remarks on the plugin in the chat,
   at the moment of the fault: `pipeline` → `references/parent-session.md`);
 - a stage did what its skill forbids, or skipped what it requires;
+- the context stopped a stage (a pause, «готово к /compact», a question, a
+  «ПЕРЕДАН» — the host compacts and the session goes on, `pipeline` →
+  `references/context.md` → Compaction);
 - a rule was followed until a `=== CONTEXT COMPACTED ===` line and lost
-  after it, or after a hand-over (`ПЕРЕДАН` → `ОЧИСТКА` → `ПРОДОЛЖЕНИЕ` in
+  after it, or, in a run before 1.2.293, after a hand-over (`ПЕРЕДАН` → `ОЧИСТКА` → `ПРОДОЛЖЕНИЕ` in
   the digests; `list` marks the cleared session's new transcript
   «# продолжение … после передачи» — read both as one stage);
 - the session spent many turns working out what a skill should have said
@@ -160,6 +163,6 @@ runs per version, `measure.py --json` and `scripts/compare.py`.
 alone, from the iteration's first commit or the date the user names, and answer with its tables and flags in plain
 words; nothing is written. What this one session spent is `explain-usage`, not this skill.
 
-**`scripts/context_size.py`** is not a step of this skill: it lives beside the other session readers, and
-`pipeline` → `references/context.md` and `work` → `references/run-hygiene.md` run it to measure a session's
-context.
+**`scripts/context_size.py`** is not a step of this skill: it lives beside the other session readers and measures a
+session's context from its transcript where the app's `get_usage` is absent; it decides nothing (`pipeline` →
+`references/context.md` → Compaction).
