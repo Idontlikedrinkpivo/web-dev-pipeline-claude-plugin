@@ -45,7 +45,7 @@ The user's message reshapes the tree: a settled decision pushes the frontier out
 
 ### How a question is shown
 
-As `pipeline` → `references/question-format.md` says — read it before the first round: what a person will see, with an example, first; the terms after it, each explained; the options with fixed letters; «Рекомендую …: почему»; «Ответьте сообщением: буква или свой текст.»; one question per message; no question card. In a grill a question is one decision: several options that can stand together are still one question, and the reply may name more than one letter.
+As `pipeline` → `references/question-format.md` says — read it before the first round: the title «Вопрос N из M» (`M` — the questions asked plus the frontier, growing when an answer opens more); what a person will see, with an example, first; the terms after it, each explained; the options with fixed letters; «Рекомендую …: почему»; «Ответьте сообщением: буква или свой текст.»; one question per message; no question card. In a grill a question is one decision: several options that can stand together are still one question, and the reply may name more than one letter.
 
 ## The ledger
 

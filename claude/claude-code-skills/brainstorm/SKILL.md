@@ -233,7 +233,7 @@ A session-settled decision counts as already-probed toward every clause — neve
 **Example — one Standard-tier turn.** The opening was "поддержку будят ночные уведомления, надо дать их глушить"; the counterfactual gap was already probed (open question, no card: «Что поддержка делает сегодня, когда пинг приходит в 3 ночи — выключает телефон, отписывается от канала, терпит?» → «выключают звук у всего Slack»). The next turn narrows:
 
 ```text
-**Вопрос 1. Что глушим: одного человека или один канал**
+**Вопрос 1 из 4. Что глушим: одного человека или один канал**
 
 Сейчас в 3 ночи пинг из канала #support-alerts будит всю поддержку
 разом: у каждого звенит телефон.

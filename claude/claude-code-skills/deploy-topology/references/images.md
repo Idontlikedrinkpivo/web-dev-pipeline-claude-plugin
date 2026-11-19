@@ -77,7 +77,7 @@ without asking. Not found — ask once, the first time this stage writes
 Dockerfiles, per `pipeline` → `references/question-format.md`:
 
 ```text
-**Вопрос 1. Образы с оболочкой или без**
+**Вопрос 1 из M. Образы с оболочкой или без**
 
 В образе без оболочки нет `sh`, утилит и пакетного менеджера: зайти в
 контейнер командой `docker exec … sh` нельзя, зато сканер находит в нём
@@ -160,7 +160,7 @@ same whether Step 8 runs in this stage or inside `upgrade-code`, which has
 no audit question of its own to share:
 
 ```text
-**Вопрос 1. Критическая уязвимость в базовом образе**
+**Вопрос 1 из M. Критическая уязвимость в базовом образе**
 
 Сканер нашёл в образе `<project>-backend` критическую уязвимость
 `<CVE>` в пакете `<пакет> <версия>`: <исправление вышло (`<версия>`), а в

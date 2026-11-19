@@ -17,7 +17,7 @@ dir="${CLAUDE_PROJECT_DIR:-$PWD}"
 { [ -f "$dir/documentation/.dev-pipeline.json" ] || [ -d "$dir/documentation/plans" ]; } || exit 0
 root="$(cd "$(dirname "$0")/.." && pwd)"
 fmt="$root/pipeline/references/question-format.md"
-reason="dev-pipeline: this project asks its questions in the chat, not in a choice card — a card closed without a pick has been read as the first option. Ask the same question as one chat message, as $fmt says: what is being decided in plain words with an example, the options as letters with the one you recommend, «Ответьте сообщением», then end the turn and wait. Until the user answers, change nothing; no answer is not a choice."
+reason="dev-pipeline: this project asks its questions in the chat, not in a choice card — a card closed without a pick has been read as the first option. Ask the same question as one chat message, as $fmt says: the title «Вопрос N из M», what is being decided in plain words with an example, the options as letters with the one you recommend, «Ответьте сообщением», then end the turn and wait. Until the user answers, change nothing; no answer is not a choice."
 if command -v python3 >/dev/null 2>&1; then
   python3 -c 'import json, sys; print(json.dumps({"hookSpecificOutput": {"hookEventName": "PreToolUse", "permissionDecision": "deny", "permissionDecisionReason": sys.argv[1]}}, ensure_ascii=False))' "$reason"
   exit 0

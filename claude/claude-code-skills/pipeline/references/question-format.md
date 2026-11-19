@@ -15,8 +15,17 @@ one project the user answered «ничего не понял» four times runnin
 
 ## The shape
 
-1. **Title line** — `**Вопрос N. <что решаем, простыми словами>**`
-   (a gate or a transition may drop the number).
+1. **Title line** — `**Вопрос N из M. <что решаем, простыми словами>**`
+   (a gate or a transition may drop the number). The number always
+   carries its total: «Вопрос 1.» alone leaves the user guessing how
+   many are left. `M` is how many questions this sitting of the stage
+   has in hand now — the ones already asked plus the ones still to ask
+   (a stage's set, a writer's BLOCKED, the grill's frontier). A lone
+   question is «Вопрос 1 из 1». When an answer opens new questions, `M`
+   grows on the next title and one line under it says why («вопросов
+   стало 6: ответ открыл ещё один»); when an answer closes some, it
+   shrinks the same way. Findings and upgrade changes keep their own
+   word with the same «N из M» (`Замечание N из M`, `Изменение N из M`).
 2. **What a person will see, or what breaks — one sentence in plain
    words, with a concrete example**: an input and what comes out
    («файл «Отчёт.docx» скачается как «download»»), a screen and what is
@@ -40,7 +49,7 @@ one project the user answered «ничего не понял» four times runnin
 Then stop. The next question is a new message after the user answered.
 
 ```text
-**Вопрос 1. Видит ли посетитель черновики в списке записей**
+**Вопрос 1 из 3. Видит ли посетитель черновики в списке записей**
 
 Сейчас посетитель видит и записи без статуса: черновик «Отчёт за май»
 появится у него в списке, хотя автор его ещё не отправил. Правило на
