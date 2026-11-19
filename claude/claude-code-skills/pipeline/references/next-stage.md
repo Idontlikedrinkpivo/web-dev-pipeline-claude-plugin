@@ -24,7 +24,13 @@ Run `scripts/where_am_i.py`. Its block «Готовность этапов» say
   not done.
 
 A document on disk is not a done stage: the close commit is
-(«написан, этап не закрыт» is open). The script does not know which stages
+(«написан, этап не закрыт» is open). The mockups are done when the frames
+register has screens and every one is «готово к разработке» (or dropped
+in a redesign); a register holding only the Figma link means nothing is
+drawn, and the mockups are offered — once they fell out of the offer after
+the SRS that way, and the user saw only the schema (live run 2026-11-19). A
+nested session opened ahead and waiting for «начинай» is still offered,
+with its title, so the answer starts that session rather than a new one. The script does not know which stages
 the product has: drop a stage the project skips — no storage, no schema; no
 HTTP, no API; no screens, no design branch — and say which and why.
 

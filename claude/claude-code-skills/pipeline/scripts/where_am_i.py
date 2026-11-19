@@ -403,11 +403,33 @@ def position(root: Path, docs: list, version: str | None, folder: Path | None, a
     if after_close:
         return 0
     reached = [d.stage for d in docs if d.path.is_file()]
-    reached += [n for n, globs in ((7, ("ui/frames-register.md", "ui/*/frames-register.md")),
-                                   (9, ("ui/test-cases/README.md", "ui/*/test-cases/README.md")),
+    reached += [7] if any(frames_state(r)[0] for r in list(doc.glob("ui/frames-register.md"))
+                          + list(doc.glob("ui/*/frames-register.md"))) else []
+    reached += [n for n, globs in ((9, ("ui/test-cases/README.md", "ui/*/test-cases/README.md")),
                                    (6, ("project-map/project-map.md",)), (15, ("deploy/deploy.md",)),
                                    (16, ("operations/operations.md",))) if any(any(doc.glob(g)) for g in globs)]
     return max(reached, default=0)
+
+
+def frames_state(reg: Path) -> tuple[int, int]:
+    """(screen rows in a frames register, rows done — «готово к разработке» or dropped «снят в редизайне»). A register
+    holding only the Figma link has no rows: the mockups are not drawn, the stage is not done. Counting the file
+    alone dropped the mockups from the offer after the SRS (live run 2026-11-19)."""
+    rows = done = 0
+    for line in read(reg).splitlines():
+        cells = [c.strip() for c in line.strip().strip("|").split("|")]
+        if not line.lstrip().startswith("|") or not re.match(r"S-\d", cells[0]):
+            continue
+        rows += 1
+        status = cells[-1].lower()
+        done += status.startswith("готово") or "снят" in status
+    return rows, done
+
+
+def mockups_done(doc: Path) -> bool:
+    regs = sorted(doc.glob("ui/frames-register.md")) + sorted(doc.glob("ui/*/frames-register.md"))
+    states = [frames_state(r) for r in regs]
+    return bool(states) and all(rows and rows == done for rows, done in states)
 
 
 STAGE_NAMES = {1: ("бизнес-требования", "brainstorm"), 2: ("SRS", "srs-writer"), 3: ("схема БД", "db-schema-design"),
@@ -420,7 +442,7 @@ SESSION_STAGE = {"brd": 1, "srs": 2, "db": 3, "api": 4, "arch": 5, "scaffold": 6
                  "check": 10}
 
 
-def session_rows(folder: Path | None) -> dict:
+def session_rows(folder: Path | None, states: tuple = ("идёт", "передан")) -> dict:
     """Stages a nested session holds now — rows «идёт» or «передан» of plans/<version>/sessions.md
     (pipeline → references/parent-session.md): {stage: (title, state)}."""
     out: dict = {}
@@ -432,7 +454,7 @@ def session_rows(folder: Path | None) -> dict:
             continue
         title, key, _, _, _, state = (c.strip() for c in m.groups())
         n = SESSION_STAGE.get(key.removesuffix("-fix"))
-        if n and state in ("идёт", "передан"):
+        if n and state in states:
             out[n] = (title, state)
     return out
 
@@ -449,8 +471,7 @@ def readiness(root: Path, docs: list, folder: Path | None, open_stages: dict) ->
         design = str(_json.loads(read(doc / ".dev-pipeline.json") or "{}").get("design", ""))
     except ValueError:
         design = ""
-    if any(doc.glob("ui/frames-register.md")) or any(doc.glob("ui/*/frames-register.md")) \
-            or design.lower().startswith("без макетов"):
+    if mockups_done(doc) or design.lower().startswith("без макетов"):
         have.add(7)
     if (doc / "project-map/project-map.md").is_file():
         have.add(6)
@@ -462,6 +483,7 @@ def readiness(root: Path, docs: list, folder: Path | None, open_stages: dict) ->
     if 2 not in done or 10 in done:   # before the SRS everything waits for it; after the meeting point the chain is one
         return []
     busy = session_rows(folder)
+    opened = session_rows(folder, ("ждёт",))   # opened ahead, waiting for the parent's «начинай»
 
     def name(m: int) -> str:
         word = STAGE_NAMES[m][0]
@@ -480,7 +502,8 @@ def readiness(root: Path, docs: list, folder: Path | None, open_stages: dict) ->
         if missing:
             wait.append(f"{word} ({skill}) — нет: " + ", ".join(name(m) for m in missing))
         else:
-            can.append(f"{word} ({skill}) — входы на ветке: " + ", ".join(STAGE_NAMES[m][0] for m in NEEDS[n]))
+            can.append(f"{word} ({skill}) — входы на ветке: " + ", ".join(STAGE_NAMES[m][0] for m in NEEDS[n])
+                       + (f"; подсессия «{opened[n][0]}» уже открыта, ждёт «начинай»" if n in opened else ""))
     lines = ["Готовность этапов (сделан = документ на ветке и этап закрыт; этап, которого у продукта нет — без "
              "хранилища, без HTTP, без экранов, — пропускается):"]
     lines += [f"  можно начать сейчас: {c}" for c in can] or ["  можно начать сейчас: ничего"]
@@ -649,7 +672,11 @@ def main() -> None:
                          "спросить, кто рисует макеты (pipeline → references/design-owner.md; D — без макетов)")
     for reg in ui:
         owner = re.search(r"Дизайн ведёт:?\**:?\s*([^\n|]+)", read(reg))
-        print(f"  7. макеты: {reg.relative_to(root)}" + (f" · дизайн ведёт: {owner.group(1).strip(' *`')}" if owner else ""))
+        rows, done = frames_state(reg)
+        drawn = (f"экранов {rows}, готово к разработке {done}" if rows
+                 else "экранов нет — макеты не нарисованы")
+        print(f"  7. макеты: {reg.relative_to(root)} · {drawn}"
+              + (f" · дизайн ведёт: {owner.group(1).strip(' *`')}" if owner else ""))
     tc = sorted(doc.glob("ui/test-cases/README.md")) + sorted(doc.glob("ui/*/test-cases/README.md"))
     for t in tc:
         print(f"  9. тест-кейсы: {t.parent.relative_to(root)}")
