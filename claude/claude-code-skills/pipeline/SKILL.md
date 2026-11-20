@@ -339,7 +339,11 @@ from `upgrade-docs` is born complete: `docs: <документ> <version> — к
 есть`, its stamp). A document of several
 files (the schema with its migration, the API's parts) is one commit; each
 architecture document, screen spec and test-case section is its own. Gate
-fixes are committed as they land. When the project has
+fixes are committed as they land. Under a parent session the sessions
+share one tree and one git index, so a commit names its own paths —
+`git add -- <path> <path>`, then `git commit -m "…" -- <path> <path>`, each
+path its own word (zsh takes a quoted list as one path); in 2.3.0 an SRS
+commit took 35 backend files staged by another session. When the project has
 `documentation/_web-docs/`, every commit that carries documents first waits
 for the site's rebuild —
 `python3 "${CLAUDE_SKILL_DIR}/../docs-site/scripts/rebuild.py" . --wait` —

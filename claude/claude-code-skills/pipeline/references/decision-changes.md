@@ -180,10 +180,17 @@ only the parent sees the other branch the change may touch.
    документ обновят».
 2. **The parent** finds the owner stage's row (`scripts/subsessions.py …
    show`). The row has a session → `mark` it «идёт» and send it «РЕШЕНИЕ
-   ИЗМЕНЕНО · <было> → <стало> · решил <кто> · от <stage>». No session for
-   that stage (a fresh clone, another person's stage) → the parent runs
-   steps 2–5 itself for that document, through its writer — never another
-   stage's session.
+   ИЗМЕНЕНО · <было> → <стало> · решил <кто> · от <stage>». No live
+   session for that stage (closed and archived, a fresh clone, never in the
+   list) → `scripts/subsessions.py … add <stage>` writes a row «<version> ·
+   NN <word>: правки» (the stage's own row keeps «закрыт»); the parent opens
+   it in a user turn — when the decision came by a message, it asks the user
+   one line first: «Решение меняет <документ>, а его этап закрыт. Открыть
+   сессию «<title>»? Напишите «да».» — and sends it «РЕШЕНИЕ ИЗМЕНЕНО» as
+   above. The parent never dispatches that document's writer itself: in
+   2.3.0 the SRS, schema and API were rewritten by a subagent the user never
+   saw, while the plan said «открыть подсессии». Never another stage's
+   session either.
 3. **The owner's session** runs steps 2–5 for its own document (its
    writer, the check, the commit, the push) and reports «РЕШЕНИЕ ЗАПИСАНО ·
    <document> · коммит <sha> · задеты: <documents of other closed stages

@@ -7,6 +7,7 @@
     python3 subsessions.py <project dir> <version> mark <row | session id> <state>
     python3 subsessions.py <project dir> <version> after <row | session id> <stage key>
     python3 subsessions.py <project dir> <version> parent <session id>
+    python3 subsessions.py <project dir> <version> add <stage key>
     python3 subsessions.py <project dir> <version> show
     python3 subsessions.py <project dir> <version> whoami <session id>
 
@@ -28,6 +29,11 @@ mark    a row's state: ждёт · идёт · закрыт · передан (h
 after   a row waits for a stage: its «Когда» becomes «после <этап>» — the parent sets it when a stage's report says
         «ждёт: <stage> после <stage>»; «after <row> none» puts it back in the queue («по очереди»).
 parent  the parent's own session id, so a parent after a compaction or a new one on «продолжим» finds the list.
+add     a row «<version> · NN <word>: правки» for a stage whose document a changed decision touches when that stage
+        has no live session (closed and archived, a fresh clone, never in the list): «Когда» is «по решению», the
+        stage's own row keeps its state. The parent opens it in a user turn and sends it «РЕШЕНИЕ ИЗМЕНЕНО» —
+        never runs that document's writer itself (pipeline → references/decision-changes.md → Under a parent
+        session). A «правки» row of the stage not yet closed is reused, not added twice.
 show    the table, then: the stage in work, the next one to start, the rows not opened yet — the input of «продолжим».
 whoami  the row of a nested session by its own id: its stage and its skill — for a session after a compaction or a clear.
 
@@ -67,6 +73,7 @@ STAGES = {
     "ci": ("CI", "ci-pipeline", False),
     "close": ("закрытие", "pipeline — End of the pipeline", False),
 }
+FIX = "по решению"   # «Когда» of a «правки» row: opened for a changed decision, not by the chain
 STATES = ("не открыта", "ждёт", "идёт", "закрыт", "передан", "убран")
 HEAD = "| # | Подсессия | Этап | Навык | Когда | Id | Состояние |"
 ROW = re.compile(r"^\|\s*(\d+)\s*\|(.*)\|(.*)\|(.*)\|(.*)\|(.*)\|(.*)\|\s*$")
@@ -133,7 +140,8 @@ def show(rows: list[dict]) -> None:
     nxt = next((r for r in rows if r.get("state") == "ждёт" and r["when"] == "по очереди"), None)
     queued = lambda r: r["when"] == "по очереди" or r["when"].startswith("после ")
     unopened = [r for r in rows if r.get("state") in ("не открыта", "", None) and queued(r)]
-    later = [r for r in rows if r.get("state") in ("не открыта", "", None) and not queued(r)]
+    later = [r for r in rows if r.get("state") in ("не открыта", "", None) and not queued(r) and r["when"] != FIX]
+    fixes = [r for r in rows if r.get("state") in ("не открыта", "", None) and r["when"] == FIX]
     waiting = [r for r in rows if r.get("state") == "ждёт" and r["when"].startswith("после ")]
     print()
     print("в работе: " + (", ".join(f"«{r['title']}» ({r['id']})" for r in busy) or "ничего"))
@@ -143,6 +151,9 @@ def show(rows: list[dict]) -> None:
     if unopened:
         print("не открыты — открыть ВСЕ в этот ход пользователя, с этими названиями, без нового вопроса: " + "; ".join(
             f"{rows.index(r) + 1}. «{r['title']}»" for r in unopened))
+    if fixes:
+        print("правки закрытых этапов — открыть в ход пользователя и отправить «РЕШЕНИЕ ИЗМЕНЕНО»: " + "; ".join(
+            f"{rows.index(r) + 1}. «{r['title']}»" for r in fixes))
     if later:   # a part from a list made before 1.2.256: a stage now goes on in its own session after a clear
         print("старые строки частей — не открывать, этап продолжается в своей подсессии (mark … убран): " + "; ".join(
             f"{rows.index(r) + 1}. «{r['title']}»" for r in later))
@@ -198,6 +209,17 @@ def main() -> None:
         hit[0]["when"] = "по очереди" if rest[1] == "none" else f"после {STAGES[rest[1]][0]}"
         write(path, version, parent, rows)
         print(f"sessions: «{hit[0]['title']}» — {hit[0]['when']}")
+    elif cmd == "add" and len(rest) == 1 and rest[0] in STAGES:
+        base = rows_for(version, rest[0])[0]
+        title = f"{base['title']}: правки"
+        hit = next((r for r in rows if r["title"] == title and r.get("state") not in ("закрыт", "убран")), None)
+        if not hit:
+            hit = dict(base, title=title, when=FIX, id="", state="не открыта")
+            rows.append(hit)
+            rows.sort(key=lambda r: order_key(r["stage"]))
+            write(path, version, parent, rows)
+        print(f"sessions: {rows.index(hit) + 1}. «{title}» — {hit['state']}"
+              + (f" · {hit['id']}" if hit.get("id") else " — открыть в ход пользователя, затем set <строка> <id>"))
     elif cmd == "parent" and len(rest) == 1:
         write(path, version, rest[0], rows)
         print(f"sessions: родительская сессия — {rest[0]}")

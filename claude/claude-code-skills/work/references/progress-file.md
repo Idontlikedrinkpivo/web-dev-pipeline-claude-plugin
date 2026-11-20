@@ -88,7 +88,11 @@ the old version.
 Change it the moment a status changes, not in a batch at the commit:
 `🔄 в работе` when the unit is dispatched (with its executor), `🔍 ревью`
 when `code-review-unit` starts, `✅ готово` right after the unit's commit
-lands — and the progress bar line with each change.
+lands — and the progress bar line with each change. A committed unit
+reworked again (a later review's fix, a changed decision) goes back to
+`🔍 ревью: правка после коммита <sha>` while that fix is made and reviewed,
+and to `✅ готово` with its new commit; the bar drops by one meanwhile. The
+user once asked why unit 41 was under review while the page called it done.
 The bar, the count line and the «обновлено» time are set by
 `python3 "${CLAUDE_SKILL_DIR}/../pipeline/scripts/progress_set.py" documentation/plans/<version>/progress.md <done> <total>`
 (the fixes section: add `--section "## Исправления по финальному ревью"`), never by

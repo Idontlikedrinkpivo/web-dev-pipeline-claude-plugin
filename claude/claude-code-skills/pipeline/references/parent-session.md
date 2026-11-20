@@ -43,7 +43,8 @@ itself, as before, and the host compacts it in place (`references/context.md` �
   user named the session themselves the app asks them to approve the new title; a declined rename stays declined.
 - **The list of sessions — `scripts/subsessions.py`.** Every session has its job and its title before it opens; there
   are no spares. The list lives in `documentation/plans/<version>/sessions.md` (out of git: its session ids are this machine's) and only
-  the script writes it: `plan` (the rows), `set` (an id), `mark` (a state), `parent`, `show`, `whoami`.
+  the script writes it: `plan` (the rows), `set` (an id), `mark` (a state), `parent`, `show`, `whoami`, `add` (a «правки» row for a
+  closed stage).
   One row per stage, and no parts: a stage over the context limit goes on in its own session, compacted by the host
   (`references/context.md` → Compaction). Pre-opened parts mostly stayed unused (Дашборд руководителя 1.1.0), and a part opened on the way
   needed the user's click each time, which broke an autonomous run (the user, 2026-11-02). No session for fixes
@@ -121,8 +122,9 @@ One line each from a nested session (`SendMessage` to the parent):
   `references/unattended.md`): the standing answers settle it, or the user is asked here and the answer sent back;
 - «РЕШЕНИЕ · <было> → <стало> · решил <кто> · владелец: <stage> · жду» — a decision that changes another
   stage's document (`references/decision-changes.md` → Under a parent session): `mark` the owner stage's row
-  «идёт» and send it «РЕШЕНИЕ ИЗМЕНЕНО · <было> → <стало> · решил <кто> · от <stage>»; no session for that stage
-  → apply it here through the owner's writer, then answer the sender as below. On «РЕШЕНИЕ ЗАПИСАНО · <document> ·
+  «идёт» and send it «РЕШЕНИЕ ИЗМЕНЕНО · <было> → <стало> · решил <кто> · от <stage>»; no live session for that
+  stage (closed and archived, a fresh clone) → `subsessions.py … add <stage>` and open «<version> · NN <word>:
+  правки» in a user turn, then send it the same — never the owner's writer here, out of the user's sight. On «РЕШЕНИЕ ЗАПИСАНО · <document> ·
   коммит <sha> · задеты: …» → `mark` the owner «закрыт», route each document named the same way, and send the
   waiting session «продолжай: <document> обновлён, коммит <sha>».
 
@@ -170,8 +172,15 @@ documentation/plans/<version>/resume.md и git.
 меняет документ другого этапа (SRS, схему, API, архитектуру, ТЗ на экран), здесь не правь и его писателя не
 запускай: напиши родительской «РЕШЕНИЕ · <было> → <стало> · решил <кто> · владелец: <этап> · жду» и жди
 «продолжай»; а на «РЕШЕНИЕ ИЗМЕНЕНО · …» от родительской внеси решение в свой документ своим писателем,
-закоммить, отправь и ответь «РЕШЕНИЕ ЗАПИСАНО · <документ> · коммит <sha> · задеты: <документы или «нет»>». При
-большом контексте — передача по pipeline → references/context.md. Остановка — «ОСТАНОВЛЕНА · <причина>».
+закоммить, отправь и ответь «РЕШЕНИЕ ЗАПИСАНО · <документ> · коммит <sha> · задеты: <документы или «нет»>».
+В этой папке работают и другие сессии, индекс git общий: коммить только свои файлы — git add -- <путь> <путь>, затем
+git commit -m "…" -- <путь> <путь>, каждый путь отдельным словом.
+Файл для другой сессии клади в documentation/plans/<version>/ — не в заметки сессии и не во временную папку: другая
+сессия их не видит.
+Если вопрос другой сессии ты закрыла сама, без пользователя, скажи ему одной фразой простыми словами, что решено и
+почему и что ему делать ничего не нужно — без «вопроса сессии API», id и sha.
+Контекст сжимает программа — не останавливайся и не передавай работу (pipeline → references/context.md). Остановка —
+«ОСТАНОВЛЕНА · <причина>».
 ```
 
 ## The nested session
@@ -196,6 +205,14 @@ It runs its stage as the stage's skill says, with the user, in this session. Wha
   жду», and this session waits for «продолжай» (`references/decision-changes.md` → Under a parent session). A
   closed session that gets «РЕШЕНИЕ ИЗМЕНЕНО · …» from the parent edits its document through its writer, commits,
   pushes and reports «РЕШЕНИЕ ЗАПИСАНО · <document> · коммит <sha> · задеты: …».
+- **One tree, one index.** Its commits name their own paths (`SKILL.md` → Commit each document): `git add -- <paths>`,
+  then `git commit -m "…" -- <paths>`, each path a separate word — a plain `git commit` took another session's
+  staged files twice in 2.3.0.
+- **A file for another session** goes to `documentation/plans/<version>/` — never to the session's notes or a
+  scratch folder, which the other session cannot read (2.3.0: a gaps list for the parent had to be copied over).
+- **A question settled without the user** — another session's, answered from the documents — is told to the user in
+  one plain sentence: what was decided, why, and that nothing is needed from them. Not «ответил на вопрос сессии
+  API» with ids and shas: the user did not know what that meant (2.3.0).
 - **The context never stops it.** It does not measure the context to hand over, pause or ask: the host compacts it
   — in `work` after the unit in flight is committed — and it picks up from `resume.md`, the progress file and git
   (`references/context.md` → Compaction). It writes what the chat settles to its file at once, so any moment is safe
