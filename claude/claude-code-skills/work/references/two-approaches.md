@@ -44,8 +44,9 @@ decision is a stop for the user, never two approaches. A UI unit
    report, and one more line under `APPROACH`: «Подход A: <sentence>.
    Другой подход пробует второй исполнитель — не переходи на него». In
    parallel with `isolation: "worktree"` when the focused tests share no
-   runtime resource (Step 3); otherwise one after the other, the second
-   also from the base commit. The progress row reads `🔄 в работе: два
+   runtime resource or each gets its own (`references/parallel-waves.md` →
+   Streams); otherwise one after the other, the second also from the base
+   commit. The progress row reads `🔄 в работе: два
    подхода (A, B)`.
 4. **Pick by the checks.** An attempt counts only when its focused tests
    and the unit's `Проверка` pass in its own tree. One passes — it

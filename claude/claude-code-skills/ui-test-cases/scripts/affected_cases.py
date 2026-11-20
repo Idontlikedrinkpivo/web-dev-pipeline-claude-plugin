@@ -2,7 +2,7 @@
 """Which user test cases an acceptance run takes in pass 1: the cases the iteration touched, from git and the files.
 
 usage: python3 affected_cases.py <project dir> [--since <tag or ref>] [--plan <plan.md>] [--failed <test-run.md>]
-                                 [--touch S-1,cancelBooking] [--rest <test-run.md>]
+                                 [--touch S-1,cancelBooking] [--rest <test-run.md>] [--code-only]
 
 Prints one line per case in scope, `TC-<n><TAB><reason>[; <reason>…]`, then `затронуто: …` (the touched surface,
 for the chat line) and last `всего: N из M`. A case is in scope when its «Экран» line or «Трассировка» names a
@@ -13,6 +13,11 @@ block or `operationId:` line the diff of `documentation/api` changes; SRS headin
 (matched to the cases' «Проверяет» line); `--plan`: S-ids, screen-spec paths and operationIds in each unit's
 «Документы», «Файлы» and «Цель»; `--touch`: screens and operations named by hand (a small iteration's unit).
 `--rest <test-run.md>`: instead, the cases outside that report's last run — the close's full set.
+`--code-only`: the touched surface from the code changed since `--since`, not from the documents — a re-stamp of the
+SRS, the API and every screen spec touches nearly every case (991 of 1010 in ai-initiatives 2.3.0) while the code
+changed in three places. An operation is touched when a changed line of a code file (outside documentation/) names
+its operationId; a screen, when a `--plan` unit whose «Файлы» list a changed file names it. New and changed cases
+and `--failed` count as always.
 `--since` defaults to the newest `v*` tag reachable from HEAD that is not the current version (the branch
 `iteration/<v>`); none → every case, reason «первая итерация». Exit 0 always; 1 — no test-cases folder.
 Standard library only, Python 3.9+.
@@ -114,6 +119,7 @@ def main() -> None:
     ap.add_argument("project")
     for o in ("--since", "--plan", "--failed", "--touch", "--rest"):
         ap.add_argument(o)
+    ap.add_argument("--code-only", action="store_true")
     a = ap.parse_args()
     root = Path(a.project).resolve()
     now = case_files(root, None)
@@ -166,7 +172,8 @@ def main() -> None:
     screens: dict[str, str] = {}  # S-n -> why
     ops: dict[str, str] = {}
     reqs: dict[str, str] = {}
-    for f in (git(root, "diff", "--name-only", f"{since}..HEAD", "--", "documentation") or "").splitlines():
+    doc_diff = "" if a.code_only else git(root, "diff", "--name-only", f"{since}..HEAD", "--", "documentation") or ""
+    for f in doc_diff.splitlines():
         name = Path(f).name
         if "/screen-specs/" in f and SID.match(name):
             screens.setdefault(SID.match(name).group(0), "ТЗ изменено")
@@ -181,14 +188,26 @@ def main() -> None:
                 head = next((lines[i] for i in range(min(n, len(lines)) - 1, -1, -1) if lines[i].startswith("#")), "")
                 for r in REQ.findall(text + " " + head):
                     reqs.setdefault(r, "требование изменено")
-    for o in touched_ops(root, since):
+    for o in ([] if a.code_only else touched_ops(root, since)):
         ops.setdefault(o, "OpenAPI изменён")
     known_ops = {o for c in cases.values() for o, _ in OP.findall(c[0])}
+    code: list[str] = []
+    if a.code_only:
+        code = (git(root, "diff", "--name-only", f"{since}..HEAD", "--", ".", ":(exclude)documentation") or "").split("\n")
+        code = [f for f in code if f and not f.startswith(".")]   # .context/, .claude/: notes, not the app
+        for f in code:
+            lines = "\n".join(t for _, t in changed(root, since, f))
+            for o in known_ops:
+                if re.search(rf"\b{re.escape(o)}\b", lines):
+                    ops.setdefault(o, f"код изменён: {f}")
     if a.plan and Path(a.plan).exists():
         units = re.split(r"^###\s+(?=U\d+\.)", Path(a.plan).read_text(errors="replace"), flags=re.M)[1:]
         for u in units:
             uid = u.split(".", 1)[0]
             part = "\n".join(re.findall(r"^\|\s*\*\*(?:Документы|Файлы)\*\*\s*\|.*$|^\*\*Цель\*\*.*$", u, re.M))
+            if a.code_only:   # the unit counts only when its files changed since --since
+                if not any(f in part for f in code):
+                    continue
             for s in SID.findall(part):
                 screens.setdefault(s, f"в плане: {uid}")
             for o in known_ops & set(re.findall(r"`([A-Za-z_]\w*)`", part)):

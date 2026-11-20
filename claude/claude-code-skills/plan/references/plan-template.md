@@ -66,7 +66,14 @@ One `### U<n>.` block per unit, per Step 4.
 Which units may run together, derived from «Зависит от» + «Параллельно». A wave
 is a claim about contention, so name the contention that keeps units apart.
 For each wave, also name which use case (UC id) first runs end-to-end after
-it, or `—`.
+it, or `—`. Independent chains of five or more units are streams (`writer.md` →
+Step 3):
+
+| Поток | Юниты | Своё (БД, стенд, бакет) | Часов по грейдам |
+|---|---|---|---|
+
+then one line: «Критический путь: <units> — <N> ч; последовательно <M> ч».
+No stream — no table.
 
 ## 5. Критерии готовности
 The plan-wide gate: lint contracts from the foundation §6 pass, the end-to-end path

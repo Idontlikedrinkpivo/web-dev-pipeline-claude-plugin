@@ -12,6 +12,8 @@ The «every-stage» section is printed after the stage's own.
 
 - Every line the user reads is in the user's language — answers, questions, and the short lines between tool calls
   («Коммичу.», «Ошибся — правлю через Edit.», never «Committing.»), right after a compaction too (`pipeline` → Names).
+- Before the stage's close report, remove what the stage started and run `pipeline/scripts/leftovers.py`; its last
+  line goes into the report (`pipeline` → `references/handover-check.md` → The stage's leftovers).
 
 ## pipeline
 

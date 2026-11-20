@@ -139,15 +139,33 @@ until the final review sent them back (ai-initiatives 2.3.0).
 Order by dependency, not by layer aesthetics: a unit ships only after every
 unit it imports from. Two units are **parallel-safe** only when their `Файлы`
 sets are disjoint *and* they share no type, migration, registry, config,
-generated client, lockfile, or runtime resource their tests need (a local
-database, a port, a dev server, a package install). Declared file
-disjointness is necessary and not sufficient — an unmarked shared contract is
-what turns a parallel wave into a merge fight, and two workers running
-integration tests against one local database corrupt each other even in
-isolated worktrees. Default to `no` under any doubt. **UI units are always
-`Параллельно: no`** and run one after another: the first one (in plan
-order) carries the API client generation and the app-wide error handler in
-its `Файлы`; later screens depend on it and only use them.
+generated client, lockfile, or hub file — the wiring, the shared fakes, the
+route-guard table, the contract-drift list; a unit touching a hub is `no`.
+Declared file disjointness is necessary and not sufficient — an unmarked
+shared contract is what turns a parallel wave into a merge fight. Default to
+`no` under any doubt about files and contracts.
+
+A runtime resource of the tests — the test database, a port, a bucket, a dev
+server — is **not** a reason for `no`: when it is the only contention, mark
+`yes (своя БД)` or `yes (свой стенд)`, and `work` gives each stream its own
+(`work` → `references/parallel-waves.md` → Streams). When the dependency
+graph holds independent chains of five or more units each, make them
+**streams** in §4: each chain runs in order in its own worktree, beside the
+others. For each stream give its estimated hours by grade (the medians of the
+project's past units when `reflect` measured them), and the critical path —
+serial hours against hours with streams. A stream that does not shorten the
+critical path is not worth its merge work; more than three at once is not
+either (a full test run takes every core).
+
+**UI units.** The first one in plan order is the foundation and carries in its
+`Файлы` the API client generation, the app-wide error handler, the shared
+components, the styles and the dictionary of labels. After it, screen units
+whose `Файлы` — e2e specs included — are disjoint are `yes (свой стенд)`. A
+screen that needs a change to a shared component, style or the dictionary gets
+it from a separate unit before it, never in its own `Файлы`. Between screen
+units, `Зависит от` holds an order dependency (one uses what the other built),
+not a data one (its tests only need records the other screen creates — they
+seed them).
 
 Among units that are equally ready, order first the one that completes the
 earliest use case's path end-to-end. A run stopped mid-way then leaves a
@@ -170,7 +188,7 @@ unused number. Deletion leaves a gap; gaps are fine.
 | **Не затрагивается** | each use of those symbols the unit leaves as it is, with the reason — or `—`. With «Меняет символы» filled, search the repository for every use (code, tests, e2e, CI, documents): each hit is in `Файлы` or here |
 | **Образец** | repo-relative path(s) whose conventions this unit mirrors (`path (U<n>)` when a unit in `Зависит от` creates it, or the arch section that fixes the shape), or `— first of its kind` |
 | **Зависит от** | U-ids, or `—` |
-| **Параллельно** | yes / no — and with what it contends when no |
+| **Параллельно** | yes / yes (своя БД) / yes (свой стенд) / no — and with what it contends when no |
 | **Сложность** | 0 / Low / Mid / High |
 | **Почему** | the one signal that set the grade (see `references/complexity.md`) |
 | **Исполнитель** | executor name from `executor-catalog` |
@@ -328,7 +346,9 @@ with the D2 graph at DIAGRAM PATH, §3 Юниты (Step 4 blocks), §4 Волн�
 6. Grades spread across at least two tiers, unless the plan is honestly one
    kind of work and says so — Step 5.
 7. `Зависит от` is a DAG; every `Параллельно: yes` pair is disjoint in
-   files, contracts, *and* runtime resources — Step 3.
+   files and contracts, and a shared runtime resource is named as
+   `yes (своя БД)` / `yes (свой стенд)`; chains of five or more units are
+   streams with their hours in §4 — Step 3.
 8. Every `Образец` path exists or is created by a unit in its `Зависит от`
    chain; a `— first of its kind` unit is graded as `references/complexity.md`
    → Anti-deflation gates says — Step 4.

@@ -34,7 +34,7 @@ it finds as a stopped run).
 - **Следующий шаг:** <the exact next action>
 - **Открытые замечания и что пробовали:** <F-id — attempt 1 → result; attempt 2 → result; premise checked: …>
 - **Незакоммиченное:** <<git dir>/pipeline-work/<version>/U14.patch — what it holds> | нет
-- **Запущено:** <stands by compose project, watchers by task id> | ничего
+- **Запущено:** <stands by compose project, stream containers, worktrees, buckets, temporary databases, watchers by task id> | ничего
 - **Решения по ходу, ещё не в документах:** <decision → its owner document> | нет
 - **Подвохи:** <what the next session must know that no file says>
 ```
@@ -61,8 +61,9 @@ saying they are leaving with the run unfinished:
    Check the patch holds every changed and new file, then restore the tree
    to the last commit — all but `documentation/plans/`, whose note, progress and run report step 5 commits: a
    restore there loses them. No `wip:` commit on the iteration branch.
-3. Stop the watchers; stands follow the stage's cleanup rule, or stay up
-   and are named in the note when the user said they resume soon.
+3. Stop the watchers; stands, stream containers, worktrees and temporary databases follow the stage's cleanup
+   (`references/handover-check.md` → The stage's leftovers), or stay up and are named in the note's «Запущено»
+   when the user said they resume soon — the session that picks up removes them at its close.
 4. Bring the note up to date and post its link with the progress line.
 5. Run `pipeline/scripts/push_branch.py`: it commits the note, the progress, `work`'s run report
    (`run-report.md`) and the other reports in `plans/` and pushes the branch, so whoever continues — on this

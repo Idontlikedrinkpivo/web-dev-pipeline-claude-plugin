@@ -124,9 +124,12 @@ LARGE FILES     A diff or a plan over ~25,000 tokens is read in parts: the diff'
     every unit is reachable in the wave ordering.
   Parallel safety — for each Параллельно: yes pair: disjoint «Файлы» AND no
     shared type, migration, registry, config, generated client, lockfile, or
-    runtime resource (test database, port, dev server).
-    File disjointness alone is not sufficient; an unmarked shared contract is
-    a finding.
+    hub file (wiring, shared fakes, route-guard table). A shared runtime
+    resource (test database, port, dev server) needs «yes (своя БД)» /
+    «yes (свой стенд)», not «no». File disjointness alone is not sufficient;
+    an unmarked shared contract is a finding. Missed parallelism is a finding
+    too: independent chains of five or more units all «no», or screen units
+    after the foundation all «no» with disjoint Файлы.
   Files completeness — for each unit with «Меняет символы», and each unit
     that visibly removes or changes a field, a constant, an environment
     variable, a response shape or a public symbol without listing it there:

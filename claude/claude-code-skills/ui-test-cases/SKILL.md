@@ -300,7 +300,9 @@ iteration) — every case, «первая итерация». The ids go to the 
 прошлый раз»), and the run's section records it as its «Объём» line. A
 `DEFECTS` re-run after a fix plan takes the failed cases plus the cases of
 the screens the fix plan touched (`--since` the last run's commit, `--failed`
-with this iteration's report, `--plan` with the fix plan); a small iteration
+with this iteration's report, `--plan` with the fix plan, and `--code-only`
+when documents were re-stamped since — a re-stamp touches nearly every case,
+the code only a few); a small iteration
 has no plan and names its unit's screens and operations with `--touch
 S-n,<operationId>`. **The close's full set** (`pipeline` → End of the
 pipeline, before the tag): the same runner on the final code over

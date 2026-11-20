@@ -9,17 +9,32 @@ one commit — and most plans never need this file.
   - the harness gives each worker an isolated workspace — in Claude Code,
     pass `isolation: "worktree"` on each parallel `Agent` call, its packet's
     `WORKTREE yes` and every path in it, and in files it reads, relative;
-  - their focused tests share no runtime resource (one compose database, a
-    fixed port, a dev server) — isolation of files is not isolation of the
-    database.
+  - their focused tests share no runtime resource — or each gets its own. Files isolated in worktrees are not
+    a database isolated: two streams on one compose database corrupt each other. A plan's `yes (своя БД)` /
+    `yes (свой стенд)` means that is the only contention, so give it away — Streams below.
 - **Never parallel** in a shared working directory: concurrent writes and
   concurrent test runs corrupt each other regardless of what the plan claims.
-- **UI units are never parallel** — not with each other and not with any
-  other unit: one screen at a time, in plan order, each its own dispatch,
-  review, and commit. Screens share the generated API client, the app-wide
-  error handler, and shared components; the first UI unit of a run sets them
-  up and the next ones reuse them, so a later screen sees what the earlier
-  one built.
+- **UI units after the foundation.** The first UI unit in plan order is the foundation: the generated API client,
+  the app-wide error handler, shared components, styles and the dictionary of labels. It runs alone. After its
+  commit, screen units the plan marks `yes (свой стенд)` run in parallel when their `Файлы`, e2e specs included,
+  are disjoint — each on its own stand (ports, database). A screen executor never edits a shared component, a
+  style or the dictionary: a lack of one goes into its NEEDS FROM ORCHESTRATOR, and the change is a separate unit
+  in the main tree before the screen goes on.
+- **Streams.** A plan's §4 may group independent chains of units into streams: a stream runs its units in order
+  in one worktree, beside the others. Each stream gets, without a question to the user:
+  - its own postgres container, started from the project's postgres image with the data in memory —
+    `docker run -d --name <project>-s<k>-pg --tmpfs /var/lib/postgresql/data -e POSTGRES_HOST_AUTH_METHOD=trust
+    -e POSTGRES_DB=<project>_test -p <free port>:5432 <image> -c fsync=off -c synchronous_commit=off -c full_page_writes=off`, the migrations
+    applied, its `TEST_DATABASE_URL` in the packet;
+  - its own bucket and env when the tests need object storage, its own ports when they need a stand;
+  - a line in `resume.md` → «Запущено» (container, port, bucket, worktree), so the stage's close removes
+    them (`pipeline` → `references/handover-check.md` → The stage's leftovers).
+
+  Inside a stream the executor runs only the unit's own tests, with `--maxWorkers=2` (pytest `-n 2`); the full
+  suite runs once the unit's patch lands in the main tree (Step 5). Streams at once: about one per four cores,
+  at most three — a full run takes every core, and two more beside it turn into timeouts. After a unit of a stream
+  is committed, the stream's worktree moves onto that commit (`git -C <worktree> reset -q --hard <sha>`): its
+  changes are in it, and the next unit starts from the main line with every stream's work so far.
 - **Bring the wave home, one unit at a time.** A worker never commits or stages (`executor-catalog` →
   `references/worker-prompt.md` → RULES), so its worktree branch carries nothing: what comes home is the
   worktree's changes, as a patch. When the wave's workers have returned, for each unit in plan order:
@@ -37,7 +52,8 @@ one commit — and most plans never need this file.
 
   The wave's `Файлы` are disjoint by its conditions, so each patch applies cleanly on the commits before it; one
   unit at a time keeps «one unit, one commit» — two patches in the tree at once let one unit's checks and staging
-  pick up the other's half. A worktree is removed only after its unit is committed: until then its executor may be
+  pick up the other's half. A stream does not wait for the others: its unit comes home as soon as it returns, in
+  the queue of returned units. A worktree is removed only after its unit — a stream's last unit — is committed: until then its executor may be
   resumed for a review fix, which comes home the same way — the unit's files in the main tree back to HEAD (by
   name; a new file deleted), then the worktree's new patch applied. A patch that does not apply means the files
   were not disjoint: run the rest of the wave serially.

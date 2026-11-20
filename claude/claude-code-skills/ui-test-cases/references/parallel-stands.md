@@ -89,8 +89,10 @@ stands = min(
 `sysctl hw.perflevel0.physicalcpu` gives the performance cores on macOS
 (all cores elsewhere); `docker info` the Docker memory; `docker stats
 --no-stream` the stand. Stands already running count against free memory
-as they are. The report names the number and what limited it («3 стенда:
-ядра»). One stand is a normal result, not a failure.
+as they are. The report names the number, what limited it and what it
+saved — the tests times a test's median on one stand, against the wall
+time («3 стенда: ядра · ~1 ч 50 мин вместо ~5 ч»). One stand is a normal
+result, not a failure.
 
 ## The run
 
@@ -99,6 +101,14 @@ as they are. The report names the number and what limited it («3 стенда:
   reports do not mix.
 - **One worker per stand** while the tests share data; more only when
   every test works in its own data namespace.
+- **Cases that touch the whole stand go last, alone.** Cases that call the
+  live model (slow, rate-limited) and cases that change the stand's global
+  state (settings, roles, the clock, a feature switch) run after the rest,
+  on one stand — in a share of their own they neither slow nor break the
+  others.
+- **Parallel is the default, never a question.** A run on a copyable stand
+  takes the stands of How many stands without asking: the user asked for it
+  in 2.2.0 and again in 2.3.0 (ai-initiatives).
 - **One report, one writer.** The user sees one report and nothing else:
   `test-run.md` for a UI test run, the e2e section of `progress.md` for a
   suite in `work`. Several stands never mean several reports, per-stand

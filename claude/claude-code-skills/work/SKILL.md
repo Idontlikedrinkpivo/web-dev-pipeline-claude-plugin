@@ -165,8 +165,8 @@ A unit is ready when every id in `Зависит от` is done — the `ready` l
 
 - **Serial** by default — one unit, one dispatch, one commit.
 - **Parallel** only when the plan marks the peers `Параллельно: yes` and the four conditions of
-  `references/parallel-waves.md` hold — read it when such a unit is ready; under any doubt, serial. UI units are
-  never parallel.
+  `references/parallel-waves.md` hold — read it when such a unit is ready; under any doubt, serial. A stream of
+  the plan's §4 gets its own postgres container and stand; UI units go parallel only after the foundation unit.
 
 **The Low batch at a wave boundary.** When the last unit of a §4 wave is
 committed — and before Step 7 in any case — run `code-review-unit`'s Low
@@ -260,7 +260,10 @@ Per unit, in this order, and never skip to the next unit on a broken tree:
 3. **Run the checks** — `lint`, `typecheck` (tests too) and the unit's tests plus the checks the plan's unit
    names in «Проверка» (the gates of `repo-scaffold/references/quality-gates.md`), each through
    `python3 "${CLAUDE_SKILL_DIR}/scripts/run_check.py" <name> -- <command>`. This run is authoritative; the worker's
-   self-check is not. Then check the proof, not just the green: every scenario
+   self-check is not. An e2e check runs only the unit's cases — `-g` with the TC ids or titles from its TESTS; a
+   whole spec file only when the unit changed shared e2e support or a handler its other tests use; the full e2e
+   suite once, at the end of a stream or the run. Never through `| tail`: run_check streams it to its log and
+   the progress page counts it — 54 tests of two files ran 42 minutes for a unit with 8 (ai-initiatives 2.3.0). Then check the proof, not just the green: every scenario
    the plan listed exists as a test in the diff and asserts what the scenario
    names (a test named after a scenario that asserts nothing reports coverage
    that does not exist), and the details file's evidence matches what the diff

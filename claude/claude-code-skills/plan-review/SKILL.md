@@ -114,7 +114,7 @@ there, so the session's copy and the packet cannot drift; the session dispatches
 |---|---|---|
 | **Commit atomicity** | judgment | does each unit land green alone? |
 | **Dependency graph** | structural | is `Зависит от` a DAG whose every dependency exists? |
-| **Parallel safety** | structural | is each `Параллельно: yes` pair disjoint in files, contracts and runtime resources? |
+| **Parallel safety** | structural | is each `Параллельно: yes` pair disjoint in files and contracts, a shared runtime resource marked `yes (своя БД)` / `yes (свой стенд)`, and no independent chain of five or more units left serial? |
 | **Grade calibration** | judgment | does the cascade on the unit's own fields give its grade, floors and gates included? |
 | **Files completeness** | structural | is every use of a changed symbol in `Файлы` or «Не затрагивается» (`plan/references/files-field.md`)? |
 | **Citation integrity** | structural | does every `Документы` entry resolve — a report row (`TC-n`, `F<n>`, `code-audit-<date>.md A<n>`) included? |

@@ -65,6 +65,9 @@ schema — a test that runs the app in a child process too, given the same URL a
 Never a schema prepared by hand that someone has to bring to the latest migration after each new one: a test on
 `razvii_test` kept at 0003 failed after every migration and came back to the user as a chore (2026-11-04). A session
 that finds such a test fixes it this way (a follow-up unit), not as a note to the user. The one exception is a brownfield repo with no migration files at all: the template's commented `create_all` fallback stands in until the first migration file exists, and the report says so.
+- A test that creates a database of its own names it `tmp_test_<uuid>`, and a session-start fixture in the root
+  `conftest.py` drops every `tmp_test_` database with no open connection before the run: a teardown that never ran (a
+  timeout, a stopped run) otherwise leaves it — 79 such databases held 3.5 GB of the Docker VM (ai-initiatives 2.3.0).
 - Group tests by behaviour, shared fixtures in `conftest.py` (shared rule 4).
 - Put an autouse fixture that requests `db_session` only in `tests/integration/conftest.py`: autouse applies to every test under that directory, and at the root it would make each unit test connect to the database.
 

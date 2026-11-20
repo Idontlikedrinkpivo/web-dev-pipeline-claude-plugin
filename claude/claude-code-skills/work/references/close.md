@@ -22,6 +22,9 @@ When every unit in scope is committed, run these yourself and save each output u
    BASE, mutants over the run's diff, and the dead-code report. A simplifier pass lands what grew before the
    review, as its own commit with the trailer `Plan-Unit: <version>/health-<n>` (`references/health.md` →
    Simplify).
+4. **The stage's leftovers** — the streams' containers and worktrees, stand copies, temporary databases:
+   removed and checked per `pipeline` → `references/handover-check.md` → The stage's leftovers; the line goes
+   into the run report.
 
 ## Fixes after the final review
 

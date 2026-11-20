@@ -170,7 +170,7 @@ def writes_progress(bare: str, bodies: list[str]) -> bool:
 
 
 # a worktree of its own: the harness's, or a parallel stream's under <git-common-dir>/pipeline-work/ (`wt-b`)
-OWN_WORKTREE = re.compile(r"/\.claude/worktrees/|pipeline-work/|(?:^|/)wt-[\w.-]+(?:/|$)")
+OWN_WORKTREE = re.compile(r"(?:^|/)\.claude/worktrees/|pipeline-work/|(?:^|/)wt-[\w.-]+(?:/|$)")
 
 
 def paths_kept(cmd: str) -> str:

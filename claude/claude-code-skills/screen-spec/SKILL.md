@@ -320,9 +320,14 @@ and writes the files itself; there is no `doc-typist` on this stage.
    with `references/writer-prompt.md`, without asking which model and with no
    `model` on the call. One dispatch per screen; a batch of up to three only
    when each is small (about eight elements or fewer, no nested step).
-   Dispatch one at a time, not in parallel: a parallel dispatch would need a
+   A new screen's writer goes one at a time: a parallel one would need a
    worktree, which starts from HEAD and misses the uncommitted register and
-   API, and the Figma MCP serves one reader at a time better. A missing agent
+   API, and the Figma MCP serves one reader at a time better. **Fixes to
+   written specs** (a review's, a check's, a changed decision's) run in
+   parallel, two or three writers in this tree, when their files are
+   disjoint and each needs no Figma read; each is committed by its own paths
+   (`git commit -m … -- <its files>`). 2.3.0 ran them so four times with no
+   conflict. A missing agent
    or a rejected alias is a stop per the catalog.
 6. **Inspect each file on disk** against the Quality gate below. Mechanical
    checks first, by script — run `python3 -I

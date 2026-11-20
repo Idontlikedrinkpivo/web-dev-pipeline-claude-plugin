@@ -203,6 +203,10 @@ RULES
 - The shell is zsh on macOS: change files with Edit, not `sed -i` (a hook refuses `sed -i` without a suffix
   argument — BSD sed takes the next word as one); quote
   every argument with `*`, `?` or `[` — an unquoted glob stops the command.
+- In a stream (WORKTREE yes and a TEST_DATABASE_URL in the packet): run only this
+  unit's tests, on that database, with `--maxWorkers=2` (pytest `-n 2`), and e2e
+  only with `-g` on your cases. The full suite runs in the main tree after your
+  patch lands (`work/references/parallel-waves.md` → Streams).
 - A long command (Stryker, an e2e suite, the full test suite) runs with
   `run_in_background: true`, and you wait for its end — never `sleep N;
   …`, which the harness blocks. To wait for a condition, load the Monitor
@@ -230,7 +234,8 @@ CONCERNS, never only into the details file: a reviewer reads the file and return
 STATUS            DONE | DONE_WITH_CONCERNS | BLOCKED | HARDER_THAN_EXPECTED
 NEEDS FROM ORCHESTRATOR  a decision or an action only the orchestrator can take — or: нет
 FILES CHANGED     every path you actually touched
-TESTS             how many added / changed / reused, and the test files
+TESTS             how many added / changed / reused, and the test files; for
+                  e2e, the command that runs only yours (`-g` with your TC ids)
 RED OBSERVED      one line: the failing test and the first line of the failure you
                   saw before the implementation, or the exception the strategy
                   allows (baseline captured / smoke check / none — reason)

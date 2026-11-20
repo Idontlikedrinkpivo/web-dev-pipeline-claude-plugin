@@ -18,7 +18,9 @@ own `<project>_test_mut_<k>`, run side by side (work → references/health.md).
 
 A Playwright suite (`playwright test`, not `--list`) in a project with an open iteration's progress.md gets its
 «e2e» section by itself: the suite's size from `--list`, `--reporter=list` added when no reporter is given, and
-pipeline/scripts/progress_e2e.py run every minute over the streamed log and once at the end.
+pipeline/scripts/progress_e2e.py run every minute over the streamed log and once at the end. A Playwright suite
+without `-g` / `--grep` is flagged «⚠»: a unit's check runs only its own cases (work → Step 5.3), the whole suite
+once at the end of a stream or the run.
 Recognised: Vitest / Jest, pytest, Playwright, tsc, ESLint, Ruff; anything else gets the exit code and the tail.
 Standard library only.
 """
@@ -177,6 +179,9 @@ def main() -> None:
     folder.mkdir(parents=True, exist_ok=True)
     lock = take_lock(folder, name)
     log = folder / f"{name}-{datetime.now():%Y%m%d-%H%M%S-%f}.log"
+    line = " ".join(cmd)
+    unfiltered = (re.search(r"playwright\s+test\b", line) and "--list" not in line
+                  and not re.search(r"(?:^|\s)(?:-g|--grep)(?:\s|=|$)", line))
     e2e = e2e_progress(cmd)
     if e2e:
         cmd = e2e[0]
@@ -204,6 +209,9 @@ def main() -> None:
         last = {}
     total = sum(v for k, v in c.items() if k in ("passed", "failed", "skipped", "flaky", "todo", "xfailed", "xpassed"))
     warn = []
+    if unfiltered:
+        warn.append(f"⚠ e2e без -g: прогнан весь набор ({total or '?'} тестов). Если это проверка юнита — "
+                    "только его кейсы (-g с его TC); весь набор — один раз в конце потока или прогона")
     if last.get("total") and total and total < last["total"]:
         warn.append(f"⚠ тестов стало меньше: было {last['total']}, стало {total}")
     if c.get("skipped", 0) > last.get("skipped", 0) and "skipped" in last:

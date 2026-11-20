@@ -32,8 +32,8 @@ Read first, in full; the sections below hold the detail — the packet names the
 - Assert what was stored and returned, not call counts → House rules 2.
 - A guard against a double action gets a race test on the real database, two calls on two connections
   → House rules 9.
-- The test database is `TEST_DATABASE_URL`, named «test», never defaulted — a fallback once wiped a running stand
-  → House rules 11.
+- The test database is `TEST_DATABASE_URL`, named «test», never defaulted — a fallback once wiped a running stand;
+  a database a test creates is `tmp_test_<uuid>`, dropped by `globalSetup` if left → House rules 11.
 - Error path and exact boundary values beside the happy path, one behaviour per test → House rules 3.
 - Undo in `afterEach` what a test changed; fake time, never sleep; the file passes shuffled → House rules 5.
 - Break the code once and watch the test fail; every `.resolves` / `.rejects` awaited → House rules 6,
@@ -68,7 +68,10 @@ see.
 11. **The test database is named, never defaulted**: the database helper reads `TEST_DATABASE_URL` and throws
    when it is unset, when its database name has no «test», or, outside CI (`CI` unset), when it equals `DATABASE_URL`
    — locally it is a database of its own, not the one a running stand serves; a fallback address
-   once sent these tests to a running stand and wiped its data. **No database reachable here**: shared rule 6.
+   once sent these tests to a running stand and wiped its data. A test that creates a database of its own names it
+   `tmp_test_<uuid>`, and the `globalSetup` drops every `tmp_test_` database with no open connection before the run:
+   an `afterAll` that never ran (a hook timeout, a stopped run) left 79 such databases holding 3.5 GB of the Docker
+   VM (ai-initiatives 2.3.0). **No database reachable here**: shared rule 6.
 12. Coverage has one threshold, in `coverage.thresholds` of the Vitest config (the foundation §6 number, otherwise 80% of lines); the full suite measures it in CI (`repo-scaffold/references/quality-gates.md`, the Coverage gate), a unit's focused run does not.
 
 A whole-application browser flow (log in, open a page, type, click, see the result) is Playwright, not Vitest:
