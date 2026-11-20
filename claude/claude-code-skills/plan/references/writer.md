@@ -115,6 +115,25 @@ that removes the old path and proves the replacement covers it, or names
 one of three exceptions: `references/modes.md` → A path this version
 retired.
 
+**Rules that span units.** A behaviour the design states once but several
+units must carry — which operations retry a failed transaction and which
+answer 503, what a status change releases or clears, a check every write
+repeats under the lock, a value every reader masks — is one row of §1
+«Общие правила»: the rule, where the design writes it, the operations or
+places it covers, the **owner** (the unit that builds it) and the units
+bound by it. Each bound unit's «Подход» names the row, and its packet
+carries it (PLAN-WIDE RULES). A rule with no owner surfaces as a P1 in
+whichever unit first makes it reachable: a running step no unit released
+on a move, a refresher no unit gave the holder's right, 503 declared on
+four operations with no retry and an undeclared 503 on a fifth
+(ai-initiatives 2.3.0, first review and the final review).
+
+**A symbol a unit supersedes.** A unit that adds a replacement for an
+existing function, method, hook or route lists the old one in «Меняет
+символы»; the unit that moves its last caller deletes it, in its
+«Файлы» and «Подход». Three superseded paths were left with no callers
+until the final review sent them back (ai-initiatives 2.3.0).
+
 ### Step 3. Order and mark parallelism
 
 Order by dependency, not by layer aesthetics: a unit ships only after every

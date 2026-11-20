@@ -251,7 +251,12 @@ Per unit, in this order, and never skip to the next unit on a broken tree:
    (a new untracked test file is in `git status`: open it).
 2. **Check the diff against the unit spec.** Does it implement the cited
    design, or something adjacent? Does it re-decide something the design
-   already fixed?
+   already fixed? Was a document the packet cites committed after the
+   packet was written (`git log --since=<the packet file's time> -- <those
+   documents>`)? Then the change goes back to the executor as `CHANGED
+   DECISIONS` before the review, not left for the review to find: two
+   High units were judged against text committed 24 and 60 minutes after
+   their packets (ai-initiatives 2.3.0).
 3. **Run the checks** — `lint`, `typecheck` (tests too) and the unit's tests plus the checks the plan's unit
    names in «Проверка» (the gates of `repo-scaffold/references/quality-gates.md`), each through
    `python3 "${CLAUDE_SKILL_DIR}/scripts/run_check.py" <name> -- <command>`. This run is authoritative; the worker's

@@ -43,7 +43,17 @@ DESIGN YOU MUST FOLLOW (do not re-decide these)
    linked, so the worker does not have to hunt. A unit for part of a screen
    (`S-<n> эл. <from>–<to>`): its element rows, the states and response
    errors they show, and the screen's «Экран» and «Загрузка и вызовы» — not
-   the whole spec>
+   the whole spec. Where the design states an order — which outcome is
+   checked first (not found before already moved), what is read only under
+   the lock, what happens after the data commit — paste that order with the
+   outcomes, never the outcomes alone: of 15 first-review findings on High
+   units the executor missed, most were such an order written only in a
+   registry row or the architecture (ai-initiatives 2.3.0)>
+
+PLAN-WIDE RULES
+  <the rows of the plan's §1 «Общие правила» that name this unit — as owner
+   or as a unit bound by the rule — verbatim, or: none>
+  The owner builds the rule; a bound unit applies it to its own operations.
 
 CHANGED DECISIONS
   <each decision changed during this run that touches this unit — было →
@@ -141,6 +151,12 @@ RULES
   copied: write the new code right and name the old site in OUT OF SCOPE,
   so the review does not send the unit back for the pattern it was told to
   mirror.
+- Every guard against a concurrent change you write — a row lock, a status
+  or version check under the lock, a re-read after the lock — gets its own
+  test of two overlapping calls on separate connections, whether TEST
+  SCENARIOS name it or not, and the report names it. The review asks this of
+  every guard; unproven guards were 9 of 38 first-review findings on High
+  units (ai-initiatives 2.3.0).
 - Never make a test pass by weakening it, and never delete or loosen a test
   an earlier unit wrote, nor leave `.only` / `.skip`. If a scenario and the design
   contradict each other, stop and report BLOCKED with both quoted.

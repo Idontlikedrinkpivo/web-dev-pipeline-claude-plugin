@@ -120,6 +120,7 @@ there, so the session's copy and the packet cannot drift; the session dispatches
 | **Citation integrity** | structural | does every `Документы` entry resolve — a report row (`TC-n`, `F<n>`, `code-audit-<date>.md A<n>`) included? |
 | **Coverage** | structural | does every in-scope ledger line have its unit, once? |
 | **Test-first writability** | judgment | can each scenario's expected outcome be written before the code? |
+| **Cross-unit rules** | judgment | does every rule several units carry sit in §1 «Общие правила» with an existing owner, and is every superseded symbol deleted by some unit? |
 | **Executor validity** | structural | is every `Исполнитель` / `Вложенный` on the assignable list, with no model slug? |
 | **Existing work** | structural | does a unit recreate what exists, and does every `Образец` resolve? |
 | **Service version** | structural | do §1's version and level match the typed changes, with the bump unit last when needed? |
@@ -136,7 +137,7 @@ parallel, because the two halves fail differently:
 | Executor | Carries |
 |---|---|
 | `plan-review-medium` | the structural lenses — dependency graph, parallel safety, files completeness, citation integrity, coverage, executor validity, existing work, service version, unit size, plan hygiene. These are checkable against the text, the tree and a search for the changed symbols, and they are where volume lives. |
-| `plan-review-hard` | the judgment lenses — commit atomicity, grade calibration, test-first writability. Deciding that a unit *cannot* land alone, or that a Low unit is really Mid, is the same kind of reasoning that graded it, so it needs a tier that can hold the cascade and argue with it. |
+| `plan-review-hard` | the judgment lenses — commit atomicity, grade calibration, test-first writability, cross-unit rules. Deciding that a unit *cannot* land alone, or that a Low unit is really Mid, is the same kind of reasoning that graded it, so it needs a tier that can hold the cascade and argue with it. |
 
 Fill the structural packet's LINT with `plan_lint.py`'s lines: fields, executors, the dependency graph, parallel
 pairs sharing a file, model names, citations of missing ids — decided by code, so the reviewer starts from them

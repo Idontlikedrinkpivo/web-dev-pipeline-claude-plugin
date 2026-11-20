@@ -47,6 +47,11 @@ Version · level · reason (Step 1) · the changes, when several · architecture
 level and budget · stack · the unit spine this produced · what the scaffold
 already provides.
 
+### Общие правила
+Only when a rule spans units (`writer.md` → Step 2 → Rules that span units); otherwise no subsection.
+| Правило | Где записано | Операции и места | Владелец | Соблюдают |
+|---|---|---|---|---|
+
 ## 2. Карта юнитов
 | U | Юнит | Сложность | Исполнитель | Вложенный | Зависит от | Параллельно |
 |---|---|---|---|---|---|---|
