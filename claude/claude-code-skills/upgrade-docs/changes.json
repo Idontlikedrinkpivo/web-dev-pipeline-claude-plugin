@@ -1262,5 +1262,23 @@
       }
     },
     "fix": "srs-writer → references/srs-template.md, §4: дописать строку «Поддерживаемые браузеры» со следующим номером NFR (браузеры из источника или Baseline «широко доступно»; у продукта без веб-интерфейса — «Не применимо»), остальное в SRS не трогать; затем clean-architecture-design → references/nfr-decisions.md: строка в «Решения по NFR» архитектуры."
+  },
+  {
+    "id": "test-cases-cross-cutting",
+    "version": "1.2.303",
+    "title": "Сквозные кейсы в наборе тест-кейсов",
+    "what": "Часть кейсов помечается «Сквозной: да» — вход каждой ролью, главный сценарий роли, открытие каждого экрана. Они идут в каждый прогон, чтобы поломка общего кода (каркас, общие компоненты, сервер) была видна сразу, а не только в полном прогоне перед меткой.",
+    "applies": {
+      "exists": "documentation/ui/test-cases/README.md"
+    },
+    "behind": {
+      "not": {
+        "grep": {
+          "path": "documentation/ui/test-cases",
+          "pattern": "^\\*\\*Сквозной:\\*\\*\\s*да"
+        }
+      }
+    },
+    "fix": "ui-test-cases → SKILL.md (Mode write, «A few cases are cross-cutting») и references/writer-prompt.md: один вызов ui-test-writer, MODE increment, с поручением расставить «**Сквозной:** да» под «Проверяет» — по кейсу на вход каждой ролью, на главный сценарий каждой роли и на открытие каждого экрана с данными, из уже написанных кейсов; затем check_trace.py и check_coverage.py."
   }
 ]

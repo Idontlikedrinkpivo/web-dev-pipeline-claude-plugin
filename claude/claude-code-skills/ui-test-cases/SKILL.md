@@ -139,6 +139,11 @@ runner needs goes into one «Трассировка» line under it.
   10:00–11:00»), so the runner can seed it and a person can set it up.
 - **«Проверяет» opens the case**: the requirement ids it proves (AC, BR,
   NFR, or the spec row), so an analyst traces it in a glance.
+- **A few cases are cross-cutting** — `**Сквозной:** да` under «Проверяет»:
+  each role's way in, each role's main scenario (the UC main flow), and one
+  case per screen that opens it with data. They run in every scoped run (Mode
+  run → Scope), so a break in shared code no trace names shows at once; keep
+  them short and few — about one in ten.
 - **The trace line is mandatory and exact**, in one fixed syntax a script
   can check: `кадр <nodeId>[, <nodeId>]` · the state row · per step
   `шаг N → эл. M[, эл. K] (<nodeId>)` · `` `operationId` → <status> ``
@@ -292,8 +297,11 @@ and by CI's `test:e2e`. A case is affected when its «Экран» line or
 «Трассировка» names a screen (`S-n`, a frame `nodeId` or a modal of that
 screen), an element or an `operationId` the iteration touched, when the
 case itself is new or changed, or when it failed (`❌`, `⛔`) in the last run
-of the previous iteration. «Touched» is read from git and the files, never
-from memory — the plan's units («Документы», «Файлы», «Цель»), the diff of
+of the previous iteration. Every `**Сквозной:** да` case is in scope too, always.
+«Touched» is read from git and the files, never
+from memory — the code changed since the tag (an operationId in its lines;
+a screen whose page the frontend's imports lead up to from a changed file —
+`scripts/code_reach.py`), the plan's units («Документы», «Файлы», «Цель»), the diff of
 `documentation/` since the previous iteration's tag `v<prev>` (screen specs,
 frames-register rows, OpenAPI operations, SRS rows), the test-case files
 changed since it. Before the dispatch run, from the repository root:
@@ -307,7 +315,12 @@ iteration's report exists. It prints `TC-n<tab>reason` per case in scope,
 iteration) — every case, «первая итерация». The ids go to the runner as
 `CASES`; the chat line names the count and why, from its last two lines
 («в прогон 14 кейсов из 55: 2 экрана и 3 операции изменены, 1 упал в
-прошлый раз»), and the run's section records it as its «Объём» line. A
+прошлый раз»), and the run's section records it as its «Объём» line. The
+`затронуто:` line also names what no screen owns — «каркас приложения» (the
+entry, the router, the root layout) and «код вне экранов» (the server's
+shared code); the cross-cutting cases are what checks those, so the chat line
+says it; a set with none of them gets one from the writer (`MODE increment`)
+before the run. A
 `DEFECTS` re-run after a fix plan takes the failed cases plus the cases of
 the screens the fix plan touched (`--since` the last run's commit, `--failed`
 with this iteration's report, `--plan` with the fix plan, and `--code-only`
@@ -436,6 +449,9 @@ fix plan must turn green.
   case names: hints for the review's design lens, never failures.
 - `scripts/affected_cases.py` — the cases in a run's scope, with reasons;
   `--rest` gives the close's full set.
+- `scripts/code_reach.py` — the screens a code change reaches through the
+  frontend's imports, the app shell and the code outside the screens; used by
+  `affected_cases.py`.
 - `references/parallel-stands.md` — several identical stands for a long
   run: what makes a stand copyable, how many the machine holds, the split.
 - `playwright-cli` — `references/test-config.md` (the stand-ready

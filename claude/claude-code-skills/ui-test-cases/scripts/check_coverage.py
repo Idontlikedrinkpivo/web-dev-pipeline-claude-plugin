@@ -10,7 +10,10 @@ Reads the AC ids of every use case in requirements/srs/srs.md and its areas/*.md
 («Критерий | Кейсы»: `UC-1 AC-Exc-1` → `TC-20` or «Без интерфейса»). Fails on:
   - an AC with no row in the coverage table that names a TC or «Без интерфейса»;
   - a coverage row or a case's «Проверяет» line naming an AC the SRS does not have;
-  - a coverage row naming a TC that no section holds.
+  - a coverage row naming a TC that no section holds;
+  - once the set marks cross-cutting cases (`**Сквозной:** да`), a screen whose cases include none of them — a set
+    with no mark at all is not checked: the writer adds them. Roles are not checked here: the cases name them in
+    free words («админ», «администратор»), and the writer's rule and the review cover them.
 A frontend repository without the SRS (its coverage table lists UC and state rows) is not checked: exit 0.
 """
 from __future__ import annotations
@@ -38,6 +41,9 @@ TC = re.compile(r"\bTC-\d+\b")
 CASE = re.compile(r"^## (TC-\d+)\b", re.M)
 CHECKS = re.compile(r"^\*\*Проверяет:\*\*(.*)$", re.M)
 NO_UI = "без интерфейса"
+SMOKE = re.compile(r"^\*\*Сквозной:\*\*\s*да\b", re.M)
+SCREEN = re.compile(r"\*\*Экран:\*\*\s*([^\n]*)")
+SID = re.compile(r"\bS-\d+\b")
 
 
 def srs_all(srs: Path) -> tuple[list[str], set[str]]:
@@ -159,6 +165,19 @@ def check(docs: Path):
                     errors.append(f"{f.relative_to(docs.parent)}:{line} {h.group(1)}: «Проверяет» называет «{key}» — такого критерия в ТЗ нет{labels_hint(key, known)}")
                 else:
                     proving.setdefault(key, []).append(h.group(1))
+    smoke_screens: dict[str, bool] = {}
+    for f in case_files:
+        text = f.read_text(errors="replace")
+        heads = list(CASE.finditer(text))
+        for i, h in enumerate(heads):
+            body = text[h.end(): heads[i + 1].start() if i + 1 < len(heads) else len(text)]
+            head = body.split("\n|", 1)[0]
+            mark = bool(SMOKE.search(head))
+            for s in set(SID.findall(SCREEN.search(head).group(1) if SCREEN.search(head) else "")):
+                smoke_screens[s] = smoke_screens.get(s, False) or mark
+    if any(smoke_screens.values()):
+        for s in sorted((s for s, v in smoke_screens.items() if not v), key=lambda s: int(s[2:])):
+            errors.append(f"{s}: среди кейсов экрана нет сквозного (**Сквозной:** да) — кейс, который открывает экран с данными")
     missing = [k for k in criteria if k not in covered]
     for key in missing:
         hint = f" (его проверяют {', '.join(proving[key])} — допишите строку в таблицу покрытия)" if key in proving else ""

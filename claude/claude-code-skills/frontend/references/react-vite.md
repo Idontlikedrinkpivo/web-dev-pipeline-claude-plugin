@@ -16,7 +16,9 @@ src/
 e2e/                       the user test suite — `ui-test-cases` owns it; screen units add no spec here
 ```
 
-Name the `S-n` in the page file's first comment line so a search for `S-1` finds it.
+Name the `S-n` in the page file's first comment line so a search for `S-1` finds it — the page's own screen first
+(«// S-1 «Главная»; …»): `ui-test-cases` → `scripts/code_reach.py` reads it to tie a shared file's change to the
+screens that import it, and an id later on that line is a note.
 
 ## Defaults — «по умолчанию, можно поменять»
 

@@ -13,11 +13,19 @@ block or `operationId:` line the diff of `documentation/api` changes; SRS headin
 (matched to the cases' «Проверяет» line); `--plan`: S-ids, screen-spec paths and operationIds in each unit's
 «Документы», «Файлы» and «Цель»; `--touch`: screens and operations named by hand (a small iteration's unit).
 `--rest <test-run.md>`: instead, the cases outside that report's last run — the close's full set.
-`--code-only`: the touched surface from the code changed since `--since`, not from the documents — a re-stamp of the
-SRS, the API and every screen spec touches nearly every case (991 of 1010 in ai-initiatives 2.3.0) while the code
-changed in three places. An operation is touched when a changed line of a code file (outside documentation/) names
-its operationId; a screen, when a `--plan` unit whose «Файлы» list a changed file names it. New and changed cases
-and `--failed` count as always.
+The code changed since `--since` (outside documentation/) touches too, in every mode: an operation, when a changed
+line names its operationId; a screen, when the frontend's import graph leads from a changed file up to its page
+(`code_reach.py` — a shared button, field or hook reaches every screen that uses it, which no trace names). What the
+graph cannot tie to a screen — the app shell (the entry, the router, the root layout and what only they import) and
+code outside the screens (the server's shared code, a file nothing imports) — is named on the `затронуто:` line.
+Every case marked `**Сквозной:** да` is in scope, always, reason «сквозной»: the few cases that walk each role's way
+in and main scenario and open each screen, so a break in the shell or the shared code shows in every run, not first
+at the close's full set. A set with no such case gets the line «сквозных кейсов в наборе нет …» when the shell or
+code outside the screens changed.
+`--code-only`: the touched surface from the code alone, not from the documents — a re-stamp of the SRS, the API and
+every screen spec touches nearly every case (991 of 1010 in ai-initiatives 2.3.0) while the code changed in three
+places; a `--plan` unit counts only when the files its «Файлы» list changed. New and changed cases and `--failed`
+count as always.
 `--since` defaults to the newest `v*` tag reachable from HEAD that is not the current version (the branch
 `iteration/<v>`); none → every case, reason «первая итерация». Exit 0 always; 1 — no test-cases folder.
 Standard library only, Python 3.9+.
@@ -28,8 +36,10 @@ from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 from check_trace import CASE, TRACE, NODE, OP  # noqa: E402  the same parsing as the trace check
+from code_reach import split as code_reach  # noqa: E402  the screens a code change reaches
 
 SID = re.compile(r"\bS-\d+\b")
+SMOKE = re.compile(r"^\*\*Сквозной:\*\*\s*да\b", re.M)
 MID = re.compile(r"\bM\d+\b")
 REQ = re.compile(r"\b(?:UC|BR|FR|NFR)-\d+\b")
 HUNK = re.compile(r"^@@ -\d+(?:,\d+)? \+(\d+)(?:,(\d+))? @@")
@@ -191,15 +201,22 @@ def main() -> None:
     for o in ([] if a.code_only else touched_ops(root, since)):
         ops.setdefault(o, "OpenAPI изменён")
     known_ops = {o for c in cases.values() for o, _ in OP.findall(c[0])}
-    code: list[str] = []
-    if a.code_only:
-        code = (git(root, "diff", "--name-only", f"{since}..HEAD", "--", ".", ":(exclude)documentation") or "").split("\n")
-        code = [f for f in code if f and not f.startswith(".")]   # .context/, .claude/: notes, not the app
-        for f in code:
-            lines = "\n".join(t for _, t in changed(root, since, f))
-            for o in known_ops:
-                if re.search(rf"\b{re.escape(o)}\b", lines):
-                    ops.setdefault(o, f"код изменён: {f}")
+    code = (git(root, "diff", "--name-only", f"{since}..HEAD", "--", ".", ":(exclude)documentation") or "").split("\n")
+    code = [f for f in code if f and not f.startswith(".")]   # .context/, .claude/: notes, not the app
+    named_op = set()
+    for f in code:
+        lines = "\n".join(t for _, t in changed(root, since, f))
+        for o in known_ops:
+            if re.search(rf"\b{re.escape(o)}\b", lines):
+                ops.setdefault(o, f"код изменён: {f}")
+                named_op.add(f)
+    reached, shell, other = code_reach(root, code)
+    for s, fs in reached.items():
+        screens.setdefault(s, f"код: {fs[0]}" + (f" и ещё {len(fs) - 1}" if len(fs) > 1 else ""))
+    other = [f for f in other if f not in named_op]
+    smoke = [c for c in order if SMOKE.search(cases[c][1])]
+    for c in smoke:
+        reasons[c].append("сквозной")
     if a.plan and Path(a.plan).exists():
         units = re.split(r"^###\s+(?=U\d+\.)", Path(a.plan).read_text(errors="replace"), flags=re.M)[1:]
         for u in units:
@@ -241,6 +258,13 @@ def main() -> None:
         if c in failed:
             reasons[c].append("упал в прошлом прогоне")
     surface += [f"экран {s}" for s in sorted(screens)] + [f"операция {o}" for o in sorted(ops)]
+    for label, fs in (("каркас приложения", shell), ("код вне экранов", other)):
+        if fs:
+            surface.append(f"{label}: {', '.join(fs[:3])}" + (f" и ещё {len(fs) - 3}" if len(fs) > 3 else ""))
+    if smoke:
+        surface.append(f"сквозных кейсов: {len(smoke)}")
+    elif shell or other:
+        surface.append("сквозных кейсов в наборе нет — каркас и код вне экранов этим прогоном не проверены")
     surface += [f"{r} изменено" for r in sorted(reqs)] + ([f"упали в прошлый раз: {len(failed)}"] if failed else [])
     out()
 

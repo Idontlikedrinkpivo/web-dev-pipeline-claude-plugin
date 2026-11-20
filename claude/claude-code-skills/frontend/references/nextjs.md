@@ -17,7 +17,8 @@ shared/ui/                 primitives — reuse before adding
 e2e/                       the user test suite — `ui-test-cases` owns it; screen units add no spec here
 ```
 
-Name the `S-n` in the page file's first comment line.
+Name the `S-n` in the page file's first comment line, the page's own screen first: `ui-test-cases` →
+`scripts/code_reach.py` reads it to tie a shared file's change to the screens that import it.
 
 ## Defaults — «по умолчанию, можно поменять»
 

@@ -61,7 +61,12 @@ RULES
   «Трассировка» line — source ids, frame nodeId, state row, `шаг N → эл. M`
   for every step that touches an element, operationId with status or mock,
   ARIA expectations. A «Проверяет» line with the requirement ids opens each
-  case. Steps go through controls the spec names when another path exists;
+  case. Under it, `**Сквозной:** да` on the cross-cutting cases: one per
+  role that signs in, one per role's main scenario (its UC main flow), one
+  per screen that opens it with data — about one case in ten, the shortest
+  that walks it; reuse a case you write anyway rather than add one. An
+  increment keeps the marks and adds them for a new screen or role; a set
+  with none gets them. Steps go through controls the spec names when another path exists;
   expected texts carry real values computed from the preconditions, never
   `{дата}` or «по кадру». A text the spec marks missing (`текст — нет в «Тексты»` or `текст —
   нет на кадре`):
