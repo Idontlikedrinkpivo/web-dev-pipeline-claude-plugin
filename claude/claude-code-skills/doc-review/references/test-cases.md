@@ -46,6 +46,11 @@ per persona, and `{document_files}` lists README plus that part's sections. The 
 README plus every section in scope as one dispatch: they look across the set and read cases only where a check
 leads them.
 
+**The outcome lines.** `coherence-reviewer` returns, in `residual_risks`, one «outcomes TC-n …» line per criterion of
+two or more outcomes — its work shown, so a dropped outcome is not skipped silently. They are not doubts: they stay
+out of «Остающиеся сомнения»; a «нет строки» in one of them with no finding beside it becomes a finding of that
+reviewer in synthesis (`omission`, P1, the line as evidence).
+
 ## Apply goes to the writer
 
 The session edits no file of the set, not even a `safe_auto` fix: a case's trace ties it to the step table, the

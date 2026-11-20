@@ -20,13 +20,18 @@ an element cited in «Ошибки ответов» that the «Элементы�
 have. Anything named in «Разрывы» is the document being consistent, not a
 finding.
 
-**`test-cases`:** case by case — does it prove what it claims? Open the
-criterion each «Проверяет» names in the SRS and split its `Тогда` at «и»
-and commas into outcomes («бронь «отменена» и письмо поставлено в очередь» is
+**`test-cases`:** case by case — does it prove what it claims? Read the SRS
+(`Origin:`) for every criterion a case names — in «Проверяет», or, in an older
+set without that line, the AC ids of its «Трассировка». Split the criterion's
+`Тогда` at «и» and commas into outcomes («заявка сохранена и автору ушло письмо» is
 two). Each outcome needs a row in «Что должно быть» that a person sees, or a
 «Без интерфейса» row for it in README; a case that shows one outcome and
 leaves the other unchecked is a finding naming the missing one — a toast
-about the second outcome does not prove the first. «Подготовка» reaches
+about the second outcome does not prove the first (a toast «письмо отправлено»
+does not show the saved request in the list). Show the work: for every criterion
+of two or more outcomes, one line in `residual_risks` —
+«outcomes TC-12 UC-2 AC-1: заявка сохранена — нет строки; письмо ушло —
+шаг 3» — and every «нет строки» there is also a finding. «Подготовка» reaches
 the state the steps assume (the booking that «уже началась» exists and
 started before the run). An expected text equals the one the screen spec
 quotes, word for word. Values are concrete — no `{дата}`, «по кадру», «любой».
