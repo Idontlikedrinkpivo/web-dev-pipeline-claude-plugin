@@ -48,7 +48,9 @@ M is the number of findings to route in this round, so the user sees how many ar
 - `B. Отложить`
 - `C. Пропустить`
 
-- **Apply** — edit the document with that finding's `suggested_fix`. No
+- **Apply** — on `test-cases`, add the finding to the writer's list instead
+  of editing (`references/test-cases.md` → Apply goes to the writer).
+  Otherwise edit the document with that finding's `suggested_fix`. No
   `suggested_fix` → treat as Defer. Leave `version`, `updated`, and the
   changelog untouched. An applied finding is not a new version. A fix
   that changes a decision an *upstream* document states — one whose stage

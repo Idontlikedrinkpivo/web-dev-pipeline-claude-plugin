@@ -143,6 +143,17 @@ a finding depends on that rule.
   exact texts: they come from the frames. Do not restate acceptance
   criteria — the SRS owns them. `ui-wishes.md` is never grounds for a
   finding.
+- `test-cases` is the set of user test cases written from the SRS and the
+  screen specs: each case's «Проверяет», steps, expected texts and
+  «Трассировка». The two scripts already checked that traces resolve and that
+  every acceptance criterion has a row. Flag a case that does not prove
+  what it claims, a case a test cannot walk, and a state, boundary or role
+  the documents give that no case checks. Do not re-decide behaviour: a
+  case that disagrees with the spec is a finding against the case; a spec
+  that left the behaviour open is the set's gap, not a finding. Coherence
+  and feasibility read every section file in <document> whole; the design
+  and security lenses read README and the specs whole and the sections where
+  a check leads them (`grep`). A section outside <document> is not yours.
 - `Origin:` is a repo-relative path when an upstream requirements document
   exists, otherwise `none`. A path means the premise was already written
   down — do not re-litigate "is this the right thing to build?" on a

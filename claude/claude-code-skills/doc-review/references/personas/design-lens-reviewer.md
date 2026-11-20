@@ -34,6 +34,22 @@ three empty states — a finding cites the rule id (confidence `75`, `100`
 when the rule is a WCAG criterion or law). `ui-wishes.md` is never grounds
 for a finding.
 
+**`test-cases`:** your surface is coverage — does the set check everything
+the screens and the rules give? First run
+`python3 <Plugin skills root>/ui-test-cases/scripts/spec_coverage.py --docs documentation`:
+each line is a spec row no case names. Search the sections for it under
+other words (`grep` the state's or the code's name); a row with no case and
+no «Без интерфейса» or gap line is a finding. Then, per screen spec: every
+«Поля ввода» rule has a case with an invalid value and its error text; a
+limit (length, count, duration, sum, date range) has cases on both sides of
+it — at the limit and one step past; a role-dependent element is checked for
+each role the spec names; a destructive action has its confirm and its
+cancel checked; the flow's way back (Отмена, Назад, closing a window
+without saving) has a case. A missing case is `gated_auto` with the case to
+add in `suggested_fix` (who, the screen, the preparation, what to check);
+the writer writes it. Steps that name widgets instead of labels are a finding
+too — a redesign breaks them.
+
 **`architecture` / `api` / `db`:** backend contracts are not your
 surface, with one exception: a widget, presentation, or layout written
 into them (a `description` «для выпадающего списка», a column «порядок в

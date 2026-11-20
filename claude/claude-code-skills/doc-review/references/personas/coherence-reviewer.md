@@ -20,6 +20,21 @@ an element cited in «Ошибки ответов» that the «Элементы�
 have. Anything named in «Разрывы» is the document being consistent, not a
 finding.
 
+**`test-cases`:** case by case — does it prove what it claims? Open the
+criterion each «Проверяет» names in the SRS and split its `Тогда` at «и»
+and commas into outcomes («бронь «отменена» и письмо поставлено в очередь» is
+two). Each outcome needs a row in «Что должно быть» that a person sees, or a
+«Без интерфейса» row for it in README; a case that shows one outcome and
+leaves the other unchecked is a finding naming the missing one — a toast
+about the second outcome does not prove the first. «Подготовка» reaches
+the state the steps assume (the booking that «уже началась» exists and
+started before the run). An expected text equals the one the screen spec
+quotes, word for word. Values are concrete — no `{дата}`, «по кадру», «любой».
+A BR or NFR in «Проверяет» that no step exercises. Across the set: the
+«Разделы» counts and TC ranges match the files, no TC id twice, the coverage
+table names the case whose «Проверяет» holds that criterion. The set's gaps
+and «Без интерфейса» rows are the document being consistent, not a finding.
+
 **`architecture`:** watch port names that do not match the file tree,
 modules and areas that do not match the SRS capability groups, access-policy
 vs typed-actor double-count that the document treats as one check.

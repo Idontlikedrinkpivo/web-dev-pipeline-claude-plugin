@@ -24,6 +24,15 @@ state row renders a field the upstream classification marked sensitive on a
 screen that was never granted it. Nothing else here is yours: this document
 chooses no mechanism, and auth flow decisions belong to the architecture.
 
+**`test-cases`:** the access checks a person can run. Per role the SRS
+names, every action it is forbidden is tried by that role and shows the
+refusal; another user's object opened by its link is refused, not shown;
+a forbidden screen opened by its address shows Forbidden, not a blank page or
+the data; an expired session mid-action sends to sign-in and does not lose
+or leak the input. A forbidden action with no case is a finding with the case
+to add; one only an API test can reach (the client never sends it) belongs in
+«Без интерфейса» with that reason, and its absence there is the finding.
+
 **`architecture`:** each applicable Security NFR must land as a concrete
 decision (authn mechanism, authz model, secrets handling, rate-limit
 policy, webhook trust). Access policy belongs on the controller / first

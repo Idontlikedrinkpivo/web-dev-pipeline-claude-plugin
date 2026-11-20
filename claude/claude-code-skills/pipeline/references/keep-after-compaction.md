@@ -98,7 +98,8 @@ The «every-stage» section is printed after the stage's own.
 
 ## ui-test-cases
 
-- Write: `check_trace.py` and `check_coverage.py` run at the close; a section's row changes with Edit.
+- Write: `check_trace.py` and `check_coverage.py` run at the close, then `doc-review` is asked; its fixes go to
+  `ui-test-writer` (`TO FIX`), never by hand; a section's row changes with Edit.
 - Run: the runner uses only its own browser and closes it; `test-run.md` is the runner's; a `DEFECTS` verdict
   offers a fix plan (`plan` `MODE fix`).
 

@@ -96,6 +96,10 @@ editing it. List every applied fix in the report.
 
 Do not silently apply `gated_auto` or `manual`.
 
+On `test-cases` nothing is edited here: the `safe_auto` findings go to the
+writer with the applied ones (`references/test-cases.md` → Apply goes to the
+writer).
+
 ## 3.8 Present
 
 Render the report from the skill's report shape. Then, in interactive

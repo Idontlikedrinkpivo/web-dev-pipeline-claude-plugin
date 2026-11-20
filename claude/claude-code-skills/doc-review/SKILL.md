@@ -1,8 +1,9 @@
 ---
 name: doc-review
 description: >-
-  Reviews one finished document (BRD, SRS, schema, OpenAPI, architecture, screen spec) with reviewer personas. Use for
-  «покритикуй ТЗ», «найди дыры в требованиях», «проверь схему». The whole set: docs-consistency.
+  Reviews one finished document (BRD, SRS, schema, OpenAPI, architecture, screen spec, UI test cases) with reviewer
+  personas. Use for «покритикуй ТЗ», «найди дыры в требованиях», «проверь схему», «всё ли покрывают тест-кейсы». The
+  whole set: docs-consistency.
 ---
 
 # Document Review
@@ -28,7 +29,7 @@ review, critique, or improve an existing document.
 
 **USE when:**
 - A stage in `pipeline` closes with this gate: an SRS, DB schema, OpenAPI
-  spec, architecture document, or screen spec was just written or changed
+  spec, architecture document, screen spec or UI test-case set was just written or changed
 - Any of those documents already exists and the user wants it reviewed
 - The user asks to improve, critique, or find gaps in a named file
 
@@ -66,6 +67,7 @@ Non-interactive without a path: stop with
    `requirements/business-requirements/business-requirements.md`,
    `architecture/architecture.md`, `architecture/domain.md`,
    `architecture/scenarios/<area>/<group>.md`, `ui/screen-specs/S-*.md`,
+   `ui/test-cases/` (its newest file stands for the folder),
    `db/schema.md`, or `api/openapi.yaml`. Name it and ask the user to
    confirm or name another; with none, ask which file to review. Do not
    invent a path.
@@ -85,6 +87,7 @@ Do not re-classify later.
 | `business-requirements` | Customer-language headings with `ce-section`/`ce-requirement` markers, or legacy `## Goal Capsule` and `## Product Contract`, requirement rows `R<n>`; `business-requirements/business-requirements.md` |
 | `srs` | Numbered sections 1–8, IDs `A-` `FR-` `NFR-` `BR-` `UC-`, Given/When/Then acceptance criteria; `requirements/srs/srs.md` with its `areas/` files, reviewed as one document. No open-questions section |
 | `screen` | One screen `# S-<n>. …` with `figma:` in the frontmatter, sections Загрузка и вызовы / Элементы (№ · Элемент · Поведение по условиям · Метод и поля · Кадр) / Состояния экрана / Ошибки ответов / Производные значения / Разрывы; `ui/screen-specs/S-<n>-*.md` |
+| `test-cases` | `## TC-<n>.` cases with «Проверяет», a step table and a «Трассировка» line; `ui/test-cases/README.md` with «Разделы» and the coverage tables plus the section files `NN-<slug>.md`, reviewed as one document — any of its files resolves to the folder. Read `references/test-cases.md` before anything else |
 | `architecture` | Foundation: Состав системы, modules and functional areas, ports and adapters, file tree, lint rules; `architecture/architecture.md` |
 | `domain` | Value objects, entity sketches, named errors, the invariant table; `architecture/domain.md` |
 | `scenarios` | One SRS group of a functional area: use cases as sections with Вход / Шаги / Выход / Ошибки / Операция API; `architecture/scenarios/<area>/<group>.md` |
@@ -127,6 +130,8 @@ are not a new reviewer and not a second copy of the versioning rules.
    that wrote the document) for the rule and its reason — not the whole
    `doc-versioning` skill on every review — and flag only what that owner
    already forbids.
+3. **On `test-cases`:** the two scripts of its stage's close, as
+   `references/test-cases.md` → Before the dispatch says.
 
 Each miss is a P1 omission, Reviewer `convention`, confidence high; carry
 the misses into Phase 3 and merge them with persona findings.
@@ -157,6 +162,8 @@ Add a persona only when its signal is present:
 | `adversarial-document-reviewer` | The document rests on **2+** contestable, load-bearing assumptions — premise claims, a new abstraction or architectural pattern, a pick among stated alternatives — that would topple it if wrong. A single auth / PII / payments mention does not trigger it; that is `security-lens-reviewer`'s signal. Do **not** activate on a routine `architecture` / `domain` / `scenarios` / `api` / `db` / `screen` document whose `{origin_path}` is a path and that stays in scope |
 
 Announce the team and, for each conditional persona, the one-line reason.
+On `test-cases` the team and its parts are fixed: `references/test-cases.md`
+→ The team.
 
 ### On a `screen` document
 
@@ -210,7 +217,7 @@ what this session computed:
 |---|---|
 | `{persona_path}` | Absolute path of the persona file: `${CLAUDE_SKILL_DIR}/references/personas/<persona>.md` |
 | `{format_path}` | Absolute path of `${CLAUDE_SKILL_DIR}/references/findings-format.md` |
-| `{document_files}` | Every file of the document, one repo-relative path per line: the index and its parts (`srs.md` and `areas/*.md`; `openapi.yaml`, `paths/`, `components/`; `schema.md` and `migrations/*.sql`) |
+| `{document_files}` | Every file of the document, one repo-relative path per line: the index and its parts (`srs.md` and `areas/*.md`; `openapi.yaml`, `paths/`, `components/`; `schema.md` and `migrations/*.sql`); on `test-cases`, README and the sections of the scope or part (`references/test-cases.md`) |
 | `{document_type}` | Type from Phase 1 |
 | `{document_path}` | Path being reviewed |
 | `{origin_path}` | Path or `none` |
@@ -342,7 +349,9 @@ Name the document path, the counts, and which catalog executors ran.
 
 When the gate closed — every finding applied, waived, or parked by the
 user — set `reviewed: <today>` in the document's frontmatter
-(`info.x-reviewed` in OpenAPI). «Только отчёт» (`references/routing.md` →
+(`info.x-reviewed` in OpenAPI; README's frontmatter on `test-cases`, whose
+fixes all went to its writer — `references/test-cases.md` → Apply goes to the
+writer). «Только отчёт» (`references/routing.md` →
 D) closes it too: the user saw every finding and chose to change nothing,
 which waives them all, and the report names them as not applied. An SRS
 gets no `reviewed:`, `grilled:`, `status`, or `sources`; the report and
@@ -371,3 +380,5 @@ yourself after the report. Do not present a menu of other skills.
   - `references/personas/scope-guardian-reviewer.md` — priority tiers, large or misaligned scope
   - `references/personas/product-lens-reviewer.md` — challengeable what-to-build claims
   - `references/personas/adversarial-document-reviewer.md` — 2+ contestable load-bearing assumptions
+- `references/test-cases.md` — a test-case set: the scripts, the scope, the
+  fixed team and its parts, and why every fix goes to `ui-test-writer`

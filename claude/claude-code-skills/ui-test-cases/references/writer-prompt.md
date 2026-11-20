@@ -15,6 +15,11 @@ OUTPUT PATH     documentation/ui/test-cases/ — README.md and one file per
                 UI products); an old single test-cases.md was already moved
                 in and committed by the session
 MODE            greenfield | increment (keep every TC- id; new cases take the next number)
+TO FIX          <increment only: the lines check_trace.py / check_coverage.py
+                printed, or the review findings the user applied
+                (doc-review → references/test-cases.md), each with its section
+                and the suggested case or change — change only these and what
+                they force; or: none>
 PROGRESS FILE   documentation/plans/<version>/progress-test-cases.md
 
 INPUTS (read in full)

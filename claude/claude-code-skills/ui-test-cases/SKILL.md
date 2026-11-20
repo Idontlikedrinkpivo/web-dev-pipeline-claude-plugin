@@ -235,8 +235,18 @@ fixes something (`pipeline` → `references/convergence.md`). A line no round
 can fix — the case needs an element, a frame or an operation the documents
 do not have — is a spec gap in `README.md` and a row in `open-questions.md`,
 named at the close. Only with both scripts at exit 0, or every remaining
-line written down this way, is the set final: its commit, then the push
-(`pipeline` → Commit each document).
+line written down this way, is the set written: its commit.
+
+**Then the review, asked.** The scripts prove the mechanics; whether a case
+proves its criterion, whether a test can walk it, and whether a state, a
+limit or a role went without a case is `doc-review` on the set (type
+`test-cases`, `doc-review` → `references/test-cases.md`). Ask it per
+`pipeline` → "Asking before a transition", saying its scope — the whole set
+on the first review, the changed sections after. Every fix it applies goes
+back to `ui-test-writer` (`MODE increment`, the findings in `TO FIX`) and
+through both scripts again; nothing in the set is edited by hand. A skipped
+review is named in the report and blocks nothing. Then the push (`pipeline`
+→ Commit each document) and the next stage.
 
 ## Mode run
 
@@ -403,7 +413,8 @@ fix plan must turn green.
 
 ## Before you finish
 
-- write: `check_trace.py` and `check_coverage.py` exit 0, or each line
+- write: the review was asked, and its applied fixes went through the
+  writer; `check_trace.py` and `check_coverage.py` exit 0, or each line
   they still print is a spec gap with its `open-questions.md` row; every
   AC has a `TC-` or a «Без интерфейса» line; every state row,
   user-causable response outcome and «Поля ввода» rule has a case; steps name actions, not widgets; expected texts are
@@ -421,6 +432,8 @@ fix plan must turn green.
 - `references/runner-prompt.md` — packet for `ui-test-runner`.
 - `references/run-report.md` — the run report `test-run.md`: bars,
   sections per run and repeat, example, statuses, verdict. Read before creating it.
+- `scripts/spec_coverage.py` — the spec rows (states, response outcomes) no
+  case names: hints for the review's design lens, never failures.
 - `scripts/affected_cases.py` — the cases in a run's scope, with reasons;
   `--rest` gives the close's full set.
 - `references/parallel-stands.md` — several identical stands for a long

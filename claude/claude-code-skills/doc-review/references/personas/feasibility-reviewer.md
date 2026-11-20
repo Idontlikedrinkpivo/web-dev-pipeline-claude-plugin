@@ -26,6 +26,15 @@ flow or response can produce, an element with no frame reference that
 «Разрывы» does not list. Do not flag component names or framework choices —
 the Figma file owns the look.
 
+**`test-cases`:** can a test walk each case, as written, on a fresh stand?
+«Подготовка» names data a runner can seed (who, what, when — not «есть
+несколько броней»); a date relative to the run is defined in README; every
+step reaches a control the screen spec names, with a label a locator can
+find; a server failure has its mock in the trace; a step does not depend on
+an earlier case's leftovers; a case that changes the whole stand (a setting,
+clearing a registry) says so. Do not flag what the scripts checked — that a
+trace's element, frame or operation exists.
+
 **`architecture` / `api` / `db`:** run the full check below.
 
 ## What you check (design documents)
