@@ -118,7 +118,7 @@ def range_lines(cwd: Path, version: str, base: str, plan_ids: list) -> list:
         if not good:
             files = git(cwd, "show", "--name-only", "--format=", sha).splitlines()
             if files and all(f.startswith("documentation/plans/") for f in files):
-                continue   # the iteration's files, committed by push_branch.py — no unit of the run
+                continue   # the iteration's reports commit («chore: отчёты итерации») — no unit of the run
             why = f" · trailer {', '.join(found)} is not a kind of this run" if found else ""
             unmapped.append(f"unmapped  {sha} {subject} — {len(files)} files{why}")
     out = [f"range     {base}..HEAD · {len(commits)} commits",

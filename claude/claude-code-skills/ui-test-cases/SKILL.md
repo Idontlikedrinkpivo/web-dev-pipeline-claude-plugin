@@ -397,7 +397,7 @@ new text before the verdict.
 
 The session commits the suite, `test(e2e): пользовательские тесты
 <version>`, so CI and the next run start from it. The report is in the
-version folder, committed with it at the close (`pipeline/scripts/push_branch.py`).
+version folder, committed with it at the close (the reports commit before `pipeline/scripts/push_branch.py`).
 A failing test for a real defect stays in the suite: it is the check the
 fix plan must turn green.
 

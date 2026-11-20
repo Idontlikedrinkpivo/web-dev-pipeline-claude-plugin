@@ -30,8 +30,8 @@ The «every-stage» section is printed after the stage's own.
 - At every stop by the user («стоп», «на сегодня всё», «ОСТАНОВЛЕНА» from a nested session) run `reflect` for the
   window since its last section — a part (`references/pause-and-resume.md` → Pausing, step 6); with a parent, the
   parent runs it. A short «подожди» after which the work goes on is not a stop.
-- In a nested session: report to the parent «ЭТАП … ЗАКРЫТ · дальше: …» after the handover check
-  (`references/handover-check.md`); a decision that changes another stage's document goes to the parent as
+- In a nested session: report to the parent «ЭТАП … ЗАКРЫТ · дальше: …» after the handover check, the line
+  `scripts/subsessions.py … closing <key> …` printed (`references/handover-check.md`); a decision that changes another stage's document goes to the parent as
   «РЕШЕНИЕ · … · владелец: <stage> · жду», never edited here (`references/decision-changes.md` → Under a parent
   session); unsure of the stage — `scripts/subsessions.py … whoami <own id>`.
 

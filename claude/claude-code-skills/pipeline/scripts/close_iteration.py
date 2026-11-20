@@ -15,7 +15,10 @@ One line per step, ✅ done or ✗ what is missing, in order:
               row with a filled value — a small iteration says what it skipped, or the plan is missing (ai-initiatives
               2.2.1 closed with no plan and nothing said whether that was allowed); the open questions still left, by
               addressee (doc-versioning/scripts/open_questions.py), as a note on a passed step — never a ✗
-  4 tag       v<version> exists — and points at a commit that has steps 1–3 in it
+  4 tag       v<version> exists — and points at a commit that has steps 1–3 in it; when the iteration has a
+              test-run.md, it holds «## Полный набор перед меткой» finished («· завершён» in the heading) or with a
+              line «Пропущен — <причина>» — the close's full set ran, or was declined on the record, never left out
+              (ai-initiatives 2.3.0: the tag went on with only the last fixes' cases, visible in test-run.md alone)
   5 reflect   ~/.claude (or ~/.codex)/dev-pipeline-feedback/<project>.md has a section of <version> whose «Окно»
               ends at or after the iteration's last commit (the tag's, else HEAD's) — a part of it does not count
   6 servers   no progress or documentation-site server of this project still running
@@ -107,7 +110,20 @@ def main() -> None:
         _, after = git(root, "log", "--format=%s", f"v{version}..HEAD", "--", "documentation", ":!documentation/plans")
         if after:
             late = f"после метки ещё коммиты в документах ({len(after.splitlines())}) — метка не несёт их"
-    steps.append(("4 метка", tagged and not late, late or (f"нет метки v{version}" if not tagged else "")))
+    full = ""
+    run = folder / "test-run.md"
+    if run.exists():
+        text = run.read_text(encoding="utf-8", errors="replace")
+        m = re.search(r"^## Полный набор перед меткой.*$", text, re.M)
+        nxt = re.search(r"^## ", text[m.end():], re.M) if m else None
+        body = (text[m.end(): m.end() + nxt.start()] if nxt else text[m.end():]) if m else ""
+        if not m:
+            full = ("в test-run.md нет раздела «Полный набор перед меткой» — прогоните кейсы вне последнего прогона "
+                    "(affected_cases.py --rest) или запишите там «Пропущен — <причина>» (pipeline → End, шаг 4)")
+        elif "завершён" not in m.group(0) and not re.search(r"^\W*Пропущен\W* —", body, re.M | re.I):
+            full = "раздел «Полный набор перед меткой» в test-run.md не завершён"
+    steps.append(("4 метка", tagged and not late and not full,
+                  full or late or (f"нет метки v{version}" if not tagged else "")))
     feedback = [d / "dev-pipeline-feedback" / f"{root.name}.md" for d in
                 {Path.home() / ".claude", Path(os.environ.get("CODEX_HOME", Path.home() / ".codex"))}]
     # a section of this version whose window («Окно: <start> — <end>», UTC) reaches the iteration's last commit:

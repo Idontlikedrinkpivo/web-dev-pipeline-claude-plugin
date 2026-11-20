@@ -10,6 +10,7 @@
     python3 subsessions.py <project dir> <version> add <stage key>
     python3 subsessions.py <project dir> <version> show
     python3 subsessions.py <project dir> <version> whoami <session id>
+    python3 subsessions.py <project dir> <version> closing <stage key> <дальше…> [--nothing-asked | --no-transcript] [--keep=<why>]
 
 plan    the stages kept for this iteration (keys below, any order) become rows in chain order, each with its title —
         «<version> · <its place in the chain, two digits> <word>», «1.0.0 · 02 SRS», so a sidebar sorted by name or
@@ -36,6 +37,13 @@ add     a row «<version> · NN <word>: правки» for a stage whose documen
         session). A «правки» row of the stage not yet closed is reused, not added twice.
 show    the table, then: the stage in work, the next one to start, the rows not opened yet — the input of «продолжим».
 whoami  the row of a nested session by its own id: its stage and its skill — for a session after a compaction or a clear.
+closing the message «ЭТАП <stage> ЗАКРЫТ · дальше: …» a nested session sends its parent — printed only when the
+        handover check ran: the digest `<git dir>/pipeline-work/handover-<key>.md` and the checker's report saved
+        beside it as `handover-<key>-report.md` (with MISSING, a commit later than the report — the decisions
+        written down); `--nothing-asked` for a stage that asked the user nothing, `--no-transcript` when sessions.py
+        found no transcript — each said in the message. <дальше…> is the stages, or «ждёт: …», «остановиться». Then runs
+        leftovers.py: anything left refuses, unless `--keep=<why>` names why it stays. A screen-spec stage closed
+        with no check at all (ai-initiatives 2.3.0) is what this refuses (pipeline → references/handover-check.md).
 
 Stage keys, in chain order (pipeline → SKILL.md, the chain table): brd srs db api arch scaffold design specs cases
 check plan work ui audit deploy ops ci close. Standard library only.
@@ -43,6 +51,7 @@ check plan work ui audit deploy ops ci close. Standard library only.
 from __future__ import annotations
 
 import re
+import subprocess
 import sys
 from pathlib import Path
 
@@ -240,8 +249,52 @@ def main() -> None:
             sys.exit(f"Найдите себя по названию сессии; не нашли — спросите родительскую ({parent or 'id неизвестен'})")
         print(f"ты — «{hit['title']}»: этап {hit['stage']}, навык {hit['skill']}, {hit['when']}, состояние "
               f"{hit['state']}; родительская сессия — {parent or '—'}")
+    elif cmd == "closing" and rest and rest[0] in STAGES:
+        closing(root, rest[0], " ".join(rest[1:]) or "—", flags)
     else:
         sys.exit(__doc__)
+
+
+def closing(root: Path, key: str, nxt: str, flags: set[str]) -> None:
+    """The close report, only after the handover check and the stage's leftovers."""
+    git = lambda *a: subprocess.run(["git", "-C", str(root), *a], capture_output=True, text=True).stdout.strip()
+    work = Path(git("rev-parse", "--path-format=absolute", "--git-common-dir") or root / ".git") / "pipeline-work"
+    digest, report = work / f"handover-{key}.md", work / f"handover-{key}-report.md"
+    word = STAGES[key][0]
+    if "--no-transcript" in flags:
+        check = "проверка передачи: пропущена — переписка сессии не найдена (sessions.py mine)"
+    elif not digest.exists():
+        sys.exit(f"sessions: не закрываю «{word}» — проверки передачи не было (нет {digest}): "
+                 "pipeline → references/handover-check.md, шаг 1")
+    elif "--nothing-asked" in flags:
+        check = "проверка передачи: не нужна — пользователю вопросов не было"
+    elif not report.exists():
+        sys.exit(f"sessions: не закрываю «{word}» — нет отчёта проверки передачи ({report}): сохраните ответ "
+                 "handover-checker туда (pipeline → references/handover-check.md, шаги 2–3)")
+    else:
+        text = report.read_text(encoding="utf-8", errors="replace")
+        if re.search(r"STATUS\s+MISSING", text):
+            last = int(git("log", "-1", "--format=%ct") or 0)
+            if last < int(report.stat().st_mtime):
+                sys.exit(f"sessions: не закрываю «{word}» — проверка передачи нашла незаписанное, а коммита после неё "
+                         "нет: запишите решения в документы, закоммитьте и запустите снова")
+            check = "проверка передачи: недостающее записано"
+        elif re.search(r"STATUS\s+ALL ON DISK", text):
+            check = "проверка передачи: всё на диске"
+        else:
+            sys.exit(f"sessions: не закрываю «{word}» — в {report} нет строки STATUS проверки передачи")
+    left = subprocess.run([sys.executable, str(Path(__file__).resolve().parent / "leftovers.py"), str(root)],
+                          capture_output=True, text=True)
+    lines = [l for l in left.stdout.splitlines() if l.strip()]
+    keep = next((f.split("=", 1)[1] for f in flags if f.startswith("--keep=")), "")
+    if left.returncode and not keep:
+        sys.exit("sessions: не закрываю — этап оставил за собой:\n" + "\n".join(lines)
+                 + "\nуберите своё и запустите снова, или --keep=<почему остаётся>")
+    stands = lines[-1] if lines else "стенды: не проверены"
+    if left.returncode:
+        stands = f"{stands} — остаётся: {keep}"
+    tail = nxt if re.match(r"(ждёт|остановиться)", nxt) else f"дальше: {nxt}"
+    print(f"ЭТАП {word} ЗАКРЫТ · {tail} · {check} · {stands}")
 
 
 if __name__ == "__main__":

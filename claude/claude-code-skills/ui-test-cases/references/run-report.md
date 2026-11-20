@@ -72,7 +72,12 @@ top, labelled by its section's heading: «Общий итог», then «Прог
    «Объём: 41 из 55 — не входили в последний прогон», then bar, count and
    table as in run 1, its разбор and повторы as «Полный набор · …». Its
    `❌ дефект приложения` rows go to a fix plan like any run's; the tag waits
-   for them.
+   for them. The heading gets «· завершён» after its разбор. When the user
+   narrows it (no re-run of what passed: only the cases of the fixes after
+   the last run), the heading says so — «Полный набор перед меткой —
+   заменён прогоном затронутых · …»; when the user declines it, the section
+   is one line «Пропущен — <причина> (решил <кто>)». `close_iteration.py`
+   step 4 refuses the tag without one of these.
 7. **The `Verdict:` line, last**, always tells what is true now: `идёт
    прогон` while the first run is on; `PASS | DEFECTS | BLOCKED` after its
    разбор; the moment anything runs again, `идёт перепрогон · прошлый:

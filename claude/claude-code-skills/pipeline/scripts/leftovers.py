@@ -2,7 +2,7 @@
 
     python3 leftovers.py [<project dir>]
 
-Run before «ЭТАП … ЗАКРЫТ» (pipeline → references/handover-check.md → Before the close) and at a stop. It removes
+Run before «ЭТАП … ЗАКРЫТ» (pipeline → references/handover-check.md → The stage's leftovers) and at a stop. It removes
 nothing: the stage removes what it started — its lines in resume.md → «Запущено» — and runs this again. What
 counts as left over:
 

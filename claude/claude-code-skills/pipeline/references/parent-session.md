@@ -168,9 +168,11 @@ SRS · схема БД · API · архитектура · каркас · ма�
 сообщении «начинай» есть «продолжи с <пункт>» — продолжай с него; состояние — в
 documentation/plans/<version>/resume.md и git.
 Перед закрытием этапа убери всё, что он поднял (копии стенда, контейнеры потоков, worktree, временные базы), и
-проверь: python3 <plugin>/pipeline/scripts/leftovers.py . — его последнюю строку допиши в сообщение о закрытии.
-Когда этап закрыт и пользователь ответил на вопрос о следующем этапе, сама его здесь не начинай: напиши
-родительской сессии «ЭТАП <stage> ЗАКРЫТ · дальше: <этап>» (или «· остановиться») и закончи. Решение, которое
+проведи проверку передачи (pipeline → references/handover-check.md).
+Когда этап закрыт и пользователь ответил на вопрос о следующем этапе, сама его здесь не начинай: сообщение
+родительской сессии печатает python3 <plugin>/pipeline/scripts/subsessions.py <project> <version> closing <ключ
+этапа> <следующие этапы | остановиться> — отправь его строку как есть и закончи; отказ скрипта — сначала то, что он
+назвал. Решение, которое
 меняет документ другого этапа (SRS, схему, API, архитектуру, ТЗ на экран), здесь не правь и его писателя не
 запускай: напиши родительской «РЕШЕНИЕ · <было> → <стало> · решил <кто> · владелец: <этап> · жду» и жди
 «продолжай»; а на «РЕШЕНИЕ ИЗМЕНЕНО · …» от родительской внеси решение в свой документ своим писателем,
@@ -195,8 +197,9 @@ It runs its stage as the stage's skill says, with the user, in this session. Wha
   <project> <version> whoami <id>` and goes on with that row's stage from `resume.md` and the progress file.
 - **At the stage's close** it asks the transition question as usual (`SKILL.md` → Asking before a transition), runs
   the handover check — a read-only agent compares this chat with the files and names a decision no file holds
-  (`references/handover-check.md`); each one is written down and committed — removes what the stage started and
-  runs `scripts/leftovers.py` (`references/handover-check.md` → The stage's leftovers) — then sends the parent «ЭТАП <stage> ЗАКРЫТ · дальше: <the answer's stages — those ready now, `references/next-stage.md`>» (two, for the branches after the SRS; «· ждёт: <stage> после <stage>» when none can start; «·
+  (`references/handover-check.md`); each one is written down and committed — removes what the stage started
+  (`references/handover-check.md` → The stage's leftovers) — then sends the parent the line `scripts/subsessions.py
+  … closing` printed (it refuses without the check or with leftovers): «ЭТАП <stage> ЗАКРЫТ · дальше: <the answer's stages — those ready now, `references/next-stage.md`>» (two, for the branches after the SRS; «· ждёт: <stage> после <stage>» when none can start; «·
   остановиться» when the user stops) and ends with one line to the user: «Дальше — «<version> · <stage>» в
   боковом списке». It opens no session, offers no card for one (a card clicked later opened a second session of one
   stage — live run 2026-10-31), and does not run the next stage here.

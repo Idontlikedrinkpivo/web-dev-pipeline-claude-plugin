@@ -65,8 +65,9 @@ saying they are leaving with the run unfinished:
    (`references/handover-check.md` → The stage's leftovers), or stay up and are named in the note's «Запущено»
    when the user said they resume soon — the session that picks up removes them at its close.
 4. Bring the note up to date and post its link with the progress line.
-5. Run `pipeline/scripts/push_branch.py`: it commits the note, the progress, `work`'s run report
-   (`run-report.md`) and the other reports in `plans/` and pushes the branch, so whoever continues — on this
+5. Commit the note, the progress, `work`'s run report (`run-report.md`) and the other reports of
+   `plans/<version>/` by their paths, «chore: отчёты итерации <version>», then run `pipeline/scripts/push_branch.py`
+   — it commits nothing, prints that command when one is left, and pushes the branch, so whoever continues — on this
    machine or another — starts from them; the agents' details files and the patch stay in `pipeline-work/`, on
    this machine only.
 6. Run `reflect` over the window since its last section — a part, «… · часть <n>, до <что остановило>», `<n>` from

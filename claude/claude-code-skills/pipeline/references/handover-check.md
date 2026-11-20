@@ -14,13 +14,20 @@ is the session's own; this check is a second reader that did not write the stage
 ## How
 
 1. The conversation, as a digest, by this session's title (its first message names it):
-   `python3 "${CLAUDE_SKILL_DIR}/../reflect/scripts/sessions.py" mine "$PWD" "<the session's title>" "$(git rev-parse --path-format=absolute --git-common-dir)/pipeline-work/handover-<stage>.md"`.
-   A non-zero exit — the session's transcript not found — skip the check and say so in one line.
+   `python3 "${CLAUDE_SKILL_DIR}/../reflect/scripts/sessions.py" mine "$PWD" "<the session's title>" "$(git rev-parse --path-format=absolute --git-common-dir)/pipeline-work/handover-<key>.md"`, `<key>` the stage's key (`scripts/subsessions.py` → Stage keys).
+   A non-zero exit — the session's transcript not found — skip the check; step 4 says so with `--no-transcript`.
 2. Dispatch `handover-checker` (`executor-catalog` → Dispatch contract, `subagent_type:
-   "dev-pipeline:handover-checker"`, no `model`) with the packet below.
+   "dev-pipeline:handover-checker"`, no `model`) with the packet below, and save its report as it came, beside the
+   digest: `handover-<key>-report.md`.
 3. Each finding: write the decision where it belongs — its document by `references/decision-changes.md`, or a row
    of the document's `open-questions.md` when it is a question still open — and commit it. Then close. `ALL ON
    DISK` — close.
+4. The close message is printed, not typed: `python3 "${CLAUDE_SKILL_DIR}/scripts/subsessions.py" <project>
+   <version> closing <key> <the stages next | «ждёт: …» | «остановиться»>` — it refuses with no digest, no
+   report, or a MISSING report with no commit after it, then runs the stage's leftovers check (below) and prints
+   the line to send the parent as it is. `--nothing-asked` for a stage that asked the user nothing. A screen-spec
+   stage once sent «ЭТАП … ЗАКРЫТ» with no check although the user had answered three questions in it
+   (ai-initiatives 2.3.0).
 
 ## The stage's leftovers
 

@@ -191,7 +191,8 @@ stage that ran last hands over to this section; it does not end the sitting itse
    took a scope: **the full set once** on the final code — the cases outside the last run (`ui-test-cases` →
    Mode run → Scope, `--rest`), the same runner, its own section «Полный набор перед меткой» in `test-run.md`.
    The scoped runs left the untouched screens unchecked; this is where a regression there shows. A failure is a
-   defect like any other — a fix plan, its run, then this step again — never a reason to skip the tag silently.
+   defect like any other — a fix plan, its run, then this step again — never a reason to skip the tag silently
+   (`close_iteration.py` step 4 wants the section finished, or its «Пропущен — <причина>» line).
    Then the tag, only when
    `python3 "${CLAUDE_SKILL_DIR}/scripts/close_iteration.py" .` shows steps 1–3 ✅; run it again after step 7: exit 0
    is the iteration closed, a ✗ names the step left. The tag is the baseline the next iteration's pins and
@@ -369,7 +370,7 @@ changed decision is final at its own commit;
 `docs-consistency` pushes at its close, after its fixes are committed — on
 every verdict, also with nothing to fix. Every later stage — the plan, its run, the UI tests,
 the audit, the release — runs it at its close too, and so does every stop (`references/pause-and-resume.md`):
-before the push it commits the iteration's files in `plans/` (`references/service-version.md` → The iteration's files in git). Drafts stay committed on
+before the push the session commits this iteration's reports by path — the script commits nothing, and stops on anything uncommitted under `documentation/` (`references/service-version.md` → The iteration's files in git). Drafts stay committed on
 this machine until then, so people on the branch see each other's documents
 once they are final. Only the stages before `work` push this way; the code of
 `work`, the tag and the iteration's close are pushed by the user, who reviews

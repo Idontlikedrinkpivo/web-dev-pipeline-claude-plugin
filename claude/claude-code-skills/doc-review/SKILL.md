@@ -275,7 +275,12 @@ into `architecture/`, a screen spec into `ui/`), never into the reviewed
 document; the steps are `references/routing.md` → Defer. The finding the user is
 being asked about is one question in the chat. The user answers by
 sending a message. Do not open a question card. Writing it only into
-`open-questions.md` is a failed question.
+`open-questions.md` is a failed question. **The report asks nothing.** A
+finding that needs the user's decision is listed there by its number; the
+question comes after the report, as its own message, one at a time, shaped
+by `pipeline` → `references/question-format.md` — an example of what changes
+for the user first, then the options and the recommendation. A product
+question left inside the summary got «не понял вопроса» (ai-initiatives 2.3.0).
 
 ### Report shape
 

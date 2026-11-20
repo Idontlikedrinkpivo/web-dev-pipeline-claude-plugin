@@ -50,6 +50,23 @@ still writing is that stage's own work.
 The session does not edit a contract document by hand: the writer keeps
 the template's shape and the ids that other documents cite.
 
+**One exception — a wording of the SRS** (the user's choice, 2026-11-20). A
+sentence that only reads better — a typo, a clearer word, a label's text —
+with no id added or removed and nothing changing that a test or another
+document checks (a number, a role, a status, a condition, an error): the
+session edits it itself, with Edit, and before its commit:
+
+1. `git diff -- <file>` shows exactly that change and nothing else;
+2. `python3 "${CLAUDE_SKILL_DIR}/../doc-versioning/scripts/doc_check.py" . --only <the SRS>` passes;
+3. with `documentation/_web-docs/`, the site is rebuilt
+   (`docs-site/scripts/rebuild.py . --wait`) and committed with the edit.
+
+Its report line reads «правка формулировки, без писателя». Anything more —
+a requirement, a criterion, a limit, a new id — goes to `srs-author`. In
+2.3.0 a session made seven such edits by hand to save the writer's ~100
+thousand tokens, unchecked: one did not land and was found after its
+commit, once the site was not rebuilt (ai-initiatives).
+
 ## The steps
 
 1. **Write it down first.** One line in the stage's report under

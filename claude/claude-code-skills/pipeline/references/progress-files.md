@@ -47,7 +47,7 @@ documents at once, so their rows moved in lockstep and told the user nothing.
 ## The form of every file
 
 - **Where.** In the iteration's open folder `documentation/plans/<version>/`,
-  in git with the folder (`push_branch.py` commits it). Creating the file writes into
+  in git with the folder (the session commits it before `push_branch.py`, which prints the command). Creating the file writes into
   `plans/`, so a stage that finds no open folder fixes the iteration's
   version first (`pipeline` → Service version) — on a fresh clone or work
   picked up from another person, from the iteration branch `where_am_i.py`

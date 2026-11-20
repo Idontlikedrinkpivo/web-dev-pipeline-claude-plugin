@@ -8,8 +8,8 @@ what the unit commits cannot — who is dispatched now, what was decided, and wh
 the rest of `plans/`: a run handed to another machine lost it while it sat outside the tree, and with it the
 executors' `DECISIONS` (the `FROM DEPENDENCIES` of later units), «В работе», «Low-партии», BASE and the
 cross-unit watch. It is written with Edit — it is not a progress file, so the guard's progress-file rule does not
-touch it — and committed only by `scripts/push_branch.py` («chore: отчёты итерации <version>») with the rest of
-`plans/` at every stop and at the close (`pipeline` → `references/service-version.md` → The iteration's files in
+touch it — and committed only in the reports commit («chore: отчёты итерации <version>», the command
+`scripts/push_branch.py` prints) with the rest of `plans/<version>/` at every stop and at the close (`pipeline` → `references/service-version.md` → The iteration's files in
 git), never by a unit's commit: a unit stages only its own files, so the plan stays byte-identical and no
 unit's `Файлы` grows. The agents' details files (`U<n>-details.md`, reviews, logs, diffs) stay in
 `$(git rev-parse --path-format=absolute --git-common-dir)/pipeline-work/<version>/`, outside git. A second run
@@ -37,7 +37,7 @@ document — progress lives in commits, the task list, and the progress file.
 
 **The progress file and its line.** Create — on a resumed run, rebuild from
 git — `documentation/plans/<version>/progress.md` per
-`references/progress-file.md`; no unit's commit carries it — `push_branch.py` commits it at the run's stops and close (`pipeline` →
+`references/progress-file.md`; no unit's commit carries it — the reports commit before `push_branch.py` does, at the run's stops and close (`pipeline` →
 `references/service-version.md` → The iteration's files in git). The chat gets it only as **the progress line**: with the file's
 count set from `plan_state.py`, run
 

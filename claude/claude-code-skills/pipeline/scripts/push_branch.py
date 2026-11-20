@@ -5,12 +5,15 @@
 Pushes the current branch to `origin` only when all of these hold, and says in one line what it did:
 - the branch is an iteration branch, `iteration/<version>` — never `main`, never another branch;
 - the project has a remote named `origin`.
-First it commits the iteration's files in documentation/plans/ — the plan, progress, resume.md, the stage reports —
-alone, «chore: отчёты итерации <version>» (pipeline → references/service-version.md → The iteration's files in
-git); not when something else is already staged, which it names. Other changes not committed (a site rebuilt after
-the edit, another session's half-written documents in the same checkout) are never stashed: when the tree has any
-outside documentation/plans/, the rebase is skipped (it would need `--autostash`, which would move another session's
-files) and the push is tried as it is; a clean tree is rebased without `--autostash`.
+It sends only what is committed and commits nothing itself: in 2.3.0 it committed 336 files of documentation/plans
+on its own — older versions' reports, archive/, docx, json — and pushed them (the user: send only what is committed,
+stop on a dirty tree and show the list). So anything not committed under documentation/ stops it, exit 4, nothing
+sent: it lists the files and prints the command that commits this iteration's own reports — the `.md` files of
+documentation/plans/<version>/, «chore: отчёты итерации <version>», by their paths (pipeline →
+references/service-version.md → The iteration's files in git) — for the session to run; the rest it names for
+whoever owns them. Changes outside documentation/ (another session's code in the same checkout) do not stop it and
+are never stashed: the rebase is then skipped (it would need `--autostash`, which would move another session's files)
+and the push is tried as it is; a clean tree is rebased without `--autostash`.
 
 When `origin` already has the branch, it first takes the others' commits (`git pull --rebase`); a rebase that stops
 on a conflict is undone (`git rebase --abort`) and the script stops with exit 2 — the session asks the user. A conflict
@@ -20,7 +23,8 @@ user's. A push
 the remote refuses (no access, no network, a branch moved meanwhile) is exit 1 with the reason and the command to
 run by hand; the stage goes on, it is not a stop. Exit 3: a contract document the push carries fails
 doc-versioning/scripts/doc_check.py (its lines are printed) — nothing is pushed until it is fixed. Never `--force`,
-never a tag. Exit 0: pushed and confirmed, or nothing to push.
+never a tag. Exit 4: something under documentation/ not committed (above). Exit 0: pushed and confirmed, or nothing
+to push.
 A push counts as sent only when `git ls-remote origin refs/heads/<branch>` afterwards returns the sha of HEAD (exit 1
 with the command to check otherwise, also when git printed «Everything up-to-date» although commits were ahead):
 a push's own output proves nothing — the 2.2.1 run took «Everything up-to-date» for success and the commit was not there.
@@ -103,21 +107,30 @@ def form_problems(root: str, upstream: str | None) -> str:
     return "" if r.returncode == 0 else r.stdout.strip()
 
 
-def commit_reports(root: str, branch: str) -> None:
-    """The iteration's files in plans/ in a commit of their own; this machine's files stay out by .gitignore."""
-    if not git(root, "status", "--porcelain", "--", "documentation/plans")[1]:
-        return
-    if git(root, "diff", "--cached", "--quiet")[0] != 0:
-        print("push: файлы итерации в plans/ не закоммичены — в индексе уже есть другие изменения; закоммитьте их и "
-              "запустите снова")
-        return
-    git(root, "add", "--", "documentation/plans")
-    if git(root, "diff", "--cached", "--quiet")[0] == 0:
+def uncommitted_docs(root: str, branch: str) -> None:
+    """Stop, exit 4, when anything under documentation/ is not committed: list it, and print the command for this
+    iteration's own reports — the session runs it, this script commits nothing."""
+    rows = [l for l in git(root, "status", "--porcelain", "--untracked-files=all", "--", "documentation")[1].splitlines()
+            if l.strip()]
+    if not rows:
         return
     version = branch.split("/", 1)[1]
-    code, out = git(root, "commit", "-q", "-m", f"chore: отчёты итерации {version}")
-    print(f"push: закоммичены файлы итерации {version} в plans/" if code == 0 else f"push: коммит файлов итерации не "
-          f"удался — {out.splitlines()[-1] if out else 'ошибка'}")
+    paths = [l.split(maxsplit=1)[1].split(" -> ")[-1].strip('"') for l in rows]   # git() strips the first space
+    mine = [p for p in paths if p.startswith(f"documentation/plans/{version}/") and p.endswith(".md")]
+    other = [p for p in paths if p not in mine]
+    print(f"push: не отправлено — в documentation/ не закоммичено {len(paths)} файл(ов); отправляется только "
+          "закоммиченное.")
+    if mine:
+        q = " ".join(f"'{p}'" for p in mine)
+        print(f"Отчёты итерации {version} ({len(mine)}) — закоммитьте их и запустите снова:\n"
+              f"  git add -- {q} && git commit -q -m \"chore: отчёты итерации {version}\" -- {q}")
+    if other:
+        print("Не отчёты этой итерации — коммитит тот, чьи они (документ — его этап; чужое — пользователь):")
+        for p in other[:40]:
+            print(f"  · {p}")
+        if len(other) > 40:
+            print(f"  … и ещё {len(other) - 40}")
+    sys.exit(4)
 
 
 def main() -> None:
@@ -126,18 +139,17 @@ def main() -> None:
     if not branch.startswith("iteration/"):
         print(f"push: не отправляю — ветка {branch or '?'}, а отправляется только iteration/<версия>")
         sys.exit(0)
-    commit_reports(root, branch)
+    uncommitted_docs(root, branch)
     code, url = git(root, "remote", "get-url", "origin")
     if code:
         print("push: удалённого репозитория (origin) нет — отправлять некуда")
         sys.exit(0)
     manual = f"git pull --rebase origin {branch} && git push -u origin {branch}"
     fetched, out = git(root, "fetch", "origin", branch)
-    # Changes outside plans/ may be another session's work in this checkout: never stash them, skip the rebase.
-    dirty = [l for l in git(root, "status", "--porcelain")[1].splitlines()
-             if l.strip() and "documentation/plans/" not in l[3:]]
+    # Changes outside documentation/ may be another session's work in this checkout: never stash them, skip the rebase.
+    dirty = [l for l in git(root, "status", "--porcelain")[1].splitlines() if l.strip()]
     if fetched == 0 and dirty:
-        print("push: в дереве незакоммиченные правки вне plans/ — ребейз пропущен, пробую отправить как есть")
+        print("push: в дереве незакоммиченные правки вне documentation/ — ребейз пропущен, пробую отправить как есть")
     if fetched == 0 and not dirty:
         code, out, site_fixed = rebase_onto(root, f"origin/{branch}")
         if code:
