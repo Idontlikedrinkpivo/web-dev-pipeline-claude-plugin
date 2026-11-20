@@ -169,15 +169,42 @@ def writes_progress(bare: str, bodies: list[str]) -> bool:
                if re.search(r"\bpython3?\b", bare))
 
 
+# a worktree of its own: the harness's, or a parallel stream's under <git-common-dir>/pipeline-work/ (`wt-b`)
+OWN_WORKTREE = re.compile(r"/\.claude/worktrees/|pipeline-work/|(?:^|/)wt-[\w.-]+(?:/|$)")
+
+
+def paths_kept(cmd: str) -> str:
+    """Quoted text blanked as `unquoted` does, but a quoted path («"$W/wt-c"») kept, its spaces joined — so a
+    `cd` or `git -C` into an own worktree is still seen."""
+    def one(m: re.Match) -> str:
+        inner = m.group(0)[1:-1]
+        return "Q" if re.search(r"[;&|\n]", inner) or "/" not in inner else inner.replace(" ", "_")
+    return re.sub(r"'[^']*'|\"(?:\\.|[^\"\\])*\"", one, cmd)
+
+
 def destructive(bare: str) -> bool:
-    b = unquoted(bare)
-    for m in re.finditer(r"\bgit\s+(?:-C\s+\S+\s+)?stash\b([^;&|\n]*)", b):
-        rest = m.group(1).split()
-        sub = rest[0] if rest and not rest[0].startswith("-") else "push"
-        if sub in ("push", "save") and "--" not in rest:
+    """A stash of everything, reset --hard, clean -f or checkout of the whole tree run in the shared folder — not
+    one run after `cd` into a worktree of its own or with `git -C` on one: resetting a stream's worktree `wt-c` was
+    refused 3 times as if it were the main tree (ai-initiatives 2.3.0)."""
+    in_own = False
+    for seg in CHAIN.split(paths_kept(bare)):
+        seg = seg.strip()
+        cd = re.match(r"cd\s+(\S+)", seg)
+        if cd:
+            in_own = bool(OWN_WORKTREE.search(cd.group(1)))
+            continue
+        target = re.search(r"\bgit\s+-C\s+(\S+)", seg)
+        if in_own or (target and OWN_WORKTREE.search(target.group(1))):
+            continue
+        for m in re.finditer(r"\bgit\s+(?:-C\s+\S+\s+)?stash\b([^|]*)", seg):
+            rest = m.group(1).split()
+            sub = rest[0] if rest and not rest[0].startswith("-") else "push"
+            if sub in ("push", "save") and "--" not in rest:
+                return True
+        if re.search(r"\bgit\s+(?:-C\s+\S+\s+)?(?:reset\s+(?:\S+\s+)*--hard\b|clean\s+(?:\S+\s+)*-\w*f"
+                     r"|checkout\s+(?:-q\s+)?(?:--\s+)?\.(?:\s|$)|restore\s+(?!.*--staged)(?:--\S+\s+)*\.(?:\s|$))", seg):
             return True
-    return bool(re.search(r"\bgit\s+(?:-C\s+\S+\s+)?(?:reset\s+(?:\S+\s+)*--hard\b|clean\s+(?:\S+\s+)*-\w*f"
-                          r"|checkout\s+(?:--\s+)?\.(?:\s|$)|restore\s+(?!.*--staged)(?:--\S+\s+)*\.(?:\s|$))", b))
+    return False
 
 
 def decide(tool: str, inp: dict, cwd: str, *, branch: str = "", open_iteration: str | None = None,
@@ -224,7 +251,8 @@ def decide(tool: str, inp: dict, cwd: str, *, branch: str = "", open_iteration: 
             real, wt, main = (os.path.realpath(p) for p in (path, worktree_root, main_root))
             inside = lambda root: real == root or real.startswith(root + os.sep)
             plans = os.path.join(main, "documentation", "plans")   # read and written in the main tree only: the worktree's copy is the branch's last commit
-            if inside(main) and not inside(wt) and not inside(plans):
+            work = os.path.join(main, ".git", "pipeline-work")   # the packet's DETAILS FILE, review packets, stream worktrees: refused 5 times (2.3.0)
+            if inside(main) and not inside(wt) and not inside(plans) and not inside(work):
                 return deny(f"you work in the worktree {worktree_root}, but this edit targets {path} in the main "
                             "tree. Use the same path inside the worktree (executor-catalog → "
                             "references/worker-prompt.md → RULES).")

@@ -65,7 +65,7 @@ The schema *document* is one of the contracts: edited in place, and its
 whole current schema (DBML and notes) and no SQL. The database changes only
 by appending a migration file,
 `documentation/db/migrations/NNNN_<snake_slug>.sql` — unversioned, never
-edited after it is committed; the schema document carries the version.
+edited once released (on the main branch or in a `v*` tag); the schema document carries the version.
 
 **`migration:`** in the schema's frontmatter names the last migration file
 the DBML already shows (`migration: 0007` for `0007_bookings_cancel.sql`).

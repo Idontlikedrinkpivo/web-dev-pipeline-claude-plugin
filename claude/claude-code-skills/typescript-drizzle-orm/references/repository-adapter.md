@@ -131,7 +131,7 @@ Across aggregates only through the `UnitOfWork` port the architecture names.
 2. Apply with the project's migration command (a plain runner: files in name order, each applied
    once and recorded in a version table in the project schema). No `drizzle-kit generate`, no
    `meta/` snapshot or journal in that folder.
-3. Never edit a committed migration file; a mistake is fixed by the next file.
+3. Never edit a released migration file (main or a `v*` tag has it); a mistake is fixed by the next file.
 4. Required column on a populated table: the steps (nullable → backfill → `SET NOT NULL`) are
    separate files per `db-schema-design/references/migration-safety.md`; code written between them
    tolerates the null.

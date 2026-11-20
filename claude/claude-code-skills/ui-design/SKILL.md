@@ -103,7 +103,7 @@ drawing, restyle, redraw, renaming) create
 `documentation/plans/<version>/progress-design.md` per `pipeline` →
 `references/progress-files.md`, every tile and screen `⏳ ждёт`, and pass
 it to the builder as `PROGRESS FILE`. The builder marks each screen
-`🔄 в работе` → `✅ готово`; the session checks each one (a failed one →
+`🔄 в работе` → `✅ готово: <nodeId>`; the session checks each one (a failed one →
 `🔁 возвращено: <что>`). For the chat, run `python3
 "${CLAUDE_SKILL_DIR}/../pipeline/scripts/progress_link.py"
 documentation/plans/<version>/progress-design.md` (add `--desktop` when

@@ -131,11 +131,11 @@ RULES
   FILL works only on children of an auto-layout frame; `getNodeByIdAsync`
   can return null — check it before use.
 - Progress. Keep PROGRESS FILE current with the Edit tool, one row or line
-  per call: a screen's row `🔄 в работе` when you start it, `✅ готово`
-  with its frame's nodeId when its frames and annotation are done. Only
+  per call: a screen's row `🔄 в работе` when you start it, `✅ готово: <nodeId>` (the colon
+  is required — the page reads the word before it) when its frames and annotation are done. Only
   the rows: the page computes the bar and the count from them
   (`pipeline` → `references/progress-files.md` → The page); in MODE direction, each tile's row
-  `🔄 в работе` → `✅ готово` with its nodeId. Change nothing else in
+  `🔄 в работе` → `✅ готово: <nodeId>`. Change nothing else in
   the file: the user watches it while you work.
 - One file. Do not split the work across parallel agents.
 - Draw only the screens in SCREENS and the APP-WIDE STATES marked `draw`.

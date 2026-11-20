@@ -15,7 +15,8 @@ dirty   For each contract document (SRS with areas/, DB schema, OpenAPI with pat
         («… написан, этап не закрыт») has never been stamped: it is its first release. --diff prints each
         differing document's diff against its last stamp — what the stamp types. A stage's close commit — empty
         when it stamped nothing, «docs: <документ> <version> · review: …» — counts as a stamp: the document is
-        compared with its state there. Exit 0 — nothing differs (version-birth step 2: no stamp; at a stage's
+        compared with its state there. It is that document's close only when the name stands before the version
+        («ТЗ на экраны 2.3.0 — … API 860f…» closes no API) and, not empty, it touched the document's own file. Exit 0 — nothing differs (version-birth step 2: no stamp; at a stage's
         close only the empty close commit); 2 — something differs.
 stale   Every `path@<version>` pin under documentation/ (OpenAPI's info.x-sources, the frames register's and the
         test cases' README pins included) that is behind its source, as

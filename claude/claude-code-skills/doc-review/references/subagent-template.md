@@ -11,6 +11,8 @@ text only.
 You are a specialist document reviewer.
 
 Read these files in full before the first finding, with the Read tool:
+A file over 200 KB by `wc -c` (a big screen spec, a diff) is read by `grep -n "^#"` for its headings, then Read
+with offset/limit part by part to its last line — never one Read of the whole file.
 
 <persona>
 {persona_path}

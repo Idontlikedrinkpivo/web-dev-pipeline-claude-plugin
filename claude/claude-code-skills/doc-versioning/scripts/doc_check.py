@@ -16,7 +16,8 @@ OpenAPI, the three architecture documents, the screen specs — and the open-que
                 is one the source has had (a row of its journal).
   ids           an FR / NFR / BR / UC / A id (SRS) or an operationId (OpenAPI) that the main branch has and the
                 working copy lost, with no «удалён: <id>» journal row — a renumber or a silent deletion.
-  migrations    a migration file the main branch has, changed or deleted (they are append-only); the schema's
+  migrations    a released migration file (the main branch or the newest v* tag has it) changed or deleted —
+                released ones are append-only, this iteration's own may be corrected; the schema's
                 `migration:` is not the newest file's number.
   openapi       an operationId used twice; a `$ref` to a file that does not exist or to a component no file
                 defines; an operation without a 500 (or 5XX / default) response.
@@ -193,9 +194,10 @@ def check_migrations(root: Path, ref: str | None, schema: "w.Doc | None", out: l
     if not folder.is_dir():
         return
     seen: set[str] = set()
-    # against the main branch (a released migration changed) and against HEAD (one committed earlier on this
-    # iteration's branch changed) — both are edits of a committed migration
-    for base in [b for b in (ref, "HEAD") if b]:
+    # only a released migration is frozen — the main branch has it, or the newest v* tag does (a project that
+    # works on main); one this iteration wrote and has not released yet may be corrected in place
+    tag = git(root, "describe", "--tags", "--abbrev=0", "--match", "v*").strip()
+    for base in [b for b in (ref, tag) if b]:
         for line in git(root, "diff", "--name-status", base, "--", "documentation/db/migrations").splitlines():
             st, _, name = line.partition("\t")
             if st[:1] in ("M", "D", "R") and name not in seen:

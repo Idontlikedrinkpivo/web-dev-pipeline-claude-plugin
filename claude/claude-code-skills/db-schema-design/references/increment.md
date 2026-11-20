@@ -24,9 +24,10 @@ current. Two asymmetric rules govern here:
 - The **database** changes only by appending a migration: the next numbered
   file in `documentation/db/migrations/` (`0002_add_room_capacity.sql`), and
   the same write updates `schema.md` so it still shows the whole current
-  schema. A committed migration file is never edited — the database that
-  already ran it would never see the change. A file this iteration wrote
-  and nobody committed yet may still be rewritten. Name in the report
+  schema. A released migration file (the main branch or a `v*` tag has it)
+  is never edited — a database that already ran it would never see the
+  change. A file this iteration wrote and has not released yet may still be
+  corrected in place, committed or not (local and test databases are rebuilt). Name in the report
   which file the increment adds, what it does, and whether it is
   reversible; the stamp's changelog row carries it.
 

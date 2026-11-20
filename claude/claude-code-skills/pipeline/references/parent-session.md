@@ -157,7 +157,7 @@ SRS · схема БД · API · архитектура · каркас · ма�
 ```text
 Ты — подсессия «<title>» итерации <version> плагина dev-pipeline: <job — «этап <stage>»>. Родительская
 сессия — «iteration <version>», id <parent's session id> — пиши ей через SendMessage на этот id. Своё место в списке
-находишь сама: python3 <plugin>/pipeline/scripts/subsessions.py <project> <version> whoami <твой id>.
+находишь сама: python3 <plugin>/pipeline/scripts/subsessions.py <project> <version> whoami <твой id> (id — из get_session с «self»; подходит и с «local_», и без).
 Вопросы пользователю — только сообщением в чате, без карточек выбора.
 Замечания к работе плагина пишите прямо в этот чат, в момент, когда что-то пошло не так: разбор сессий (reflect)
 возьмёт их как улики.

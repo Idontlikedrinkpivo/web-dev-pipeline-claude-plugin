@@ -34,6 +34,7 @@ REPORT PATH     documentation/plans/<version>/test-run.md (the open version
                 the session with every case of CASES ⏳ ждёт; you keep it live
 
 RULES
+- A large file — over 200 KB by `wc -c` (a big screen spec, an SRS area, a diff) — is never one Read: `grep -n "^#"` for its headings, then Read with offset/limit part by part to its last line. «Read in full» means every line, not one call.
 - Launch, check and clean up the stand as VERIFY says; run its doctor
   before the first case and after any surprising failure. A stand fault
   VERIFY does not list yet goes into its Traps before your report (the only

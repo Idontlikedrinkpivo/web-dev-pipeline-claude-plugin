@@ -6,6 +6,12 @@ reflect reports keep finding the same rules broken right after one — a progres
 security audit not offered, a question asked in a card. Each section is the few rules a stage broke after a
 compaction, or would cost most to break; the stage's skill stays the whole truth — read it again. One section per
 stage skill, its heading the skill's folder name; a stage with no section gets «pipeline».
+The «every-stage» section is printed after the stage's own.
+
+## every-stage
+
+- Every line the user reads is in the user's language — answers, questions, and the short lines between tool calls
+  («Коммичу.», «Ошибся — правлю через Edit.», never «Committing.»), right after a compaction too (`pipeline` → Names).
 
 ## pipeline
 
@@ -52,7 +58,7 @@ stage skill, its heading the skill's folder name; a stage with no section gets �
 
 - The session writes no schema: the design writer does (`design-lite` prints itself, Mid and High through
   `doc-typist`).
-- A committed migration is never edited — a change is a new numbered file. `table_docs.py --check` and
+- A released migration (main or a `v*` tag) is never edited — a change is a new numbered file; this iteration's own may be corrected. `table_docs.py --check` and
   `doc_check.py --only documentation/db/` are clean before the commit.
 - Close: `docs: схема БД <version> · review: <состояние>`.
 

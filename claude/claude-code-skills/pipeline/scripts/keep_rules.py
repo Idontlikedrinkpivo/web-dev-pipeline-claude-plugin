@@ -7,7 +7,7 @@ stage skill the session ran last, printed by the session-start hook right after 
 
 The skill is read from the transcript: the last stage skill invoked (`"skill": "dev-pipeline:<name>"`, Claude Code)
 or loaded (`…/skills/<name>/SKILL.md` or its base directory, both builds), the last one that has a section.
-None found — the «pipeline» section. Prints nothing when the file is missing. Never fails: the hook must not break
+None found — the «pipeline» section. The «every-stage» section follows whichever was printed. Prints nothing when the file is missing. Never fails: the hook must not break
 a session. Standard library only.
 """
 from __future__ import annotations
@@ -50,6 +50,8 @@ def main() -> None:
     if stage in known:
         print(f"dev-pipeline: not to lose in this stage ({stage}, pipeline → references/keep-after-compaction.md):")
         print(known[stage])
+    if "every-stage" in known:   # the rules every stage keeps, printed after its own
+        print(known["every-stage"])
 
 
 if __name__ == "__main__":

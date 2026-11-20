@@ -13,14 +13,15 @@ v2.1.2..HEAD) add «Принятие задач»: how many plan units passed th
 and what one accepted unit cost — executors and code review together, divided by the units accepted. From the
 progress file's Ревью column — the words first, the code in brackets after them («принято с первого ревью
 (COMMIT)», «исправлено после ревью (FIX_THEN_COMMIT: …)»): `COMMIT` alone is the first time; `RETURN_…`,
-`FIX_THEN_COMMIT`, `×2`, `→`, «возвращ…», «эскалац…» mean rounds. Each progress file read is also saved outside
+`FIX_THEN_COMMIT`, `×2`, «возвращ…», «эскалац…», «раунд…» mean rounds (the review cell only; an arrow alone is
+no round). Each progress file read is also saved outside
 the project — ~/.claude/dev-pipeline-feedback/.acceptance/
 <project>/<version>.txt — because reflect runs at the iteration's close before the cleanup removes the file; a
 later run reads the saved numbers for a version whose file is gone. Without either, from git — a unit with more
 than one commit carrying its Plan-Unit line was fixed after its commit.
 From the progress files it also splits the units by grade — the executor cell names it (mechanical-worker 0,
 impl-lite Low, impl-medium Mid, impl-hard High, impl-ui UI) — and by outcome: first time (`COMMIT`), fixed after
-the review (`FIX_THEN_COMMIT`), redone (`RETURN_…`, `×2`, `→`, an escalation), so the table shows which grade
+the review (`FIX_THEN_COMMIT`), redone (`RETURN_…`, `×2`, an escalation), so the table shows which grade
 loses the most.
 
 Reads the project's main sessions (found as `sessions.py list` finds them) and every subagent transcript beside
@@ -31,8 +32,8 @@ reached; the flags worth a look. Read-only.
 
 A call is one model request — a unique message id, counted once even when a resumed session repeats it or the log
 writes it as several lines. Spend is in normalized units, relative to one input token, so runs and roles compare:
-output ×5, cache write ×1.25 (×2 for the one-hour cache), cache read ×0.1. These are ratios, not money: a model's
-own price is not applied — the models table says which model spent what. Python 3.9+, standard library only.
+output ×5, cache write ×1.25 (×2 for the one-hour cache), cache read ×0.05 on the 5.5 models (×0.1 on others). A
+unit is the model's own input-token price, so the models table turns each model's units into dollars at list price. Python 3.9+, standard library only.
 """
 from __future__ import annotations
 
@@ -45,6 +46,14 @@ from pathlib import Path
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 
 W_IN, W_WRITE, W_WRITE_1H, W_READ, W_OUT = 1.0, 1.25, 2.0, 0.1, 5.0
+# a unit is one uncached input token's price; the 5.5 models read the cache at 0.05 of it, not 0.1
+READ_BY_MODEL = {"claude-opus-5-5": 0.05, "claude-sonnet-5-5": 0.05, "claude-haiku-5-5": 0.05}
+# dollars per million input tokens — a model's units times this is its bill (list prices; check the claude-api skill)
+USD_PER_M_IN = {"claude-opus-5-5": 4.0, "claude-sonnet-5-5": 2.0, "claude-haiku-5-5": 0.10}
+
+
+def w_read(model: str) -> float:
+    return READ_BY_MODEL.get((model or "").split("[")[0], W_READ)
 IDLE = 300            # a gap longer than this between two calls of the session is a pause, not work
 SMALL, BIG = 100_000, 250_000   # an executor that peaked below SMALL paid its cold start for little work; above BIG,
 #                                 every call re-reads a context that big (cache reads grow with the square of the work)
@@ -77,6 +86,7 @@ class Agent:
         self.kind, self.label = kind, label
         self.calls = 0
         self.tokens = defaultdict(int)          # in, write, write1h, read, out
+        self.read_units = 0.0                   # cache reads at each model's weight
         self.units = 0.0
         self.peak = 0
         self.first_ctx = 0
@@ -94,12 +104,13 @@ def add_call(a: Agent, usage: dict, model: str, ts: str) -> float:
 
 def add_counts(a: Agent, tin: int, w5: int, w1h: int, read: int, out: int, model: str, ts: str) -> float:
     """One model call: uncached input, cache writes (5-minute, one-hour), cache reads, output."""
-    units = W_IN * tin + W_WRITE * w5 + W_WRITE_1H * w1h + W_READ * read + W_OUT * out
+    units = W_IN * tin + W_WRITE * w5 + W_WRITE_1H * w1h + w_read(model) * read + W_OUT * out
     ctx = tin + w5 + w1h + read
     a.calls += 1
     for k, v in (("in", tin), ("write", w5), ("write1h", w1h), ("read", read), ("out", out)):
         a.tokens[k] += v
     a.units += units
+    a.read_units += w_read(model) * read
     a.peak = max(a.peak, ctx)
     a.first_ctx = a.first_ctx or ctx
     a.models[model or "?"] += units
@@ -191,7 +202,9 @@ def acceptance(progress: list, rng: str, cwd: str) -> tuple[int, int, int, str]:
             grade = next((g for name, g in GRADES if name in cells[2]), "?") if len(cells) > 2 else "?"
             row = mine.setdefault(grade, [0, 0, 0, 0])
             row[0] += 1
-            if re.search(r"RETURN|→|×\s*[2-9]|возвращ|эскалац|переделан", review + " " + line, re.I):
+            # the review cell only, by its codes and words: an arrow alone also stands in an explanation
+            # («гонка удаления → NotFound») and in «RETURN_TO_EXECUTOR → COMMIT», which RETURN already names
+            if re.search(r"RETURN|×\s*[2-9]|возвращ|эскалац|переделан|раунд", review, re.I):
                 back += 1
                 row[3] += 1
             elif re.search(r"FIX_THEN|исправлено после", review, re.I):
@@ -280,8 +293,9 @@ def report(args: list, cwd: str, since: str | None, session, agents: list, activ
           f"сессий: {active} · агентов запущено: {len(agents)} · вызовов модели: {sum(a.calls for a in every)} · "
           f"всего: **{fmt(total)}** единиц · работа сессии: ~{active_minutes(beats) // 60} ч {active_minutes(beats) % 60} мин")
     print()
-    print("Единицы — токены, приведённые к цене входного токена: вывод ×5, запись в кэш ×1,25 (часовой ×2), чтение "
-          "кэша ×0,1. Это пропорции для сравнения ролей и прогонов, а не деньги: цена модели не учтена.")
+    print("Единицы — токены, приведённые к цене входного токена своей модели: вывод ×5, запись в кэш ×1,25 (часовой "
+          "×2), чтение кэша ×0,05 у моделей 5.5 (×0,1 у прочих). Единица Opus дороже единицы Sonnet вдвое — деньги "
+          "по моделям в таблице «По моделям».")
 
     by_group: dict = defaultdict(lambda: [0.0, 0, 0])
     for a in every:
@@ -312,17 +326,26 @@ def report(args: list, cwd: str, since: str | None, session, agents: list, activ
         for m, u in a.models.items():
             models[m] += u
     print("\n#### По моделям\n")
-    print("| Модель | Доля | Единиц |")
-    print("|---|---|---|")
+    print("| Модель | Доля | Единиц | Долларов |")
+    print("|---|---|---|---|")
+    usd_total, unpriced = 0.0, []
     for m, u in sorted(models.items(), key=lambda kv: -kv[1]):
         if u >= 0.5 and not m.startswith("<"):  # «<synthetic>» is Claude Code's own placeholder, not a model
-            print(f"| {m} | {u / total:.0%} | {fmt(u)} |")
+            price = USD_PER_M_IN.get(m.split("[")[0])
+            usd = u * price / 1e6 if price else None
+            usd_total += usd or 0
+            if usd is None:
+                unpriced.append(m)
+            print(f"| {m} | {u / total:.0%} | {fmt(u)} | {f'{usd:,.0f}'.replace(',', ' ') if usd is not None else '—'} |")
+    print(f"\nВсего по списочным ценам API: ~{f'{usd_total:,.0f}'.replace(',', ' ')} $"
+          + (f" (без {', '.join(unpriced)}: цены нет в скрипте)" if unpriced else "")
+          + ". Подписка платит иначе — это цена той же работы через API.")
 
     toks = defaultdict(int)
     for a in every:
         for k, v in a.tokens.items():
             toks[k] += v
-    parts = {"чтение кэша": W_READ * toks["read"], "запись в кэш": W_WRITE * toks["write"] + W_WRITE_1H * toks["write1h"],
+    parts = {"чтение кэша": sum(a.read_units for a in every), "запись в кэш": W_WRITE * toks["write"] + W_WRITE_1H * toks["write1h"],
              "вывод": W_OUT * toks["out"], "вход без кэша": W_IN * toks["in"]}
     print("\n#### Из чего сложились единицы\n")
     print(" · ".join(f"{k}: {v / total:.0%}" for k, v in sorted(parts.items(), key=lambda kv: -kv[1])))

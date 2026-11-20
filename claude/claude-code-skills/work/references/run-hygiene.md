@@ -163,7 +163,9 @@ orchestrator checks it when the unit returns:
 - in the main tree an executor never runs `git stash`, `git reset`, `git checkout --`
   (the hook refuses `git stash` of everything, `reset --hard`, `clean -f`, `checkout -- .`, and an edit from a
   worktree into the main tree; `git checkout -- <file>` by name passes)
-  or `git clean`;
+  or `git clean`. In its own worktree — after `cd` into it or with `git -C` on it (`.claude/worktrees/…`,
+  `.git/pipeline-work/…`, `wt-*`) — these pass, and so does a write to `.git/pipeline-work/` (the DETAILS FILE,
+  review packets);
 - a link to installed dependencies (`ln -s …/node_modules`) is made only inside the
   executor's own worktree, and only where no folder of that name exists;
 - a worktree is removed only after its unit is committed — before that the executor

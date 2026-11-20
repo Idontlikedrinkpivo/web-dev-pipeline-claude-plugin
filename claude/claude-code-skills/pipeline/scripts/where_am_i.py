@@ -272,7 +272,9 @@ NOT_A_STAGE_COMMIT = re.compile(r"^docs: решение изменено|\(пл�
 
 WRITTEN = re.compile(r"написан[аоы]?, этап не закрыт")
 # the stage-close commit of each document's stage: «docs: <документ> <version> · review: …», empty when nothing was
-# stamped — a first release, or nothing changed since the last stamp (doc-versioning → version-birth, step 2)
+# stamped — a first release, or nothing changed since the last stamp (doc-versioning → version-birth, step 2). The
+# document's name stands before the version («ТЗ на экраны 2.3.0 — … API 860f…» is no API close), and a non-empty
+# commit counts only if it touched the document's own file — a stamp moves its version line.
 CLOSE_KEY = (("requirements/srs/", r"\bSRS\b"), ("db/", r"схем\w* БД"), ("api/", r"\bAPI\b"),
              ("architecture/", r"архитектур|доменн\w* модел|сценари"), ("screen-specs/", r"ТЗ на экран"))
 NOT_CLOSE = re.compile(r"этап не закрыт|^docs: решение изменено|— как есть|\(плагин \d")
@@ -292,8 +294,13 @@ def close_commit(root: Path, doc: Doc, span: str = "HEAD") -> tuple[str, str]:
         return "", ""
     for line in git(root, "log", "--format=%H\t%s", "-n", "3000", span).splitlines():
         sha, _, subj = line.partition("\t")
-        if ALL_CLOSE.search(subj) or (subj.startswith("docs: ") and re.search(key, subj)
-                                      and VERSION_RX.search(subj) and not NOT_CLOSE.search(subj)):
+        if ALL_CLOSE.search(subj):
+            return sha, subj
+        name = re.match(r"docs: (.+?)\s\d+\.\d+\.\d+\b(.*)", subj)   # the document's name comes before the version
+        if not name or not re.search(key, name.group(1)) or "review:" not in name.group(2) or NOT_CLOSE.search(subj):
+            continue
+        files = git(root, "show", "--name-only", "--format=", sha).split()
+        if not files or doc.rel in files:   # empty, or it stamped this document (the version line is in its file)
             return sha, subj
     return "", ""
 

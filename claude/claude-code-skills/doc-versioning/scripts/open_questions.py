@@ -9,7 +9,8 @@ Reads every `documentation/**/open-questions.md` (not `_web-docs/`; `plans/<vers
 «| Вопрос | Класс |» table, the Класс column found by its header, and the business requirements' question blocks
 (`<!-- ce-question: OQ-n; class: …; … -->` and the heading after it). The class is the addressee (doc-versioning →
 Открытые вопросы): «Блокирует старт»; «Решить при: <этап>» — схема БД, API, архитектура, макеты, ТЗ на экраны,
-тест-кейсы, план, разработка, релиз, эксплуатация; «Отложено»; «Решено: <где>» — kept for history, never printed.
+тест-кейсы, план, разработка, релиз, эксплуатация; «Отложено»; «Решено: <где>» — kept for history, never printed;
+a row whose other cell («Сейчас») starts with «Решено» is settled too, whatever its Класс says.
 The legacy «Можно решить при архитектуре» reads as «Решить при: архитектура».
 
   no flag     every open row grouped by addressee: the addressee on a line of its own, then `<file>\t<question>`
@@ -94,6 +95,8 @@ def read_file(path: Path, rel: str, out: list) -> None:
             if not row.startswith("|"):
                 break
             c = cells(row)
+            if any(x.startswith(SOLVED) for j, x in enumerate(c) if j != q):   # «Решено: …» in «Сейчас» or another cell
+                continue
             who = addressee(c[k]) if len(c) > k else None
             if who and len(c) > q and c[q]:
                 out.append(Row(rel, c[q], *who))

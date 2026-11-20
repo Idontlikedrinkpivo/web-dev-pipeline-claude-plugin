@@ -59,10 +59,10 @@ defect or a check's lines (step 4).
    defect — dispatch `doc-typist` `MODE revise` with one `SETTLEMENT` line
    per line it prints, the text taken from the SRS (`executor-catalog` →
    Nesting; one or two lines you fix yourself), until none is left. Its migration lines (§0's schema header)
-   send the writer back for a file this slice wrote; on an older, committed
+   send the writer back for a file this slice wrote; on an older, released
    file they go into the report only, since that file is frozen. Then run
    `python3 "${CLAUDE_SKILL_DIR}/../doc-versioning/scripts/doc_check.py" . --only documentation/db/`:
-   each `migrations` line (a file the main branch has, changed or deleted;
+   each `migrations` line (a released file — on main or in the newest `v*` tag — changed or deleted;
    `migration:` behind the newest file) sends the writer back — that change
    is a new file. A missing `documentation/db/diagrams/er.d2`, or a slice
    whose tables have no new file in `documentation/db/migrations/` (not in
@@ -145,8 +145,8 @@ picking a different column name.
 
 When a schema document already exists, read `references/increment.md`
 before editing: the document grows in place and is never re-versioned
-here, the database changes only by a new numbered migration, a committed
-migration is never edited, and a populated table (POPULATED) takes the
+here, the database changes only by a new numbered migration, a released one
+(main or a `v*` tag has it) is never edited — this iteration's own may be — and a populated table (POPULATED) takes the
 safe sequence of `references/migration-safety.md`. A greenfield schema
 needs none of it.
 

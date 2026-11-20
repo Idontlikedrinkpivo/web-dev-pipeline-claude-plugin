@@ -37,6 +37,7 @@ QUESTIONS TO SETTLE
    can decide; name each in your report — or: none>
 
 RULES
+- A large file — over 200 KB by `wc -c` (a big screen spec, an SRS area, a diff) — is never one Read: `grep -n "^#"` for its headings, then Read with offset/limit part by part to its last line. «Read in full» means every line, not one call.
 - Progress comes first in every section: before the section's first edit,
   set its row in PROGRESS FILE to `🔄 в работе` with the Edit tool; right
   after its last edit, `✅ готово` with the case count — the page computes

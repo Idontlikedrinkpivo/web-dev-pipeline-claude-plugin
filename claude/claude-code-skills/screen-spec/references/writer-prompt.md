@@ -59,6 +59,7 @@ GENERAL HANDLER
    from «Общие состояния» and their texts, and return them in the report>
 
 RULES
+- A large file — over 200 KB by `wc -c` (a big screen spec, an SRS area, a diff) — is never one Read: `grep -n "^#"` for its headings, then Read with offset/limit part by part to its last line. «Read in full» means every line, not one call.
 - Figma reads and the text layers of a file without annotation: exactly
   as SKILL → "Writer (dispatched)" → Read the frames — the one place for
   which call reads what. Neither the figma-* skills nor the Figma MCP tools

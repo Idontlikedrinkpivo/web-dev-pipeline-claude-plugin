@@ -12,7 +12,7 @@ description: >-
 Read first, in full; the sections below hold the detail — the packet names the ones this unit needs.
 
 - Tables transcribe `documentation/db/schema.md`; a missing table is a question, not an invention → Rules 1.
-- Migrations are the SQL files from `db-schema-design`: no `drizzle-kit generate`, never edit a committed file
+- Migrations are the SQL files from `db-schema-design`: no `drizzle-kit generate`, never edit a released file (main or a `v*` tag)
   → Rules 10.
 - The database enforces what races (unique, FK, CHECK), and a race test proves it; a pre-check alone fails
   → Rules 5.
@@ -129,7 +129,7 @@ of fetching docs. Outside `work`, read the file and check each point you rely on
 
 ## The reviewer checks
 
-1. **No `drizzle-kit generate`, no `meta/` journal, no edited committed migration file**; a schema change arrives as
+1. **No `drizzle-kit generate`, no `meta/` journal, no edited released migration file** (main or a `v*` tag has it); a schema change arrives as
    the next SQL file from `db-schema-design`, and `schema.ts` follows it.
 2. **A paged read is keyset**: sort columns plus the id, the compound predicate, `limit + 1`, never `.offset(`.
 3. **One query per read** — no query per item in a loop.

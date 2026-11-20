@@ -207,9 +207,15 @@ def main() -> None:
         print(f"Родительская сессия: {parent or '—'}")
         show(rows)
     elif cmd == "whoami" and len(rest) == 1:
-        hit = next((r for r in rows if r.get("id") == rest[0]), None)
+        bare = lambda s: (s or "").strip().strip("`").removeprefix("local_").lower()
+        hit = next((r for r in rows if bare(r.get("id")) and bare(r.get("id")) == bare(rest[0])), None)
         if not hit:
-            sys.exit(f"sessions: сессии {rest[0]} в списке нет — спросите родительскую ({parent or 'id неизвестен'})")
+            print(f"sessions: сессии {rest[0]} в списке нет. Свой id берите из get_session с «self»; строки списка:",
+                  file=sys.stderr)
+            for i, r in enumerate(rows, 1):
+                print(f"{i:>2}. {r['title']} — {r.get('state') or 'не открыта'} · {r.get('id') or 'id нет'}",
+                      file=sys.stderr)
+            sys.exit(f"Найдите себя по названию сессии; не нашли — спросите родительскую ({parent or 'id неизвестен'})")
         print(f"ты — «{hit['title']}»: этап {hit['stage']}, навык {hit['skill']}, {hit['when']}, состояние "
               f"{hit['state']}; родительская сессия — {parent or '—'}")
     else:

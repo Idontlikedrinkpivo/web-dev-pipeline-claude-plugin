@@ -16,7 +16,7 @@ with its date set; do not add a second row.
 
 - [ ] One canonical file for this system, at its unchanged Registry path (no date, no topic) — Which mode am I in · Registry · One folder per document
 - [ ] An unversioned row got no `version`, no changelog, no typed row — Registry
-- [ ] Plan: a closed version's folder untouched. DB: a new numbered file in `db/migrations/`, no committed one edited, and `migration:` names the newest file — `references/exceptions.md`
+- [ ] Plan: a closed version's folder untouched. DB: a new numbered file in `db/migrations/`, no released one (main or a `v*` tag) edited, and `migration:` names the newest file — `references/exceptions.md`
 - [ ] Every cited token the diff against the last stamped state touches is typed ломает / добавляет / уточняет / no row; an explanation of an existing token is no row; the hunks of `upgrade-docs` commits get no row — What a version is · Commits that are not stamps · `references/change-types.md`
 - [ ] No id renumbered, reused, or deleted without an `удалён:` note — ID stability
 - [ ] Every pin read: stale ones (a «ломает» after the pin) carry the banner; pins behind by «уточняет» only are refreshed — Staleness and cascade

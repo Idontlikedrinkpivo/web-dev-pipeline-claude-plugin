@@ -92,6 +92,10 @@ under the same version: rows of this version are amended, not doubled.
    lines in what the stamp just wrote (`version`, `updated`, journal rows,
    pins) by you; three or more in a document's body by `doc-typist` `MODE
    revise`, one `SETTLEMENT` line each (`executor-catalog` → Nesting).
+   The stamp itself — `version`, `updated`, journal rows, pins — is never
+   delegated: you write it, however many screen specs or scenarios it
+   spans. No `general-purpose` agent, ever (`executor-catalog` → Dispatch
+   contract); the only agent here is `doc-typist` for a body fix.
 6. One commit — at a stage's close `docs: <документ> <version> · review:
    <state>` (an SRS with its gates: `docs: SRS <version> · grill: <state> ·
    review: <state>`), with `--allow-empty` when steps 2 and 4 left nothing
