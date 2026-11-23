@@ -60,8 +60,9 @@ itself, as before, and the host compacts it in place (`references/context.md` �
      iteration, a fresh clone, another person's machine — the ids of other machines reach nobody) → step 2.
   2. Build the stages **still to run**: from the chain (`SKILL.md` → the chain table, `references/branch-order.md`),
      what the project has (screens or not, a database, an HTTP API, containers, CI already there — but containers
-     already there do not drop «релиз»: every version gets its own `release/<version>/`, `deploy-topology` → A
-     repeat release; ai-initiatives 2.3.0 went from the audit to the close with no kit) and, for an
+     already there do not drop «релиз»: it stays in the list as «релиз — комплект поставки, по вопросу», and its session
+     asks first, `deploy-topology` → A repeat release; ai-initiatives 2.3.0 went from the audit to the close with no
+     kit and no question) and, for an
      iteration already under way, `scripts/where_am_i.py` — its open points name the first stage left; stages before
      it are done. `plan` itself skips a document stage whose documents all carry this version's stamp.
   3. Ask once, as a chat question (`references/question-format.md`), from the current point — the same wherever the

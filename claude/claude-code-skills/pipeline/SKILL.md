@@ -89,7 +89,7 @@ scaffolded. They meet before the plan.
 | 12 | Execution | `work` | `code-review-unit` per unit → `code-review-full` once — **automatic, do not ask** | `ui-test-cases` (run) when the product has screens, else `security-audit` |
 | 13 | UI acceptance run — the cases the iteration touched (`affected_cases.py`); the whole set once at the close | `ui-test-cases` — mode run | none | a fix plan — `plan` `MODE fix` over the report's defect rows — when the verdict is `DEFECTS`, else `security-audit` |
 | 14 | Security audit — the whole application, once per iteration | `security-audit` | none — it is the check | a fix plan — `plan` `MODE fix` over the report's `FIX` rows — when the verdict is `FIX`, else `deploy-topology` |
-| 15 | Compose topology — the first time; after it, a repeat release: `release/<version>/` every version, never skipped as done (`deploy-topology` → A repeat release) | `deploy-topology` | none | `operations-doc` |
+| 15 | Compose topology — the first time; after it, a repeat release, optional: asked every version, never dropped as done (`deploy-topology` → A repeat release) | `deploy-topology` | none | `operations-doc` |
 | 16 | Operations document — journals, jobs, alarms, how to see each | `operations-doc` | none — its queries are proven on the test stand | `ci-pipeline` |
 | 17 | CI workflow | `ci-pipeline` | none | nothing — the pipeline ends; see "End of the pipeline" |
 

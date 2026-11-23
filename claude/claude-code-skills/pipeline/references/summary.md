@@ -40,7 +40,8 @@ report it has no («План», the run report's) get `—` with «малая и
 `scripts/close_iteration.py` refuses step 3 until the row names what was skipped, so a version with no plan
 never reads as a forgotten one.
 
-The «Релиз» row is written whenever the project has `scripts/build-images.sh`. `release/` is out of git, so on
+The «Релиз» row is written whenever the project has `scripts/build-images.sh`: the kit is optional, the answer to its
+question is not. `release/` is out of git, so on
 another machine this row is the only trace of the kit: `scripts/close_iteration.py` step 0 wants
 `release/<version>/` with its tar, or this row filled (ai-initiatives 2.3.0–2.3.3 closed with no kit and nothing said).
 

@@ -88,14 +88,16 @@ scripts' (`progress_link.py` stamps it), not yours.
 
 ### A repeat release
 
-A project with `scripts/build-images.sh` from an earlier version gets its own `release/<version>/` every version: this
-stage is short then, never skipped as «containers are already there» (ai-initiatives 2.3.0–2.3.3 had no kit at all —
-the stage list dropped it as done). It runs: Step 8.1 (the audit); Step 1 as a diff only — `git diff v<previous>..HEAD`
+A project with `scripts/build-images.sh` from an earlier version: the kit is optional, and every version is asked —
+never dropped silently as «containers are already there» (ai-initiatives 2.3.0–2.3.3: no kit and no question, the stage
+list dropped it as done). First the question (`pipeline` → `references/question-format.md`), unless the user's own
+words already asked for the kit: «Собрать комплект поставки `release/<version>/`? A. Собрать B. Не нужен — в итоге
+запишется «не собирался»». B ends the stage: the summary's «Релиз» row «не собирался — не нужен». A runs: Step 8.1 (the audit); Step 1 as a diff only — `git diff v<previous>..HEAD`
 over `.env.example`, the compose files, `build/`, the migrations; what changed reaches `deploy.md` and
 `prod.env.example` (Step 8.2, `env_files.py`), and nothing changed leaves them as they are; the manifest's `version` is
 this iteration's (`pipeline` → Service version); Steps 8.4–8.5 (the build, which scans); Step 7a's refresh when a screen or
 an operation changed; `deploy_check.py`; Step 9. The progress file has only these rows. A new container or a new
-external dependency is the full stage. The user's «не нужен» is no failure: the summary's «Релиз» row says so.
+external dependency is the full stage.
 
 ### Step 1. Inventory before writing anything
 
