@@ -89,7 +89,7 @@ scaffolded. They meet before the plan.
 | 12 | Execution | `work` | `code-review-unit` per unit → `code-review-full` once — **automatic, do not ask** | `ui-test-cases` (run) when the product has screens, else `security-audit` |
 | 13 | UI acceptance run — the cases the iteration touched (`affected_cases.py`); the whole set once at the close | `ui-test-cases` — mode run | none | a fix plan — `plan` `MODE fix` over the report's defect rows — when the verdict is `DEFECTS`, else `security-audit` |
 | 14 | Security audit — the whole application, once per iteration | `security-audit` | none — it is the check | a fix plan — `plan` `MODE fix` over the report's `FIX` rows — when the verdict is `FIX`, else `deploy-topology` |
-| 15 | Compose topology | `deploy-topology` | none | `operations-doc` |
+| 15 | Compose topology — the first time; after it, a repeat release: `release/<version>/` every version, never skipped as done (`deploy-topology` → A repeat release) | `deploy-topology` | none | `operations-doc` |
 | 16 | Operations document — journals, jobs, alarms, how to see each | `operations-doc` | none — its queries are proven on the test stand | `ci-pipeline` |
 | 17 | CI workflow | `ci-pipeline` | none | nothing — the pipeline ends; see "End of the pipeline" |
 
@@ -193,8 +193,8 @@ stage that ran last hands over to this section; it does not end the sitting itse
    The scoped runs left the untouched screens unchecked; this is where a regression there shows. A failure is a
    defect like any other — a fix plan, its run, then this step again — never a reason to skip the tag silently
    (`close_iteration.py` step 4 wants the section finished, or its «Пропущен — <причина>» line).
-   Then the tag, only when
-   `python3 "${CLAUDE_SKILL_DIR}/scripts/close_iteration.py" .` shows steps 1–3 ✅; run it again after step 7: exit 0
+   Then the tag, only when `python3 "${CLAUDE_SKILL_DIR}/scripts/close_iteration.py" .` shows steps 0–3 ✅ (0: the
+   audit and the release kit, or the summary's «пропущен»/«не собирался» line); run it again after step 7: exit 0
    is the iteration closed, a ✗ names the step left. The tag is the baseline the next iteration's pins and
    diffs read against. Steps 1–4 also run when the user asks «итог», «как отработал пайплайн» or
    «сводка» after `work`. They close the version: a folder with `summary.md` is done.
@@ -292,10 +292,10 @@ diff; mutation runs and the code-health table — nothing to compare; the full U
 unit as the touched surface (`ui-test-cases` → Mode run → Scope, `affected_cases.py --touch <S-n,operationId>`), and
 no full set at the close: CI's `test:e2e` runs the whole suite (no screen touched — no UI run). It never skips: the document
 change when the change contradicts a document (`references/decision-changes.md`), the security-audit question (the
-user may decline it — the summary's «Безопасность» row), the stamp, the site, the summary, the tag, `reflect`. The
-summary's «Малая итерация» row says what was skipped and why (`references/summary.md`): a version with no plan is
-otherwise invisible to the next person, who cannot tell a small iteration from a forgotten plan
-(ai-initiatives 2.2.1, 2026-10-31: no plan, no plan-review, and nothing said whether that was allowed).
+user may decline it — the summary's «Безопасность» row), the release question when `scripts/build-images.sh` exists
+(«Собрать комплект поставки?» — `deploy-topology` → A repeat release; a no goes into the «Релиз» row), the stamp,
+the site, the summary, the tag, `reflect`. The summary's «Малая итерация» row says what was skipped and why
+(`references/summary.md`): with no plan, a small iteration reads as a forgotten plan (ai-initiatives 2.2.1, 2026-10-31).
 `scripts/close_iteration.py` refuses step 3 for a folder with no `plan.md` and no such row.
 
 ## Asking before a transition

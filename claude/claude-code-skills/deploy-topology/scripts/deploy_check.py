@@ -17,7 +17,9 @@ decide, so the stage closes on facts.
   env         every environment's variables file matches .env.example in names and order (env_files.py check):
               built from the one template, never written by hand.
   release     release/<version>/ (the given version, else the newest) holds a .tar, DEPLOY.md, an .env.example,
-              one openapi.yaml, build/ and scan/; every file name DEPLOY.md cites in backticks is in that folder.
+              one openapi.yaml, build/ and scan/; every file name DEPLOY.md cites in backticks is in that folder;
+              scripts/build-images.sh ends with the scan (scripts/trivy_images.py beside it) — a kit is never built
+              without one.
 
 Exit 0 — clean; 1 — a line per problem. Run at deploy-topology's close (Before you finish). A parser of the compose
 shape this skill writes, not of all YAML: an unusual layout it cannot read is reported, never passed silently.
@@ -205,6 +207,12 @@ def check_code(root: Path, out: list) -> None:
 
 
 def check_release(root: Path, version: str | None, out: list) -> None:
+    build = root / "scripts" / "build-images.sh"
+    if build.exists() and "trivy_images.py" not in build.read_text(encoding="utf-8", errors="replace"):
+        out.append("scripts/build-images.sh не вызывает scripts/trivy_images.py — скан последним шагом сборки "
+                   "(images.md → Hand-over, пункт 6)")
+    if build.exists() and not (root / "scripts" / "trivy_images.py").exists():
+        out.append("scripts/trivy_images.py: нет — скопируйте из deploy-topology/scripts/")
     rel = root / "release"
     if not rel.is_dir():
         out.append("release/: нет папки релиза — её собирает scripts/build-images.sh")

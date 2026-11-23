@@ -614,13 +614,25 @@ Images are handed over as one file, never pushed to a registry. Write
    done
    [ "$missing" -eq 0 ] || exit 1
    ```
-6. prints the folder, the tar size, both image names with tags and the
+6. scans the images it saved — `scripts/trivy_images.py`, copied into the project from `deploy-topology/scripts/`
+   beside `env_files.py`; a kit is not finished before its scan, and a separate step got forgotten (2026-11-23):
+
+   ```bash
+   if [ "${SKIP_SCAN:-0}" = 1 ]; then
+     echo "СКАН ПРОПУЩЕН (SKIP_SCAN=1): в release/$APP_VERSION/scan нет отчётов — комплект не готов к передаче" >&2
+   else
+     python3 scripts/trivy_images.py "release/$APP_VERSION/<project>-$APP_VERSION.tar" "release/$APP_VERSION/scan" \
+       || { echo "скан не пройден — комплект не передаётся (images.md → What stops the hand-over)" >&2; exit 2; }
+   fi
+   ```
+   A failed scan (exit 1) and a CRITICAL or a secret (exit 2) both fail the script; HIGH is printed and passes;
+7. prints the folder, the tar size, both image names with tags and the
    platform.
 
 The file name carries the version so the releases sit side by side and an
 older one is still there for a rollback; a rebuild of the same version
 replaces its folder's contents (the build date is in the image tags inside). The scan's reports land in the same
-folder, under `scan/`, after the build (Step 8, item 5), so the operators get them too.
+folder, under `scan/` (item 6), so the operators get them too.
 `release/` is in `.gitignore` and `.dockerignore`.
 
 The receiver runs `docker load -i <project>-<APP_VERSION>.tar`; both images

@@ -9,6 +9,9 @@ One line per step, ✅ done or ✗ what is missing, in order:
   0 audit     security-audit.md says PASS, or the summary's «Безопасность» row has a verdict or «пропущен — <причина>»
               (the user's skip): the audit ran or was declined, not forgotten (ai-initiatives 2.2.0 went to the release
               without it; the owner's question found a P1)
+  0 release   with scripts/build-images.sh in the project, release/<version>/ holds its tar and scan/ its trivy
+              reports, or the summary's «Релиз» row is filled (the kit's folder and tags, or «не собирался —
+              <причина>», the user's no): every version gets its kit (ai-initiatives 2.3.0–2.3.3 closed with none — the stage list dropped deploy-topology as done)
   1 stamp     no contract document changed on the iteration branch since its last stamp (where_am_i.unstamped)
   2 site      documentation/ (the site included) has nothing uncommitted
   3 summary   documentation/plans/<version>/summary.md exists; with no plan.md beside it, it has a «| Малая итерация |»
@@ -24,7 +27,7 @@ One line per step, ✅ done or ✗ what is missing, in order:
   6 servers   no progress or documentation-site server of this project still running
 
 The first ✗ is the next thing to do; a later step that is ✅ while an earlier one is ✗ is reported as out of order.
-Exit 0 — all seven done; 2 — something left (the first ✗ says what). The version: --version, else the iteration branch.
+Exit 0 — every step done; 2 — something left (the first ✗ says what). The version: --version, else the iteration branch.
 Standard library only.
 """
 from __future__ import annotations
@@ -80,6 +83,16 @@ def main() -> None:
                   f"аудит безопасности: {verdict.strip() or 'отчёта нет'} — проведите security-audit (или исправьте "
                   "находки), а если пользователь от него отказался, запишите в итоге строку «| Безопасность | … | "
                   "пропущен — <причина> |»"))
+
+    if (root / "scripts" / "build-images.sh").exists():
+        kit = list((root / "release" / version).glob("*.tar")) and \
+            list((root / "release" / version / "scan").glob("trivy-*.json"))   # a kit is scanned, or not finished
+        rel = re.search(r"^\| Релиз \|[^|]*\|([^|]*)\|", (folder / "summary.md").read_text(encoding="utf-8")
+                        if (folder / "summary.md").exists() else "", re.M)
+        noted = bool(rel) and rel.group(1).strip() not in ("", "—", "-")
+        steps.append(("0 релиз", bool(kit) or noted, "" if kit or noted else
+                      f"нет комплекта release/{version}/ с отчётами сканера в scan/ — соберите его (deploy-topology → A repeat release), а если "
+                      "пользователь отказался, запишите в итоге строку «| Релиз | … | не собирался — <причина> |»"))
 
     open_docs = [d.label for d in w.registry(root)   # business requirements carry no version: never stamped
                  if d.path.is_file() and "business-requirements" not in d.rel and w.unstamped(root, d, version)]
@@ -160,7 +173,8 @@ def main() -> None:
     if first is None:
         print(f"close: итерация {version} закрыта")
         sys.exit(0)
-    print(f"close: дальше — шаг «{steps[first][0]}»" + (" — метку ставить только после шагов 0–3" if first < 4 else ""))
+    print(f"close: дальше — шаг «{steps[first][0]}»" + (" — метку ставить только после шагов 0–3"
+                                                         if steps[first][0][0] < "4" else ""))
     sys.exit(2)
 
 

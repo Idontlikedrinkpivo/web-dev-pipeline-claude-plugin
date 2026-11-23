@@ -86,6 +86,17 @@ while it runs. The «Состояние:» line under the table names the step t
 runs, the compose-contract tests and the release folder; its time is the
 scripts' (`progress_link.py` stamps it), not yours.
 
+### A repeat release
+
+A project with `scripts/build-images.sh` from an earlier version gets its own `release/<version>/` every version: this
+stage is short then, never skipped as «containers are already there» (ai-initiatives 2.3.0–2.3.3 had no kit at all —
+the stage list dropped it as done). It runs: Step 8.1 (the audit); Step 1 as a diff only — `git diff v<previous>..HEAD`
+over `.env.example`, the compose files, `build/`, the migrations; what changed reaches `deploy.md` and
+`prod.env.example` (Step 8.2, `env_files.py`), and nothing changed leaves them as they are; the manifest's `version` is
+this iteration's (`pipeline` → Service version); Steps 8.4–8.5 (the build, which scans); Step 7a's refresh when a screen or
+an operation changed; `deploy_check.py`; Step 9. The progress file has only these rows. A new container or a new
+external dependency is the full stage. The user's «не нужен» is no failure: the summary's «Релиз» row says so.
+
 ### Step 1. Inventory before writing anything
 
 List every external dependency the architecture's adapters name: the
@@ -377,14 +388,14 @@ from the project's own Dockerfiles and compose files as they are
    if Docker or buildx is not available here, say so instead of claiming the
    build. Add the «Сборка образов» section to the README. Then
    `python3 "${CLAUDE_SKILL_DIR}/scripts/image_preflight.py" contents <each image:tag>`: what is inside each image.
-5. **Scan the images** with `scripts/trivy_images.py <tar> release/<version>/scan` (one
-   `trivy-<image>.json` per image; `security-audit` →
+5. **The scan** is the script's own last step: `scripts/trivy_images.py` (copied from this skill's `scripts/`) over
+   the tar into `release/<version>/scan` (one `trivy-<image>.json` per image; `security-audit` →
    `references/scanners.md` → Docker images, with its proxy, cache and
    fallback rules): vulnerabilities HIGH and CRITICAL, secrets at any level. Exit 2 — a secret or a CRITICAL — stops
    the hand-over, `references/images.md` → What stops the hand-over, the same inside
    `upgrade-code`; HIGH goes into the closing report and under «Образы»
-   in `security-audit.md` when it exists. The build itself does not run
-   the scan, so an operator's rebuild does not need it.
+   in `security-audit.md` when it exists. A separate step was a step to forget: a kit built by hand went out
+   unscanned (the user, 2026-11-23). An operator's rebuild uses `build/`'s Dockerfiles, not this script.
 
 `release/`, not `dist/`: `clean` scripts and bundlers empty `dist/` before a
 build, and the hand-over archive would go with it. A folder per version

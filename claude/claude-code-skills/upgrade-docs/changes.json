@@ -1280,5 +1280,24 @@
       }
     },
     "fix": "ui-test-cases → SKILL.md (Mode write, «A few cases are cross-cutting») и references/writer-prompt.md: один вызов ui-test-writer, MODE increment, с поручением расставить «**Сквозной:** да» под «Проверяет» — по кейсу на вход каждой ролью, на главный сценарий каждой роли и на открытие каждого экрана с данными, из уже написанных кейсов; затем check_trace.py и check_coverage.py."
+  },
+  {
+    "id": "build-scans-images",
+    "version": "1.2.304",
+    "title": "Скрипт сборки сам сканирует образы",
+    "kind": "code",
+    "what": "scripts/build-images.sh последним шагом проверяет собранные образы сканером trivy и кладёт отчёты в release/<версия>/scan. Найден CRITICAL или секрет — скрипт завершается ошибкой, и комплект не передаётся. Раньше сканирование было отдельным шагом, и комплект, собранный вручную, уходил без проверки.",
+    "applies": {
+      "exists": "scripts/build-images.sh"
+    },
+    "behind": {
+      "not": {
+        "grep": {
+          "path": "scripts/build-images.sh",
+          "pattern": "trivy_images\\.py"
+        }
+      }
+    },
+    "fix": "deploy-topology → references/images.md → Hand-over, пункт 6: скопировать deploy-topology/scripts/trivy_images.py в scripts/ проекта и дописать в scripts/build-images.sh шаг скана после проверки папки по DEPLOY.md. Проверка: deploy-topology/scripts/deploy_check.py."
   }
 ]
