@@ -52,8 +52,11 @@ Create:
   migrate script, test globs),
   so the dead-code report starts clean
 - `docker-compose.yml` with the database `schema.md` «Решения по базе»
-  names (PostgreSQL or MySQL, at its major) + `.env.example` whenever the
-  system stores data (SKILL.md §4)
+  names (PostgreSQL or MySQL, at its major) whenever the system stores data (SKILL.md §4)
+- the config schema `src/shared/providers/env-schema.ts`, `config.ts` parsing from it and re-exporting it, and
+  `scripts/env-doc.ts` with `env:doc` / `env:check` in the scripts, its test, and the root `.env.example` it
+  renders: `deploy-topology/references/env-doc-typescript.md` (SKILL.md §4); eslint's files, knip's entries and the
+  test tsconfig include `scripts/**/*.ts`
 - the migration runner over `documentation/db/migrations/` (SKILL.md §4):
   a plain runner script (`scripts/migrate.ts` → `npm run migrate`) unless §1
   names a tool that reads plain numbered SQL files as they are. Drizzle's
@@ -82,7 +85,8 @@ follow it, do not restate it here. Create:
 - the app shell from the profile (root layout or `main.tsx` + router) with
   one placeholder route; no screens, no API client yet — the first screen
   unit runs `api:gen` and builds the app-wide error handler (`frontend`)
-- `.env.example` with the API base URL variable the profile names
+- the dev server's API base URL variable the profile names, in the profile's own env file (Vite's
+  `frontend/.env.example`; not the stands' root `.env.example`, which env:doc renders)
 
 ## Python (FastAPI)
 
@@ -113,6 +117,10 @@ Create:
   `documentation/db/migrations/`, each executing its file; revision 1 runs
   `0001_init.sql` (SKILL.md §4, `fastapi-sqlalchemy`); `env.py` sets
   `transaction_per_migration=True`; `make migrate` → `alembic upgrade head`
+- the config schema `bootstrap/env_schema.py` (pydantic-settings `Settings`, each field with its description),
+  `bootstrap/settings.py` loading from it, `scripts/env_doc.py` (`uv run python scripts/env_doc.py` and `--check`),
+  `tests/deploy/test_env_doc.py` and the root `.env.example` it renders:
+  `deploy-topology/references/env-doc-python.md` (SKILL.md §4); ruff and the type checker cover `scripts/`
 - `tests/contract/test_openapi_contract.py` from
   `fastapi/references/contract-test-template.py`, its placeholders pointed
   at the real app factory. Green on the scaffold: every contract operation

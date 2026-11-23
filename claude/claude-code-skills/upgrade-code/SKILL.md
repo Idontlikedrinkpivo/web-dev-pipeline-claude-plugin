@@ -47,6 +47,26 @@ is «позже»»: a non-answer counts as «позже»), the «The branch» 
 5. **Report.** The format-change part of `upgrade-docs` step 5 (made, skipped, left for later, the branch), plus the
    checks before and after; not its document-set part.
 
+## Переход на схему переменных (`env-schema`)
+
+An older project keeps its variables in a `.env.example` template with `{test: …, dev: …, prod: …}` marks, builds
+its files with its own `env_files.py` script and has `docker-compose.prod.yml`. The target is
+`../deploy-topology/references/env-and-config-contract.md`, with the generator and tests from
+`env-doc-typescript.md` or `env-doc-python.md` beside it. Hold to these while making the row:
+
+- **Stands already running keep running.** The old `.env.test.local` and `.env.dev.local`, extra keys and all, must
+  still parse and start the app: the config ignores unknown names. Never ask the user to edit a `.local` on a server.
+- **Read no secret.** Move each variable's name, block, marks, purpose and default into the schema — from the
+  template, `prod.env.example` and compose. Never open a `.local` file's values; its key names only.
+- **The dev stand's `environment:` does not change silently.** Where the old values differ from what the schema
+  gives, show the user the difference and let them choose.
+- **Never run the generator on a server**, nor tell anyone to. A server updates by `git pull --ff-only`, then
+  `docker compose --env-file .env.<stand>.local -f docker-compose.<stand>.yml up -d --build`.
+- **Remove** the project's `env_files.py` script, the `{…}` marks, `docker-compose.prod.yml`, the `up-prod`, `env` and `env-*`
+  targets, `.env.prod*.local` mentions; replace `env-files.test.ts` (or its Python twin) with `env-doc.test.ts`
+  / `test_env_doc.py`. Run env:doc once and commit its three files.
+- **An ordinary commit**, as step 3 says: it does not bump the product's version and is no separate iteration.
+
 ## Code audit
 
 On «проведи аудит кода», «проверь код на соответствие плагину», «нужно ли переписывать», or offered once after

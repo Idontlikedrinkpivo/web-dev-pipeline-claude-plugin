@@ -187,10 +187,14 @@ process.once("SIGINT", shutDown)
 ## Configuration
 
 `LOG_LEVEL` (optional; one of pino's levels, default `info`) and `SHUTDOWN_TIMEOUT_SEC` (optional; a positive
-integer, default `25` — under Kubernetes' default 30 s grace period) are read and validated in the config module
-with the other variables, and listed in `.env.example`. So is `TRUSTED_PROXIES` (`trustedProxies`: a comma-separated
-list of networks, empty by default). `APP_VERSION` and `CI_COMMIT_SHORT_SHA` (`appVersion`, `commitSha`) come from the
-image, `dev` and `unknown` outside one, and are not in `.env.example`.
+integer, default `25` — under Kubernetes' default 30 s grace period) are entries of the config schema with the other
+variables, and the config module parses the environment from it. So is `TRUSTED_PROXIES` (`trustedProxies`: a
+comma-separated list of networks, empty by default). Each variable is described once, as a schema entry (`block`,
+`required`, `secret`, `purpose`, `default`, `prod`, `example`, `details`); a new one is a new entry and
+`npm run env:doc`, which re-renders the kit file, DEPLOY.md's tables and `.env.example` — never a hand edit of those
+(`deploy-topology` → `references/env-and-config-contract.md`, template `references/env-doc-typescript.md`).
+`APP_VERSION` and `CI_COMMIT_SHORT_SHA` (`appVersion`, `commitSha`) come from the image, `dev` and `unknown` outside
+one, and are not schema entries.
 
 ## The check
 

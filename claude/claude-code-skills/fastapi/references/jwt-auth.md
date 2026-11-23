@@ -18,7 +18,7 @@ Read this only when the task implements registration, login or protected routes.
 
 ## Rules
 
-- `SECRET_KEY` comes from settings with no default; no literal signing key anywhere in the code; `.env.example` has the line. Tests set a test value before importing the app.
+- `SECRET_KEY` comes from settings with no default; no literal signing key anywhere in the code; it is a settings field marked `secret` (env:doc lists it, empty, in `.env.example`). Tests set a test value before importing the app.
 - Login: a `POST` route taking `OAuth2PasswordRequestForm` (the `username` field carries the email), and `OAuth2PasswordBearer(tokenUrl=...)` names that route's full path exactly — otherwise the docs' Authorize button posts to a route that does not exist.
 - Timing-safe check: when no user matches, still verify the password against a precomputed dummy hash before answering 401, so an unknown email and a wrong password cost the same time.
 - The token carries `sub = str(user.id)` and `exp` from a timezone-aware UTC `datetime`. Nothing else the server must trust (no role claim).

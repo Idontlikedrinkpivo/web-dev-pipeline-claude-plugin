@@ -11,8 +11,8 @@ each extra one is a fact the operators must check and nobody asked for. What eve
   `Dockerfile`, test, document, client source or key reaches the image (`.dockerignore` below).
 - **The version inside** — `APP_VERSION` and `CI_COMMIT_SHORT_SHA` in the environment; the backend also has the
   `app_build_info` metric.
-- **A root filesystem the process never writes** — the test and prod files run it `read_only`, as a
-  restricted namespace does.
+- **A root filesystem the process never writes** — the test stand runs it `read_only`, as the restricted
+  namespace of the prod pod does.
 - **Pinned bases, checked against the registry** — a remembered or floating tag builds a different image
   tomorrow.
 - **Healthchecks through the image's own runtime** — no `wget`/`curl` to install, and a shell-less image
@@ -570,6 +570,15 @@ The flag is explicit because a build on Apple silicon otherwise produces
 Images are handed over as one file, never pushed to a registry. Write
 `scripts/build-images.sh` (and a `build-images` task-runner target) that:
 
+0. runs the project's env:check first, before any `docker` call — the kit file
+   and DEPLOY.md's variables tables are rendered from the schema, and a stale
+   render stops the build before Docker and before anything is copied
+   (`env-and-config-contract.md` → The generator):
+
+   ```bash
+   npm --prefix backend run --silent env:check                    # TypeScript
+   (cd backend && uv run python scripts/env_doc.py --check)        # Python
+   ```
 1. reads the version from the manifest, takes the date once, and sets
    `PLATFORM` from the card;
 2. builds each image with
@@ -581,8 +590,8 @@ Images are handed over as one file, never pushed to a registry. Write
 4. puts every other file the operators get beside it:
    - `documentation/deploy/deploy.md` → `DEPLOY.md`, replacing `<версия>`
      with the version and `<тег>` with the image tag;
-   - `documentation/deploy/prod.env.example` → `<project>.env.example`
-     (`deploy-doc.md` → The variables file);
+   - `deploy/prod.env.example` → `<project>.env.example` — env:doc's render,
+     copied as it is (`deploy-doc.md` → The variables file);
    - `documentation/api/openapi.yaml` → `openapi.yaml`, one file: a split
      contract (a `$ref` that points at another file) is bundled, a single
      file is copied —
@@ -615,7 +624,7 @@ Images are handed over as one file, never pushed to a registry. Write
    [ "$missing" -eq 0 ] || exit 1
    ```
 6. scans the images it saved — `scripts/trivy_images.py`, copied into the project from `deploy-topology/scripts/`
-   beside `env_files.py`; a kit is not finished before its scan, and a separate step got forgotten (2026-11-23):
+   (it is not the project's own code); a kit is not finished before its scan, and a separate step got forgotten (2026-11-23):
 
    ```bash
    if [ "${SKIP_SCAN:-0}" = 1 ]; then

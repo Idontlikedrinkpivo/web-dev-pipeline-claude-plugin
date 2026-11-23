@@ -45,9 +45,13 @@ elsewhere. Where a line was not run, it says «unverified».
 ## SKILL.md sections
 
 - **Launch** — the exact command that starts the test stand from what is
-  on disk (the project's `make up-test` or the compose command), how to
-  switch modes the app has (sign-in modes, feature flags), what the target
-  leaves running and what it removes.
+  on disk (the project's `make up-test`, which creates an empty
+  `.env.test.local` when it is missing, or the same compose command with
+  `--env-file .env.test.local`), how to switch modes the app has (sign-in modes, feature flags), what the target
+  leaves running and what it removes. Only the test stand: the dev stand is
+  the developer's, and no step builds env files — the stand's non-secret
+  values are in `docker-compose.test.yml`, `.env.test.local` holds only
+  secrets and per-machine values (`env-and-config-contract.md`).
 - **Ready means usable** — the condition that makes the stand worth
   driving: `/health/ready` answers 200, migrations applied, the mode
   answered — not «the container is healthy».

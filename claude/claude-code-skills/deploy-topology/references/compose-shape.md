@@ -5,10 +5,10 @@ Contents:
 - Hardened app containers — the four keys every app container carries.
 - `docker-compose.test.yml` — the copyable test stand and its invariants.
 - Two database accounts — `docker/db-init/roles.sql` for the test stand.
-- `docker-compose.dev.yml`
-- `docker-compose.prod.yml` — external stores, loopback port, its invariants.
+- `docker-compose.dev.yml` — the developer's stand, `.env.dev.local` required.
+- What compose sets and what `.local` holds — two stands, no prod file.
 - `frontend` — the frontend image, when the architecture has a client.
-- Make/task-runner targets — bootstrap and `up-<environment>`.
+- Make/task-runner targets — the two `.local` files and `up-<stand>`.
 - The compose-contract tests (Step 7) — each invariant a test checks, key by key.
 
 Placeholders in `<angle brackets>`. Substitute real service/image/variable
@@ -23,10 +23,12 @@ migrate command). Not `app` / `web`.
 
 ## Hardened app containers
 
-Every app container — `backend`, `migrate`, `frontend` — in the test and
-prod files carries the same four keys, so the test stand runs under the
-rules a restricted Kubernetes namespace enforces (Pod Security Standards,
-`restricted`) and the operators' preflight finds nothing new:
+Every app container — `backend`, `migrate`, `frontend` — in the test file
+carries the same four keys, so the test stand runs the kit's images under the
+rules a restricted Kubernetes namespace enforces for the prod pod (Pod
+Security Standards, `restricted`) and the operators' preflight finds nothing
+new. There is no prod compose file: prod's facts live in DEPLOY.md
+(`deploy-doc.md`), and the test stand is where they are proven.
 
 ```yaml
     read_only: true                  # the root filesystem; the process writes only the tmpfs below
@@ -127,8 +129,8 @@ services:
         condition: service_healthy
     env_file:
       - path: .env.test.local
-        required: false            # test has safe fixture defaults inline below
-    environment:
+        required: false            # optional: only secrets and machine values; an empty one runs on stubs
+    environment:                   # every non-secret value of the stand; wins over env_file
       APP_ENV: test
       LOG_LEVEL: info
       DATABASE_URL: <fixture-url-as-<schema>_migrate>   # the owner: creates and changes tables
@@ -165,6 +167,8 @@ services:
       <MOCK_GATE_VAR>: /app/<mock-fixtures-dir>   # the ONLY compose file where this is non-empty
       <SECURITY_FLAG_REQUIRING_TLS>: "false"      # test runs over plain HTTP
       <WORKER_COUNT_VAR>: "1"                      # stacks that have one: one process per container, scale by replicas
+      <THIRD_PARTY>_API_URL: ${<THIRD_PARTY>_API_URL:-http://<third-party>-stub:<port>/…}   # a machine may point it elsewhere in .env.test.local
+      # <THIRD_PARTY>_API_TOKEN is never written here: a secret, from .env.test.local only
     read_only: true
     tmpfs:
       - /tmp
@@ -204,6 +208,9 @@ volumes:
   `user:`; `backend`'s `stop_grace_period` is at least
   `SHUTDOWN_TIMEOUT_SEC` + 5 s.
 - `migrate` and `backend` connect as two accounts (below).
+- Every non-secret value is in `environment:`; `.env.test.local` is optional
+  (`required: false`) and holds only secrets and per-machine values
+  (`env-and-config-contract.md` → Where each value lives).
 - The object store's S3 API port publishes on `127.0.0.1:${S3_PORT:-<api-port>}:<api-port>`
   — `make test` on the host and CI Variant A reach it there. A console/admin
   port is optional.
@@ -276,10 +283,18 @@ differences:
   writes volumes without `name:`.
 
 - `env_file: required: true` for `.env.dev.local` (no safe default secrets
-  exist for real third-party credentials).
+  exist for real third-party credentials); `make up-dev` without it stops
+  before Docker and names the file.
 - `<MOCK_GATE_VAR>` is empty/unset — dev calls real external APIs.
-- Real credentials for external services come from `.env.dev.local`, never
-  hardcoded in the compose `environment:` block.
+- Real credentials and the addresses that differ per machine come from
+  `.env.dev.local`, never hardcoded in the compose `environment:` block; the
+  stand's own infrastructure passwords are substitutions with a fixture
+  default — `POSTGRES_PASSWORD: ${DEV_DB_PASSWORD:-<fixture-password>}` — so a
+  shared server sets its own in `.env.dev.local`.
+- Ports on loopback like test; only the site's mapping takes the bind
+  interface from the machine: `"${DEV_BIND:-127.0.0.1}:<frontend-port>:8080"`
+  (`DEV_BIND=0.0.0.0` in `.env.dev.local` opens the dev site to the network on
+  a shared server; the database, the API and the store stay on loopback).
 - No hardening keys and one database account for both services: dev is
   where a developer opens a shell in a container, and its volume
   (`repo-scaffold`'s) may predate `roles.sql`, which runs only on an empty
@@ -288,86 +303,34 @@ differences:
   `stop_grace_period`) stays the same as test, so the two environments
   share infrastructure behavior and differ only in the mock gate.
 
-## `docker-compose.prod.yml`
+## What compose sets and what `.local` holds
 
-```yaml
-services:
-  backend:
-    image: <project>-backend:${IMAGE_TAG:?set IMAGE_TAG to the tag loaded from the tar}
-    build: .
-    depends_on:
-      migrate:
-        condition: service_completed_successfully
-    ports:
-      # Explicit loopback binding — a TLS terminator (reverse proxy) in front
-      # is a prerequisite documented separately, not part of this file.
-      - "127.0.0.1:<app-port>:<app-port>"
-    env_file:
-      - path: .env.prod.local        # DATABASE_URL here is the backend account (rows only)
-        required: true
-    environment:
-      APP_ENV: prod
-      LOG_LEVEL: info
-      SHUTDOWN_TIMEOUT_SEC: "25"
-      <SECURITY_FLAG_REQUIRING_TLS>: "true"
-      <MOCK_GATE_VAR>: ""          # always blank; the app also refuses it outside test
-      <WORKER_COUNT_VAR>: "1"
-    read_only: true
-    tmpfs:
-      - /tmp
-    cap_drop:
-      - ALL
-    security_opt:
-      - "no-new-privileges:true"
-    healthcheck:
-      test: <the same runtime healthcheck on /health/ready as test>
-      interval: 10s
-      timeout: 5s
-      retries: 5
-      start_period: 15s
-    stop_grace_period: 30s
-    restart: unless-stopped
+Two stands, two files: `docker-compose.test.yml` and `docker-compose.dev.yml`.
+There is no `docker-compose.prod.yml` — not even «to run the prod shape
+locally»: prod runs in the operators' cluster from the kit (the images,
+`<project>.env.example`, DEPLOY.md), and a prod file in the repository drifted
+from the kit it was meant to mirror. No `.env.prod.local`, no
+`.env.prod.migrate.local`.
 
-  migrate:
-    image: <project>-backend:${IMAGE_TAG:?set IMAGE_TAG to the tag loaded from the tar}
-    build: .
-    # No depends_on on a local database — there is none. DATABASE_URL points
-    # at the externally managed instance, assumed reachable before this
-    # stack comes up.
-    env_file:
-      - path: .env.prod.local
-        required: true
-      - path: .env.prod.migrate.local   # only DATABASE_URL, the migrate account (schema owner); the later file wins
-        required: true
-    environment:
-      APP_ENV: prod
-      LOG_LEVEL: info
-    command: <migration-command>
-    read_only: true
-    tmpfs:
-      - /tmp
-    cap_drop:
-      - ALL
-    security_opt:
-      - "no-new-privileges:true"
-    restart: "no"
-```
-
-**Invariants for this file:**
-- No `<db>` service, no `<object-store>` service, no `<object-store>-init`
-  service — every stateful dependency is external.
-- `backend`'s port mapping always has an explicit host IP (`127.0.0.1` or
-  `::1`); a bare `"<port>:<port>"` binds all interfaces and is a regression.
-- `migrate` has no `depends_on` (nothing local to wait for) and no
-  published port; its `DATABASE_URL` comes from its own file, so the two
-  containers run as the two accounts «Для DBA» names.
-- `backend` keeps the same `healthcheck` and `stop_grace_period` as in
-  test; every app service carries the four hardening keys and no `user:`.
-- No secret has a default value anywhere in this file.
+- **Every non-secret value of a stand is in its compose file's
+  `environment:`.** `environment:` wins over `env_file`, so a value set there
+  is never repeated in a `.local` file.
+- **`.env.<stand>.local` holds only secrets and per-machine values**: a
+  model's or API's token, the bind interface, the stand's own infrastructure
+  passwords, an external service's address that differs per machine. A value
+  a machine may change is a substitution with its default in compose —
+  `${VAR:-default}` — and is listed for that `.local` file only.
+- **An empty value is unset**: `${VAR:-default}` gives the default for an
+  empty one too, and the app applies its schema's default before parsing.
+- **The root `.env.example` lists what each `.local` file may hold**; the
+  project's env:doc renders it from the schema, and compose never reads it
+  (`env-and-config-contract.md` → The generator).
+- **Every host port is on loopback** (`127.0.0.1:`), in both files; the only
+  exception is the dev site's `${DEV_BIND:-127.0.0.1}`.
 
 ## `frontend` — the frontend image, when the architecture has a client
 
-Present in all three files, after `backend`. The image is the SPA image of
+Present in both files, after `backend`. The image is the SPA image of
 `images.md`; its nginx proxies `/api/` to `backend` on the compose network.
 
 ```yaml
@@ -377,20 +340,17 @@ Present in all three files, after `backend`. The image is the SPA image of
     depends_on:
       backend:
         condition: service_healthy
-    image: <project>-frontend:${IMAGE_TAG:-test}   # dev: ${IMAGE_TAG:-dev}; prod: the hand-over tag, required
+    image: <project>-frontend:${IMAGE_TAG:-test}   # dev: ${IMAGE_TAG:-dev}
     ports:
-      - "127.0.0.1:${FRONTEND_PORT:-<frontend-port>}:8080"    # the entry point; loopback only
+      - "127.0.0.1:${FRONTEND_PORT:-<frontend-port>}:8080"    # the entry point; loopback only (dev: "${DEV_BIND:-127.0.0.1}:<frontend-port>:8080")
     environment:                        # image with a shell; the shell-less image has these fixed at build
       BACKEND_SERVICE: backend:<app-port>
       BACKEND_PROTOCOL: http
-      SECURE_MODE: plain                # prod: plain behind the operator's TLS terminator, or secure + certs below
+      SECURE_MODE: plain                # the prod pod: plain behind the operator's TLS terminator, or secure (DEPLOY.md)
       LOG_LEVEL: notice
-      TRUSTED_PROXY_CIDR: 127.0.0.1/32  # prod: the network of the proxy in front
-      # MAX_BODY_SIZE, CLIENT_TIMEOUT, BACKEND_TIMEOUT: the image's defaults from the NFRs; prod names them with their values
-    # prod with SECURE_MODE=secure only:
-    # volumes:
-    #   - ${TLS_CERT_DIR}:/etc/nginx/ssl:ro    # fullchain.pem, privkey.pem
-    read_only: true                     # test and prod
+      TRUSTED_PROXY_CIDR: 127.0.0.1/32  # the prod pod: the network of the proxy in front (DEPLOY.md)
+      # MAX_BODY_SIZE, CLIENT_TIMEOUT, BACKEND_TIMEOUT: the image's defaults from the NFRs; the kit file names them
+    read_only: true                     # test; dev has no hardening
     tmpfs:
       - /tmp                            # the only path it writes: the rendered config lives here too
     cap_drop:
@@ -409,35 +369,52 @@ Present in all three files, after `backend`. The image is the SPA image of
 **Invariants with a client:**
 - `frontend` waits for `backend` to be healthy, so `up --wait` means the whole stand works; the frontend itself
   starts without a backend (`images.md`), and a cluster needs no such order.
-- In prod only `frontend` publishes a port (loopback); `backend` publishes none —
-  the browser reaches the API through `/api/` on the same origin, and the
-  backend's `/health/*` and `/metrics` are not reachable through it. In test
-  and dev `backend` may keep its loopback port for direct API checks.
+- The browser reaches the API through `frontend`'s `/api/` on the same
+  origin, and the backend's `/health/*` and `/metrics` are not reachable
+  through it — DEPLOY.md gives the prod pod only `frontend`'s entry. On the
+  stands `backend` may keep its loopback port for direct API checks.
 - `frontend`'s healthcheck (image with a shell) uses the 8081 health port,
   not a page of the app.
-- prod's `image:` names are the hand-over tags —
-  `<project>-backend:${IMAGE_TAG}` on `backend` and `migrate`,
-  `<project>-frontend:${IMAGE_TAG}` on `frontend` — so the file runs the images
-  loaded from the tar; `IMAGE_TAG` is required, `build:` stays for local
-  builds.
 
 ## Make/task-runner targets (any task runner, this shape)
 
-```
-up-test:   build + start docker-compose.test.yml, --wait, then remove exited one-shot containers (migrate, <object-store>-init)
-up-dev:    same, docker-compose.dev.yml
-up-prod:   same, docker-compose.prod.yml (removes only migrate; no <object-store>-init in prod)
+```make
+# The stands read only secrets and per-machine values from the .local files; every other value is in the compose
+# file. .env.test.local is optional (an empty one is created for --env-file); .env.dev.local must exist.
+# What each may hold: .env.example.
+.env.test.local:
+	@(umask 077 && : > .env.test.local)
+	@echo "test: created an empty .env.test.local; secrets go there (what it may hold: .env.example)"
 
-env:       scripts/env_files.py . build: .env.test.local, .env.dev.local and documentation/deploy/prod.env.example from
-           the one template, a filled secret kept; never written or patched by hand. Remind to fill dev's real credentials
-env-prod:  only to run the prod shape locally: copy the built prod.env.example -> .env.prod.local if absent, create
-           .env.prod.migrate.local with an empty DATABASE_URL, remind to fill real secrets and both accounts; the
-           non-secret values change in .env.example, then `env` and this again
+.env.dev.local:
+	@echo "dev: create .env.dev.local first (what it may hold: .env.example)" >&2
+	@exit 1
+
+up-test: .env.test.local
+	docker compose --env-file .env.test.local -f docker-compose.test.yml up --build --wait --remove-orphans
+	docker compose --env-file .env.test.local -f docker-compose.test.yml rm -f migrate <object-store>-init
+
+up-dev: .env.dev.local
+	docker compose --env-file .env.dev.local -f docker-compose.dev.yml up --build --wait --remove-orphans
+	docker compose --env-file .env.dev.local -f docker-compose.dev.yml rm -f migrate <object-store>-init
+
+build-images:
+	scripts/build-images.sh
 ```
+
+- Every `docker compose` call carries `--env-file .env.<stand>.local -f
+  docker-compose.<stand>.yml`: the `${VAR:-default}` substitutions read the
+  same file the containers' `env_file` does.
+- No `env`, `env-test`, `env-dev`, `env-prod` or `up-prod` target, and no
+  target that writes a `.local` file's contents: a person fills
+  `.env.dev.local` by `.env.example`, and env:doc writes only files in git.
+- A stand server updates by `git pull --ff-only` and
+  `docker compose --env-file .env.<stand>.local -f docker-compose.<stand>.yml up -d --build`;
+  never by running the env generator there.
 
 One-shot containers (`migrate`, `<object-store>-init`) stay declared in the
 compose file — they are part of the topology's contract — but the
-`up-<env>` target removes their exited containers immediately after a
+`up-<stand>` target removes their exited containers immediately after a
 successful `--wait`, so they do not linger visibly next to the long-running
 services.
 
@@ -446,9 +423,16 @@ services.
 One test in the project's own suite per invariant below, so a future edit that reopens a closed hole fails
 CI instead of shipping:
 
-- The prod port mapping has an explicit loopback host IP; a mapping with no
-  host IP (binds all interfaces) fails the test.
-- `docker-compose.prod.yml` has no local database/storage service.
+- Every port mapping in both files has an explicit loopback host IP; the
+  only exception is the dev site's `"${DEV_BIND:-127.0.0.1}:<frontend-port>:8080"`.
+  A mapping with no host IP (binds all interfaces) fails the test.
+- Two stands and no prod: no `docker-compose.prod.yml`, no `up-prod`, `env`
+  or `env-*` target, and no `.env.prod.local`, `.env.prod.migrate.local`,
+  `docker-compose.prod` or `env_files.py` named in the Makefile, the compose
+  files, `.env.example` or the scripts.
+- Every `docker compose` call in the Makefile carries `--env-file
+  .env.<stand>.local -f docker-compose.<stand>.yml`; no compose file reads
+  `.env.example`.
 - `migrate` in every file has no published port, and `backend` depends on it
   with `service_completed_successfully`.
 - `docker-compose.test.yml` is copyable: no `container_name`, no volume
@@ -457,11 +441,10 @@ CI instead of shipping:
 - Every Dockerfile's `CMD` has no hot-reload flag, `CMD`/`ENTRYPOINT` is
   exec form, every `FROM` has an explicit tag other than `latest` or a
   digest, and the final stage's `USER` is a number other than 0.
-- Every app service in the test and prod files has `read_only: true`,
+- Every app service in the test file has `read_only: true`,
   `/tmp` in `tmpfs`, `ALL` in `cap_drop`, `no-new-privileges:true` in
-  `security_opt`, and no `user:`; in test `migrate` and `backend` have
-  different `DATABASE_URL`s, neither with the database image's superuser,
-  and prod's `migrate` also reads `.env.prod.migrate.local`.
+  `security_opt`, and no `user:`; `migrate` and `backend` have
+  different `DATABASE_URL`s, neither with the database image's superuser.
 - With a client: no `<<…>>` placeholder is left in `nginx/`, and its only
   uncommented `proxy_pass` is under `location /api/` (the backend's
   `/health/*` and `/metrics` stay off the entry point), that `proxy_pass` names a variable, and no `upstream {`
@@ -471,29 +454,34 @@ CI instead of shipping:
   sets `NGINX_ENVSUBST_OUTPUT_DIR=/tmp` and the defaults of `MAX_BODY_SIZE`, `CLIENT_TIMEOUT` and `BACKEND_TIMEOUT`,
   and `/etc/nginx/conf.d` is in no `tmpfs`; without
   one, it has neither and its Dockerfile renders the templates at build.
-- `scripts/build-images.sh` passes `--platform "$PLATFORM"` and both `--build-arg`s, saves to
+- `scripts/build-images.sh` runs the project's env:check before its first
+  `docker` call and before it copies `deploy/prod.env.example`, passes `--platform "$PLATFORM"` and both `--build-arg`s, saves to
   `release/<APP_VERSION>/<project>-<APP_VERSION>.tar`, and puts
   `DEPLOY.md`, `<project>.env.example`, `openapi.yaml` (bundled when
   the contract is split) and `build/` beside it.
 - Every Dockerfile's final stage sets `APP_VERSION` and `CI_COMMIT_SHORT_SHA` from build arguments.
-- `documentation/deploy/deploy.md` agrees with `docker-compose.prod.yml`
-  and `.env.example`: containers, every variable per container with its
-  required and secret marks, ports, probes, volumes, the allowed
-  values of a variable that has a fixed set (`SECURE_MODE`: `plain` or
-  `secure`), and every file it names is one the release folder holds; its
-  card, «Для DBA», «Остановка» and «Безопасность пода» agree with the
-  build script, the Dockerfiles, the migrations, `roles.sql` and the
-  config layer — "The sync test" in `references/deploy-doc.md`.
+- `documentation/deploy/deploy.md` agrees with the schema (its variables
+  tables are env:doc's render), the kit file `deploy/prod.env.example` and
+  the test stand's kit containers — the services with a `build:` target:
+  containers, ports, probes, volumes, the allowed values of a variable that
+  has a fixed set (`SECURE_MODE`: `plain` or `secure`), and every file it
+  names is one the release folder holds; its card, «Для DBA», «Остановка» and
+  «Безопасность пода» agree with the build script, the Dockerfiles, the
+  migrations, `roles.sql` and the config layer — "The sync test" in
+  `references/deploy-doc.md`.
 - `.dockerignore` exists and holds `images.md` → `.dockerignore`: `.env`, `.env.*`, `docker-compose*.yml`,
-  `Dockerfile*`, `.git`, tests and keys (a build context that can see `.env.prod.local` or a `.pem` fails the
+  `Dockerfile*`, `.git`, tests and keys (a build context that can see `.env.dev.local` or a `.pem` fails the
   test), with no exception for `.env.example`.
 - `backend` in every compose file has a `healthcheck` that asks
   `/health/ready` through the runtime (`node`/`python`, not `wget`/`curl`) —
   it is what makes `up --wait` mean "the app can serve", not "the container
   started" — and a `stop_grace_period` of at least `SHUTDOWN_TIMEOUT_SEC` + 5 s.
-- `.env.example` contains every variable the config layer requires, and no
-  variable the config layer does not recognize — the two drift silently
-  otherwise, in either direction. Test pattern: "The `.env.example` sync
-  test" in `references/env-and-config-contract.md`.
+- The env tests of `env-and-config-contract.md` → The tests the project gets
+  with the generator — drift of the three rendered files, their layout, the
+  schema entries, the root `.env.example` listing exactly the `.local` keys,
+  no `environment:` value repeated in a `.local` list, each kit secret empty
+  or `<заглушка>`, `make build-images` stopping before Docker on a failed
+  env:check, `make .env.test.local` creating an empty 0600 file. The code is
+  `env-doc-typescript.md` or `env-doc-python.md`.
 - Setting the mock gate with `APP_ENV` other than `test` makes config
   loading fail (a config-layer test, not a compose check).

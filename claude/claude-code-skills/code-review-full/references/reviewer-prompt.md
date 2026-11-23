@@ -98,8 +98,12 @@ LENSES TO APPLY
     removing its last caller, is P1 superseded code; an entry older than this
     run is OPEN, not a finding.
   Stale docs — the run changed how the project is built, run, configured, or
-    called (new env var, command, port, endpoint) while a README,
-    `.env.example`, or doc that already exists still describes the old way.
+    called (new env var, command, port, endpoint) while a README or doc that
+    already exists still describes the old way. A new or changed env var is
+    an entry of the config schema, and the files env:doc renders from it
+    (the kit file, DEPLOY.md's tables, `.env.example`) are re-rendered, never
+    hand-edited: a variable outside the schema, or a failing env:check, is
+    a finding.
     Only docs that exist and this diff made wrong; missing docs nobody planned
     are not a finding. P2 for a small correction, P1 when the doc now leads to
     a launch that does not work. Contract documents too: each line of the

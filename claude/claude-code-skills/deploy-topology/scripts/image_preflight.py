@@ -131,7 +131,12 @@ class Stand:
         self.override: Path | None = None
 
     def compose(self, *args: str, timeout: int = 600) -> subprocess.CompletedProcess:
-        cmd = ["docker", "compose", "--project-directory", str(self.root), "-p", self.project, "-f", self.file]
+        cmd = ["docker", "compose", "--project-directory", str(self.root), "-p", self.project]
+        # The stand's own .local file, as `make up-test` passes it (docker-compose.test.yml -> .env.test.local).
+        stand_env = re.match(r"docker-compose\.([a-z]+)\.ya?ml$", Path(self.file).name)
+        if stand_env and (self.root / f".env.{stand_env.group(1)}.local").is_file():
+            cmd += ["--env-file", str(self.root / f".env.{stand_env.group(1)}.local")]
+        cmd += ["-f", self.file]
         if self.override:
             cmd += ["-f", str(self.override)]
         return run(cmd + list(args), timeout=timeout)

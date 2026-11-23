@@ -5,17 +5,20 @@ decide, so the stage closes on facts.
 
     python3 deploy_check.py [<project dir>] [--version <v>]
 
-  compose     docker-compose.{dev,test,prod}.yml all exist. In test and prod, every service built from the project
-              (`build:`) runs read_only, with /tmp as tmpfs, cap_drop ALL and no-new-privileges; `backend` has a
-              healthcheck on /health/ready; prod runs no local stateful service (Postgres, MySQL, Redis, MinIO, …).
+  compose     two stands: docker-compose.test.yml and docker-compose.dev.yml exist, docker-compose.prod.yml does not.
+              In test, every service built from the project (`build:`) runs read_only, with /tmp as tmpfs, cap_drop
+              ALL and no-new-privileges, and `backend` has a healthcheck on /health/ready. Every published port in
+              both files binds loopback; only dev may bind `${DEV_BIND:-127.0.0.1}`.
   images      every Dockerfile the compose files build: the stage they build ends with a numeric USER other than 0
               and sets APP_VERSION and CI_COMMIT_SHORT_SHA; a .dockerignore in the build context hides .env*,
               compose files, Dockerfiles, .git, tests and keys, and leaves no exception for .env.example.
   nginx       a client's nginx/: no <<…>> left, no `upstream` block, /etc/nginx/conf.d in no tmpfs of an image with a
               shell (rendered into /tmp).
   code        no switched-off TLS check in the project's source; no public CDN in a client's index.html.
-  env         every environment's variables file matches .env.example in names and order (env_files.py check):
-              built from the one template, never written by hand.
+  env         the project's own env:check passes — deploy/prod.env.example, deploy.md's variables tables and
+              .env.example equal the render of the config schema (npm run env:check, or scripts/env_doc.py
+              --check); no scripts/env_files.py, no up-prod / env / env-* make target; scripts/build-images.sh
+              runs env:check before its first docker call.
   release     release/<version>/ (the given version, else the newest) holds a .tar, DEPLOY.md, an .env.example,
               one openapi.yaml, build/ and scan/; every file name DEPLOY.md cites in backticks is in that folder;
               scripts/build-images.sh ends with the scan (scripts/trivy_images.py beside it) — a kit is never built
@@ -27,7 +30,10 @@ Standard library only.
 """
 from __future__ import annotations
 
+import json
 import re
+import shutil
+import subprocess
 import sys
 from pathlib import Path
 
@@ -79,12 +85,42 @@ def key_block(block: str, key: str) -> str:
     return "\n".join(lines)
 
 
+def published_ports(block: str) -> list[str]:
+    """Each entry of a service's `ports:` — the short form as written, the long form as `host_ip:published:target`."""
+    text = key_block(block, "ports")
+    out, long_form = [], {}
+    for line in text.splitlines():
+        item = line.strip()
+        short = re.match(r"^-\s*[\"']?([^\"'#]+?)[\"']?\s*(#.*)?$", item)
+        field = re.match(r"^-?\s*(target|published|host_ip|protocol|mode):\s*[\"']?([^\"'#\s]*)", item)
+        if field:
+            if item.startswith("-") and long_form:
+                out.append(f"{long_form.get('host_ip', '')}:{long_form.get('published', '')}:{long_form.get('target', '')}")
+                long_form = {}
+            long_form[field.group(1)] = field.group(2)
+        elif short:
+            out.append(short.group(1).strip())
+    if long_form:
+        out.append(f"{long_form.get('host_ip', '')}:{long_form.get('published', '')}:{long_form.get('target', '')}")
+    return out
+
+
+def loopback(port: str, stand: str) -> bool:
+    if port.startswith(("127.0.0.1:", "[::1]:", "::1:")):
+        return True
+    return stand == "dev" and port.startswith("${DEV_BIND:-127.0.0.1}:")
+
+
 def check_compose(root: Path, out: list) -> list[tuple[str, str, str]]:
     builds = []
-    for env in ("dev", "test", "prod"):
+    prod = root / "docker-compose.prod.yml"
+    if prod.exists():
+        out.append("docker-compose.prod.yml: прод в репозитории не запускается — стендов два (test, dev), прод "
+                   "передаётся комплектом; удалите файл (env-and-config-contract.md → Where each value lives)")
+    for env in ("dev", "test"):
         f = root / f"docker-compose.{env}.yml"
         if not f.exists():
-            out.append(f"{f.name}: нет файла — у проекта три compose-файла: dev, test, prod")
+            out.append(f"{f.name}: нет файла — у проекта два стенда: test и dev")
             continue
         svc = services(f.read_text(encoding="utf-8", errors="replace"))
         if not svc:
@@ -100,7 +136,11 @@ def check_compose(root: Path, out: list) -> list[tuple[str, str, str]]:
                 context = ctx.group(1) if ctx else (inline or ".")
                 builds.append((context, dockerfile.group(1) if dockerfile else "Dockerfile",
                                target.group(1) if target else ""))
-            if env in ("test", "prod") and build:
+            for port in published_ports(block):
+                if not loopback(port, env):
+                    out.append(f"{f.name}: сервис {name} — порт {port} открыт не на 127.0.0.1"
+                               + (" (в сеть сайт dev открывает только ${DEV_BIND:-127.0.0.1})" if env == "dev" else ""))
+            if env == "test" and build:
                 if not re.search(r"^\s*true\s*$", key_block(block, "read_only"), re.M) and "true" not in key_block(block, "read_only"):
                     out.append(f"{f.name}: сервис {name} — нет read_only: true")
                 if "/tmp" not in key_block(block, "tmpfs"):
@@ -111,13 +151,10 @@ def check_compose(root: Path, out: list) -> list[tuple[str, str, str]]:
                     out.append(f"{f.name}: сервис {name} — нет cap_drop: [ALL]")
                 if "no-new-privileges" not in key_block(block, "security_opt"):
                     out.append(f"{f.name}: сервис {name} — нет security_opt no-new-privileges")
-            if env in ("test", "prod") and name == "backend" and "/health/ready" not in key_block(block, "healthcheck"):
+            if env == "test" and name == "backend" and "/health/ready" not in key_block(block, "healthcheck"):
                 out.append(f"{f.name}: у backend нет healthcheck на /health/ready")
-            if env == "prod" and not build:
-                image = key_block(block, "image")
-                if STATEFUL.search(image):
-                    out.append(f"{f.name}: сервис {name} ({image.strip()}) — в prod нет локальных хранилищ, база и "
-                               "хранилище внешние")
+            if re.search(r"(?:path:\s*|env_file:\s*-?\s*)\.env\.example", key_block(block, "env_file")):
+                out.append(f"{f.name}: сервис {name} читает .env.example — это перечень для людей, не источник значений")
     return builds
 
 
@@ -244,6 +281,59 @@ def check_release(root: Path, version: str | None, out: list) -> None:
                 out.append(f"release/{v}/DEPLOY.md: называет `{n}`, а в папке релиза его нет")
 
 
+def env_check_command(root: Path) -> tuple[list[str], Path] | None:
+    """The project's env:check: the package script, or the Python generator with --check."""
+    for folder, cmd in ((root / "backend", ["npm", "--prefix", "backend", "run", "--silent", "env:check"]),
+                        (root, ["npm", "run", "--silent", "env:check"])):
+        manifest = folder / "package.json"
+        if manifest.exists():
+            try:
+                scripts = json.loads(manifest.read_text(encoding="utf-8")).get("scripts") or {}
+            except (ValueError, AttributeError):
+                scripts = {}
+            if "env:check" in scripts:
+                return cmd, root
+    for folder in (root / "backend", root):
+        if (folder / "scripts" / "env_doc.py").exists():
+            runner = ["uv", "run", "python"] if shutil.which("uv") else ["python3"]
+            return runner + ["scripts/env_doc.py", "--check"], folder
+    return None
+
+
+def check_env(root: Path, out: list) -> None:
+    if (root / "scripts" / "env_files.py").exists():
+        out.append("scripts/env_files.py: прежняя сборка файлов переменных — удалите; файлы собирает генератор "
+                   "проекта из схемы (env-and-config-contract.md → The generator)")
+    makefile = root / "Makefile"
+    if makefile.exists():
+        for target in re.findall(r"(?m)^(up-prod|env|env-test|env-dev|env-prod)\s*:", makefile.read_text(encoding="utf-8")):
+            out.append(f"Makefile: цель {target} — стендов два, файлы переменных руками или скриптом не собираются "
+                       "(compose-shape.md → Make/task-runner targets)")
+    build = root / "scripts" / "build-images.sh"
+    if build.exists():
+        lines = [l for l in build.read_text(encoding="utf-8", errors="replace").splitlines()
+                 if l.strip() and not l.lstrip().startswith("#")]
+        check = next((i for i, l in enumerate(lines) if "env:check" in l or "env_doc.py" in l and "--check" in l), None)
+        docker = next((i for i, l in enumerate(lines) if re.search(r"\bdocker\s", l)), None)
+        if check is None or (docker is not None and docker < check):
+            out.append("scripts/build-images.sh: env:check не запускается до первого docker — устаревший файл "
+                       "переменных уйдёт в комплект (images.md → Hand-over, пункт 0)")
+    command = env_check_command(root)
+    if command is None:
+        if (root / ".env.example").exists():
+            out.append("нет генератора переменных (env:check) — env-and-config-contract.md → The generator")
+        return
+    cmd, cwd = command
+    try:
+        run = subprocess.run(cmd, cwd=cwd, capture_output=True, text=True, timeout=300)
+    except (OSError, subprocess.TimeoutExpired) as err:
+        out.append(f"env:check не запустился ({' '.join(cmd)}): {err}")
+        return
+    if run.returncode != 0:
+        lines = [l.strip() for l in (run.stderr + run.stdout).splitlines() if l.strip()]
+        out += lines[:20] or [f"env:check: код {run.returncode} ({' '.join(cmd)})"]
+
+
 def main() -> None:
     args = sys.argv[1:]
     root = Path(next((a for a in args if not a.startswith("--") and Path(a).is_dir()), ".")).resolve()
@@ -254,11 +344,7 @@ def main() -> None:
     check_nginx(root, out)
     check_code(root, out)
     check_release(root, version, out)
-    if (root / ".env.example").exists():   # the variables files against their one template
-        import subprocess
-        env = subprocess.run([sys.executable, str(Path(__file__).with_name("env_files.py")), str(root), "check"],
-                             capture_output=True, text=True)
-        out += [l.lstrip("✗ ").strip() for l in env.stdout.splitlines() if l.startswith("✗")]
+    check_env(root, out)
     for line in out:
         print("✗", line)
     print(f"deploy_check: сборок {len(set(builds))}, проблем {len(out)}")

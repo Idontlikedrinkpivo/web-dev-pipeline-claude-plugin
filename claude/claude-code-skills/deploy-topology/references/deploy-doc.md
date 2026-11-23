@@ -9,8 +9,8 @@ Contents:
   версию; then probe
   timings, secrets and the files it may name.
 - The stand's proof (Step 7b) — the service check in the container, measuring resources.
-- The variables file — `<project>.env.example` for the operators.
-- The sync test — what keeps `deploy.md` true to the compose file, the images and the config layer.
+- The variables file — `deploy/prod.env.example`, rendered from the schema; `<project>.env.example` in the kit.
+- The sync test — what keeps `deploy.md` true to the test stand's kit containers, the images and the schema.
 
 Read this in Step 8 while writing `documentation/deploy/deploy.md`, in
 Step 7 while writing its sync test, and in Step 7b for the stand's proof
@@ -20,14 +20,16 @@ The operators receive one folder per release: the image archive,
 `DEPLOY.md`, the variables file `<project>.env.example`, the API contract
 `openapi.yaml`, `build/` (the Dockerfiles and `.dockerignore`), `scan/` (the
 scanner's reports), and `OPERATIONS.md` when the operations document exists.
-They do not receive `docker-compose.prod.yml` — they run the images in
-their own way (their compose, their orchestrator, their secrets store), so
-they need the facts, not this project's file. So `DEPLOY.md` names no file
-the folder does not hold: an operator told to fill `.env.prod.local` or to
-start `docker-compose.prod.yml` has neither. The
-compose file stays in the repo as the source those facts are taken from and
-as a way to run the prod shape locally; the sync test keeps the two from
-drifting.
+The repository has no prod compose file and no prod `.local` file: the
+operators run the images their own way (their orchestrator, their secrets
+store), so they need the facts written down. So `DEPLOY.md` names no file
+the folder does not hold and never mentions compose. The facts come from
+the test stand's kit containers — the services of `docker-compose.test.yml`
+built from the kit's Dockerfile targets, which run the kit's images with
+prod's hardening — the Dockerfiles and the config schema; the variables
+tables are rendered from the schema by the project's env:doc
+(`env-and-config-contract.md` → The generator), and the sync test keeps the
+rest from drifting.
 
 The sections answer a platform team's preflight for a service entering
 their cluster — non-root, probes, resources, dependencies, DBA facts, logs,
@@ -37,9 +39,9 @@ without asking.
 ## Where it lives
 
 - Source: `documentation/deploy/deploy.md`, in Russian, in git. **Unversioned**
-  (`doc-versioning` → Registry): it is derived from the compose file, the
-  Dockerfiles and the config layer, and the sync test — not a version
-  number — is what keeps it true. No `version`, no changelog, no `sources:`.
+  (`doc-versioning` → Registry): it is derived from the test stand's kit
+  containers, the Dockerfiles and the config schema, and env:check with the
+  sync test — not a version number — is what keeps it true. No `version`, no changelog, no `sources:`.
 - Hand-over copy: `scripts/build-images.sh` copies it to
   `release/<version>/DEPLOY.md` beside the archive, replacing the
   placeholders `<версия>` and `<тег>` with this build's version and image tag,
@@ -159,8 +161,14 @@ requests — обычное значение, округлённое вверх;
 
 ## Переменные
 
+Полный перечень с готовыми значениями — `<project>.env.example` из комплекта. Таблицы ниже и этот файл собраны из
+одного описания переменных.
+
 ### backend и migrate
 
+У `backend` и `migrate` свои значения `DATABASE_URL`: каждому контейнеру — свой секрет.
+
+<!-- env-doc:backend — сгенерировано из backend/src/shared/providers/env-schema.ts (npm run env:doc в backend/), руками не править -->
 | Переменная | Обязательна | Секрет | Пример / формат | Что задаёт |
 |---|---|---|---|---|
 | APP_ENV | да | нет | `prod` | окружение; без него приложение не стартует |
@@ -169,9 +177,11 @@ requests — обычное значение, округлённое вверх;
 | SHUTDOWN_TIMEOUT_SEC | нет | нет | `25` (секунды) | сколько `backend` после SIGTERM дожидается текущих запросов |
 | TRUSTED_PROXIES | нет | нет | `10.0.0.0/8`; пусто — не доверять никому | сети прокси, чьим `X-Forwarded-*` верит `backend`: сеть подов `frontend` и внешнего прокси |
 | … | | | | |
+<!-- /env-doc:backend -->
 
 ### frontend
 
+<!-- env-doc:frontend — сгенерировано из backend/src/shared/providers/env-schema.ts (npm run env:doc в backend/), руками не править -->
 | Переменная | Обязательна | Секрет | Пример / формат | Что задаёт |
 |---|---|---|---|---|
 | BACKEND_SERVICE | да | нет | `backend.<namespace>.svc.cluster.local:3000` | адрес бэкенда; в кластере — полное DNS-имя: короткое nginx не найдёт |
@@ -182,6 +192,7 @@ requests — обычное значение, округлённое вверх;
 | CLIENT_TIMEOUT | нет | нет | `600s`; по умолчанию из требований | сколько nginx ждёт клиента между чтением и записью |
 | BACKEND_TIMEOUT | нет | нет | `600s`; по умолчанию из требований | сколько nginx ждёт бэкенд. Таймауты вашего ingress — не меньше |
 | SECURE_MODE | да | нет | `plain` или `secure` | `plain` — HTTP, TLS на прокси эксплуатации; `secure` — TLS в самом контейнере, сертификаты в `/etc/nginx/ssl/`. Другое значение — nginx не стартует |
+<!-- /env-doc:frontend -->
 
 ## Внешние зависимости
 
@@ -307,33 +318,46 @@ ALTER DEFAULT PRIVILEGES FOR ROLE <schema>_migrate IN SCHEMA <schema>
 - не проходит проверка после обновления: <ключевой сценарий выпуска, одной строкой>.
 ````
 
-Where each section comes from:
+Where each section comes from. «The test stand's kit containers» are the services of `docker-compose.test.yml`
+built from a target of the kit's Dockerfiles (`backend`, `migrate`, `frontend`, a worker) — not its local stores or
+stubs:
 
 | Section | Source |
 |---|---|
 | Комплект | what `scripts/build-images.sh` puts in the release folder: the tar, `DEPLOY.md`, `<project>.env.example`, `openapi.yaml`, and `OPERATIONS.md` only when `documentation/operations/operations.md` exists |
 | Карточка сервиса | the sections below, one line each; «Архитектура» — `PLATFORM` in the build script; «Образ» — the project's answer (`images.md` → Shell or no shell); «Пользователь» — each image's numeric `USER` |
-| Контейнеры | `docker-compose.prod.yml` services, the Dockerfiles' `CMD`, the migrate command |
-| Порядок запуска | `depends_on` conditions in `docker-compose.prod.yml` |
+| Контейнеры | the test stand's kit containers, the Dockerfiles' `CMD`, the migrate command |
+| Порядок запуска | the `depends_on` conditions among the test stand's kit containers |
 | Сеть и проверки | the container ports, the published port, the service endpoints; timings by the rules below; a startup row from «Ресурсы»' time to ready. No client: the backend is the entry, so the section says to publish only the `/api/` prefix in the ingress, never `/health/*` and `/metrics` |
 | Ресурсы | the measurement in Step 7b (below); the load profile from the SRS NFRs, or «в требованиях не задан»; a Node backend's `NODE_OPTIONS` from the memory limit |
 | Масштабирование | the process count variable and the peak memory ÷ processes from «Ресурсы»; state kept in the process and one-instance components from the architecture's «Решения по NFR». Anything held in the process (a limit counter, a lock, a cache) means «одна реплика» with the reason. A one-instance component is named with its lock (`pg_advisory_lock`, a Redis lock) |
-| Переменные | each service's `environment:` / `env_file` in `docker-compose.prod.yml`, and `.env.example`'s markers for required / secret (`env-and-config-contract.md` → Markers in `.env.example`); `[infra]` keys never appear |
-| Внешние зависимости | what `docker-compose.prod.yml` points outside itself, each with the variable that holds its address; the external systems of architecture foundation §1 as outgoing rows, every outgoing connection named; versions from the architecture |
+| Переменные | the config schema, rendered between the `env-doc` markers by the project's env:doc (`env-and-config-contract.md` → One description per variable); compose-only variables of the stands (`DEV_BIND`, the stands' own store passwords) never appear |
+| Внешние зависимости | what the backend's schema addresses outside the pod — the database, the object store, each third-party API — each with the variable that holds its address; the external systems of architecture foundation §1 as outgoing rows, every outgoing connection named; versions from the architecture |
 | Для DBA | `schema.md` «Решения по базе» (DBMS and major, schema, collation); `CREATE EXTENSION` in `documentation/db/migrations/`; the grants of `docker/db-init/roles.sql`, the database grant written with `<база>`; the pool size the config layer sets |
 | Логи | the fields the app's JSON formatter writes; nginx's `json_combined` |
 | Метрики | `/metrics`, the request histogram, the stack's default process metrics |
 | Остановка | `SHUTDOWN_TIMEOUT_SEC`'s default in the config layer; the frontend image's stop signal (`docker image inspect --format '{{.Config.StopSignal}}'`) |
-| Безопасность пода | each Dockerfile's `USER`; each app service's `tmpfs:` paths in `docker-compose.prod.yml` |
+| Безопасность пода | each Dockerfile's `USER`; the `tmpfs:` paths of the test stand's kit containers |
 | Трассировка | «Нет.», or the `OTEL_` variables when the project chose tracing |
-| Состояние и тома | `volumes:` in `docker-compose.prod.yml` |
+| Состояние и тома | the writable `volumes:` of the test stand's kit containers (a read-only fixture mount is the stand's, not the pod's) |
 | Первый запуск | the architecture or SRS (how the first admin or seed data appears), through variables from a Secret, never a default in code or config; ask the user when neither says |
 | Сборка образа | `PLATFORM` and the Dockerfiles from the build script; one command per image |
 | Обновление | fixed text above, with the project's names; «Когда откатывать»: the readiness wait from «Сеть и проверки», the 5xx share and the key scenario from the SRS NFRs and this release's main change — when the NFRs give no threshold, ask the user once; never left as a placeholder |
 
+**The variables tables are rendered, never typed.** Each sits between
+`<!-- env-doc:<table> — сгенерировано из <schema path> (<command>), руками не править -->` and
+`<!-- /env-doc:<table> -->`, one pair per table (`backend` for the backend and migrate blocks, `frontend` for the
+frontend image's); the project's env:doc writes the rows from the schema — the TypeScript and Python commands and
+the marker text are in `env-and-config-contract.md` → The generator — and env:check fails on a hand edit. In this
+template the rows show the shape only. Write the headings, the pairs and any line outside them (the two
+`DATABASE_URL` values, the pointer to the kit file) by hand; then run env:doc. A new variable is a new schema entry,
+never a new row here.
+
 The image without a shell changes three places: «Образ» says «без
 оболочки (distroless)», the UIDs are 65532, and the frontend reads no
-variables — its table says «Переменных нет: что зависит от среды, задаётся смонтированным файлом» and the network
+variables — the schema has no frontend entries and the generator's `DOC_TABLES` no `frontend` table, so there is
+no `frontend` marker pair: its heading holds the line
+«Переменных нет: что зависит от среды, задаётся смонтированным файлом» and the network
 section gives that file, to mount at `/etc/nginx/conf.d/upstream.conf` (`images.md` → Frontend image — without a
 shell):
 
@@ -373,11 +397,11 @@ the image's nginx includes `${SECURE_MODE}.conf` and has only those two
 `<project>.env.example`, `openapi.yaml`, `OPERATIONS.md`, or a file a
 numbered step of the document itself tells the operator to create
 («создайте файл с переменными по образцу `<project>.env.example`»).
-Never a file of the repository — `docker-compose.*.yml`, `.env.example`,
-`.env.*.local`, `roles.sql`, a script. A file the operator creates is named
+Never a file of the repository — a compose file, the root `.env.example`,
+a stand's `.local` file, `roles.sql`, a script — and never the word compose. A file the operator creates is named
 on a line with «создайте», which the build script's check skips; a path
 inside a container (`/etc/nginx/ssl/`) holds a `/` and is not checked; and
-only names with a known extension count as files (sync test, item 9).
+only names with a known extension count as files (sync test, item 7).
 
 ## The stand's proof (Step 7b)
 
@@ -540,127 +564,99 @@ with the card's «Ресурсы» row the same.
 
 ## The variables file
 
-`documentation/deploy/prod.env.example`, in git beside `deploy.md`,
-unversioned like it; `scripts/build-images.sh` copies it into the release
-folder as `<project>.env.example`. It is what the operator fills — or copies
-into their secrets store — so it holds the prod variables only, in the template's order with its comment lines
-(the container named in each), built by `scripts/env_files.py . build` from `.env.example` — never by hand:
+`deploy/prod.env.example`, in git, unversioned like `deploy.md`: every variable prod reads, for the operator to fill
+— or copy into their secrets store. The project's env:doc renders it from the config schema
+(`env-and-config-contract.md` → The generator), never by hand; `scripts/build-images.sh` runs env:check first and
+then copies it into the release folder as `<project>.env.example`. The layout is
+`env-and-config-contract.md` → The layout of both files — a block per schema block, the marker line right above each
+`NAME=value`, pairs split by a blank line:
 
 ```bash
-# [required] [secret] backend — учётка backend (только данные). Формат: postgres://user:***@host:5432/db
-DATABASE_URL=
-# у migrate свой DATABASE_URL: учётка migrate (владелец схемы, право CREATE на базу), тот же формат
-# backend, migrate — подробность логов: trace | debug | info | warn | error | fatal
+# ===== backend и migrate =====
+
+# [required] среда приложения: test, dev или prod
+APP_ENV=prod
+
+# [required] [secret] подключение к PostgreSQL; у migrate и backend свои учётки
+DATABASE_URL=postgresql://<пользователь>:<пароль>@<хост>:5432/<база>?options=-csearch_path%3D<схема>
+
+# подробность логов: trace, debug, info, warn, error, fatal
 LOG_LEVEL=info
-# [required] frontend — plain | secure
+
+# ===== frontend =====
+
+# [required] plain — HTTP на 8080; secure — TLS на самом поде
 SECURE_MODE=plain
 ```
 
-The markers are `.env.example`'s (`env-and-config-contract.md` → Markers
-in `.env.example`): `[required]` and `[secret]` where they apply, nothing
-for an optional plain value.
-
-No real value of a secret; a non-secret value is prod's from the template's map. Not
-the repository's `.env.example`, which documents test, dev and prod together
-and is the source every environment's file is built from.
+The value is the schema entry's `prod`; a secret is empty or a `<заглушка>`, never a real value. It is not the root
+`.env.example`, which lists only what the stands' `.local` files may hold, in the same layout.
 
 ## The sync test
 
-Part of the compose-contract tests (Step 7), in the project's own test
-runner. Parse `docker-compose.prod.yml`, `.env.example`, the Dockerfiles and
-`scripts/build-images.sh`, parse the tables of
-`documentation/deploy/deploy.md` (they are plain Markdown tables with fixed
-headers — split rows on `|`), and assert:
+Part of the compose-contract tests (Step 7), in the project's own test runner. What the schema already renders — the
+variables per container, «Обязательна» and «Секрет», the names of the kit file — is not compared here: env:check and
+the drift test (`env-doc.test.ts`, `test_env_doc.py`; `env-and-config-contract.md` → The tests) hold those. This test
+parses the test stand's kit containers (the services of `docker-compose.test.yml` built from a target of the kit's
+Dockerfiles), both compose files, the kit file `deploy/prod.env.example`, the schema, the Dockerfiles and
+`scripts/build-images.sh`, parses the tables of `documentation/deploy/deploy.md` (plain Markdown tables with fixed
+headers — split rows on `|`), and asserts:
 
-1. **Sections.** Every `##` section of the template above is present, and
-   «Карточка сервиса» is the first.
-2. **Containers.** The set of services in the prod compose file equals the
-   set of rows in «Контейнеры».
-3. **Variables.** A «Переменные» table covers the containers its heading
-   names («backend и migrate» covers two). Its names equal the union, over
-   those containers, of what the prod compose file gives each: the keys of
-   `environment:`, and — for a service with `env_file` — every key of
-   `.env.example` not marked `[infra]`. A variable missing from the
-   document, or a row the compose file no longer backs, fails. `[infra]`
-   keys (the local stores' `POSTGRES_PASSWORD`, the S3 emulator's `AWS_*`)
-   are in no table. A container with none has the «Переменных нет» line
-   under its heading.
-4. **Required and secret.** A row's «Обязательна» is «да» exactly when the
-   variable's comment line in `.env.example` carries `[required]`, and
-   «Секрет» exactly when it carries `[secret]` — the one marker format of
-   `env-and-config-contract.md` → Markers in `.env.example`.
-5. **Probes.** Each long-running service with an HTTP port has a liveness and a readiness row
-   on its container port, and a worker without one a liveness row naming its check; `backend`'s paths are `/health/live` and
-   `/health/ready`, and its readiness timeout is above 2 s; the path the
-   compose `healthcheck` asks is the readiness row's. A startup row exists
-   exactly when «Ресурсы»' time to ready exceeds 10 s, and then its
-   threshold × period is at least twice that time.
-6. **Volumes.** No `volumes:` in the prod compose file ⇔ the «Состояние и
-   тома» section says there are none.
-7. **Allowed values.** For a variable with a fixed set — `SECURE_MODE`
-   (`plain`, `secure`), `APP_ENV`, `LOG_LEVEL`, a protocol — the value in
-   every compose file and in `prod.env.example`, and each value in its
-   «Пример / формат» cell, belongs to the set the config layer or the image
-   accepts.
-8. **The variables file.** The names in `prod.env.example` equal the union
-   of the «Переменные» tables, with the same «Обязательна» and «Секрет» marks.
-9. **Named files.** A file name is a backtick span with no space or `/`
-   ending in a known extension — `.tar .md .yaml .yml .example .pem .crt
-   .key .sql .json .txt .env .local`; a logger name (`<project>.migrate`), a
-   field (`res.statusCode`) or `schema.table` is not one. Every file name in
-   `deploy.md` is one of the
-   bundle's — the tar, `DEPLOY.md`, `<project>.env.example`,
-   `openapi.yaml`, `OPERATIONS.md` — or is created by a numbered step of
-   the document; a repository file (`docker-compose.*`, `.env.example`,
-   `.env.*.local`) fails. And the «Комплект» line names every file the build
-   script puts in the folder — `DEPLOY.md` as «этот файл», `openapi.yaml`
-   included, `OPERATIONS.md` when `documentation/operations/operations.md`
-   exists.
-10. **Card.** «Архитектура» equals `PLATFORM` in `scripts/build-images.sh`;
-    «Образ» says «без оболочки» exactly when the final `FROM` of the
-    Dockerfiles is a shell-less base; every UID in «Пользователь» and every
-    `runAsUser` in «Безопасность пода» equals that container's Dockerfile
-    `USER`.
-11. **Pod security.** Every `tmpfs:` path of an app service in the prod
-    compose file is a write path of that container in «Безопасность пода».
-12. **Resources.** «Ресурсы» has a row per long-running app container with
-    the requests and the memory limit filled and a date line — or it reads
-    «Не замерено», and so does the card's row.
-13. **Dependencies.** Each variable in «Адрес в переменной» is in the
-    «Переменные» table of a container its «Направление» names.
-14. **DBA.** The PostgreSQL major equals the major of the database image in
-    `docker-compose.test.yml`; the schema equals the `search_path` of the
-    `migrate` service's `DATABASE_URL` in `docker-compose.test.yml`
-    (`.env.example` holds that value empty); every `CREATE EXTENSION` in
-    `documentation/db/migrations/*.sql` is named in «Расширения» (or the row
-    says «нет» and there is none); every `GRANT` and `ALTER DEFAULT
-    PRIVILEGES` statement of `docker/db-init/roles.sql` is in the section's
-    SQL, whitespace aside — the database grant, which `roles.sql` builds
-    with `format('%I', current_database())`, as `GRANT CREATE ON DATABASE
-    <база> TO <migrate account>`; and `roles.sql` creates the migrate
-    account itself, so neither app container connects as the database
-    image's superuser (`POSTGRES_USER` in `docker-compose.test.yml` is in
-    no app service's `DATABASE_URL`).
-15. **Stop.** «Остановка» names `SHUTDOWN_TIMEOUT_SEC` with the config
-    layer's default and recommends a `terminationGracePeriodSeconds` at
-    least 5 s above it; `backend`'s `stop_grace_period` in the prod compose
-    file is at least as long.
-16. **Tracing.** «Трассировка» says «Нет.» exactly when `.env.example` has
-    no `OTEL_` variable.
-17. **Scaling.** «Масштабирование» has a row per long-running app container with a filled «Реплик» and «Почему
+1. **Sections.** Every `##` section of the template above is present, and «Карточка сервиса» is the first; the
+   document never mentions compose.
+2. **Containers.** The test stand's kit containers equal the rows of «Контейнеры».
+3. **Variables tables.** Each «Переменные» table sits between its `env-doc` marker pair, and a container with no
+   variables has the «Переменных нет» line under its heading.
+4. **Probes.** Each long-running service with an HTTP port has a liveness and a readiness row on its container port,
+   and a worker without one a liveness row naming its check; `backend`'s paths are `/health/live` and
+   `/health/ready`, and its readiness timeout is above 2 s; the path the test stand's `healthcheck` asks is the
+   readiness row's. A startup row exists exactly when «Ресурсы»' time to ready exceeds 10 s, and then its threshold ×
+   period is at least twice that time.
+5. **Volumes.** No writable `volumes:` on the test stand's kit containers ⇔ the «Состояние и тома» section says
+   there are none.
+6. **Allowed values.** For a variable with a fixed set — `SECURE_MODE` (`plain`, `secure`), `APP_ENV`, `LOG_LEVEL`,
+   a protocol — the value in both compose files and in the kit file, and each value in its «Пример / формат» cell,
+   belongs to the set the schema or the image accepts.
+7. **Named files.** A file name is a backtick span with no space or `/` ending in a known extension — `.tar .md
+   .yaml .yml .example .pem .crt .key .sql .json .txt .env .local`; a logger name (`<project>.migrate`), a field
+   (`res.statusCode`) or `schema.table` is not one. Every file name in `deploy.md` is one of the bundle's — the tar,
+   `DEPLOY.md`, `<project>.env.example`, `openapi.yaml`, `OPERATIONS.md` — or is created by a numbered step of the
+   document; a repository file (a compose file, the root `.env.example`, a stand's `.local` file) fails. And the
+   «Комплект» line names every file the build script puts in the folder — `DEPLOY.md` as «этот файл», `openapi.yaml`
+   included, `OPERATIONS.md` when `documentation/operations/operations.md` exists.
+8. **Card.** «Архитектура» equals `PLATFORM` in `scripts/build-images.sh`; «Образ» says «без оболочки» exactly when
+   the final `FROM` of the Dockerfiles is a shell-less base; every UID in «Пользователь» and every `runAsUser` in
+   «Безопасность пода» equals that container's Dockerfile `USER`.
+9. **Pod security.** Every `tmpfs:` path of a test stand's kit container is a write path of that container in
+   «Безопасность пода».
+10. **Resources.** «Ресурсы» has a row per long-running app container with the requests and the memory limit filled
+    and a date line — or it reads «Не замерено», and so does the card's row.
+11. **Dependencies.** Each variable in «Адрес в переменной» is a schema entry, in the «Переменные» table of a
+    container its «Направление» names.
+12. **DBA.** The PostgreSQL major equals the major of the database image in `docker-compose.test.yml`; the schema
+    equals the `search_path` of the `migrate` service's `DATABASE_URL` in `docker-compose.test.yml` and of the kit
+    file's `DATABASE_URL`; every `CREATE EXTENSION` in `documentation/db/migrations/*.sql` is named in «Расширения»
+    (or the row says «нет» and there is none); every `GRANT` and `ALTER DEFAULT PRIVILEGES` statement of
+    `docker/db-init/roles.sql` is in the section's SQL, whitespace aside — the database grant, which `roles.sql`
+    builds with `format('%I', current_database())`, as `GRANT CREATE ON DATABASE <база> TO <migrate account>`; and
+    `roles.sql` creates the migrate account itself, so neither app container connects as the database image's
+    superuser (`POSTGRES_USER` in `docker-compose.test.yml` is in no app service's `DATABASE_URL`).
+13. **Stop.** «Остановка» names `SHUTDOWN_TIMEOUT_SEC` with the schema's default and recommends a
+    `terminationGracePeriodSeconds` at least 5 s above it; `backend`'s `stop_grace_period` on the test stand is at
+    least as long.
+14. **Tracing.** «Трассировка» says «Нет.» exactly when the schema has no `OTEL_` entry.
+15. **Scaling.** «Масштабирование» has a row per long-running app container with a filled «Реплик» and «Почему
     так», and the card's row agrees with it.
-18. **Node memory.** For a Node backend, `NODE_OPTIONS` in `docker-compose.prod.yml` holds a
-    `--max-old-space-size` at most 80% of «Ресурсы»' memory limit.
+16. **Node memory.** For a Node backend, `NODE_OPTIONS` of the test stand's `backend` holds a `--max-old-space-size`
+    at most 80% of «Ресурсы»' memory limit.
 
-The failure message names the file to fix: «deploy.md: переменная
-S3_BUCKET у backend есть в docker-compose.prod.yml, но нет в таблице
-"Переменные"», «deploy.md: SECURE_MODE = false, допустимо plain или secure»,
-«deploy.md: файл docker-compose.prod.yml в комплект не входит»,
-«deploy.md: runAsUser backend 0, в Dockerfile USER 1000».
+The failure message names the file to fix: «deploy.md: контейнер worker есть в docker-compose.test.yml, но нет в
+таблице "Контейнеры"», «deploy.md: SECURE_MODE = false, допустимо plain или secure», «deploy.md: файл
+docker-compose.prod.yml в комплект не входит», «deploy.md: runAsUser backend 0, в Dockerfile USER 1000».
 
 The test reads the document; whether the built folder really holds the
 files is checked at build time — `scripts/build-images.sh` ends by looking
 up each file `DEPLOY.md` names in `release/<version>/` and fails naming the
-one that is missing. Someone who adds a variable, changes a port or a
-`USER`, or adds an extension and forgets the document then finds out in CI,
-not from the operators.
+one that is missing. Someone who adds a variable and forgets env:doc, or
+changes a port or a `USER`, or adds an extension and forgets the document,
+then finds out in CI, not from the operators.

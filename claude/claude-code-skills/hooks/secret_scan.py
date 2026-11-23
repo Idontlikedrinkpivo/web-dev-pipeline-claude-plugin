@@ -53,8 +53,8 @@ def main() -> None:
     note = ("dev-pipeline: the user's message contains what looks like a secret (" + names + "; the values are not "
             "repeated here). Never repeat, quote or store the value — not in a document, an agent's packet, a commit, "
             "a progress file, a command you run or your reply. Refer to it by its variable name; where the project "
-            "needs it, `.env.example` gets the name with an empty value and the user writes the value into the "
-            "git-ignored `.env` themselves. Tell the user in one plain Russian line that the value was not saved, and "
+            "needs it, the config schema gets an entry marked secret (env:doc then lists the name, empty, in "
+            "`.env.example`) and the user writes the value into the git-ignored `.env.<stand>.local` themselves. Tell the user in one plain Russian line that the value was not saved, and "
             "that it is worth revoking and issuing a new one, since it has been in the chat (pipeline → Secrets). "
             "Then go on with what they asked.")
     print(json.dumps({"hookSpecificOutput": {"hookEventName": "UserPromptSubmit", "additionalContext": note}},

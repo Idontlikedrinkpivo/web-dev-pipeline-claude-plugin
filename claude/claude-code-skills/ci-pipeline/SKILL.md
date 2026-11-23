@@ -179,10 +179,13 @@ adding the tool is the quality gates' work, not CI's. Say so in the
 report and name the fix — `/dev-pipeline:upgrade-code` (its quality-gates
 change) or the gate in the next plan.
 
-`make test` (or its equivalent) already includes the compose-contract tests
-and the `.env.example`-sync test from `deploy-topology`, because those live
-in the project's own test suite — do not add a separate CI step for them and
-do not scope the test runner's invocation to exclude the file they live in.
+`make test` (or its equivalent) already includes the compose-contract tests, the deploy document's sync test and
+the env-doc tests from `deploy-topology`, because those live in the project's own test suite — do not add a separate
+CI step for them and do not scope the test runner's invocation to exclude the file they live in. The env-doc test runs
+the project's env:check (the kit file, DEPLOY.md's tables and `.env.example` equal the render of the config schema —
+`deploy-topology` → `references/env-and-config-contract.md`); a project with the generator but without that test gets
+env:check as a step of the backend job, after the install: `npm run env:check` in `backend/`, or
+`uv run python scripts/env_doc.py --check`.
 
 **Browser e2e** (a frontend with a `test:e2e` target — `repo-scaffold`,
 `frontend`): add it as its own job, `e2e`, that installs the browsers the

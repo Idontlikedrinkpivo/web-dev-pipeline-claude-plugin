@@ -109,8 +109,9 @@ and again when you judge the findings (Step 4).
   it, whoever wrote the original: an earlier unit's approach a later unit
   replaced (a duplicate validator, an old code path), or a scaffold stub a
   unit's real implementation now shadows.
-- **Stale docs** — an existing README, `.env.example`, or doc this diff made
-  wrong; a changed decision from the run report's «Изменённые решения» that
+- **Stale docs** — an existing README or doc this diff made
+  wrong; a new or changed variable that is not a config-schema entry, or whose generated files (the kit file,
+  DEPLOY.md's tables, `.env.example`) were hand-edited instead of re-rendered by env:doc (env:check fails); a changed decision from the run report's «Изменённые решения» that
   did not land in its documents; code that departs from a contract document
   with no such line behind it.
 - **Code health** — every row of the «Здоровье кода» table at HEAD against

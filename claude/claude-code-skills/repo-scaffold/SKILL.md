@@ -19,10 +19,10 @@ domain or application logic.
 - Choosing or re-opening the stack — that was decided in architecture
 - Entities, use cases, controllers that implement OpenAPI, UI
 - Production CI/CD, Kubernetes, a secrets manager
-- The full test/dev/prod compose topology with mocked externals and an
-  externally managed prod database — this skill's compose, if any, is a
-  single dev-shaped convenience file; `deploy-topology` builds the three-
-  environment shape once there is real application code to wrap
+- The two stands (test with mocked externals, dev) and the release kit for
+  prod — this skill's compose, if any, is a single dev-shaped convenience
+  file; `deploy-topology` grows it into the two stands once there is real
+  application code to wrap
 - Rewriting a repo that already has application code — see the
   Already-a-repo gate below
 
@@ -78,7 +78,7 @@ would get neither folders nor a lint contract.
   contract, a new go-arch-lint component, a new ArchUnit / NetArchTest
   rule). Do not rewrite existing rules.
 - Touch nothing else except the manifest (a dependency the new §1 Стек
-  names), `.env.example` (new names only), and
+  names), the config schema (new entries only, then env:doc re-renders `.env.example`), and
   `documentation/project-map/project-map.md`.
 - A §5 change that renames, moves, or deletes an existing folder is not
   scaffold work — it moves live code. Stop and name `plan`.
@@ -159,14 +159,17 @@ in Make target names: `lint:boundaries` breaks Make.
 
 ## 4. Local run and schema
 
-`.env.example` lists every variable of foundation §4 «Конфигурация»
-(names and a comment, never values), plus `TEST_DATABASE_URL` when the
-system stores data — the host tests' own database, required, no default
-(`work` → `references/run-hygiene.md`). No `.env` committed, no values
-invented. `LOG_LEVEL` and `SHUTDOWN_TIMEOUT_SEC` are always there —
-optional, their defaults (`info`, `25`) named in the comment — because
-every service reads them (section 5); a §4 table without them gets the two
-rows as a changed decision (section 2).
+Every variable of foundation §4 «Конфигурация» is described once — an entry of the config schema
+(`deploy-topology` → `references/env-and-config-contract.md`): its own module beside config (`env-schema.ts`,
+`env_schema.py`), config parses the environment from it and re-exports it. With it come the project's generator
+(`backend/scripts/env-doc.ts` with `npm run env:doc` / `env:check`, or `scripts/env_doc.py`), its tests and the
+root `.env.example` it renders — templates in `deploy-topology` → `references/env-doc-typescript.md`,
+`env-doc-python.md`; the kit file and DEPLOY.md's tables join the render when `deploy-topology` adds them.
+`.env.example` is never written by hand. The linters, the type check and knip cover `scripts/**`.
+`TEST_DATABASE_URL` is an entry when the system stores data — the host tests' own database, required, no default
+(`work` → `references/run-hygiene.md`). No `.env*.local` committed, no values invented. `LOG_LEVEL` and
+`SHUTDOWN_TIMEOUT_SEC` are always entries — optional, defaults `info` and `25` — because every service reads them
+(section 5); a §4 table without them gets the two rows as a changed decision (section 2).
 
 `.gitignore` carries, from the first commit, the lines for this machine's files in `documentation/plans/` —
 the ones `pipeline/scripts/open_iteration.py` writes; the plans, reviews, progress files, reports and summaries
@@ -176,9 +179,9 @@ themselves are in git (`pipeline/references/service-version.md` → The iteratio
 database service of the DBMS and major `schema.md` «Решения по базе» names
 — PostgreSQL or MySQL, the image at that major — and nothing else unless
 §1 Стек / §5 «Локальный запуск» named it,
-documented port, variable names in `.env.example`; values in a gitignored
+documented port, its non-secret values in `environment:`; secrets and per-machine values in a gitignored
 `.env.dev.local`, read via `env_file` (the file `deploy-topology` keeps when
-it renames this compose to `docker-compose.dev.yml`). `work` runs the
+it renames this compose to `docker-compose.dev.yml`, one of the two stands). `work` runs the
 integration tests against this database, so it exists before the first
 unit, not after `deploy-topology`. The `test` target documents how to start
 it (`docker compose up -d`) when a test needs it. Write it ready for
@@ -309,7 +312,7 @@ sources:
 - проверки: `GET /health/live` → 200; `GET /health/ready` → 200 (503, пока нет базы); метрики — `GET /metrics`
 - остановка: SIGTERM, не дольше `SHUTDOWN_TIMEOUT_SEC` (25 с)
 - compose: <файл или «нет»>
-- секреты: `.env.example` (имена, не значения)
+- переменные: каждая описана один раз — в схеме `<path>`; env:doc собирает из неё `.env.example` (что может лежать в `.local`, без значений)
 
 ## Где код
 
@@ -370,7 +373,7 @@ The one final check. Items 1–3 skip on a map-only run.
       expects exit 0 within `SHUTDOWN_TIMEOUT_SEC` + 5 s. Without a
       database `/health/ready` answers 503 and passes. Each `FAIL` is a
       section 5 defect to fix, not an environment quirk.
-   2. `.env.example` (with `LOG_LEVEL` and `SHUTDOWN_TIMEOUT_SEC`),
+   2. The schema (with `LOG_LEVEL` and `SHUTDOWN_TIMEOUT_SEC`), env:check passing,
       compose, and the migration runner match section 4; the runner reads
       `documentation/db/migrations/` and nothing in the code tree holds a
       copy of a migration file.

@@ -472,8 +472,8 @@ Binding on every stage. A key, token, password or connection string never
 enters the pipeline's files — no document, agent packet, commit, progress
 file, command line or reply. Ask *which* provider and *whether* an account
 exists, never for the value. Name it by its variable (`FIGMA_TOKEN`,
-`DATABASE_URL`): `.env.example` holds the name with an empty value, and the
-user writes the value into the git-ignored `.env` themselves. When the user
+`DATABASE_URL`): the config schema marks it secret, env:doc lists it empty, and the
+user writes the value into the git-ignored `.env.<stand>.local` themselves. When the user
 pastes one anyway — `hooks/secret-in-prompt.sh` names its kind, never the
 value — say in one line that it was not saved and is worth revoking, since
 it has been in the chat; the user's words around it go on as usual. A

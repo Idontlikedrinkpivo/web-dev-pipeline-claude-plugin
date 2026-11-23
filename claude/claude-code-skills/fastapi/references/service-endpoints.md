@@ -235,7 +235,7 @@ if __name__ == "__main__":
 
 - `Settings` holds `trusted_proxies: str = ""` (`TRUSTED_PROXIES`, networks separated by commas), `app_version: str =
   "dev"` (`APP_VERSION`) and `commit_sha: str = Field("unknown", validation_alias="CI_COMMIT_SHORT_SHA")`. The last two
-  come from the image and are not in `.env.example`.
+  come from the image and carry no env description (not in the kit file or `.env.example`).
 - Not `fastapi run`: it installs its own log format and passes no graceful-shutdown timeout to uvicorn
   (`version-checks.md`). `fastapi dev` stays the local run.
 - On SIGTERM uvicorn stops accepting, finishes the in-flight requests within `SHUTDOWN_TIMEOUT_SEC`, runs the
@@ -252,7 +252,8 @@ log_level: Literal["debug", "info", "warning", "error"] = "info"  # LOG_LEVEL
 shutdown_timeout_sec: PositiveInt = 25  # SHUTDOWN_TIMEOUT_SEC — under Kubernetes' default 30 s grace period
 ```
 
-Both are optional and listed in `.env.example` with their defaults in the comment.
+Both are optional; each field also carries its description (`json_schema_extra=env_doc(...)`, `deploy-topology` →
+`references/env-doc-python.md`), so env:doc lists them in the kit file and DEPLOY.md with their defaults.
 
 ## The check
 
